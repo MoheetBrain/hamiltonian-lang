@@ -1,0 +1,54 @@
+{
+  "answer": {
+    "justification": "A and B are conditionally independent GIVEN Z, but marginally dependent, because both carry information about Z.",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": false
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "hard",
+  "distractors": [
+    "reading 'errors are independent' as 'A and B are independent'"
+  ],
+  "domain": "probability",
+  "generator": "_prob_conditional_independence",
+  "id": "p07_conditional_independence",
+  "information_asymmetry": [],
+  "prose": "Two sensors A and B each measure the same underlying temperature Z, and their measurement errors are independent of one another. Nothing else influences either reading.",
+  "question": "Are A and B unconditionally independent of each other? Answer TRUE or FALSE.",
+  "reference_hml": "module SensorPair\n\n# Z is the latent temperature. It is declared as a\n# param, not an rv: v0 has no subtyping path from RandomVariable[Real] to\n# Real, so a random variable cannot fill a `location` role. See the\n# expressiveness note in docs/evaluation/PRE_EVALUATION_AUDIT.md.\nparam Z : Real\nrv A : RandomVariable[Real]\nrv B : RandomVariable[Real]\nparam s : PositiveReal\n\nlaw A | Z ~ Normal(location := Z, scale := s)\nlaw B | Z ~ Normal(location := Z, scale := s)\n",
+  "seed": 7,
+  "semantics": {
+    "conditioning": {
+      "A": [
+        "Z"
+      ],
+      "B": [
+        "Z"
+      ]
+    },
+    "constraints": [],
+    "declaration_kinds": {
+      "A": "rv",
+      "B": "rv",
+      "Z": "rv"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "A": "RandomVariable[Real]",
+      "B": "RandomVariable[Real]",
+      "Z": "RandomVariable[Real]"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [
+      "that conditional independence implies marginal independence"
+    ],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

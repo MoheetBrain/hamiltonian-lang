@@ -275,3 +275,68 @@ asserted, and one defect that would have invalidated the experiment has been rem
 are rendered from one object rather than authored independently — which is what prevents
 one arm from silently carrying more information than another.
 
+---
+
+## 2026-08-04 — HML-EVAL-001 §3–6, §9: evaluation apparatus
+
+**Branch.** `main` · **Stage.** HML-EVAL-001, empirical evaluation phase.
+
+**Objective.** Build the apparatus for the seven-arm comparison, and implement the
+supported-subset round trips that test the one-object-many-views claim.
+
+**Files and systems changed.** `evaluation/corpus/{cso,generators,renderers}.py`,
+`evaluation/{model_client,semantic_equiv,harness,build_corpus}.py`,
+`src/hamiltonian_lang/importers/`, `tests/roundtrip/test_importers.py`,
+`benchmarks/eval001/` (120 problems, 840 arm files), `DECISIONS.md` (D-020).
+
+**What was completed.** A canonical semantic object per problem, rendered into all seven
+arms — so no arm is authored independently and none can silently carry more information
+than another. 120 problems: probability 25, binding 25, quantifier 25, dimensional 25,
+algebraic 20. All 120 reference encodings compile. Leakage controls assert demonstrations
+are disjoint from the benchmark by both id and prose; all 840 arm files carry the problem
+statement and question verbatim, verified programmatically.
+
+**Decisions made and why.** D-020 — the five inference queries do not share a
+precondition. D-016's finding 1.7 had required every query's target to carry a law, which
+rejected `infer mle p` where `p` appears in a likelihood. An MLE is defined by the
+likelihood of the data *given* the parameter; the parameter carries no law. Found while
+building a corpus problem whose prose states no prior: encoding a prior to satisfy the
+compiler would have made the Hamiltonian arm say more than the problem does, which is the
+information asymmetry §4 forbids.
+
+**Tests and verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `.venv/bin/python -m pytest` | 645 passed |
+| `.venv/bin/python -m evaluation.build_corpus` | 120 problems, 840 arm files, 0 reference failures |
+| `./scripts/conformance.sh` | CONFORMANCE: PASS, all 8 stages |
+| arm fairness audit | 840/840 files carry problem+question verbatim |
+| measured prompt asymmetry | A 1096 chars, A' 2311, D 4397, E 4540, F 5141 |
+
+**Failures and unresolved uncertainty.**
+
+- **The round trips found more than they confirmed.** Stan cannot express strict
+  positivity, so most distribution families cannot round-trip at all; Stan loses observed
+  values and destroys interleaved declaration order; and the Lean route silently loses
+  probability laws while producing a reconstruction that compiles cleanly. That last one
+  is the strongest argument for round-tripping as a validation method: a one-way test
+  cannot detect it.
+- **A validity bug in my own comparator, caught before it produced numbers.** The first
+  semantic-equivalence check compared entity *names*, which would have penalised
+  legitimate renaming and systematically understated Hamiltonian encoding accuracy. Module
+  names are binders, not roles (D-017). Rewritten to be name-independent and validated
+  three ways: reference encoding scores 1.0, a renamed encoding is unaffected, a role swap
+  is caught.
+- **The run cannot cover the full design.** 120 x 7 x 3 = 2520 calls at ~57 s is ~40
+  hours. A stratified 15-problem pilot (315 calls, ~5 h) is running; job ordering
+  completes generation 0 across all arms first, so truncation costs generations rather
+  than arm coverage. Unrun cells will be reported as unrun.
+
+**Effect on the overall project.** The experiment can now be run and scored without any
+model judging any output.
+
+**Next intended step.** Complete the pilot, then produce
+`docs/evaluation/HML_EVAL_001_REPORT.md` with paired intervals, effect sizes and the
+go/redesign/stop decision.
+

@@ -1,0 +1,51 @@
+{
+  "answer": {
+    "justification": "rate = 1/mean = 1/2",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 0.5
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "answering 2, the mean, as if it were the rate"
+  ],
+  "domain": "probability",
+  "generator": "_prob_exponential_rate",
+  "id": "p18_exponential_rate",
+  "information_asymmetry": [],
+  "prose": "The time T between successive events follows an exponential distribution. The mean time between events is 2 hours.",
+  "question": "What is the numerical value of the rate parameter of this distribution, in events per hour?",
+  "reference_hml": "module ExponentialRate\n\nrv T : RandomVariable[PositiveReal]\nconst lam : PositiveReal = 0.5\n\nlaw T ~ Exponential(rate := lam)\n",
+  "seed": 18,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "T": "rv",
+      "lam": "param"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "T": "RandomVariable[PositiveReal]",
+      "lam": "PositiveReal"
+    },
+    "law_families": {
+      "T": "Exponential"
+    },
+    "laws": {
+      "T": {
+        "rate": "lam"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [
+      "that the given mean is the rate"
+    ],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

@@ -1,0 +1,39 @@
+{
+  "answer": {
+    "justification": "dimension of momentum, mass times speed",
+    "kind": "dimension",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": "Mass * Length / Time"
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "dropping an exponent or inverting the denominator"
+  ],
+  "domain": "dimensional",
+  "generator": "_dim_derive",
+  "id": "d21_derive",
+  "information_asymmetry": [],
+  "prose": "Consider the physical quantity defined as momentum, mass times speed. The dimensions of the inputs are: m: Mass, v: Length/Time.",
+  "question": "What is the physical dimension of the resulting quantity?",
+  "reference_hml": "module DimensionDerivation\n\nparam m : Quantity[Mass]\nparam v : Quantity[Length / Time]\n\ndef q := 0.5 * m * v^2\n\ncheck dimension q\n",
+  "seed": 21,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {
+      "result": "Mass * Length / Time"
+    },
+    "entities": {},
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

@@ -1,0 +1,54 @@
+{
+  "answer": {
+    "justification": "sd = sqrt(49) = 7.0",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 7.0
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "answering 49, the variance, as if it were the scale"
+  ],
+  "domain": "probability",
+  "generator": "_prob_scale_vs_variance",
+  "id": "p09_scale_vs_variance",
+  "information_asymmetry": [],
+  "prose": "A measurement W is normally distributed. Its mean is -35 and its variance is 49.",
+  "question": "What is the numerical value of the scale parameter of this distribution, where the scale parameter is the standard deviation?",
+  "reference_hml": "module ScaleVsVariance\n\nrv W : RandomVariable[Real]\nconst mu : Real = -35\nconst sigma : PositiveReal = 7.0\n\nlaw W ~ Normal(location := mu, scale := sigma)\n",
+  "seed": 9,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "W": "rv",
+      "mu": "param",
+      "sigma": "param"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "W": "RandomVariable[Real]",
+      "mu": "Real",
+      "sigma": "PositiveReal"
+    },
+    "law_families": {
+      "W": "Normal"
+    },
+    "laws": {
+      "W": {
+        "location": "mu",
+        "scale": "sigma"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [
+      "that the given variance is itself the scale"
+    ],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

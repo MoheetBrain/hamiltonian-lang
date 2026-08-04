@@ -1,0 +1,39 @@
+{
+  "answer": {
+    "justification": "the cross term 12x is missing",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": false
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "dropping the cross term"
+  ],
+  "domain": "algebraic",
+  "generator": "_alg_equivalence",
+  "id": "a05_equivalence",
+  "information_asymmetry": [],
+  "prose": "Consider two expressions in a real variable x: (x + 6) squared, and x squared plus 36.",
+  "question": "Are the two expressions equal for every real x? Answer TRUE or FALSE.",
+  "reference_hml": "module Equivalence\n\nvar x : Real\n\nprove (x + 6) ^ 2 = x ^ 2 + 12 * x + 36\n",
+  "seed": 5,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "x": "Real"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

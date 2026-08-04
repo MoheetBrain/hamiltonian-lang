@@ -1,0 +1,43 @@
+{
+  "answer": {
+    "justification": "the real square root is undefined at -4, so the claim has no truth value over the reals under the stated domain",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": false
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "applying the identity outside its domain"
+  ],
+  "domain": "algebraic",
+  "generator": "_alg_domain_restriction",
+  "id": "a15_domain_restriction",
+  "information_asymmetry": [],
+  "prose": "Consider the equation involving a real variable x: the square root of x, multiplied by itself, equals x. Separately consider the claim that this holds for x equal to negative 4.",
+  "question": "Is the claim about x equal to negative 4 valid over the real numbers? Answer TRUE or FALSE.",
+  "reference_hml": "module DomainRestriction\n\nvar x : NonNegativeReal\n\nrequire x >= 0\n",
+  "seed": 15,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [
+      "x >= 0"
+    ],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "x": "NonNegativeReal"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [
+      "that sqrt is total on the reals"
+    ],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

@@ -1,0 +1,125 @@
+### SYSTEM
+You are solving a mathematics problem. Be precise. Do not restate the problem. Your reply must end with the final answer wrapped in <ANSWER> and </ANSWER> markers, and nothing after the closing marker.
+
+### USER
+HAMILTONIAN LANG (HML-L1) — CONCISE REFERENCE
+
+ASCII only. One statement per line. `#` starts a comment.
+
+DECLARATIONS — the keyword records epistemic status, not style:
+  var   <name> : <Type>            a free mathematical variable
+  param <name> : <Type>            an unknown to be inferred or fixed
+  const <name> : <Type> = <expr>   a fixed known value
+  obs   <name> : <Type> = <expr>   an observed datum
+  index <name> : Natural           a dimension or counting index
+  rv    <name> : RandomVariable[T] an explicitly declared random variable
+
+TYPES:
+  Bool Natural Integer Rational Real NonNegativeReal PositiveReal Probability
+  Vector[T, n]  Matrix[T, m, n]  Set[T]  Function[T -> U]
+  RandomVariable[T]   Distribution[T]   Quantity[D]   Proposition
+  Probability is the closed interval [0,1]. It is NOT a subtype of PositiveReal
+  (0 is a probability and is not positive; 2.0 is positive and is not a probability).
+  Quantity dimensions are built from Mass Length Time Temperature Current Amount
+  Luminosity with * / ^, e.g. Quantity[Length / Time], Quantity[Mass * Length^2 / Time^2].
+
+DEFINITIONS AND LAWS:
+  def <name> [( <p> : <T>, ... )] [: <Type>] := <expr>
+  law|prior|likelihood <target> [| <given> ...] ~ <Family>(<role> := <expr>, ...)
+
+  Distribution arguments MUST be labelled by role. Positional arguments are a parse
+  error. Families and their roles:
+    Normal(location, scale)        scale is the STANDARD DEVIATION, not the variance
+    Beta(alpha, beta)              support [0,1]
+    Binomial(trials, prob)         Bernoulli(prob)
+    Poisson(rate)                  Exponential(rate)      rate = 1 / mean
+    Gamma(shape, rate)             InverseGamma(shape, scale)
+    Uniform(lower, upper)          LogNormal(location, scale)
+    HalfNormal(scale)              Cauchy(location, scale)
+    StudentT(degrees_of_freedom, location, scale)
+    NormalVector(location, scale)  Dirichlet(concentration)  Categorical(probs)
+
+PROPOSITIONS AND QUERIES:
+  assume <prop>       require <prop>       prove <prop>
+  minimise <expr>     maximise <expr>      solve <name> ...
+  infer posterior|expectation|variance|mle|map <name> ...
+  check dimension <expr> [= <dimension>]
+
+QUANTIFIERS — the domain and the '.' are mandatory, and nesting order is meaning:
+  forall x : Real . exists y : Real . y > x
+  exists y : Real . forall x : Real . y > x      # a DIFFERENT statement
+
+OPERATORS, loosest to tightest:
+  => <=> | or | and | = != < <= > >= | + - | * / @ | unary - not | ^
+  Chained comparison is a parse error: write `0 < x and x < 1`.
+  ':=' binds a definition. '=' is mathematical equality. '~' is "is distributed as".
+
+CONCEPTS:
+  concept <Name> [extends <Name>, ...]
+      parameter <name> : <Type>
+      transform <name>(<p> : <Type>) : <Type> := <expr>
+      invariant <name> := <proposition>
+      example <name> := <proposition>
+  end
+  A concept with no invariant and no example is rejected.
+
+SEMANTIC GRAPH VIEW
+
+The same object as a set of triples, one per line, `subject -> predicate object`.
+Predicates: has_type, declared_as, has_law:<role>, family, role:<role_name>,
+conditioned_on, depends_on, constrains, objective_of, queries:<query>, binds,
+scope_of:<quantifier>, member_of, extends.
+
+Example — `param theta : Probability` with a Beta prior and a Binomial likelihood:
+  theta -> has_type Probability
+  theta -> declared_as param
+  law0 -> family Beta
+  law0 -> role:alpha 1
+  law0 -> role:beta 1
+  theta -> has_law:prior law0
+  law1 -> family Binomial
+  law1 -> role:trials trials
+  law1 -> role:prob theta
+  successes -> has_law:likelihood law1
+  successes -> conditioned_on theta
+
+WORKED EXAMPLES
+
+--- Example 1 ---
+Problem: A reading R is normally distributed. Its centre is written c, and its spread, expressed as a standard deviation, is written d, where d is strictly positive.
+
+```triples
+R -> has_type RandomVariable[Real]
+R -> declared_as rv
+c -> has_type Real
+d -> has_type PositiveReal
+law0 -> family Normal
+law0 -> role:location c
+law0 -> role:scale d
+R -> has_law:law law0
+```
+The role d fills is the scale.
+
+--- Example 2 ---
+Problem: A quantity is defined as a mass multiplied by a speed, where speed has the dimension of length divided by time.
+
+```triples
+m -> has_type Quantity[Mass]
+v -> has_type Quantity[Length / Time]
+p -> depends_on m
+p -> depends_on v
+```
+The dimension is Mass * Length / Time.
+
+
+PROBLEM
+A function f on the reals is said to have property P when: for every positive tolerance, there exists a positive delta, depending on the tolerance alone and not on the point, such that the usual closeness condition holds at every point.
+
+METHOD
+Encode the problem as a Hamiltonian Lang semantic graph, one triple per line, in a fenced block marked ```triples. Then answer the question.
+
+QUESTION
+Is property P pointwise continuity or uniform continuity? Answer with exactly one of: POINTWISE or UNIFORM.
+
+Give your final answer as exactly one of POINTWISE or UNIFORM, e.g. <ANSWER>POINTWISE</ANSWER>
+The answer must appear exactly once, wrapped in <ANSWER> … </ANSWER>.

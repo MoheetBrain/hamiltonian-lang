@@ -1,0 +1,39 @@
+{
+  "answer": {
+    "justification": "divide the left dimension by the right",
+    "kind": "dimension",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": "Mass / Time^2"
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "hard",
+  "distractors": [
+    "inverting the ratio"
+  ],
+  "domain": "dimensional",
+  "generator": "_dim_unknown_constant",
+  "id": "d16_unknown_constant",
+  "information_asymmetry": [],
+  "prose": "In a physical relationship, a force equals a constant k times a length. The relationship is dimensionally consistent.",
+  "question": "What is the physical dimension of the constant k?",
+  "reference_hml": "module UnknownConstant\n\nparam k : Quantity[Dimensionless]\n",
+  "seed": 16,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {
+      "k": "Mass / Time^2"
+    },
+    "entities": {},
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

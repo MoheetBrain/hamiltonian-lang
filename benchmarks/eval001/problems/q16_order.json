@@ -1,0 +1,45 @@
+{
+  "answer": {
+    "justification": "for each x, pick y = x \u00b1 1; the choice of y may depend on x",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": true
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "reading the quantifiers in the opposite order"
+  ],
+  "domain": "quantifier",
+  "generator": "_quant_order",
+  "id": "q16_order",
+  "information_asymmetry": [],
+  "prose": "Consider the following statement about the real numbers: for every real number x, there exists a real number y such that y is less than x.",
+  "question": "Is the statement true over the real numbers? Answer TRUE or FALSE.",
+  "reference_hml": "module QuantifierOrder\n\nprove forall x : Real . exists y : Real . y < x\n",
+  "seed": 16,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "x": "Real",
+      "y": "Real"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [
+      "that the two quantifier orders are interchangeable"
+    ],
+    "quantifier_order": [
+      "forall x",
+      "exists y"
+    ]
+  },
+  "valid_transformations": []
+}

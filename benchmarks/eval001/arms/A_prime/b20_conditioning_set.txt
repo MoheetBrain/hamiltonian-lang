@@ -1,0 +1,53 @@
+### SYSTEM
+You are solving a mathematics problem. Be precise. Do not restate the problem. Your reply must end with the final answer wrapped in <ANSWER> and </ANSWER> markers, and nothing after the closing marker.
+
+### USER
+WORKED EXAMPLES
+
+--- Example 1 ---
+Problem: A reading R is normally distributed. Its centre is written c, and its spread, expressed as a standard deviation, is written d, where d is strictly positive.
+
+1. Objects: R a random variable on the reals; c a real; d a positive real.
+2. c and d are parameters; R is the modelled quantity; d > 0 is a constraint.
+3. No quantifiers are present.
+4. Identify the normal family.
+5. A standard deviation is by definition the scale parameter.
+6. d > 0 is required by the family.
+7. No extra assumptions used.
+8. Checked against the statement.
+The role d fills is the scale.
+
+--- Example 2 ---
+Problem: A quantity is defined as a mass multiplied by a speed, where speed has the dimension of length divided by time.
+
+1. Objects: m a mass; v a speed.
+2. Both are given; none is unknown.
+3. No quantifiers.
+4. Multiply the dimensions.
+5. Dimensions multiply under multiplication.
+6. Mass * (Length/Time) = Mass * Length / Time.
+7. None.
+8. Checked.
+The dimension is Mass * Length / Time.
+
+
+PROBLEM
+An outcome Y depends on a coefficient vector b, a noise scale s, and a group index g. The law of Y is stated conditionally on all three of those, and on nothing else.
+
+METHOD
+Work through the following eight steps explicitly, in order, before answering.
+
+1. Declare all mathematical objects and their types.
+2. Identify which are observations, which are unknowns, which are assumptions, and which are constraints.
+3. Preserve variable and quantifier scope; state which variable is bound by which quantifier, and in what order.
+4. Perform one explicit transformation per step.
+5. State the justification for each transformation.
+6. Check dimensions, domains, and parameter restrictions.
+7. State any assumption you have relied on that the problem did not give you.
+8. Verify the final conclusion against the original statement.
+
+QUESTION
+How many distinct symbols appear in the conditioning set of the law of Y? Give a single number.
+
+Give your final answer as a single number (no units, no thousands separators), e.g. <ANSWER>3.25</ANSWER>
+The answer must appear exactly once, wrapped in <ANSWER> … </ANSWER>.

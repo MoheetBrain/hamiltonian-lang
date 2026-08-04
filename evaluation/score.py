@@ -34,9 +34,10 @@ from __future__ import annotations
 import json
 import re
 import sys
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Iterable, Optional
+from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
 if str(REPO / "src") not in sys.path:
@@ -44,8 +45,22 @@ if str(REPO / "src") not in sys.path:
 
 from hamiltonian_lang import CompileResult, compile_source  # noqa: E402
 from hamiltonian_lang.ast.nodes import (  # noqa: E402
-    AssumeStmt, BinOp, Call, CheckStmt, Comparison, Declaration, DefineStmt, DistExpr,
-    Expr, Index, LawStmt, LogicalOp, ProveStmt, Quantifier, RequireStmt, UnaryOp,
+    AssumeStmt,
+    BinOp,
+    Call,
+    CheckStmt,
+    Comparison,
+    Declaration,
+    DefineStmt,
+    DistExpr,
+    Expr,
+    Index,
+    LawStmt,
+    LogicalOp,
+    ProveStmt,
+    Quantifier,
+    RequireStmt,
+    UnaryOp,
 )
 from hamiltonian_lang.types import dimension_of  # noqa: E402
 
@@ -118,7 +133,7 @@ def load_problems(directory: Path = DATASETS) -> list[dict]:
     return items
 
 
-def arm_path(problem_id: str, arm: str) -> Optional[Path]:
+def arm_path(problem_id: str, arm: str) -> Path | None:
     ext = ARM_EXTENSIONS[arm]
     candidates = (ext,) if isinstance(ext, str) else ext
     for e in candidates:
@@ -181,7 +196,7 @@ def _expr_children(e: Expr) -> Iterable[Expr]:
     return ()
 
 
-def _quantifier_prefix(e: Optional[Expr]) -> list[str]:
+def _quantifier_prefix(e: Expr | None) -> list[str]:
     """The ordered quantifier prefix of an expression, outermost first.
 
     Descends through non-quantifier nodes (so ``not forall x . P`` still reports
@@ -413,7 +428,7 @@ class ProblemScore:
     expects_rejection: bool
     compiled: bool
     diagnostic_codes: list[str] = field(default_factory=list)
-    content_hash: Optional[str] = None
+    content_hash: str | None = None
     obligations: int = 0
     assertions: list[AssertionResult] = field(default_factory=list)
     tokens: dict[str, int] = field(default_factory=dict)
@@ -475,12 +490,12 @@ def score_problem(item: dict) -> ProblemScore:
 #: pointed at the right line" is well defined.
 
 
-def _inject_unbound_reference(lines: list[str]) -> Optional[tuple[str, int]]:
+def _inject_unbound_reference(lines: list[str]) -> tuple[str, int] | None:
     out = list(lines) + ["require zzz_not_declared_anywhere > 0.0"]
     return "\n".join(out) + "\n", len(out)
 
 
-def _inject_bad_role(lines: list[str]) -> Optional[tuple[str, int]]:
+def _inject_bad_role(lines: list[str]) -> tuple[str, int] | None:
     for i, ln in enumerate(lines):
         if "location :=" in ln:
             out = list(lines)
@@ -489,7 +504,7 @@ def _inject_bad_role(lines: list[str]) -> Optional[tuple[str, int]]:
     return None
 
 
-def _inject_unknown_family(lines: list[str]) -> Optional[tuple[str, int]]:
+def _inject_unknown_family(lines: list[str]) -> tuple[str, int] | None:
     for i, ln in enumerate(lines):
         m = re.search(r"~\s*([A-Z][A-Za-z0-9_]*)\s*\(", ln)
         if m:
@@ -499,7 +514,7 @@ def _inject_unknown_family(lines: list[str]) -> Optional[tuple[str, int]]:
     return None
 
 
-def _inject_positional_arguments(lines: list[str]) -> Optional[tuple[str, int]]:
+def _inject_positional_arguments(lines: list[str]) -> tuple[str, int] | None:
     for i, ln in enumerate(lines):
         m = re.search(r"~\s*[A-Z][A-Za-z0-9_]*\s*\(", ln)
         if m and ":=" in ln:
@@ -510,7 +525,7 @@ def _inject_positional_arguments(lines: list[str]) -> Optional[tuple[str, int]]:
     return None
 
 
-def _inject_undeclared_quantifier_type(lines: list[str]) -> Optional[tuple[str, int]]:
+def _inject_undeclared_quantifier_type(lines: list[str]) -> tuple[str, int] | None:
     for i, ln in enumerate(lines):
         m = re.search(r"(forall|exists)\s+([A-Za-z_][A-Za-z0-9_]*)\s*:", ln)
         if m:
@@ -520,7 +535,7 @@ def _inject_undeclared_quantifier_type(lines: list[str]) -> Optional[tuple[str, 
     return None
 
 
-INJECTIONS: list[tuple[str, Callable[[list[str]], Optional[tuple[str, int]]]]] = [
+INJECTIONS: list[tuple[str, Callable[[list[str]], tuple[str, int] | None]]] = [
     ("unbound_reference", _inject_unbound_reference),
     ("bad_distribution_role", _inject_bad_role),
     ("unknown_distribution_family", _inject_unknown_family),
@@ -670,7 +685,7 @@ def token_summary(scores: list[ProblemScore]) -> dict:
         }
     base = out["by_arm"].get("english", {}).get("total_tokens")
     if base:
-        for arm, v in out["by_arm"].items():
+        for v in out["by_arm"].values():
             v["ratio_to_english"] = round(v["total_tokens"] / base, 4)
     out["CAVEAT"] = (
         "These counts are NOT a like-for-like comparison and must not be quoted as one. "

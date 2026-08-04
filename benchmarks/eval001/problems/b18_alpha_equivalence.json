@@ -1,0 +1,43 @@
+{
+  "answer": {
+    "justification": "the two definitions differ only by the name of a bound variable, which is not part of a function's identity",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": true
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "treating a renamed bound variable as a different function"
+  ],
+  "domain": "binding",
+  "generator": "_bind_alpha_equivalence",
+  "id": "b18_alpha_equivalence",
+  "information_asymmetry": [],
+  "prose": "Function F is defined as: F of u equals u times 5. Function G is defined as: G of t equals t times 5.",
+  "question": "Do F and G denote the same function? Answer TRUE or FALSE.",
+  "reference_hml": "module AlphaEquivalence\n\ndef F(u : Real) : Real := u * 5\ndef G(t : Real) : Real := t * 5\n",
+  "seed": 18,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "F": "def",
+      "G": "def"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "F": "Function[Real -> Real]",
+      "G": "Function[Real -> Real]"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

@@ -1,0 +1,45 @@
+{
+  "answer": {
+    "justification": "no single y exceeds (or is below) every real; the reals are unbounded",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": false
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "reading the quantifiers in the opposite order"
+  ],
+  "domain": "quantifier",
+  "generator": "_quant_order",
+  "id": "q11_order",
+  "information_asymmetry": [],
+  "prose": "Consider the following statement about the real numbers: there exists a real number y such that, for every real number x, y is greater than x.",
+  "question": "Is the statement true over the real numbers? Answer TRUE or FALSE.",
+  "reference_hml": "module QuantifierOrder\n\nprove exists y : Real . forall x : Real . y > x\n",
+  "seed": 11,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "x": "Real",
+      "y": "Real"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [
+      "that the two quantifier orders are interchangeable"
+    ],
+    "quantifier_order": [
+      "exists y",
+      "forall x"
+    ]
+  },
+  "valid_transformations": []
+}

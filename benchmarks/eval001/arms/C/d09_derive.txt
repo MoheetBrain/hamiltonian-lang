@@ -1,0 +1,35 @@
+### SYSTEM
+You are solving a mathematics problem. Be precise. Do not restate the problem. Your reply must end with the final answer wrapped in <ANSWER> and </ANSWER> markers, and nothing after the closing marker.
+
+### USER
+WORKED EXAMPLES
+
+--- Example 1 ---
+Problem: A reading R is normally distributed. Its centre is written c, and its spread, expressed as a standard deviation, is written d, where d is strictly positive.
+
+```stan
+parameters { real c; real<lower=0> d; }
+model { R ~ normal(c, d); }
+```
+The role d fills is the scale.
+
+--- Example 2 ---
+Problem: A quantity is defined as a mass multiplied by a speed, where speed has the dimension of length divided by time.
+
+```stan
+// dimensional reasoning is not expressible in Stan's type system
+```
+The dimension is Mass * Length / Time.
+
+
+PROBLEM
+Consider the physical quantity defined as luminous efficacy, luminous intensity divided by power. The dimensions of the inputs are: I: Luminosity, P: power.
+
+METHOD
+Express the problem in an existing formal or executable language before answering. Use Stan for probabilistic and statistical models, and Lean 4 for logical, quantifier and algebraic statements. Put the code in a fenced block.
+
+QUESTION
+What is the physical dimension of the resulting quantity?
+
+Give your final answer as the physical dimension as a product of the base dimensions Mass, Length, Time, Temperature, Current, Amount, Luminosity using * / and ^, e.g. <ANSWER>Mass * Length^2 / Time^2</ANSWER>
+The answer must appear exactly once, wrapped in <ANSWER> … </ANSWER>.

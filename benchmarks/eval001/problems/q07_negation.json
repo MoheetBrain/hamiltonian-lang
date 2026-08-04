@@ -1,0 +1,42 @@
+{
+  "answer": {
+    "justification": "the inner universal claim is false, so its negation is true; note this is true for a different reason than the other placement",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": true
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "hard",
+  "distractors": [
+    "moving the negation across the quantifier"
+  ],
+  "domain": "quantifier",
+  "generator": "_quant_negation",
+  "id": "q07_negation",
+  "information_asymmetry": [],
+  "prose": "Consider the statement: it is not the case that, for every real number x, x squared is negative.",
+  "question": "Is the statement true over the real numbers? Answer TRUE or FALSE.",
+  "reference_hml": "module NegationPlacement\n\nprove not forall x : Real . x ^ 2 < 0\n",
+  "seed": 7,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "x": "Real"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": [
+      "not",
+      "forall x"
+    ]
+  },
+  "valid_transformations": []
+}

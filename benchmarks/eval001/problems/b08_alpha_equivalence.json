@@ -1,0 +1,43 @@
+{
+  "answer": {
+    "justification": "the two definitions differ only by the name of a bound variable, which is not part of a function's identity",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": true
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "treating a renamed bound variable as a different function"
+  ],
+  "domain": "binding",
+  "generator": "_bind_alpha_equivalence",
+  "id": "b08_alpha_equivalence",
+  "information_asymmetry": [],
+  "prose": "Function F is defined as: F of w equals w times 9. Function G is defined as: G of s equals s times 9.",
+  "question": "Do F and G denote the same function? Answer TRUE or FALSE.",
+  "reference_hml": "module AlphaEquivalence\n\ndef F(w : Real) : Real := w * 9\ndef G(s : Real) : Real := s * 9\n",
+  "seed": 8,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "F": "def",
+      "G": "def"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "F": "Function[Real -> Real]",
+      "G": "Function[Real -> Real]"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

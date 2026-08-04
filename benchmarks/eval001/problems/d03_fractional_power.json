@@ -1,0 +1,39 @@
+{
+  "answer": {
+    "justification": "sqrt(Mass * Length^2)",
+    "kind": "dimension",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": "Mass^1/2 * Length"
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "hard",
+  "distractors": [
+    "failing to halve the exponents under a square root"
+  ],
+  "domain": "dimensional",
+  "generator": "_dim_fractional_power",
+  "id": "d03_fractional_power",
+  "information_asymmetry": [],
+  "prose": "Consider the quantity given by the square root of a mass times a length squared.",
+  "question": "What is the physical dimension of that quantity?",
+  "reference_hml": "module FractionalPower\n\nparam L : Quantity[Length]\nparam a : Quantity[Length / Time^2]\n",
+  "seed": 3,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {
+      "result": "Mass^1/2 * Length"
+    },
+    "entities": {},
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

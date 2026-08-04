@@ -1,0 +1,52 @@
+{
+  "answer": {
+    "justification": "n p (1-p) = 7.039999999999999",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 7.039999999999999
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "confusing the variance n p (1-p) with the mean n p"
+  ],
+  "domain": "probability",
+  "generator": "_prob_binomial_moments",
+  "id": "p06_binomial_moments",
+  "information_asymmetry": [],
+  "prose": "A trial is repeated 44 times independently. Each repetition succeeds with probability 0.8. Let S be the total number of successes.",
+  "question": "What is the numerical variance of S?",
+  "reference_hml": "module BinomialMoments\n\nrv S : RandomVariable[Natural]\nconst trials : Natural = 44\nconst prob : Probability = 0.8\n\nlaw S ~ Binomial(trials := trials, prob := prob)\n\ninfer variance S\n",
+  "seed": 6,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "S": "rv",
+      "prob": "const",
+      "trials": "const"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "S": "RandomVariable[Natural]",
+      "prob": "Probability",
+      "trials": "Natural"
+    },
+    "law_families": {
+      "S": "Binomial"
+    },
+    "laws": {
+      "S": {
+        "prob": "prob",
+        "trials": "trials"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

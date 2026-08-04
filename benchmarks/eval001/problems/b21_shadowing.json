@@ -1,0 +1,49 @@
+{
+  "answer": {
+    "justification": "the inner x is the argument 1, so the result is 1+5; the outer x = 19 is shadowed and irrelevant",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 6
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "answering 24, using the outer x"
+  ],
+  "domain": "binding",
+  "generator": "_bind_shadowing",
+  "id": "b21_shadowing",
+  "information_asymmetry": [
+    "Hamiltonian rejects the shadowing spelling outright (HML-N302), so the reference encoding renames the binder. The prose deliberately does not."
+  ],
+  "prose": "Let x be 19. Define f as the function that takes an argument, which is also called x inside the definition of f, and returns that argument plus 5. Now evaluate f at the value 1.",
+  "question": "What is the numerical value of f evaluated at 1?",
+  "reference_hml": "module Shadowing\n\nconst x : Real = 19\ndef f(u : Real) : Real := u + 5\n",
+  "seed": 21,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "f": "def",
+      "x": "const"
+    },
+    "dependencies": {
+      "f": []
+    },
+    "dimensions": {},
+    "entities": {
+      "f": "Function[Real -> Real]",
+      "x": "Real"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [
+      "that the inner x refers to the outer x"
+    ],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

@@ -1,0 +1,55 @@
+{
+  "answer": {
+    "justification": "the centre is the location; a standard deviation is the scale",
+    "kind": "role_map",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": {
+      "location": "beta_",
+      "scale": "delta_"
+    }
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "swapping location and scale"
+  ],
+  "domain": "probability",
+  "generator": "_prob_role_map",
+  "id": "p20_role_map",
+  "information_asymmetry": [],
+  "prose": "A quantity Y is normally distributed. Its centre is written beta_ and the spread, expressed as a standard deviation, is written delta_.",
+  "question": "Using the role names 'location' and 'scale', state which symbol fills each role.",
+  "reference_hml": "module RoleMap\n\nrv Y : RandomVariable[Real]\nparam beta_ : Real\nparam delta_ : PositiveReal\n\nlaw Y ~ Normal(location := beta_, scale := delta_)\n",
+  "seed": 20,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "Y": "rv",
+      "beta_": "param",
+      "delta_": "param"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "Y": "RandomVariable[Real]",
+      "beta_": "Real",
+      "delta_": "PositiveReal"
+    },
+    "law_families": {
+      "Y": "Normal"
+    },
+    "laws": {
+      "Y": {
+        "location": "beta_",
+        "scale": "delta_"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

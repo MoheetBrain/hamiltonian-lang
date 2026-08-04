@@ -126,6 +126,7 @@ class TypeChecker:
         self.symbols = symbols
         self.diags = diags
         self.obligations: list[ProofObligation] = []
+        self._likelihood_cache: set[str] | None = None
         self.concepts: dict[str, ConceptDecl] = {
             s.name: s for s in module.statements if isinstance(s, ConceptDecl)
         }
@@ -292,13 +293,14 @@ class TypeChecker:
             for r in st.targets:
                 r.type_ = self._sym_type(r.symbol_id)
                 sym = self.symbols.get(r.symbol_id) if r.symbol_id else None
-                # Every query kind needs a law, not just 'posterior'. An MLE without a
-                # likelihood is exactly as ill-posed as a posterior without a prior.
-                if sym is not None and not sym.stochastic:
+                if sym is not None and not self._query_is_well_posed(st.query, sym):
                     why = {
-                        "posterior": "a posterior requires a prior",
+                        "posterior": "a posterior requires a prior on the target",
                         "map": "a maximum-a-posteriori estimate requires a prior",
-                        "mle": "a maximum-likelihood estimate requires a likelihood",
+                        "mle": (
+                            "a maximum-likelihood estimate requires the target to appear "
+                            "in some likelihood"
+                        ),
                         "expectation": "an expectation is taken with respect to a law",
                         "variance": "a variance is taken with respect to a law",
                     }[st.query]
@@ -309,7 +311,7 @@ class TypeChecker:
                         r.span,
                         correction=(
                             f"add 'prior {r.name} ~ <Distribution>' or "
-                            f"'likelihood {r.name} | ... ~ <Distribution>' first"
+                            f"'likelihood <data> | {r.name} ~ <Distribution>' first"
                         ),
                         notes=[f"{why}; without one this query is not well posed"],
                     )
@@ -322,6 +324,37 @@ class TypeChecker:
         if isinstance(st, ConceptDecl):
             self.check_concept(st)
             return
+
+    def _query_is_well_posed(self, query: str, sym) -> bool:
+        """Whether an inference query is well posed for its target.
+
+        The queries do not share a precondition, and treating them as if they did was
+        an over-correction (D-020):
+
+        * ``posterior`` and ``map`` need a **prior on the target** — a posterior without
+          a prior is not defined.
+        * ``expectation`` and ``variance`` need the target to **have a law**, because
+          they are taken with respect to one.
+        * ``mle`` needs the target to **appear in some likelihood**. A maximum-likelihood
+          estimate is defined by the likelihood of the *data given* the parameter; the
+          parameter itself carries no law. Requiring one rejected the single most common
+          frequentist model in statistics.
+        """
+        if sym.stochastic:
+            return True
+        if query != "mle":
+            return False
+        return sym.name in self._likelihood_conditioners()
+
+    def _likelihood_conditioners(self) -> set[str]:
+        """Symbols appearing in the conditioning set of some likelihood statement."""
+        if self._likelihood_cache is None:
+            names: set[str] = set()
+            for st in self.module.statements:
+                if isinstance(st, LawStmt) and st.role == "likelihood":
+                    names.update(g.name for g in st.given)
+            self._likelihood_cache = names
+        return self._likelihood_cache
 
     def _retype_hint(self, name: str, kind: str, found: Type) -> str:
         return f"declare it as '{kind} {name} : {found.render()}', or correct the value"

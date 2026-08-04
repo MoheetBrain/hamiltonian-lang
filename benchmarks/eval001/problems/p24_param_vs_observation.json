@@ -1,0 +1,59 @@
+{
+  "answer": {
+    "justification": "counts were observed; the probability is the parameter",
+    "kind": "choice",
+    "options": [
+      "SEEDS_OBSERVED_P_UNKNOWN",
+      "P_OBSERVED_SEEDS_UNKNOWN"
+    ],
+    "tolerance": 1e-06,
+    "value": "SEEDS_OBSERVED_P_UNKNOWN"
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "treating the estimate of p as if it were data"
+  ],
+  "domain": "probability",
+  "generator": "_prob_param_vs_observation",
+  "id": "p24_param_vs_observation",
+  "information_asymmetry": [],
+  "prose": "In a study, 30 seeds were planted and 14 germinated. The germination probability p is not known and is to be estimated from this data.",
+  "question": "Which of these is the observed quantity and which is the unknown? Answer with exactly one of: SEEDS_OBSERVED_P_UNKNOWN or P_OBSERVED_SEEDS_UNKNOWN.",
+  "reference_hml": "module Germination\n\nparam p : Probability\nobs planted : Natural = 30\nobs germinated : Natural = 14\n\nlikelihood germinated | p ~ Binomial(trials := planted, prob := p)\n\n# The prose states no prior, so the query is an MLE. Encoding a posterior\n# here would make the encoding say more than the problem does.\ninfer mle p\n",
+  "seed": 24,
+  "semantics": {
+    "conditioning": {
+      "germinated": [
+        "p"
+      ]
+    },
+    "constraints": [],
+    "declaration_kinds": {
+      "germinated": "obs",
+      "p": "param",
+      "planted": "obs"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "germinated": "Natural",
+      "p": "Probability",
+      "planted": "Natural"
+    },
+    "law_families": {
+      "germinated": "Binomial"
+    },
+    "laws": {
+      "germinated": {
+        "prob": "p",
+        "trials": "planted"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

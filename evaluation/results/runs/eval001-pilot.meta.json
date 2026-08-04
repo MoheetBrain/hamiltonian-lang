@@ -1,0 +1,64 @@
+{
+  "run_id": "eval001-pilot",
+  "started_utc": "2026-08-04T20:41:31Z",
+  "hamiltonian_lang_version": "0.1.0",
+  "git_commit": "82d13ca6e533cc1505de8de450b37c464fceb141",
+  "git_tag": "hml-v0-eval-freeze",
+  "python": "3.14.6",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "model_info": {
+    "base_url": "http://localhost:11434/v1",
+    "model": "gemma4:31b",
+    "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+    "parameter_size": "31.3B",
+    "quantization": "Q4_K_M",
+    "size_bytes": 19868981791
+  },
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.7,
+    "max_tokens": 2400,
+    "top_p": 1.0,
+    "seed": null
+  },
+  "arms": [
+    "A",
+    "A_prime",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F"
+  ],
+  "generations": 3,
+  "problems": [
+    "b08_alpha_equivalence",
+    "d24_unknown_constant",
+    "p22_binomial_moments",
+    "p21_rv_vs_distribution",
+    "q14_unique",
+    "q17_negation",
+    "d13_derive",
+    "q05_scope_swap",
+    "d22_invalid_addition",
+    "a13_constrained_min",
+    "b02_index_substitution",
+    "a10_constrained_min",
+    "b24_interface_rename",
+    "p19_beta_binomial_posterior",
+    "a19_constrained_min"
+  ],
+  "n_problems": 15,
+  "planned_calls": 315,
+  "max_repairs_arm_E": 2,
+  "information_asymmetry": [
+    "Arms D/E/F carry a ~90-line specification of a language invented weeks ago. Arm C names Stan and Lean, which the model saw extensively in pretraining and needs no specification for. This is the out-of-distribution confound and prompt construction cannot remove it. Direction: against the Hamiltonian arms.",
+    "Arms D/E/F therefore have a longer prompt than arms A/A'/B. Prompt tokens are recorded per call so the difference is measured rather than assumed away. Direction: raises Hamiltonian cost, does not affect its accuracy.",
+    "Arm E receives compiler diagnostics that no other arm receives. This is the experimental condition under test (H4), not an accident, and arm D is the matched control for it.",
+    "Arm A' receives an explicit reasoning schema that arms B and C do not. A' is the control for scaffolding, so scaffolding is deliberately confounded with A' alone.",
+    "The model under test is a reasoning model: it decomposes problems internally in every arm. This compresses the A-to-A' difference and therefore inflates any A'-to-Hamiltonian difference. Direction: in favour of the Hamiltonian arms."
+  ],
+  "scoring": "deterministic; no model judges any output",
+  "seed": 20260804,
+  "time_budget_min": 400.0
+}

@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 import platform
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -28,11 +28,18 @@ if str(REPO / "src") not in sys.path:
 if str(REPO / "evaluation") not in sys.path:
     sys.path.insert(0, str(REPO / "evaluation"))
 
-import hamiltonian_lang  # noqa: E402
 from score import (  # noqa: E402
-    TOKENIZER_IS_APPROXIMATE, TOKENIZER_NAME, aggregate, arm_path,
-    diagnostic_line_accuracy, load_problems, score_problem, token_summary,
+    TOKENIZER_IS_APPROXIMATE,
+    TOKENIZER_NAME,
+    aggregate,
+    arm_path,
+    diagnostic_line_accuracy,
+    load_problems,
+    score_problem,
+    token_summary,
 )
+
+import hamiltonian_lang  # noqa: E402
 
 RESULTS = REPO / "evaluation" / "results"
 
@@ -96,7 +103,7 @@ def main() -> int:
     doc = {
         "header": HEADER,
         "run": {
-            "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "generated_utc": datetime.now(UTC).isoformat(timespec="seconds"),
             "hamiltonian_lang_version": hamiltonian_lang.__version__,
             "canonical_version": __import__(
                 "hamiltonian_lang.backends.canonical", fromlist=["CANONICAL_VERSION"]

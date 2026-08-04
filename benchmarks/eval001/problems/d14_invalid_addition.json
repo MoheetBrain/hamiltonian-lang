@@ -1,0 +1,40 @@
+{
+  "answer": {
+    "justification": "Current and Length are different dimensions and cannot be added",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": false
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "assuming a dimensionless multiplier repairs the addition"
+  ],
+  "domain": "dimensional",
+  "generator": "_dim_invalid_addition",
+  "id": "d14_invalid_addition",
+  "information_asymmetry": [],
+  "prose": "An expression adds an electric current to a length, and then multiplies the result by a dimensionless constant.",
+  "question": "Is this expression dimensionally valid? Answer TRUE or FALSE.",
+  "reference_hml": "module InvalidAddition\n\nparam x : Quantity[Current]\nparam y : Quantity[Length]\n",
+  "seed": 14,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {
+      "x": "Current",
+      "y": "Length"
+    },
+    "entities": {},
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

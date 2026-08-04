@@ -73,7 +73,9 @@ against isolated file ownership.
 | `GOAL.md` | project thesis |
 | `docs/design/V0_DESIGN_FREEZE.md` | the frozen v0 contract |
 | `SPEC.md` | normative language reference |
-| `DECISIONS.md` | D-001..D-019 with reversal costs |
+| `DECISIONS.md` | D-001..D-020 with reversal costs |
+| `benchmarks/eval001/` | 120-problem corpus, 7 arms, 840 prompt files |
+| `evaluation/harness.py` | model-evaluation harness |
 | `docs/evaluation/PRE_EVALUATION_AUDIT.md` | verified state before the experiment |
 | `audits/RED_TEAM_REPORT.md` | adversarial review |
 | `src/hamiltonian_lang/ast/nodes.py` | **frozen IR contract** |
@@ -91,7 +93,7 @@ recorded in `docs/research/PRIOR_ART_MATRIX.csv` with an explicit UNVERIFIED reg
 
 ## Decisions and Rationale
 
-D-001..D-019 in `DECISIONS.md`. Load-bearing ones:
+D-001..D-020 in `DECISIONS.md`. Load-bearing ones:
 
 - **D-003** mandatory role-labelled distribution arguments. Prior art shows the
   *mechanism* is not novel (PyMC, SciPy already use named parameters); the delta is that
@@ -109,6 +111,8 @@ D-001..D-019 in `DECISIONS.md`. Load-bearing ones:
   actually reaches.
 - **D-019** the lexer did not terminate on non-ASCII letters; it would have hung the
   evaluation harness silently rather than failing it.
+- **D-020** the five inference queries do not share a precondition; requiring a law for
+  `mle` rejected the most common frequentist model in statistics.
 
 ## Verification and Test Results
 
@@ -116,7 +120,7 @@ Commands executed and their real results:
 
 | command | result |
 |---------|--------|
-| `.venv/bin/python -m pytest -q` | **615 passed, 0 failed, 0 xfailed** |
+| `.venv/bin/python -m pytest -q` | **645 passed, 0 failed, 0 xfailed** |
 | `.venv/bin/hml check examples/*/*.hml` | **8/8 check cleanly** |
 | `.venv/bin/ruff check src tests` | **All checks passed** |
 | `.venv/bin/mypy src/hamiltonian_lang` | **Success: no issues found in 22 source files** |
@@ -135,9 +139,20 @@ property it asserted was false, because it never produced `def` parameters.
 
 - **The central hypothesis is untested.** No model-in-the-loop comparison has been run.
   Nothing in this repository is evidence for the thesis.
-- **Exactly one round trip exists: HML → HML.** The other eight backends are one-way
-  renderings. "Nine backends" means nine renderings, not nine translations. No
-  semantics-preserving translation to any external system has been demonstrated.
+- **Round trips now measured, not assumed** (HML-EVAL-001 §9). Four routes implemented
+  with explicitly declared narrow subsets: canonical IR (5/5 in-subset fixtures preserve
+  the content hash), graph triples (2/2), Stan (2/2), Lean statement subset (2/2). What
+  the measurement revealed matters more than the pass counts:
+  - **Stan cannot express strict positivity.** `real<lower=0>` admits 0; `PositiveReal`
+    does not. Every family with a `PositiveReal` role — Normal, Beta, Gamma, Exponential,
+    Poisson, Cauchy and most others — therefore cannot round-trip at all. Only Uniform,
+    Binomial and Bernoulli can.
+  - **Stan loses observed values** (data comes from a data file, not the program text)
+    and **destroys interleaved declaration order** (block structure), which changes the
+    content hash because ordinals are positional.
+  - **The Lean route silently loses probability laws**, and the reconstruction compiles
+    perfectly happily. Only the content-hash comparison detects it. A one-way test cannot
+    detect this class of loss at all.
 - **`BackendResult.faithful` means "declared no per-construct loss", not "round-trips".**
   `english`, `json`, `graph` and `triples` report `faithful=True` while being one-way.
 - **Every recorded benchmark number is a deterministic compiler property.** None is a

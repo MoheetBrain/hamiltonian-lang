@@ -1,0 +1,39 @@
+{
+  "answer": {
+    "justification": "binomial expansion",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": true
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "dropping the cross term"
+  ],
+  "domain": "algebraic",
+  "generator": "_alg_equivalence",
+  "id": "a02_equivalence",
+  "information_asymmetry": [],
+  "prose": "Consider two expressions in a real variable x: (x + 2) squared, and x squared plus 4 x plus 4.",
+  "question": "Are the two expressions equal for every real x? Answer TRUE or FALSE.",
+  "reference_hml": "module Equivalence\n\nvar x : Real\n\nprove (x + 2) ^ 2 = x ^ 2 + 4 * x + 4\n",
+  "seed": 2,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "x": "Real"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

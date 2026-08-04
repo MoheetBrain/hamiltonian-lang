@@ -1,0 +1,39 @@
+{
+  "answer": {
+    "justification": "dimension of power, energy divided by time",
+    "kind": "dimension",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": "Mass * Length^2 / Time^3"
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "dropping an exponent or inverting the denominator"
+  ],
+  "domain": "dimensional",
+  "generator": "_dim_derive",
+  "id": "d13_derive",
+  "information_asymmetry": [],
+  "prose": "Consider the physical quantity defined as power, energy divided by time. The dimensions of the inputs are: E: energy, t: Time.",
+  "question": "What is the physical dimension of the resulting quantity?",
+  "reference_hml": "module DimensionDerivation\n\nparam m : Quantity[Mass]\nparam v : Quantity[Length / Time]\n\ndef q := 0.5 * m * v^2\n\ncheck dimension q\n",
+  "seed": 13,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {
+      "result": "Mass * Length^2 / Time^3"
+    },
+    "entities": {},
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

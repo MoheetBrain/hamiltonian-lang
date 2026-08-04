@@ -1,0 +1,41 @@
+{
+  "answer": {
+    "justification": "cubing is a bijection on the reals, so the real cube root is unique (the other two roots are non-real)",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": true
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "counting the two complex roots as real solutions"
+  ],
+  "domain": "quantifier",
+  "generator": "_quant_unique",
+  "id": "q09_unique",
+  "information_asymmetry": [],
+  "prose": "Consider the statement: there exists exactly one real number x such that x cubed equals 20.",
+  "question": "Is the statement true over the real numbers? Answer TRUE or FALSE.",
+  "reference_hml": "module UniqueCubeRoot\n\nprove exists unique x : Real . x ^ 3 = 20\n",
+  "seed": 9,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "x": "Real"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": [
+      "exists_unique x"
+    ]
+  },
+  "valid_transformations": []
+}

@@ -1,0 +1,46 @@
+{
+  "answer": {
+    "justification": "total 18 minus the excluded entry v[4]=5",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 13
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "summing all entries, giving 18",
+    "excluding the entry at position 5 by off-by-one"
+  ],
+  "domain": "binding",
+  "generator": "_bind_index_substitution",
+  "id": "b07_index_substitution",
+  "information_asymmetry": [],
+  "prose": "A vector v of length 5 has entries, in order, 1, 3, 5, 5, 4. Consider the sum of v[i] taken over every index i from 1 to 5 for which i is not equal to 4.",
+  "question": "What is the numerical value of that sum?",
+  "reference_hml": "module IndexSubstitution\n\nindex N : Natural\nconst v : Vector[Real, N]\n",
+  "seed": 7,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [
+      "i != 4"
+    ],
+    "declaration_kinds": {
+      "i": "index",
+      "v": "const"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "i": "Natural",
+      "v": "Vector[Real, 5]"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

@@ -1,0 +1,25 @@
+### SYSTEM
+You are solving a mathematics problem. Be precise. Do not restate the problem. Your reply must end with the final answer wrapped in <ANSWER> and </ANSWER> markers, and nothing after the closing marker.
+
+### USER
+WORKED EXAMPLES
+
+--- Example 1 ---
+Problem: A reading R is normally distributed. Its centre is written c, and its spread, expressed as a standard deviation, is written d, where d is strictly positive.
+
+A standard deviation is the scale parameter, so d fills the scale.
+
+--- Example 2 ---
+Problem: A quantity is defined as a mass multiplied by a speed, where speed has the dimension of length divided by time.
+
+Multiplying the dimensions gives Mass * Length / Time.
+
+
+PROBLEM
+Model 1 states that a quantity is normally distributed with location nu_ and scale kappa. Model 2 states that the same quantity is normally distributed with location kappa and scale nu_.
+
+QUESTION
+Do Model 1 and Model 2 describe the same distribution for every choice of nu_ and kappa? Answer TRUE or FALSE.
+
+Give your final answer as exactly TRUE or FALSE, e.g. <ANSWER>TRUE</ANSWER>
+The answer must appear exactly once, wrapped in <ANSWER> … </ANSWER>.

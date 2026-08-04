@@ -1,0 +1,46 @@
+{
+  "answer": {
+    "justification": "total 33 minus the excluded entry v[5]=4",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 29
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "summing all entries, giving 33",
+    "excluding the entry at position 6 by off-by-one"
+  ],
+  "domain": "binding",
+  "generator": "_bind_index_substitution",
+  "id": "b12_index_substitution",
+  "information_asymmetry": [],
+  "prose": "A vector v of length 6 has entries, in order, 3, 5, 4, 9, 4, 8. Consider the sum of v[i] taken over every index i from 1 to 6 for which i is not equal to 5.",
+  "question": "What is the numerical value of that sum?",
+  "reference_hml": "module IndexSubstitution\n\nindex N : Natural\nconst v : Vector[Real, N]\n",
+  "seed": 12,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [
+      "i != 5"
+    ],
+    "declaration_kinds": {
+      "i": "index",
+      "v": "const"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "i": "Natural",
+      "v": "Vector[Real, 6]"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

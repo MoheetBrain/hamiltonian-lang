@@ -285,3 +285,43 @@ def test_constraints_are_recorded_as_obligations_and_not_discharged():
     o = next(o for o in r.obligations if o.kind == "constraint")
     assert o.description == "x + y >= 10"
     assert o.discharged_by is None, "v0 must not claim to have proved anything"
+
+
+# -- inference query preconditions (D-020) -------------------------------
+
+
+def test_mle_accepts_a_parameter_appearing_in_a_likelihood():
+    """A maximum-likelihood estimate is defined by the likelihood of the DATA GIVEN the
+    parameter. The parameter itself carries no law, and requiring one rejected the most
+    common frequentist model in statistics. (D-020.)"""
+    ok(
+        "param p : Probability\n"
+        "obs planted : Natural = 30\n"
+        "obs germinated : Natural = 12\n"
+        "likelihood germinated | p ~ Binomial(trials := planted, prob := p)\n"
+        "infer mle p"
+    )
+
+
+def test_mle_still_rejected_with_no_likelihood_anywhere():
+    assert "HML-S604" in codes("param t : Real\ninfer mle t")
+
+
+def test_mle_rejected_when_the_target_is_not_in_the_conditioning_set():
+    """A likelihood that does not mention the target does not make an MLE well posed."""
+    assert "HML-S604" in codes(
+        "param p : Probability\nparam q : Real\n"
+        "obs n : Natural = 10\nobs k : Natural = 3\n"
+        "likelihood k | p ~ Binomial(trials := n, prob := p)\n"
+        "infer mle q"
+    )
+
+
+def test_posterior_still_requires_a_prior_even_with_a_likelihood():
+    """posterior and mle do not share a precondition: a posterior needs a PRIOR."""
+    assert "HML-S604" in codes(
+        "param p : Probability\n"
+        "obs n : Natural = 10\nobs k : Natural = 3\n"
+        "likelihood k | p ~ Binomial(trials := n, prob := p)\n"
+        "infer posterior p"
+    )

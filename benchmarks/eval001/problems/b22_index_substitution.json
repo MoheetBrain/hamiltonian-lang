@@ -1,0 +1,46 @@
+{
+  "answer": {
+    "justification": "total 8 minus the excluded entry v[1]=2",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 6
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "summing all entries, giving 8",
+    "excluding the entry at position 2 by off-by-one"
+  ],
+  "domain": "binding",
+  "generator": "_bind_index_substitution",
+  "id": "b22_index_substitution",
+  "information_asymmetry": [],
+  "prose": "A vector v of length 3 has entries, in order, 2, 5, 1. Consider the sum of v[i] taken over every index i from 1 to 3 for which i is not equal to 1.",
+  "question": "What is the numerical value of that sum?",
+  "reference_hml": "module IndexSubstitution\n\nindex N : Natural\nconst v : Vector[Real, N]\n",
+  "seed": 22,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [
+      "i != 1"
+    ],
+    "declaration_kinds": {
+      "i": "index",
+      "v": "const"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "i": "Natural",
+      "v": "Vector[Real, 3]"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

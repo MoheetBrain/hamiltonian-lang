@@ -1,0 +1,50 @@
+{
+  "answer": {
+    "justification": "the distinction is solely whether delta may depend on the point, i.e. the order of the point and delta quantifiers",
+    "kind": "choice",
+    "options": [
+      "POINTWISE",
+      "UNIFORM"
+    ],
+    "tolerance": 1e-06,
+    "value": "UNIFORM"
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "hard",
+  "distractors": [
+    "treating the two orderings as equivalent"
+  ],
+  "domain": "quantifier",
+  "generator": "_quant_scope_swap_pair",
+  "id": "q10_scope_swap",
+  "information_asymmetry": [],
+  "prose": "A function f on the reals is said to have property P when: for each positive epsilon, there exists a positive delta, depending on the tolerance alone and not on the point, such that the usual closeness condition holds at every point.",
+  "question": "Is property P pointwise continuity or uniform continuity? Answer with exactly one of: POINTWISE or UNIFORM.",
+  "reference_hml": "module ContinuityKind\n\nprove forall eps : PositiveReal . exists delta : PositiveReal . forall x : Real . delta > 0\n",
+  "seed": 10,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {},
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "delta": "PositiveReal",
+      "eps": "PositiveReal",
+      "x": "Real"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [
+      "that quantifier order is a stylistic choice"
+    ],
+    "quantifier_order": [
+      "forall eps",
+      "exists delta",
+      "forall x"
+    ]
+  },
+  "valid_transformations": []
+}

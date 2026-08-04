@@ -400,6 +400,52 @@ diagnostic it always should have.
 
 ## Open questions
 
+---
+
+## D-020 — Inference queries do not share a precondition *(implementation bug, fixed under freeze)*
+
+**Question.** D-016 finding 1.7 made every `infer` query require its target to carry a
+probability law. Was that right?
+
+**No — it was an over-correction, and it rejected the most common frequentist model in
+statistics.** `infer mle p`, where `p` appears in `likelihood germinated | p ~ Binomial(…)`,
+was rejected with `HML-S604`. A maximum-likelihood estimate is defined by the likelihood of
+the *data given* the parameter; the parameter itself carries no law. Demanding one confuses
+the MLE with the posterior.
+
+**How it surfaced.** Not from review. Building the HML-EVAL-001 corpus, a generated
+problem stated "the germination probability is not known and is to be estimated from this
+data" — no prior. The faithful encoding is an MLE, and the compiler refused it. Encoding a
+prior instead would have made the Hamiltonian arm say more than the problem does, which is
+exactly the information asymmetry §4 forbids.
+
+**Corrected rule.** The five queries have three different preconditions:
+
+| query | precondition |
+|-------|--------------|
+| `posterior`, `map` | the target has a **prior** |
+| `expectation`, `variance` | the target has **a law** |
+| `mle` | the target has a law **or appears in the conditioning set of some likelihood** |
+
+**Regression tests.** Four, in `tests/type_system/test_types.py`: the MLE case now
+accepted; MLE with no likelihood anywhere still rejected; MLE where the likelihood does not
+mention the target still rejected; and `posterior` still requiring a prior even when a
+likelihood exists — which is the test that pins the three preconditions apart.
+
+**Effect on prior benchmark items.** None recorded before this change relied on the
+rejection: the adversarial case `param t : Real; infer mle t` has no likelihood at all and
+is still rejected. Verified: full suite green, no golden hash moved.
+**No benchmark-version increment is required.**
+
+**Freeze status.** Permitted under `hml-v0-eval-freeze` as a demonstrated implementation
+bug. It widens what is accepted, so no previously valid program becomes invalid.
+
+**Confidence.** High. **Reversal cost.** Low.
+
+---
+
+## Open questions
+
 | id | question | blocked on |
 |----|----------|------------|
 | Q-01 | Does the mandatory-role token cost exceed its accuracy benefit? | H5 measurement |

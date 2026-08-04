@@ -1,0 +1,55 @@
+{
+  "answer": {
+    "justification": "the centre is the location; a standard deviation is the scale",
+    "kind": "role_map",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": {
+      "location": "tau",
+      "scale": "chi"
+    }
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "swapping location and scale"
+  ],
+  "domain": "probability",
+  "generator": "_prob_role_map",
+  "id": "p12_role_map",
+  "information_asymmetry": [],
+  "prose": "A quantity Y is normally distributed. Its centre is written tau and the spread, expressed as a standard deviation, is written chi.",
+  "question": "Using the role names 'location' and 'scale', state which symbol fills each role.",
+  "reference_hml": "module RoleMap\n\nrv Y : RandomVariable[Real]\nparam tau : Real\nparam chi : PositiveReal\n\nlaw Y ~ Normal(location := tau, scale := chi)\n",
+  "seed": 12,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "Y": "rv",
+      "chi": "param",
+      "tau": "param"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "Y": "RandomVariable[Real]",
+      "chi": "PositiveReal",
+      "tau": "Real"
+    },
+    "law_families": {
+      "Y": "Normal"
+    },
+    "laws": {
+      "Y": {
+        "location": "tau",
+        "scale": "chi"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

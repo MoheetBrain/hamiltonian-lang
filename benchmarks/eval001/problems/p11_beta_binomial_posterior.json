@@ -1,0 +1,63 @@
+{
+  "answer": {
+    "justification": "(1+2)/(1+1+12) = 0.21428571428571427",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 0.21428571428571427
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "answering the sample proportion 2/12 and ignoring the prior"
+  ],
+  "domain": "probability",
+  "generator": "_prob_beta_binomial_posterior",
+  "id": "p11_beta_binomial_posterior",
+  "information_asymmetry": [],
+  "prose": "A coin has an unknown probability theta of landing heads. Before observing any data, theta is given a Beta prior with first shape parameter 1 and second shape parameter 1. The coin is then tossed 12 times, independently, and 2 heads are observed.",
+  "question": "What is the numerical value of the posterior mean of theta?",
+  "reference_hml": "module BetaBinomial\n\nparam theta : Probability\nprior theta ~ Beta(alpha := 1, beta := 1)\n\nobs trials : Natural = 12\nobs successes : Natural = 2\n\nlikelihood successes | theta ~ Binomial(trials := trials, prob := theta)\n\ninfer posterior theta\n",
+  "seed": 11,
+  "semantics": {
+    "conditioning": {
+      "successes": [
+        "theta"
+      ]
+    },
+    "constraints": [],
+    "declaration_kinds": {
+      "successes": "obs",
+      "theta": "param",
+      "trials": "obs"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "successes": "Natural",
+      "theta": "Probability",
+      "trials": "Natural"
+    },
+    "law_families": {
+      "successes": "Binomial",
+      "theta": "Beta"
+    },
+    "laws": {
+      "successes": {
+        "prob": "theta",
+        "trials": "trials"
+      },
+      "theta": {
+        "alpha": "1",
+        "beta": "1"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [
+      "that the prior is uniform when it is not"
+    ],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

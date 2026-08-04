@@ -1,0 +1,52 @@
+{
+  "answer": {
+    "justification": "n p (1-p) = 3.375",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 3.375
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "confusing the variance n p (1-p) with the mean n p"
+  ],
+  "domain": "probability",
+  "generator": "_prob_binomial_moments",
+  "id": "p22_binomial_moments",
+  "information_asymmetry": [],
+  "prose": "A trial is repeated 18 times independently. Each repetition succeeds with probability 0.25. Let S be the total number of successes.",
+  "question": "What is the numerical variance of S?",
+  "reference_hml": "module BinomialMoments\n\nrv S : RandomVariable[Natural]\nconst trials : Natural = 18\nconst prob : Probability = 0.25\n\nlaw S ~ Binomial(trials := trials, prob := prob)\n\ninfer variance S\n",
+  "seed": 22,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "S": "rv",
+      "prob": "const",
+      "trials": "const"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "S": "RandomVariable[Natural]",
+      "prob": "Probability",
+      "trials": "Natural"
+    },
+    "law_families": {
+      "S": "Binomial"
+    },
+    "laws": {
+      "S": {
+        "prob": "prob",
+        "trials": "trials"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

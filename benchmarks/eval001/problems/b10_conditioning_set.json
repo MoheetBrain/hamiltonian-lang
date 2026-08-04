@@ -1,0 +1,53 @@
+{
+  "answer": {
+    "justification": "b, s and the third listed object",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 3
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "counting Y itself as part of its own conditioning set"
+  ],
+  "domain": "binding",
+  "generator": "_bind_conditioning_set",
+  "id": "b10_conditioning_set",
+  "information_asymmetry": [],
+  "prose": "An outcome Y depends on a coefficient vector b, a noise scale s, and a covariate matrix X. The law of Y is stated conditionally on all three of those, and on nothing else.",
+  "question": "How many distinct symbols appear in the conditioning set of the law of Y? Give a single number.",
+  "reference_hml": "module ConditioningSet\n\nrv Y : RandomVariable[Real]\nparam b : Real\nparam s : PositiveReal\nobs c : Real = 0\n\nlaw Y | b s c ~ Normal(location := b, scale := s)\n",
+  "seed": 10,
+  "semantics": {
+    "conditioning": {
+      "Y": [
+        "b",
+        "s",
+        "c"
+      ]
+    },
+    "constraints": [],
+    "declaration_kinds": {
+      "Y": "rv",
+      "b": "param",
+      "c": "obs",
+      "s": "param"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "Y": "RandomVariable[Real]",
+      "b": "Real",
+      "c": "Real",
+      "s": "PositiveReal"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

@@ -1,0 +1,47 @@
+{
+  "answer": {
+    "justification": "L is a probability law, not a value; adding 1 to a law is undefined. Only N, or a summary of N, is numeric.",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": false
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "treating the law as if it were a sampled value"
+  ],
+  "domain": "probability",
+  "generator": "_prob_rv_vs_distribution",
+  "id": "p05_rv_vs_distribution",
+  "information_asymmetry": [],
+  "prose": "Let N be a random variable whose probability law is a Binomial distribution with number of trials equal to 23. Let L denote that probability law itself.",
+  "question": "Is the expression L + 1 a well-defined real number? Answer TRUE or FALSE.",
+  "reference_hml": "module LawIsNotAValue\n\nrv N : RandomVariable[Natural]\nvar L : Distribution[Natural]\n",
+  "seed": 5,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "L": "var",
+      "N": "rv"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "L": "Distribution[Natural]",
+      "N": "RandomVariable[Natural]"
+    },
+    "law_families": {
+      "N": "Binomial"
+    },
+    "laws": {},
+    "objective": null,
+    "prohibited_assumptions": [
+      "that a distribution can be treated as a value"
+    ],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

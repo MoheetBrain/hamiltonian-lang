@@ -1,0 +1,54 @@
+{
+  "answer": {
+    "justification": "swapping which symbol fills which ROLE is not a renaming; location and scale are different roles with different meanings",
+    "kind": "boolean",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": false
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "hard",
+  "distractors": [
+    "treating a role swap as an alpha-renaming"
+  ],
+  "domain": "binding",
+  "generator": "_bind_interface_rename",
+  "id": "b09_interface_rename",
+  "information_asymmetry": [],
+  "prose": "Model 1 states that a quantity is normally distributed with location iota and scale gamma_. Model 2 states that the same quantity is normally distributed with location gamma_ and scale iota.",
+  "question": "Do Model 1 and Model 2 describe the same distribution for every choice of iota and gamma_? Answer TRUE or FALSE.",
+  "reference_hml": "module InterfaceRename\n\nrv Q : RandomVariable[Real]\nparam iota : Real\nparam gamma_ : PositiveReal\n\nlaw Q ~ Normal(location := iota, scale := gamma_)\n",
+  "seed": 9,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "Q": "rv",
+      "gamma_": "param",
+      "iota": "param"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "Q": "RandomVariable[Real]",
+      "gamma_": "PositiveReal",
+      "iota": "Real"
+    },
+    "law_families": {
+      "Q": "Normal"
+    },
+    "laws": {
+      "Q": {
+        "location": "iota",
+        "scale": "gamma_"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [
+      "that swapping role fillers is a mere renaming"
+    ],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

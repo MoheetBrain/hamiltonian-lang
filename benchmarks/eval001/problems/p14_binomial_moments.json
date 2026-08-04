@@ -1,0 +1,52 @@
+{
+  "answer": {
+    "justification": "n p (1-p) = 5.120000000000001",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 5.120000000000001
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "easy",
+  "distractors": [
+    "confusing the variance n p (1-p) with the mean n p"
+  ],
+  "domain": "probability",
+  "generator": "_prob_binomial_moments",
+  "id": "p14_binomial_moments",
+  "information_asymmetry": [],
+  "prose": "A trial is repeated 32 times independently. Each repetition succeeds with probability 0.2. Let S be the total number of successes.",
+  "question": "What is the numerical variance of S?",
+  "reference_hml": "module BinomialMoments\n\nrv S : RandomVariable[Natural]\nconst trials : Natural = 32\nconst prob : Probability = 0.2\n\nlaw S ~ Binomial(trials := trials, prob := prob)\n\ninfer variance S\n",
+  "seed": 14,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [],
+    "declaration_kinds": {
+      "S": "rv",
+      "prob": "const",
+      "trials": "const"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "S": "RandomVariable[Natural]",
+      "prob": "Probability",
+      "trials": "Natural"
+    },
+    "law_families": {
+      "S": "Binomial"
+    },
+    "laws": {
+      "S": {
+        "prob": "prob",
+        "trials": "trials"
+      }
+    },
+    "objective": null,
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}

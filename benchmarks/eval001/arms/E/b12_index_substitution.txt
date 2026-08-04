@@ -1,0 +1,109 @@
+### SYSTEM
+You are solving a mathematics problem. Be precise. Do not restate the problem. Your reply must end with the final answer wrapped in <ANSWER> and </ANSWER> markers, and nothing after the closing marker.
+
+### USER
+HAMILTONIAN LANG (HML-L1) — CONCISE REFERENCE
+
+ASCII only. One statement per line. `#` starts a comment.
+
+DECLARATIONS — the keyword records epistemic status, not style:
+  var   <name> : <Type>            a free mathematical variable
+  param <name> : <Type>            an unknown to be inferred or fixed
+  const <name> : <Type> = <expr>   a fixed known value
+  obs   <name> : <Type> = <expr>   an observed datum
+  index <name> : Natural           a dimension or counting index
+  rv    <name> : RandomVariable[T] an explicitly declared random variable
+
+TYPES:
+  Bool Natural Integer Rational Real NonNegativeReal PositiveReal Probability
+  Vector[T, n]  Matrix[T, m, n]  Set[T]  Function[T -> U]
+  RandomVariable[T]   Distribution[T]   Quantity[D]   Proposition
+  Probability is the closed interval [0,1]. It is NOT a subtype of PositiveReal
+  (0 is a probability and is not positive; 2.0 is positive and is not a probability).
+  Quantity dimensions are built from Mass Length Time Temperature Current Amount
+  Luminosity with * / ^, e.g. Quantity[Length / Time], Quantity[Mass * Length^2 / Time^2].
+
+DEFINITIONS AND LAWS:
+  def <name> [( <p> : <T>, ... )] [: <Type>] := <expr>
+  law|prior|likelihood <target> [| <given> ...] ~ <Family>(<role> := <expr>, ...)
+
+  Distribution arguments MUST be labelled by role. Positional arguments are a parse
+  error. Families and their roles:
+    Normal(location, scale)        scale is the STANDARD DEVIATION, not the variance
+    Beta(alpha, beta)              support [0,1]
+    Binomial(trials, prob)         Bernoulli(prob)
+    Poisson(rate)                  Exponential(rate)      rate = 1 / mean
+    Gamma(shape, rate)             InverseGamma(shape, scale)
+    Uniform(lower, upper)          LogNormal(location, scale)
+    HalfNormal(scale)              Cauchy(location, scale)
+    StudentT(degrees_of_freedom, location, scale)
+    NormalVector(location, scale)  Dirichlet(concentration)  Categorical(probs)
+
+PROPOSITIONS AND QUERIES:
+  assume <prop>       require <prop>       prove <prop>
+  minimise <expr>     maximise <expr>      solve <name> ...
+  infer posterior|expectation|variance|mle|map <name> ...
+  check dimension <expr> [= <dimension>]
+
+QUANTIFIERS — the domain and the '.' are mandatory, and nesting order is meaning:
+  forall x : Real . exists y : Real . y > x
+  exists y : Real . forall x : Real . y > x      # a DIFFERENT statement
+
+OPERATORS, loosest to tightest:
+  => <=> | or | and | = != < <= > >= | + - | * / @ | unary - not | ^
+  Chained comparison is a parse error: write `0 < x and x < 1`.
+  ':=' binds a definition. '=' is mathematical equality. '~' is "is distributed as".
+
+CONCEPTS:
+  concept <Name> [extends <Name>, ...]
+      parameter <name> : <Type>
+      transform <name>(<p> : <Type>) : <Type> := <expr>
+      invariant <name> := <proposition>
+      example <name> := <proposition>
+  end
+  A concept with no invariant and no example is rejected.
+
+WORKED EXAMPLES
+
+--- Example 1 ---
+Problem: A reading R is normally distributed. Its centre is written c, and its spread, expressed as a standard deviation, is written d, where d is strictly positive.
+
+```hml
+module Demo
+
+rv R : RandomVariable[Real]
+param c : Real
+param d : PositiveReal
+
+law R ~ Normal(location := c, scale := d)
+```
+The role d fills is the scale.
+
+--- Example 2 ---
+Problem: A quantity is defined as a mass multiplied by a speed, where speed has the dimension of length divided by time.
+
+```hml
+module DemoDim
+
+param m : Quantity[Mass]
+param v : Quantity[Length / Time]
+
+def p := m * v
+
+check dimension p = Mass * Length / Time
+```
+The dimension is Mass * Length / Time.
+
+
+PROBLEM
+A vector v of length 6 has entries, in order, 3, 5, 4, 9, 4, 8. Consider the sum of v[i] taken over every index i from 1 to 6 for which i is not equal to 5.
+
+METHOD
+Encode the problem in Hamiltonian Lang, using the reference below. Put the encoding in a fenced block marked ```hml. Then answer the question.
+Your encoding will be checked by the Hamiltonian Lang compiler. If it reports errors you will be shown them and asked to correct the encoding.
+
+QUESTION
+What is the numerical value of that sum?
+
+Give your final answer as a single number (no units, no thousands separators), e.g. <ANSWER>3.25</ANSWER>
+The answer must appear exactly once, wrapped in <ANSWER> … </ANSWER>.

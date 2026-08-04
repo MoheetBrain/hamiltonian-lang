@@ -1,0 +1,28 @@
+### SYSTEM
+You are solving a mathematics problem. Be precise. Do not restate the problem. Your reply must end with the final answer wrapped in <ANSWER> and </ANSWER> markers, and nothing after the closing marker.
+
+### USER
+WORKED EXAMPLES
+
+--- Example 1 ---
+Problem: A reading R is normally distributed. Its centre is written c, and its spread, expressed as a standard deviation, is written d, where d is strictly positive.
+
+$R \sim \mathcal{N}(c, d)$ with $d > 0$. The role $d$ fills is the scale.
+
+--- Example 2 ---
+Problem: A quantity is defined as a mass multiplied by a speed, where speed has the dimension of length divided by time.
+
+$[p] = [m][v] = \mathrm{Mass} \cdot \mathrm{Length}/\mathrm{Time}$.
+
+
+PROBLEM
+A vector v of length 6 has entries, in order, 3, 5, 4, 9, 4, 8. Consider the sum of v[i] taken over every index i from 1 to 6 for which i is not equal to 5.
+
+METHOD
+Write your working in LaTeX, using conventional mathematical notation for every object, distribution and quantifier.
+
+QUESTION
+What is the numerical value of that sum?
+
+Give your final answer as a single number (no units, no thousands separators), e.g. <ANSWER>3.25</ANSWER>
+The answer must appear exactly once, wrapped in <ANSWER> … </ANSWER>.

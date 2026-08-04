@@ -1,0 +1,47 @@
+{
+  "answer": {
+    "justification": "minimum on x+y=8 at x=y=4.0, giving 2*(4.0)^2 = 32.0",
+    "kind": "numeric",
+    "options": [],
+    "tolerance": 1e-06,
+    "value": 32.0
+  },
+  "assumptions": [],
+  "corpus_version": "eval001-v1",
+  "difficulty": "medium",
+  "distractors": [
+    "answering 64, using a corner rather than the symmetric point"
+  ],
+  "domain": "algebraic",
+  "generator": "_alg_constrained_min",
+  "id": "a01_constrained_min",
+  "information_asymmetry": [],
+  "prose": "Two real numbers x and y are both non-negative, and their sum is at least 8.",
+  "question": "What is the minimum possible numerical value of x squared plus y squared?",
+  "reference_hml": "module ConstrainedMin\n\nvar x : Real\nvar y : Real\n\nrequire x + y >= 8\nrequire x >= 0\nrequire y >= 0\n\nminimise x ^ 2 + y ^ 2\n\nsolve x y\n",
+  "seed": 1,
+  "semantics": {
+    "conditioning": {},
+    "constraints": [
+      "x + y >= 8",
+      "x >= 0",
+      "y >= 0"
+    ],
+    "declaration_kinds": {
+      "x": "var",
+      "y": "var"
+    },
+    "dependencies": {},
+    "dimensions": {},
+    "entities": {
+      "x": "Real",
+      "y": "Real"
+    },
+    "law_families": {},
+    "laws": {},
+    "objective": "minimise x^2 + y^2",
+    "prohibited_assumptions": [],
+    "quantifier_order": []
+  },
+  "valid_transformations": []
+}
