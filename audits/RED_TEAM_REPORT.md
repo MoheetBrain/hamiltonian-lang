@@ -30,227 +30,105 @@ before citing any row of this document.
 
 ---
 
-## 1. Semantic holes
+## 1. Semantic holes — as a timeline
 
 Constructs that parse and type-check and mean something wrong, ambiguous, or nothing at
-all. Each is reproduced as an `.hml` snippet that **survives `hml check`** and should not.
-Each has a corresponding `xfail(strict=True)` in `tests/adversarial/`.
+all. Every one below was reproduced as an `.hml` snippet that survived `hml check` at the
+time stated. Every one has a guard in `tests/adversarial/`.
 
-### 1.1 (CLOSED during this session) Refinement types and negative literals
+### 1A. Closed during this review
 
-Recorded because it shows the shape of the risk, not because it is open. At 19:5x,
-`param s : PositiveReal = -1.0` compiled clean: unary minus returned its operand's type
-unchanged, so `-1.0` inhabited `PositiveReal`, and `sqrt(-4.0)` and `log(-1.0)` type-checked
-for the same reason. The flagship worked example in `GOAL.md` §2 — six commitments, of
-which #6 is "σ > 0 is a **required constraint**, silently assumed" — failed on the
-simplest possible instance of its own headline case. Re-measured at 20:12:47: all three are
-now rejected (`HML-T402`, `HML-T413`, `HML-T427`). Regression guards are in
-`tests/adversarial/test_rejections.py`.
+Thirteen holes were open when found and closed before this document was finished. They are
+kept, with their reproductions, because a reader needs to know which guarantees were
+absent until someone went looking — and because the reproductions are now regression
+tests rather than bug reports.
 
-The lesson is not "a bug existed". It is that the *type system was never the thing doing
-the work* for positivity — the positivity obligation is generated and left undischarged
-either way (`hml obligations` still reports `s > 0 : NOT DISCHARGED`), and the only reason
-the bad program was caught in the end was a literal-typing rule. A checker whose refinement
-guarantee rests on literal special-casing will keep producing this class of hole.
+| # | Hole | Reproduction | Open at | Closed at | Now |
+|---|------|--------------|---------|-----------|-----|
+| 1.1 | Unary minus preserved refinement types, so a negative literal inhabited `PositiveReal` | `param s : PositiveReal = -1.0` | T1 | T2 | `HML-T402` |
+| 1.2 | `sqrt` / `log` domain restrictions unenforceable for literals, same root cause | `def d := sqrt(-4.0)` | T1 | T2 | `HML-T427` |
+| 1.3 | No probability literal could be written: `0.5` typed `PositiveReal`, incomparable with `Probability` | `param p : Probability = 0.5` | T1 | T2 | accepted (correct) |
+| 1.4 | Module-level declarations not alpha-normalised | `var alpha : Real` vs `var omega : Real` hashed differently | T1 | T2 | invariant |
+| 1.5 | Definition **parameters** not alpha-normalised — the binder form the existing property test did not generate | `def f(u : Real) := u + 1.0` vs `def f(w : Real) := ...` | T1, T2 | T3 | invariant |
+| 1.6 | A value could take a distribution family's name, silently | `param Normal : Real` beside `law X ~ Normal(...)` | T1, T2 | T3 | `HML-N307` |
+| 1.7 | Concept cycles of length ≥ 2 undetected (only `A extends A` was checked) | `concept A extends B` / `concept B extends A` | T1, T2 | T3 | `HML-S602` |
+| 1.8 | Definition cycles undetected, **contradicting a docstring that claimed the check existed** | `def f := g + a` / `def g := f + a` | T1, T2 | T3 | `HML-S606` |
+| 1.9 | Cross-role constraints never checked, so a law could denote the empty set | `Uniform(lower := 5.0, upper := 1.0)` | T1, T2 | T3 | `HML-T417` |
+| 1.10 | `prior` / `likelihood` / `law` decorative — role never checked against the target's declaration kind | `obs y : Real = 3.0` then `prior y ~ Normal(...)` | T1, T2 | T3 | `HML-S607` |
+| 1.11 | Only `infer posterior` was well-posedness-checked; the other four queries were not | `param t : Real` then `infer mle t` | T1, T2 | T3 | `HML-S604` |
+| 1.12 | Concept members barely checked: a transform could ignore its own argument, and arity was unchecked at the call site | `transform t(u) := p` | T1, T2 | T3 | `HML-P214` |
+| 1.13 | `UnknownType` survived a clean check, contradicting the invariant in `ast/nodes.py:16` | `require sum(w) = 1.0` | T1, T2 | T3 | typed; 0 surviving `UnknownType` nodes measured |
 
-### 1.2 (OPEN) A value may take a distribution family's name, silently
+Two of these deserve to be remembered after the code is fixed.
 
+**1.8 is the one that should worry a reviewer most.** `src/hamiltonian_lang/semantics/__init__.py`
+line 11 asserted, verbatim:
+
+> Order still matters for *definition* cycles, which are detected separately.
+
+No such detection existed. A documented guarantee that is absent is worse than an absent
+guarantee, because a reader building on it will not test for it.
+
+**1.5 is the one with the methodological lesson.** The freeze document, §5, said:
+
+> canonical hash. Property-tested in `tests/roundtrip/`.
+
+The property test was real and passing. It generated `param` and `def`-name binders and
+never generated a `def` **parameter** — the one binder form that violated the criterion. A
+green property-based suite was not evidence, because the generator did not reach the
+defect. Any future claim of the form "property-tested" must state the generator's
+coverage, not merely its existence.
+
+### 1B. Open at T3 (`4776ebfd…`, measured 2026-08-04T20:22:27)
+
+**1.14 The content hash is edit-fragile, and is advertised as a dataset key.**
+Measured: inserting an unrelated declaration anywhere above a referenced symbol changes the
+hash of the whole module. `SymbolId.ordinal` is positional, so `sym:#0.2` means "the third
+thing declared" and any edit above it renumbers everything below.
+
+This is a correct consequence of the design, not a bug. It is listed because freeze §7
+advertises the hash as "Suitable for equality testing, deduplication, and **dataset keys**"
+and `README.md:65` describes it as "invariant under renaming, sensitive to structure". Both
+true; neither warns about *insertion position*, which is what actually breaks a
+content-addressed corpus in practice. The protocol works around it by freezing the corpus by
+hash before a run (§9.5, §12 row 10).
+
+**1.15 `exists unique` generates one opaque obligation, not two.**
+Measured: `require exists unique x : Real . x > 0.0` compiles and yields a single
+`constraint` obligation carrying the whole proposition. Unique existence is precisely the
+claim that decomposes into an existence obligation and a uniqueness obligation, and the
+obligation machinery already exists to carry both. Zero examples and zero benchmark items
+use the construct (measured: 0 occurrences across `examples/` and `spec/`).
+
+**1.16 A `counterexample` need not differ from the invariant it purports to refute.**
 ```hml
-module M
-param Normal : Real
-var X : RandomVariable[Real]
-law X ~ Normal(location := 0.0, scale := 1.0)
-```
-
-Compiles clean. `Normal` is simultaneously a real-valued module parameter and the
-distribution family used on the next line. The parser routes any call with labelled
-arguments straight to the distribution registry without consulting the symbol table, so
-family names and value names occupy disjoint namespaces with no diagnostic and no note.
-
-Why it is a design hole and not a nit: governing principle 2 is "every relation has
-defined semantics". Here a relation (`~`) resolves its right-hand operand by a rule that is
-never stated anywhere in the freeze document, and a reader of the source cannot tell from
-the text which `Normal` is meant. Compare Stan, which rejects a variable named after a
-built-in distribution, and Lean, where a shadowing definition would at least be resolvable
-by the elaborator's stated rules.
-
-### 1.3 (OPEN) Concept cycles of length ≥ 2
-
-```hml
-module M
-concept A extends B
+concept C
     parameter p : Real
     invariant i := p > 0.0
-end
-concept B extends A
-    parameter q : Real
-    invariant j := q > 0.0
+    counterexample bad := p > 0.0
 end
 ```
+Compiles clean at T3. `HML-S603` enforces that a concept has *at least one* invariant or
+example — a presence check, not a content check. `GOAL.md` §4 demands "testable
+consequences" and says "Plausibility is not admissible evidence"; a counterexample that
+asserts exactly its own invariant satisfies the letter of the rule and tests nothing.
 
-Compiles clean. `Resolver.visit_concept` tests `if st.name in st.extends`, which catches
-`A extends A` (`HML-S602`) and nothing longer. A circular concept lattice is not a
-definition, and governing principle 4 — "every new concept has a formal definition" — is
-enforced only against the length-1 cycle. The fix is a standard SCC check over the
-`extends` edges; its absence is not a subtle problem.
-
-### 1.4 (OPEN) Definition cycles, contradicting a docstring
-
+**1.17 Distributions may be given data outside their own support.**
 ```hml
-module M
-param a : Real
-def f := g + a
-def g := f + a
-```
-
-Compiles clean. Both `f` and `g` receive inferred types from a derivation with no base
-case. `src/hamiltonian_lang/semantics/__init__.py` line 11 states, verbatim:
-
-> `  pass. Order still matters for *definition* cycles, which are detected separately.`
-
-No such detection exists anywhere in the package. Governing principle 3 is "every inference
-has traceable dependencies"; here the dependency graph has a cycle and nothing objects.
-This is worse than 1.3 because the documentation asserts the check exists, so a reader
-building on it is actively misled.
-
-### 1.5 (OPEN) Distribution parameters are checked in isolation, never against each other
-
-```hml
-module M
-var X : RandomVariable[Real]
-law X ~ Uniform(lower := 5.0, upper := 1.0)
-```
-
-Compiles clean, generates no obligation, and denotes a law over the empty set. Likewise:
-
-```hml
-module M
 obs trials : Natural = 5
 obs successes : Natural = 9
 likelihood successes ~ Binomial(trials := trials, prob := 0.5)
 ```
+Compiles clean: nine successes in five trials. `Uniform`'s reversed bounds are now caught
+(1.9 above), so the cross-role machinery exists; it has simply not been extended to the
+support relation between a law's parameters and an observed value bound to it.
 
-Compiles clean, with 9 successes in 5 trials.
-
-Each role's type is checked independently against `DistributionSpec.roles`. There is no
-mechanism — not even an obligation, which is the cheap option and would fit the existing
-design perfectly — for a *cross-role* constraint such as `lower <= upper`. This is the
-sharpest hole in the report, because role labelling is the load-bearing design decision
-(D-003) and the freeze document calls it "the single largest semantic-explicitness win in
-the design". Role labelling buys correct *identification* of parameters and buys nothing
-about their *joint admissibility*. Stan's `<lower=,upper=>` bounds do not solve this either,
-but Stan at least fails at run time on an empty support, whereas here nothing ever fails.
-
-### 1.6 (OPEN) `prior`, `likelihood` and `law` are decorative
-
-```hml
-module M
-obs y : Real = 3.0
-prior y ~ Normal(location := 0.0, scale := 1.0)
-```
-
-Compiles clean: a *prior* on *observed data*. `LawStmt.role` is recorded on the statement
-and threaded into the graph as an edge label, but it is never checked against the
-declaration kind of its target. The three keywords exist to draw a distinction the checker
-does not draw. Either they should be enforced (a `prior` targets a non-`obs` symbol; a
-`likelihood` targets one that is observed or conditioned) or they should be removed as
-surface sugar — but a keyword that looks like a semantic commitment and is not one is
-exactly the implicit-structure problem the project exists to attack, reintroduced by the
-project.
-
-### 1.7 (OPEN) Only one of five inference queries is well-posedness-checked
-
-```hml
-module M
-param t : Real
-infer mle t
-```
-
-Compiles clean. `infer posterior` on a symbol with no law is correctly rejected with
-`HML-S604` and a good diagnostic ("a posterior requires a prior; without one this query is
-not well posed"). The same argument applies verbatim to `mle`, `map`, `expectation` and
-`variance`, and none of them is checked. The guard was written for one case and not
-generalised.
-
-### 1.8 (OPEN) `UnknownType` survives a clean check, contradicting a stated invariant
-
-```hml
-module M
-index K : Natural
-var w : Vector[Probability, K]
-require sum(w) = 1.0
-```
-
-Compiles clean. `sum` is whitelisted in `semantics._BUILTIN_FUNCTIONS` (so resolution
-passes) but absent from `type_system._BUILTIN_SIGNATURES` (so `_call_type` returns
-`UnknownType`). `is_subtype` returns `True` whenever either side is `UnknownType`, so the
-comparison succeeds and the checker has in fact typed nothing.
-
-`src/hamiltonian_lang/ast/nodes.py` line 16 states the invariant, verbatim:
-
-> `* every node has a non-None `` type_ `` (no ``UnknownType`` survives);`
-
-It does not hold. The permissiveness of `UnknownType` is defensible *during* inference; the
-absence of a final sweep that reports any `UnknownType` still standing at the end is not —
-and the type checker's own docstring says such a sweep exists ("the checker separately
-reports any Unknown that survives to the end of checking", `types.py`). It does not.
-
-### 1.9 (OPEN) Definition parameters are not alpha-normalised
-
-```hml
-def f(u : Real) : Real := u + 1.0
-def f(w : Real) : Real := w + 1.0
-```
-
-Different content hashes. `backends/canonical.py` serialises a `Definition`'s parameters as
-`[{"name": n, "type": ...}]` — the raw spelling — while every other binder is projected to
-`sym:#<depth>.<ordinal>`. The freeze document, §5 line 122, states:
-
-> `canonical hash. Property-tested in ``tests/roundtrip/``.`
-
-The property test exists (`tests/roundtrip/test_roundtrip.py::test_alpha_renaming_invariance_property`)
-and is genuine, but it generates only `param` and `def`-name binders. It does not generate
-the one binder form that fails. This is the most instructive finding in the report: **a
-green property-based test suite was not evidence, because the generator did not reach the
-defect.** Any future claim of the form "property-tested" must state the generator's
-coverage, not just its existence.
-
-### 1.10 (OPEN, by design, but a trap) Ordinals are positional, so the content hash is edit-fragile
-
-Measured: inserting an unrelated declaration anywhere above a referenced symbol changes the
-hash of the whole module; so does appending one. `SymbolId.ordinal` is assigned in
-declaration order, so `sym:#0.2` means "the third thing declared", and any edit above it
-renumbers everything below.
-
-This is a correct consequence of the design, not a bug. It is listed because the freeze
-document §7 advertises the hash as "Suitable for equality testing, deduplication, and
-**dataset keys**", and `README.md` line 65 describes it as "invariant under renaming,
-sensitive to structure". Both are true; neither warns that the hash is also sensitive to
-*insertion position*, which is what actually breaks a dataset key in practice. A
-content-addressed corpus built on this will churn on every unrelated edit.
-
-### 1.11 (OPEN) Concept members are barely checked
-
-All three of these compile clean:
-
-```hml
-concept C
-    parameter p : Real
-    transform t(u) := p          # ignores its own argument
-    invariant i := t(p, p) = p   # called with the wrong arity
-    counterexample bad := p > 0.0  # identical to the invariant it is meant to refute
-end
-```
-
-`HML-S605` warns about a transform with *no* parameters, but a transform that declares a
-parameter and ignores it is silent, arity is not checked at the call site, and a
-`counterexample` is never required to differ from — let alone contradict — the invariants.
-`GOAL.md` §4's corollary demands "testable consequences" and says "Plausibility is not
-admissible evidence". `HML-S603` enforces that a concept has *at least one* invariant or
-example, which is a presence check, not a content check. A concept can satisfy the letter of
-the rule with an invariant and a counterexample that assert the same proposition.
-
----
+**1.18 Two constructs that are accepted and arguably should not be.** `def d := 1.0 / 0.0`
+compiles clean, and a module containing nothing but `module M` compiles clean and is
+reported as valid. Neither is dangerous on its own. The empty module matters for the
+benchmark specifically: it is the cheapest way to game `parse_success`, which is why
+`evaluation/score.py::_a_compiles` additionally requires at least one statement beyond the
+module header.
 
 ## 2. Where existing tools genuinely beat this design
 
@@ -307,99 +185,104 @@ incompletely specified problem" among the things that must be representable. It 
 ## 3. Unsupported claims
 
 Verbatim quotations, with file and line, of sentences in the repository that assert more
-than the evidence supports. All line numbers as of the fingerprinted tree.
+than the evidence supports. **Re-verified against T3**; where the code changed under a
+quotation during this review, that is recorded rather than quietly dropped.
 
-**3.1** `src/hamiltonian_lang/semantics/__init__.py:11`
+### 3.1 Still unsupported at T3
 
-> Order still matters for *definition* cycles, which are detected separately.
-
-**False.** No cycle detection exists. Measured: §1.4 above.
-
----
-
-**3.2** `src/hamiltonian_lang/ast/nodes.py:16`
-
-> every node has a non-None ``type_`` (no ``UnknownType`` survives);
-
-**False** as a post-condition of a successful check. Measured: §1.8 above.
-
----
-
-**3.3** `docs/design/V0_DESIGN_FREEZE.md:122`
-
-> canonical hash. Property-tested in `tests/roundtrip/`.
-
-**Misleading, not false.** The test exists and is real, but its generator does not cover
-definition parameters, which is the binder form that violates the criterion. Measured:
-§1.9. The remedy is a sentence stating what the generator covers.
-
----
-
-**3.4** `src/hamiltonian_lang/type_system/distributions.py:9`
+**`src/hamiltonian_lang/type_system/distributions.py:9`**
 
 > targeted error for these is the clearest single demonstration of the project thesis:
 
-**Unsupported.** The thesis is that an AI system reasons more accurately through this
-representation. A targeted error message demonstrates that *the compiler* distinguishes
-`scale` from `variance`. Whether that changes a model's accuracy is H3/H4 and is unmeasured.
-This is a claim about a demonstration of a thesis, made in a file that contains no
-measurement. The freeze document is scrupulous about this ("No superiority claim is made
-anywhere in this repository"); this docstring is not.
+The thesis is that an AI system *reasons more accurately* through this representation.
+A targeted error message demonstrates that **the compiler** distinguishes `scale` from
+`variance`. Whether that changes any model's accuracy is H3/H4 and is unmeasured. This is a
+claim about a demonstration of a thesis, asserted in a file that contains no measurement,
+in a repository whose README correctly states that "Nothing in this repository should be
+read as evidence for it". The docstring should say what it does: that the confusion is
+rejected with a diagnostic naming it.
 
 ---
 
-**3.5** `src/hamiltonian_lang/type_system/__init__.py:11`
-
-> directive are unrepresentable rather than merely discouraged.
-
-**Overreach in the general case, though narrower than it reads.** The three prohibited
-conflations of `RandomVariable[T]` / `Distribution[T]` / `T` are indeed structurally
-blocked, and I verified `HML-T410`, `HML-T428` and `HML-T430`. But "unrepresentable" is
-falsified by §1.2: a symbol can be named after a distribution family and coexist with it,
-which is a conflation of a *name* for a value with a *name* for a law. The freeze document
-itself models the right behaviour here — §2 lines 68–70 explicitly withdraw an earlier
-"cannot be expressed" claim as having "overstated the grammar's role". That withdrawal
-should be propagated to this docstring.
-
----
-
-**3.6** `README.md:65`
-
-> | `hml hash FILE` | content hash — invariant under renaming, sensitive to structure |
-
-**Incomplete in a way that misleads.** True for the binders tested; false for definition
-parameters (§1.9); and silent about insertion-position sensitivity (§1.10), which is what
-will actually bite a user who treats the hash as a stable key.
-
----
-
-**3.7** `docs/design/V0_DESIGN_FREEZE.md:72`
+**`docs/design/V0_DESIGN_FREEZE.md:72`**
 
 > Cost, now measured rather than assumed: **+4 tokens per law statement, ≈5.9% of a
 
-**Cannot be verified as stated, and probably should not be stated.** No tokenizer is named.
-`tiktoken` is **not installed in this repository's `.venv`** (measured:
-`ModuleNotFoundError: No module named 'tiktoken'`), so any token count produced in this
-repository today is tokenizer-dependent and approximate — my own harness labels its numbers
-`APPROXIMATE` for exactly this reason. A figure quoted to two significant figures, in a
-frozen design document, with no tokenizer named and no artefact to reproduce it, is not
-"measured rather than assumed" in any useful sense. Name the tokenizer and the corpus, or
-give a range.
+**Not reproducible as stated.** No tokenizer is named, no corpus is named, and no artefact
+computes it. `tiktoken` is **not installed in this repository's `.venv`** — re-verified at
+T3: `ModuleNotFoundError: No module named 'tiktoken'` — so any token count produced here
+today is tokenizer-dependent and approximate. My own harness labels every token number
+`APPROXIMATE` for exactly this reason (`evaluation/score.py::TOKENIZER_IS_APPROXIMATE`). A
+figure quoted to two significant figures in a *frozen design document*, introduced by the
+words "measured rather than assumed", should name its tokenizer and its corpus or give a
+range. This is the clearest remaining instance of a number carrying more authority than its
+provenance supports.
 
 ---
 
-**3.8** A claim that is *correctly* scoped, recorded so this section is not one-sided
+**`README.md:65`**
 
-`README.md`:
+> | `hml hash FILE` | content hash — invariant under renaming, sensitive to structure |
+
+**Now true as far as it goes, and still incomplete in the way that matters.** Renaming
+invariance holds at T3 for every binder form I could generate, including the definition
+parameters that failed at T2. But the sentence is silent about *insertion-position*
+sensitivity (§1.14): adding an unrelated declaration above a referenced symbol changes the
+hash of the whole module. That, not renaming, is what breaks a content-addressed corpus in
+practice, and it is the property a reader of this table would most likely assume.
+
+### 3.2 Withdrawn — the code changed under the quotation during this review
+
+Recorded so the record is honest in both directions.
+
+**`src/hamiltonian_lang/semantics/__init__.py:11`** — text unchanged at T3:
+
+> Order still matters for *definition* cycles, which are detected separately.
+
+At T1 and T2 this was **false**: no cycle detection existed anywhere in the package. At T3
+it is **true** (`HML-S606`, §1.8). The claim outran the implementation by roughly half an
+hour. The finding stands as a process observation, not as a live defect.
+
+**`src/hamiltonian_lang/ast/nodes.py`** — at T2 this file asserted, as a post-condition of
+a successful check, that "every node has a non-None `type_` (no `UnknownType` survives)".
+That was false at T2 (§1.13). At T3 the line no longer appears in the file and the property
+holds when measured (0 surviving `UnknownType` nodes on the probe that previously broke it).
+The quotation is withdrawn.
+
+**`src/hamiltonian_lang/type_system/__init__.py:11`** — text unchanged at T3:
+
+> directive are unrepresentable rather than merely discouraged.
+
+At T1 and T2 "unrepresentable" was too strong: a symbol could be named after a distribution
+family and coexist with it (§1.6), which is a conflation of a name for a value with a name
+for a law. At T3 that is rejected (`HML-N307`) and the three structural conflations are
+genuinely blocked — I verified `HML-T410`, `HML-T428` and `HML-T430`. The word is now
+defensible. Noting for the record that the freeze document models the right behaviour here
+already: §2 lines 68–70 explicitly withdraw an earlier "cannot be expressed" claim as having
+"overstated the grammar's role".
+
+**`docs/design/V0_DESIGN_FREEZE.md:122`** — text unchanged at T3:
+
+> canonical hash. Property-tested in `tests/roundtrip/`.
+
+At T2 this was *misleading rather than false*: the test existed and passed, but its
+generator never produced the binder form that violated the criterion (§1.5). At T3 the
+underlying defect is fixed. The sentence should still gain a clause naming what the
+generator covers, because the failure mode it enabled — a green property suite that reaches
+none of the defects — costs nothing to guard against and is invisible when it happens.
+
+### 3.3 Claims that are correctly scoped
+
+So this section is not one-sided. `README.md`:
 
 > **No comparative evaluation has been run.** […] Nothing in this repository should be read
 > as evidence for it.
 
-This is exactly right and it is prominent. `GOAL.md` §8 and §13 are likewise unusually
-disciplined about falsification. The claim hygiene at the document level is good; the drift
-is in docstrings, which are where claims go to escape review.
-
----
+Exactly right, and prominent. `GOAL.md` §8 and §13 are likewise unusually disciplined about
+falsification, and freeze §8's list of what is *explicitly unsupported* ("Stated so that no
+reader infers capability from silence") is the single best piece of claim hygiene in the
+repository. The pattern in every finding above is the same: **claim discipline is strong at
+the document level and weak in docstrings**, which are where claims escape review.
 
 ## 4. Overengineering — complexity in v0 with no demonstrated requirement
 
@@ -522,6 +405,34 @@ notations with enormous pretraining representation; arm E uses one invented week
 Nothing in this protocol separates those hypotheses, and I could not design an arm that
 does. Protocol §9.1 states this plainly rather than hiding it. Any positive result must
 carry it.
+
+**5.11 The methodological conclusion of this review, which is not about metrics.**
+Thirteen semantic holes were open when this review began and all thirteen were closed
+before it ended, most within minutes of being written down. That is a fast and serious
+response and it should be said plainly. It is also the finding with the longest half-life,
+for three reasons.
+
+*First:* every one of the thirteen was reachable by a few lines of adversarial input, and
+none was found by the existing suite, which was green throughout — 594 tests passing at T3.
+A test suite that is written alongside an implementation tests what the implementer
+imagined. §1.5 is the sharpest case: a *property-based* test, the technique specifically
+meant to escape that limitation, was passing while the property was false, because its
+generator did not produce the failing binder form.
+
+*Second:* claims outran the implementation in at least three places (§3.2), and in the worst
+case (§1.8) a docstring asserted a check that did not exist. That is a systematic hazard for
+this project in particular, because its entire pitch is that structure is *stated* rather
+than inferred. A repository whose stated structure is not enforced is making the same
+mistake it accuses prose of making.
+
+*Third, and this is the part that bears on the benchmark:* a red-team pass concurrent with
+active development produces a corpus and a protocol calibrated against a moving instrument.
+Every number in `evaluation/results/baseline.json` was produced against T3 and is
+reproducible only against T3. Protocol §12 therefore pins a fingerprint, and
+`tests/adversarial/` used `xfail(strict=True)` throughout so that a fix would announce
+itself as a failure rather than decay into a stale comment. Both mechanisms worked: the
+xfails converted to passes and were removed once the defects were fixed. **Any future run
+must re-fingerprint before it reports.**
 
 ---
 

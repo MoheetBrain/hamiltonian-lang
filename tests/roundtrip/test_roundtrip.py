@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 
+import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -155,18 +156,110 @@ _IDENT = st.from_regex(r"\A[a-z][a-z0-9_]{0,7}\Z", fullmatch=True).filter(
 )
 
 
-@settings(max_examples=60, deadline=None)
+# Every binder form the language has. The generator MUST reach all of them.
+#
+# This list exists because of a specific, expensive lesson: an earlier version of the
+# property test below generated only module-level `param` declarations. It was green
+# while the renaming-invariance criterion was FALSE -- `def` parameters were serialised
+# by spelling, so `def f(u : Real) := u + 1.0` and `def f(w : Real) := w + 1.0` hashed
+# differently. The suite passed because the generator never produced the one binder form
+# that failed. A green property test is only evidence about the inputs it actually
+# reaches. (Red-team finding 1.9.)
+_BINDER_TEMPLATES = [
+    # module-level declaration
+    "param {0} : Real\nparam {1} : PositiveReal\ndef z := {0} + {1}",
+    # definition parameter -- the form that was silently broken
+    "def f({0} : Real, {1} : Real) : Real := {0} + {1}\ndef z := f(1.0, 2.0)",
+    # quantifier binders, both nesting orders
+    "require forall {0} : Real . exists {1} : Real . {1} > {0}",
+    "require exists {0} : Real . forall {1} : Real . {0} > {1}",
+    # concept transform parameter
+    (
+        "concept C\n"
+        "    parameter loc : Real\n"
+        "    transform t({0} : Real) : Real := {0} - loc\n"
+        "    transform s({1} : Real) : Real := {1} + loc\n"
+        "    invariant inv := loc = loc\n"
+        "end"
+    ),
+    # law targets and conditioning sets
+    (
+        "param {0} : Real\nparam {1} : PositiveReal\n"
+        "var x : RandomVariable[Real]\n"
+        "law x ~ Normal(location := {0}, scale := {1})"
+    ),
+]
+
+
+@pytest.mark.parametrize("template", _BINDER_TEMPLATES, ids=range(len(_BINDER_TEMPLATES)))
+@settings(max_examples=40, deadline=None)
 @given(a=_IDENT, b=_IDENT, c=_IDENT, d=_IDENT)
-def test_alpha_renaming_invariance_property(a, b, c, d):
-    """Any consistent bijective renaming leaves the canonical hash unchanged."""
+def test_alpha_renaming_invariance_property(template, a, b, c, d):
+    """A consistent bijective renaming leaves the canonical hash unchanged.
+
+    Parameterised over every binder form so that the generator cannot miss one.
+    """
     if len({a, b}) != 2 or len({c, d}) != 2:
         return
-    src1 = f"param {a} : Real\nparam {b} : PositiveReal\ndef z := {a} + {b}"
-    src2 = f"param {c} : Real\nparam {d} : PositiveReal\ndef z := {c} + {d}"
-    r1, r2 = compile_source(src1), compile_source(src2)
+    r1 = compile_source(template.format(a, b))
+    r2 = compile_source(template.format(c, d))
     if not (r1.ok() and r2.ok()):
         return
-    assert content_hash(r1.module) == content_hash(r2.module)
+    assert content_hash(r1.module) == content_hash(r2.module), (
+        "renaming changed the canonical hash for:\n" + template.format(a, b)
+    )
+
+
+# Names that are *not* anonymous binders: they are the object's interface, and renaming
+# one changes what the object is. The distinction is the same one D-003 makes for
+# distribution roles -- `scale` and `location` are meaning, not spelling. A concept's
+# parameters are its roles; a transform's parameters are local binders. (D-017.)
+_ROLE_TEMPLATES = [
+    # concept parameter member names
+    (
+        "concept C\n"
+        "    parameter {0} : Real\n"
+        "    parameter {1} : PositiveReal\n"
+        "    invariant inv := {1} > 0\n"
+        "end"
+    ),
+    # concept member names generally
+    (
+        "concept C\n"
+        "    parameter loc : Real\n"
+        "    invariant {0} := loc = loc\n"
+        "    example {1} := loc = 0\n"
+        "end"
+    ),
+]
+
+
+@pytest.mark.parametrize("template", _ROLE_TEMPLATES, ids=range(len(_ROLE_TEMPLATES)))
+def test_renaming_an_interface_role_does_change_the_hash(template):
+    """A concept parameter is a named role, not an anonymous binder.
+
+    `LocationScaleFamily(location, scale)` and `LocationScaleFamily(a, b)` are not the
+    same concept: the names carry the meaning, exactly as distribution roles do.
+    """
+    a = compile_source(template.format("location", "scale"))
+    b = compile_source(template.format("aaa", "bbb"))
+    assert a.ok() and b.ok()
+    assert content_hash(a.module) != content_hash(b.module)
+
+
+@pytest.mark.parametrize(
+    "template",
+    _BINDER_TEMPLATES + _ROLE_TEMPLATES,
+    ids=range(len(_BINDER_TEMPLATES) + len(_ROLE_TEMPLATES)),
+)
+def test_every_template_is_actually_reachable(template):
+    """Guard the guard: each template must compile, or it tests nothing.
+
+    Without this, a template that silently failed to compile would make the property
+    above vacuously true -- which is exactly how the original defect hid.
+    """
+    r = compile_source(template.format("aa", "bb"))
+    assert r.ok(), "\n" + r.diagnostics.render()
 
 
 @settings(max_examples=40, deadline=None)

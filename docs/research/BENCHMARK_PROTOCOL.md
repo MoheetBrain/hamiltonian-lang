@@ -529,67 +529,74 @@ this language does not belong in the deterministic set.
 
 ## 12. Known defects in the measurement instrument
 
-Preregistering a protocol on top of a broken instrument is how false positives happen. These are
-**measured**, not suspected, and each one constrains what the protocol may claim. Full detail in
-`audits/RED_TEAM_REPORT.md`.
+Preregistering a protocol on top of a broken instrument is how false positives happen. These
+are **measured**, not suspected, and each constrains what the protocol may claim. Full detail
+and the full timeline are in `audits/RED_TEAM_REPORT.md`.
 
-All measurements below are pinned to a fingerprinted source tree, because `src/` was being
-edited while this protocol was written and several defects found earlier in the session were
-fixed before it was finished:
+`src/` was under active development while this protocol was written, and **thirteen defects
+found during the review were fixed before it was finished**. Measurements are therefore pinned
+to a fingerprinted tree:
 
 ```
-SRC_TREE_SHA256 = 6640d1a22a31fcb5aad75ca25d01a7a8d8ce116003e3922309a005ea44ec15dc
-measured at     = 2026-08-04T20:12:47
+SRC_TREE_SHA256 = 4776ebfdcdb51ff3cacb28b3ba56321917a8a61938be1eab06a79836457fdb77
+measured at     = 2026-08-04T20:22:27
 ```
 
-**Re-run `tests/adversarial/` before citing any row.** Every open defect below has a
-`xfail(strict=True)` guard, so a fix turns into a test failure rather than silent staleness.
+**Re-fingerprint and re-run `tests/adversarial/` before citing any row.** Every finding has an
+executable guard there.
 
 ### Open at the fingerprinted tree
 
 | # | Defect | Measured evidence | Consequence for this protocol |
 |---|--------|-------------------|-------------------------------|
-| 1 | Alpha-renaming a **definition parameter** changes `content_hash` | `def f(u : Real) := u + 1.0` and `def f(w : Real) := w + 1.0` hash differently | `hash_equals` may not be used across renamings involving `def` parameters. H2 scoring uses exact reference forms only. |
-| 2 | Mutually cyclic concepts (`A extends B`, `B extends A`) compile clean | only the length-1 cycle is checked | the cyclic-concept item is `xfail`; no H6 claim may rest on concept-lattice well-foundedness |
-| 3 | Cyclic definitions (`def f := g + a`, `def g := f + a`) compile clean | despite `semantics/__init__.py:11` claiming cycles are "detected separately" | `depends_on` assertions may traverse a cyclic graph; H7 items must avoid recursive definitions |
-| 4 | Cross-role constraints are never checked: `Uniform(lower := 5.0, upper := 1.0)` compiles clean | no diagnostic, no obligation | H3's corrupted set includes this case and it will count **against** arm E |
-| 5 | `prior` on an `obs` compiles clean; the law-role keyword is never checked against the target's declaration kind | measured | no H1 binding item may rely on the prior/likelihood distinction being enforced |
-| 6 | `infer mle` (and `map`, `expectation`, `variance`) on a symbol with no law compiles clean; only `posterior` is guarded | measured | as above |
-| 7 | `UnknownType` survives a clean check (`require sum(w) = 1.0`), contradicting the invariant in `ast/nodes.py:16` | measured | assertions must not assume a clean check implies full typing; `dimension_of` returns `None` rather than erroring in this case |
-| 8 | A module symbol may be named after a distribution family (`param Normal : Real`) with no diagnostic | measured | mutation procedures (§10 `rename`) must not draw from a pool containing family names |
-| 9 | Statement reordering changes `content_hash` when the reordered statements are referenced; reordering bare same-typed declarations does not | measured both ways | the `reorder` mutation may not be combined with `hash_equals` |
-| 10 | `SymbolId.ordinal` is positional, so inserting a declaration anywhere above a referenced symbol changes the whole module's hash | measured | the corpus must be frozen by hash before a run; the hash is not a stable key across edits |
+| 1 | `SymbolId.ordinal` is positional, so inserting a declaration above a referenced symbol changes the whole module's hash | measured | the corpus must be frozen by hash before a run; the hash is **not** a stable key across edits. `reorder` mutations may not be combined with `hash_equals`. |
+| 2 | Statement reordering changes `content_hash` when the reordered statements are referenced; reordering bare same-typed declarations does not | measured both ways | as above |
+| 3 | A law may be given data outside its own support: `trials = 5`, `successes = 9` under `Binomial` compiles clean | measured | H3's corrupted set includes this case and it counts **against** arm E |
+| 4 | `exists unique` yields one opaque obligation rather than an existence obligation and a uniqueness obligation | measured | no H4 item may use `exists unique`; `obligation_count` assertions would encode the conflation as ground truth |
+| 5 | A `counterexample` need not differ from the invariant it purports to refute | measured | `HML-S603` is a presence check, not a content check; H6 concept items must not treat it as evidence of testable consequences |
+| 6 | `def d := 1.0 / 0.0` compiles clean; a module with no statements compiles clean | measured | the empty module is the cheapest way to game `parse_success`; `score.py::_a_compiles` therefore additionally requires ≥1 non-header statement |
 
 ### Closed during the writing of this protocol — recorded, not deleted
 
-Deleting these would hide that the defect *class* is live. Each now has a regression guard
-in `tests/adversarial/`.
+Deleting these would hide that the defect *class* is live. Each now has a regression guard in
+`tests/adversarial/`. Full table with reproductions in `audits/RED_TEAM_REPORT.md` §1A.
 
-| Defect | Was | Now |
-|--------|-----|-----|
-| Unary minus preserved refinement types, so `param s : PositiveReal = -1.0` compiled clean | accepted | rejected `HML-T402` |
-| `sqrt(-4.0)` and `log(-1.0)` type-checked | accepted | rejected `HML-T427` |
-| `param p : Probability = 0.5` was rejected — no probability literal could be written | rejected `HML-T402` | accepted |
-| Alpha-renaming a **module-level** declaration changed `content_hash` | changed | invariant |
-| No verification and no probabilistic backend existed; `render("lean")` and `render("stan")` raised `KeyError` | absent | present (`lean`, `stan`, `sympy`) |
+Unary minus preserving refinement types (`param s : PositiveReal = -1.0`) · `sqrt(-4.0)` and
+`log(-1.0)` type-checking · no writable probability literal (`Probability = 0.5` rejected) ·
+module-level declarations not alpha-normalised · **definition parameters** not alpha-normalised ·
+a value able to take a distribution family's name · concept cycles of length ≥ 2 · definition
+cycles · cross-role constraints never checked (`Uniform(lower := 5.0, upper := 1.0)`) ·
+`prior` on `obs` · `infer mle` with no likelihood · concept transforms ignoring their arguments ·
+`UnknownType` surviving a clean check.
 
-### What the new backends do and do not settle
+Two of these bear on how this protocol must be read.
+
+**The alpha-renaming criterion was false while a passing property test asserted it.** The test
+in `tests/roundtrip/` was real and green; its generator simply never produced a `def` parameter,
+the one binder form that failed. §9.4's restriction — `hash_equals` only against a fixed
+reference form, `hash_differs` used freely because it is sound — was written for this reason and
+should be kept even now that the defect is closed.
+
+**Three docstrings asserted checks that did not exist.** The consequence for a preregistration
+is direct: no hypothesis here may rest on a guarantee that is documented but not executed. Every
+assertion in §11 is computed from a compiled module at scoring time, never read from a claim.
+
+### What the backends do and do not settle
 
 `GOAL.md` §13 item 3 requires "at least two backends (Layer 3) — one verification, one
-probabilistic or numerical". Lean, Stan and SymPy lowerings now exist, so the *count* is met.
-The *claim* is not, and H4 is still not runnable end-to-end, for two measured reasons:
+probabilistic or numerical". Lean, Stan and SymPy lowerings exist at the fingerprinted tree, so
+the *count* is met. The *claim* is not, and H4 is still not runnable end-to-end:
 
-- the Lean backend closes every obligation with `sorry` (correctly — freeze §8 rules out
-  proof search), so it produces statements, not verifications;
-- the Stan backend cannot express `Quantity[...]`, so the entire dimensional category has no
+- the Lean backend closes every obligation with `sorry` (correctly — freeze §8 rules out proof
+  search), so it produces statements, not verifications;
+- the Stan backend cannot express `Quantity[...]`, so the whole dimensional category has no
   arm-D counterpart through the toolchain.
 
-More importantly, `GOAL.md` §8 failure condition 4 is translation loss under round-tripping,
-and **no backend round trip has been tested**: the only round trip currently verified is
-HML → HML (measured: 29/29 files, hash-preserving), which is the one that cannot lose
-anything. Until a HML → Lean → HML or HML → Stan → HML round trip is demonstrated, the
-one-object-many-views claim — the project's genuinely novel contribution — remains untested,
-and it is testable **today, with no model in the loop**.
+Most importantly, `GOAL.md` §8 failure condition 4 is translation loss under round-tripping, and
+**no backend round trip has been tested**. The only round trip verified is HML → HML (measured:
+29/29 files hash-preserving), which is the one that cannot lose anything. Until HML → Lean → HML
+or HML → Stan → HML is demonstrated, the one-object-many-views claim — the project's genuinely
+novel contribution — remains untested, and it is testable **today, with no model in the loop**.
 
 ---
 

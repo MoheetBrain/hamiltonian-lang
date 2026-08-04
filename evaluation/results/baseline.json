@@ -12,7 +12,7 @@
     "KNOWN_INSTRUMENT_DEFECTS": "See docs/research/BENCHMARK_PROTOCOL.md section 12 and audits/RED_TEAM_REPORT.md. Three defects named in earlier runs of this file have since been fixed and the claims are withdrawn: alpha-renaming now leaves the content hash unchanged (DECISIONS.md D-010, D-016 finding 1.9); unary minus no longer preserves a positivity refinement, so 'param s : PositiveReal = -1.0' is rejected; and Stan, SymPy and Lean backends now exist. Standing limitations: no backend is faithful -- each reports its own translation loss -- no proof obligation other than a dimensional check is ever discharged, and eight further findings in the red-team report remain open."
   },
   "run": {
-    "generated_utc": "2026-08-04T19:22:42+00:00",
+    "generated_utc": "2026-08-04T19:25:10+00:00",
     "hamiltonian_lang_version": "0.1.0",
     "canonical_version": "hml-canonical-0.1.0",
     "python": "3.14.6",

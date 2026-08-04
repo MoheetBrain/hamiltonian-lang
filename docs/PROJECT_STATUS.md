@@ -71,7 +71,7 @@ against isolated file ownership.
 | `GOAL.md` | project thesis |
 | `docs/design/V0_DESIGN_FREEZE.md` | the frozen v0 contract |
 | `SPEC.md` | normative language reference |
-| `DECISIONS.md` | D-001..D-016 with reversal costs |
+| `DECISIONS.md` | D-001..D-018 with reversal costs |
 | `audits/RED_TEAM_REPORT.md` | adversarial review |
 | `src/hamiltonian_lang/ast/nodes.py` | **frozen IR contract** |
 | `src/hamiltonian_lang/types.py` | the type lattice |
@@ -88,7 +88,7 @@ recorded in `docs/research/PRIOR_ART_MATRIX.csv` with an explicit UNVERIFIED reg
 
 ## Decisions and Rationale
 
-D-001..D-016 in `DECISIONS.md`. Load-bearing ones:
+D-001..D-018 in `DECISIONS.md`. Load-bearing ones:
 
 - **D-003** mandatory role-labelled distribution arguments. Prior art shows the
   *mechanism* is not novel (PyMC, SciPy already use named parameters); the delta is that
@@ -100,6 +100,10 @@ D-001..D-016 in `DECISIONS.md`. Load-bearing ones:
 - **D-014** the frozen alphabet and grammar survive measurement across 8 real tokenisers.
 - **D-016** eight adversarial defects found and fixed; all eight are now rejected with a
   named diagnostic code.
+- **D-017** interface names (concept parameters, distribution roles) are meaning; only
+  local binders are alpha-renameable.
+- **D-018** a green property test is only evidence about the inputs its generator
+  actually reaches.
 
 ## Verification and Test Results
 
@@ -107,18 +111,20 @@ Commands executed and their real results:
 
 | command | result |
 |---------|--------|
-| `.venv/bin/python -m pytest -q` | **594 passed, 0 failed, 0 xfailed** |
+| `.venv/bin/python -m pytest -q` | **609 passed, 0 failed, 0 xfailed** |
 | `.venv/bin/hml check examples/*/*.hml` | **8/8 check cleanly** |
 | `.venv/bin/ruff check src tests` | **All checks passed** |
 | `.venv/bin/mypy src/hamiltonian_lang` | **Success: no issues found in 22 source files** |
 | `experiments/alphabet/tokenisation_benchmark.py` | ran; 8 tokenisers real, Llama-3 gated and excluded |
 | `./scripts/conformance.sh` | **CONFORMANCE: PASS** (all 8 stages) |
 
-Test breakdown: backends 292 · golden 84 · adversarial 71 · roundtrip 50 · type_system 39 ·
+Test breakdown: backends 292 · golden 84 · adversarial 71 · roundtrip 65 · type_system 39 ·
 parser 37 · semantics 21.
 
 Property-based tests (hypothesis) cover alpha-renaming invariance and inconsistent-rename
-detection.
+detection, parameterised over **every** binder form with a companion test asserting each
+template actually compiles. This followed D-018: the earlier generator was green while the
+property it asserted was false, because it never produced `def` parameters.
 
 ## Known Failures and Limitations
 
@@ -149,6 +155,14 @@ detection.
   is prompting, not representation.
 - **D-006 (shadowing as an error) may be too strict** for practical authoring.
 - **OpenMath IPR status is unresolved** (Q-03), blocking the highest-value reuse option.
+- **The strongest argument against the project**, adopted rather than rebutted: the
+  inference the thesis wants to eliminate happens when the file is *written*, not read.
+  Someone had to decide `jitter` is a scale before `scale := jitter` could be typed. A
+  correct-looking encoding of a misunderstanding compiles clean and is wrong. Reviewer's
+  ESTIMATE: arm A' (prose + matched checklist) closes most of the gap.
+- **One confound is not resolvable**: "structured formal notation helps" cannot be
+  separated from "*this* notation helps", because Lean and Stan are far better represented
+  in pretraining than a language invented weeks ago.
 
 ## Current Blockers
 
@@ -165,3 +179,7 @@ build.
 4. Run the morphology analysis — deferred in session 1 and a prerequisite for H6.
 5. Work through the remaining findings in `audits/RED_TEAM_REPORT.md` that were not
    resolved in session 1.
+6. **Cheapest high-value step, no model needed:** demonstrate HML → Stan → HML and
+   HML → Lean → HML preserving the content hash, or characterise exactly where it fails.
+   The only round trip verified today is HML → HML, which is the one that cannot lose
+   anything.

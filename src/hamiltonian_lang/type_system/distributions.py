@@ -5,9 +5,14 @@ type of its support. Roles are mandatory and positional arguments are a parse er
 (D-003), so `Normal(scale := s)` and `Normal(variance := s)` can never be confused —
 the second is rejected with a diagnostic that names the confusion explicitly.
 
-``MISPARAMETERISATIONS`` encodes role names that are *wrong but common*. Producing a
-targeted error for these is the clearest single demonstration of the project thesis:
-the ambiguity that costs real statistical code its correctness is not expressible here.
+``MISPARAMETERISATIONS`` encodes role names that are *wrong but common*, so that the
+diagnostic names the confusion instead of reporting a generic unknown argument.
+
+No claim is made here about what that is worth. Whether naming the confusion improves
+anything an AI system does is hypothesis H5/H3 in ``docs/research/BENCHMARK_PROTOCOL.md``
+and has not been measured. (An earlier version of this docstring called it "the clearest
+single demonstration of the project thesis" — a claim about evidence, made in a file
+containing none. Withdrawn.)
 """
 
 from __future__ import annotations

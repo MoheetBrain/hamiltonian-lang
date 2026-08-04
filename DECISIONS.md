@@ -297,7 +297,59 @@ kept in comments.
 
 ---
 
-## Open questions
+## D-017 — Interface names are roles; only local binders are alpha-renameable
+
+**Question.** Is `concept C { parameter location; ... }` the same object as
+`concept C { parameter a; ... }`?
+
+**Chosen.** No. A concept's parameter names are its **interface**, exactly as a
+distribution's role names are (D-003). `LocationScaleFamily` parameterised by `location`
+and `scale` is not the same concept parameterised by `a` and `b` — the names carry the
+meaning. Renaming one changes the content hash, and should.
+
+Local binders are the opposite and are normalised away:
+
+| name | status | renaming changes the hash? |
+|------|--------|---------------------------|
+| module-level declarations | binder | no |
+| quantifier variables | binder | no |
+| definition parameters | binder | no |
+| transform parameters | binder | no |
+| **concept parameter members** | **role** | **yes** |
+| **concept member names** (invariant, example, …) | **role** | **yes** |
+| distribution roles | role | yes |
+
+**How it surfaced.** Not from reasoning — from a test failing. Strengthening the
+alpha-equivalence generator to cover every binder form (see below) produced a case that
+looked like a ninth defect. Checking it against the D-003 principle showed the
+implementation was already right and the *test* was wrong.
+
+**Confidence.** High. **Reversal cost.** Low.
+
+---
+
+## D-018 — A green property test is only evidence about the inputs it reaches
+
+Not a design decision; a method correction, recorded because it caused the
+longest-lived defect in the session.
+
+`tests/roundtrip` asserted v0 success criterion 6 — renaming invariance — with a
+hypothesis property test. The test was real and passing. The criterion was **false**:
+definition parameters were serialised by spelling, so `def f(u : Real) := u + 1.0` and
+`def f(w : Real) := w + 1.0` hashed differently.
+
+The test passed because its generator produced only module-level `param` declarations. It
+never generated the one binder form that was broken. Nobody was lying and nothing was
+skipped; the suite was green and the property did not hold.
+
+**Correction.** The property is now parameterised over an explicit list of *every* binder
+form, with a companion test asserting each template actually compiles — because a template
+that silently fails to compile makes the property vacuously true, which is the same
+failure one level up.
+
+**Standing rule.** When a test asserts a universal property, enumerate the constructors it
+must reach and assert that it reached them. Coverage of the generator is part of the
+claim, not an implementation detail.
 
 | id | question | blocked on |
 |----|----------|------------|

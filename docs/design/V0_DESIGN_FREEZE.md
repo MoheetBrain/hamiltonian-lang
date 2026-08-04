@@ -69,8 +69,19 @@ So the ambiguity is *unrepresentable in a well-typed program*, not *unparseable*
 earlier claim that it "cannot be expressed" overstated the grammar's role and has been
 withdrawn.
 
-Cost, now measured rather than assumed: **+4 tokens per law statement, ≈5.9% of a
-program**. Whether that is worth paying is H5, and is still open.
+Cost: **+4 tokens per law statement, ≈5.9% of a program** — mean over the seven-problem
+corpus in `examples/candidate_syntaxes/`, across eight tokenisers (tiktoken
+cl100k/o200k/p50k/r50k and HF gpt2/Llama-2/gpt-neox-20b/starcoder2). Llama-3 was gated and
+is excluded rather than estimated. Per-tokeniser figures are in
+`experiments/alphabet/results/d003_file_cost.csv` and `d003_micro_cost.csv`; the run log is
+`results/RUN_LOG.txt`.
+
+Note that `tiktoken` is **not** installed in the project `.venv` — the measurement was
+taken in the alphabet study's own environment, so `evaluation/score.py` falls back to an
+approximate tokeniser and labels its own numbers `APPROXIMATE`. The two sets of token
+figures are not interchangeable.
+
+Whether the cost is worth paying is H5, and is open.
 
 ## 3. Statement inventory (v0)
 

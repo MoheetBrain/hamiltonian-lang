@@ -139,3 +139,74 @@ still a false statement.
 **Next intended step.** Build the scaffolding-ablation arm — English plus the same
 structural prompting — because it is the arm most likely to falsify the thesis, and
 therefore the one that should be built before any arm that could confirm it.
+
+---
+
+## 2026-08-04 — Session 1, second pass: red-team integration
+
+**Branch.** `main`
+**Stage.** v0 — integration of the final Wave 2 agent.
+
+**Objective.** Act on the benchmark and adversarial review agent's report: withdraw
+claims it showed were unsupported, and fix the methodological defect that let a false
+success criterion pass a green test suite.
+
+**What the agent delivered.** 24 problems across six
+categories, 120 arm files, a 620-line preregistered protocol with **seven** arms rather
+than five (A' = prose plus a matched structural checklist, E' = comments stripped), and a
+deterministic scoring harness reporting 93/93 assertions passed and diagnostic line
+accuracy 1.0 over 50 single-line injections. The protocol states plainly that **one
+confound is not resolvable**: "structured formal notation helps" cannot be separated from
+"*this* notation helps".
+
+Two of my own claims were withdrawn as unsupported:
+
+- `distributions.py` called targeted misparameterisation diagnostics "the clearest single
+  demonstration of the project thesis" — a claim about evidence, in a file containing
+  none.
+- The freeze document's "+4 tokens per law statement, ≈5.9% … measured rather than
+  assumed" named no tokeniser and no corpus. The number is real; the citation was missing
+  and is now present, together with the fact that `tiktoken` is absent from the project
+  venv so `evaluation/score.py`'s own token figures are approximate and not interchangeable
+  with it.
+
+**The methodological finding of the session (D-018).** The alpha-renaming success
+criterion was **false while a passing property-based test asserted it**. The test was real
+and green; its generator simply never produced `def` parameters — the one binder form that
+failed. The property is now parameterised over every binder form, with a companion test
+asserting each template actually compiles, because a template that silently fails to
+compile makes the property vacuously true one level up.
+
+Strengthening that generator immediately produced a further case, which turned out to be a
+*design question* rather than a defect: concept parameter names are the concept's
+interface, like distribution roles, so renaming one *should* change the hash. The
+implementation was already right and the test was wrong. Recorded as D-017 with an explicit
+table of which names are binders and which are roles.
+
+**Verification after the second pass.**
+
+| command | actual result |
+|---------|---------------|
+| `.venv/bin/python -m pytest` | **609 passed** (backends 292, golden 84, adversarial 71, roundtrip 65, type_system 39, parser 37, semantics 21) |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, all 8 stages |
+
+**Adopted, not rebutted.** The reviewer's strongest failure argument is now in
+`ROADMAP.md`: the inference the thesis wants to eliminate happens when the file is
+*written*, not read. A correct-looking encoding of a misunderstanding compiles clean,
+hashes correctly, and is wrong. If arm A' closes the gap, the right artefact is a prompt,
+not a compiler. That is precisely why A' is built first.
+
+**Files changed.** `DECISIONS.md` (D-017, D-018), `ROADMAP.md`,
+`docs/design/V0_DESIGN_FREEZE.md`, `docs/PROJECT_STATUS.md`,
+`src/hamiltonian_lang/type_system/distributions.py`,
+`tests/roundtrip/test_roundtrip.py`, `evaluation/run_baseline.py` and its regenerated
+output.
+
+**Effect on the overall project.** The compiler, the benchmark corpus and the
+preregistered protocol are now mutually consistent. Two false statements were removed
+from the repository. The apparatus is sound; the experiment is still not run.
+
+**Next intended step.** Demonstrate a lossless round trip through a real Layer-3
+backend (HML → Stan → HML, HML → Lean → HML) preserving the content hash, or
+characterise exactly where it fails. It needs no model call and tests the
+one-object-many-views claim directly.
