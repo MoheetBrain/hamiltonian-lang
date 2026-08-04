@@ -210,3 +210,68 @@ from the repository. The apparatus is sound; the experiment is still not run.
 backend (HML → Stan → HML, HML → Lean → HML) preserving the content hash, or
 characterise exactly where it fails. It needs no model call and tests the
 one-object-many-views claim directly.
+
+---
+
+## 2026-08-04 — HML-EVAL-001 §1–2: pre-evaluation audit and version freeze
+
+**Branch.** `main`
+**Stage.** HML-EVAL-001, empirical evaluation phase.
+
+**Objective.** Verify repository state directly from commands rather than from prior
+summaries, before building any evaluation apparatus on top of it. Freeze v0.
+
+**Files and systems changed.** `docs/evaluation/PRE_EVALUATION_AUDIT.md` (new),
+`src/hamiltonian_lang/lexer/__init__.py`, `tests/parser/test_parser.py`, `DECISIONS.md`
+(D-019), tag `hml-v0-eval-freeze`.
+
+**What was completed.** A verified inventory: 6 declaration kinds, 5 inference queries,
+9 scalar types, 7 base dimensions, 16 distribution families, 9 registered backends, 15
+graph edge kinds, 82 diagnostic codes. Commit hashes recorded. Push status confirmed:
+both project commits are local-only, verified with `git log --branches --not --remotes`.
+
+**Decisions made and why.** D-019 — the lexer did not terminate on non-ASCII letters.
+`str.isalpha()` is true for every Unicode letter, so `ℝ` was dispatched into the identifier
+routine, which consumed zero characters; the caller then re-dispatched on the same
+character forever. Fixed twice over: ASCII test first in the dispatch, and a zero-progress
+guard inside the routine, because a lexer routine must never consume zero input whatever
+the dispatch above it believes.
+
+**Tests and verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `./scripts/conformance.sh` | CONFORMANCE: PASS, all 8 stages |
+| `.venv/bin/python -m pytest` | 615 passed (609 before; 6 new regression tests) |
+| `.venv/bin/python -m pytest tests/golden` | 84 passed, no content hash moved |
+| round-trip probe over 9 backends | 1 re-parses and preserves the hash; 8 do not |
+| `curl localhost:11434/v1/chat/completions` | gemma4:31b generating, 638 completion tokens in 25.7s |
+
+**Failures and unresolved uncertainty.**
+
+- The audit **contradicted a convenient reading of my own earlier summaries**. "Nine
+  backends" invites the reading that nine translations exist. Nine *renderings* exist. The
+  count of demonstrated semantics-preserving round trips is **one**, HML → HML, which is
+  the trip that cannot lose anything. Corrected in the audit and in `PROJECT_STATUS.md`.
+- `BackendResult.faithful` is a weaker claim than its name suggests: it means "declared no
+  per-construct loss", not "round-trips". Four backends report `faithful=True` while being
+  one-way.
+- D-019 was found only because the audit *tested* the round-trip claim instead of trusting
+  it. Had it not been found, the first model output containing `ℝ` or `∀` would have hung
+  the run with no timeout and no diagnostic — destroying the experiment silently rather
+  than failing it loudly.
+- The available model is a **reasoning model**. It decomposes problems internally
+  regardless of arm, which biases the A vs A′ contrast towards the null and therefore
+  biases any Hamiltonian-over-A′ result in the thesis's favour. Recorded before any data
+  exists.
+- Measured throughput 26 s/call makes the full 120 × 7 × 3 design ≈18.2 hours. The
+  apparatus will be built to specification; the run will be a preregistered subset, and
+  unrun cells will be reported as unrun rather than quietly dropped.
+
+**Effect on the overall project.** The project's factual base is now verified rather than
+asserted, and one defect that would have invalidated the experiment has been removed.
+
+**Next intended step.** Build the canonical semantic source dataset, so that all seven arms
+are rendered from one object rather than authored independently — which is what prevents
+one arm from silently carrying more information than another.
+

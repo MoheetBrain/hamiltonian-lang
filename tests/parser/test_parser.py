@@ -262,3 +262,46 @@ def test_parse_error_does_not_cascade():
     assert len([d for d in bag.errors]) == 1
     names = [s.name for s in module.statements if isinstance(s, Declaration)]
     assert names == ["x", "z"]
+
+
+# -- termination ---------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "ℝ",                    # DOUBLE-STRUCK CAPITAL R
+        "var x : ℝ",
+        "x ∈ ℝ",           # ELEMENT OF
+        "variable (theta : ℝ)",  # verbatim line from the Lean backend
+        "ℕ ℤ ℚ",      # N, Z, Q
+        "def f := ∫ x",         # INTEGRAL
+        "中文",              # CJK letters
+        "\U0001d70b",                # MATHEMATICAL ITALIC SMALL PI
+    ],
+)
+def test_lexer_terminates_on_unfolded_non_ascii_letters(src):
+    """The lexer must never consume zero characters.
+
+    `str.isalpha()` is true for every Unicode letter, so characters with no ASCII
+    spelling were dispatched into the identifier routine, which consumed nothing and
+    left the caller re-dispatching on the same character forever. Any model output
+    containing a mathematical symbol would have hung the evaluation harness. (D-019.)
+    """
+    module, bag = parse(src)
+    assert not bag.ok(), "expected a lexical error rather than silent acceptance"
+    assert "HML-L101" in bag.codes()
+
+
+def test_lean_backend_output_does_not_hang_the_parser():
+    """Regression for the exact path that surfaced D-019: the Lean renderer emits real
+    Lean, which contains non-ASCII type names, and the audit fed that back in."""
+    import pathlib
+
+    from hamiltonian_lang import compile_source
+    from hamiltonian_lang.backends import render
+
+    r = compile_source(pathlib.Path("examples/statistics/bayesian_coin.hml").read_text())
+    text = render("lean", r.module, r.symbols).text
+    back = compile_source(text)          # must terminate; correctness is not claimed
+    assert not back.ok(), "Lean is not HML-L1 and must not parse as if it were"

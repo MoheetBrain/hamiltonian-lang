@@ -14,8 +14,10 @@ important mathematical task. **No such measurement has been taken.**
 
 ## Current Stage
 
-v0 — working vertical slice. Wave 1 research and Wave 2 implementation executed in a
-single session under a four-agent limit.
+**HML-EVAL-001 — empirical evaluation phase.** v0 is frozen at tag `hml-v0-eval-freeze`.
+No new language features, domains, or abstractions are being added. The sole objective is
+to test whether a model reasons better through Hamiltonian Lang than through English,
+structured English, LaTeX, or an existing formal representation.
 
 ## Current Branch
 
@@ -71,7 +73,8 @@ against isolated file ownership.
 | `GOAL.md` | project thesis |
 | `docs/design/V0_DESIGN_FREEZE.md` | the frozen v0 contract |
 | `SPEC.md` | normative language reference |
-| `DECISIONS.md` | D-001..D-018 with reversal costs |
+| `DECISIONS.md` | D-001..D-019 with reversal costs |
+| `docs/evaluation/PRE_EVALUATION_AUDIT.md` | verified state before the experiment |
 | `audits/RED_TEAM_REPORT.md` | adversarial review |
 | `src/hamiltonian_lang/ast/nodes.py` | **frozen IR contract** |
 | `src/hamiltonian_lang/types.py` | the type lattice |
@@ -88,7 +91,7 @@ recorded in `docs/research/PRIOR_ART_MATRIX.csv` with an explicit UNVERIFIED reg
 
 ## Decisions and Rationale
 
-D-001..D-018 in `DECISIONS.md`. Load-bearing ones:
+D-001..D-019 in `DECISIONS.md`. Load-bearing ones:
 
 - **D-003** mandatory role-labelled distribution arguments. Prior art shows the
   *mechanism* is not novel (PyMC, SciPy already use named parameters); the delta is that
@@ -104,6 +107,8 @@ D-001..D-018 in `DECISIONS.md`. Load-bearing ones:
   local binders are alpha-renameable.
 - **D-018** a green property test is only evidence about the inputs its generator
   actually reaches.
+- **D-019** the lexer did not terminate on non-ASCII letters; it would have hung the
+  evaluation harness silently rather than failing it.
 
 ## Verification and Test Results
 
@@ -111,7 +116,7 @@ Commands executed and their real results:
 
 | command | result |
 |---------|--------|
-| `.venv/bin/python -m pytest -q` | **609 passed, 0 failed, 0 xfailed** |
+| `.venv/bin/python -m pytest -q` | **615 passed, 0 failed, 0 xfailed** |
 | `.venv/bin/hml check examples/*/*.hml` | **8/8 check cleanly** |
 | `.venv/bin/ruff check src tests` | **All checks passed** |
 | `.venv/bin/mypy src/hamiltonian_lang` | **Success: no issues found in 22 source files** |
@@ -130,6 +135,13 @@ property it asserted was false, because it never produced `def` parameters.
 
 - **The central hypothesis is untested.** No model-in-the-loop comparison has been run.
   Nothing in this repository is evidence for the thesis.
+- **Exactly one round trip exists: HML → HML.** The other eight backends are one-way
+  renderings. "Nine backends" means nine renderings, not nine translations. No
+  semantics-preserving translation to any external system has been demonstrated.
+- **`BackendResult.faithful` means "declared no per-construct loss", not "round-trips".**
+  `english`, `json`, `graph` and `triples` report `faithful=True` while being one-way.
+- **Every recorded benchmark number is a deterministic compiler property.** None is a
+  model-performance observation.
 - **No structural novelty was found in Layer 2.** Wave 1 prior-art review identified prior
   implementations of every representational claim. See D-012.
 - **Provenance is not implemented** (D-011). The IR carries spans and types only.

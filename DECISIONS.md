@@ -351,6 +351,55 @@ failure one level up.
 must reach and assert that it reached them. Coverage of the generator is part of the
 claim, not an implementation detail.
 
+---
+
+## D-019 — Lexer non-termination on non-ASCII letters *(implementation bug, fixed under freeze)*
+
+**Severity.** The compiler hung forever — not an incorrect answer, an unbounded one.
+
+**Reproducer.** `hml check` on a file containing `ℝ`, or any Unicode letter absent from
+`UNICODE_FOLD`. Minimal case: a file containing only `ℝ`.
+
+**Cause.** `str.isalpha()` is true for every Unicode letter, so the dispatch
+`if ch.isalpha() or ch == "_"` routed U+211D into `_identifier()`. That routine accepts
+only ASCII alphanumerics and folded Greek, so it consumed **zero** characters, emitted an
+empty token, and returned. The caller then re-dispatched on the same character. Forever.
+
+**How it surfaced.** Not from a test. The pre-evaluation audit fed each backend's output
+back through the parser to separate *rendering* from *round-tripping*; the Lean backend
+emits `variable (theta : ℝ)`, and the audit command hung.
+
+**Why it mattered more than it looks.** The evaluation harness feeds model output to the
+parser. Models emit `ℝ`, `∈`, `∀` and Greek constantly. The first such generation would
+have hung the run with no timeout and no diagnostic — silently destroying the experiment
+rather than failing it.
+
+**Fix.** Two changes, deliberately redundant:
+
+1. the ASCII test now precedes the alphabetic test in the dispatch;
+2. `_identifier()` asserts progress: if it consumed nothing it emits `HML-L101` and
+   advances one character. A lexer routine must never consume zero input, whatever the
+   dispatch above it believes.
+
+**Regression tests.** `tests/parser/test_parser.py::test_lexer_terminates_on_unfolded_non_ascii_letters`
+(8 cases including CJK and mathematical italic pi) and
+`::test_lean_backend_output_does_not_hang_the_parser`.
+
+**Effect on prior benchmark items.** None. No existing benchmark item, example or test
+contains an unfolded non-ASCII letter, so no previously recorded result changes. Verified:
+all example hashes and the golden snapshot are unchanged and the full suite passes.
+**No benchmark-version increment is required.**
+
+**Freeze status.** Permitted under `hml-v0-eval-freeze` as a demonstrated implementation
+bug. No syntax or semantics changed: input that previously hung now produces the
+diagnostic it always should have.
+
+**Confidence.** High. **Reversal cost.** None.
+
+---
+
+## Open questions
+
 | id | question | blocked on |
 |----|----------|------------|
 | Q-01 | Does the mandatory-role token cost exceed its accuracy benefit? | H5 measurement |

@@ -156,7 +156,11 @@ class Lexer:
                 self._number()
                 continue
 
-            if ch.isalpha() or ch == "_":
+            # `str.isalpha()` is true for every Unicode letter, including characters
+            # with no ASCII spelling such as U+211D DOUBLE-STRUCK CAPITAL R. Dispatching
+            # those into _identifier() used to consume zero characters and loop forever
+            # (D-019). The ASCII test must come first.
+            if ch.isascii() and (ch.isalpha() or ch == "_"):
                 self._identifier()
                 continue
 
@@ -247,6 +251,26 @@ class Lexer:
                 break
         span = Span(start_line, start_col, self.line, self.col, self.file)
         name = "".join(out)
+
+        # Belt and braces for D-019: a lexer routine must never consume zero input.
+        # If it did, the caller's loop would re-dispatch on the same character forever.
+        # The guard is cheap and the failure mode it prevents is unbounded, not merely
+        # wrong.
+        if not name:
+            bad = self._advance()
+            if bad:
+                self.diags.error(
+                    "HML-L101",
+                    f"unexpected character {bad!r} "
+                    f"(U+{ord(bad):04X} {unicodedata.name(bad, 'unnamed')})",
+                    span,
+                    correction=(
+                        "Hamiltonian Lang source is 7-bit ASCII; see "
+                        "docs/design/V0_DESIGN_FREEZE.md section 1"
+                    ),
+                )
+            return
+
         if folded:
             self.diags.warn(
                 "HML-L102",
