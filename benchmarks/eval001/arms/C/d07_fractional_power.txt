@@ -23,7 +23,7 @@ The dimension is Mass * Length / Time.
 
 
 PROBLEM
-Consider the quantity given by the cube root of a volume.
+Consider the quantity given by the square root of an area.
 
 METHOD
 Express the problem in an existing formal or executable language before answering. Use Stan for probabilistic and statistical models, and Lean 4 for logical, quantifier and algebraic statements. Put the code in a fenced block.

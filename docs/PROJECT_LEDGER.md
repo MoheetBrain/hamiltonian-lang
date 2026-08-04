@@ -340,3 +340,65 @@ model judging any output.
 `docs/evaluation/HML_EVAL_001_REPORT.md` with paired intervals, effect sizes and the
 go/redesign/stop decision.
 
+---
+
+## 2026-08-04 — HML-EVAL-001 §8, §10: comparator validity and analysis
+
+**Branch.** `main` · **Stage.** HML-EVAL-001, pilot in flight.
+
+**Objective.** Make the semantic-equivalence comparator trustworthy before it produces any
+reported number, and build the paired analysis.
+
+**Files changed.** `evaluation/semantic_equiv.py`, `evaluation/corpus/{cso,generators}.py`,
+`evaluation/analyse.py` (new), `tests/evaluation/test_corpus.py` (new).
+
+**What was completed.** Paired bootstrap intervals, exact McNemar, Cohen's h, coverage
+accounting that reports unrun cells as unrun, and per-domain breakdowns — standard library
+only. 300 new corpus self-consistency tests.
+
+**Failures and unresolved uncertainty — the substance of this entry.**
+
+Inspecting low encoding scores before trusting them found **four comparator bugs, all
+biasing against the project's own thesis**:
+
+1. `score()` returned 0.0 when nothing was checkable. The 25 dimensional problems declare
+   no entities, so every Hamiltonian encoding of them scored zero regardless of quality.
+2. A parameterised definition's `declared_type` is its *return* type; comparing it against
+   `Function[Real -> Real]` marked correct encodings wrong.
+3. The quantifier chain did not follow `def p := forall …` + `prove p`, a legitimate
+   encoding, and missed its structure entirely.
+4. `parse_dimension` could not handle a parenthesised denominator or a half-integer
+   exponent, so those ground truths silently failed to parse and their facet was dropped.
+
+Then a **corpus self-consistency failure**: 60 of 120 reference encodings scored below 1.0
+against their own ground truth. The facts said `param` where the encoding said `const`;
+quantifier binders were listed as module declarations they were never in; the dimensional
+references were generic boilerplate that never carried the case's own dimension. Every one
+would have depressed the Hamiltonian arms' measured encoding accuracy for reasons having
+nothing to do with the model. All fixed; a test now asserts every reference encoding
+compiles and scores exactly 1.0, so the drift cannot recur silently.
+
+Effect on data already collected: arm D's mean encoding score moved from 0.56 to 0.70.
+Analysis now **re-scores from stored raw output** rather than trusting the score written
+during the run, so a comparator fix never requires re-running the model.
+
+One v0 limitation surfaced and was recorded rather than encoded incorrectly: HML type
+syntax cannot express a half-integer exponent — `Quantity[Mass^1/2 * Length]` parses `^1`
+and then reads `/ 2` as dimension division. That corpus case was removed.
+
+**Tests and verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `.venv/bin/python -m pytest` | 945 passed |
+| `./scripts/conformance.sh` | CONFORMANCE: PASS, all 8 stages |
+| `.venv/bin/python -m evaluation.build_corpus` | 120 problems, 840 arm files, 0 failures |
+| `.venv/bin/python -m evaluation.analyse --run eval001-pilot` | 34/315 calls, 4 fully covered cells |
+
+**Effect on the overall project.** The instrument is now checked against itself. Had these
+bugs survived, the experiment would most likely have produced a **false negative** and the
+thesis would have been rejected for an artefact of my own measurement code.
+
+**Next intended step.** Let the pilot accumulate, then write
+`docs/evaluation/HML_EVAL_001_REPORT.md` with the go/redesign/stop decision.
+

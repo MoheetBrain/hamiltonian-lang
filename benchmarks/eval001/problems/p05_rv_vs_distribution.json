@@ -33,9 +33,7 @@
       "L": "Distribution[Natural]",
       "N": "RandomVariable[Natural]"
     },
-    "law_families": {
-      "N": "Binomial"
-    },
+    "law_families": {},
     "laws": {},
     "objective": null,
     "prohibited_assumptions": [

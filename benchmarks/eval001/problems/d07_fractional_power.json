@@ -1,6 +1,6 @@
 {
   "answer": {
-    "justification": "cbrt(Length^3) = Length",
+    "justification": "sqrt(Length^2) = Length",
     "kind": "dimension",
     "options": [],
     "tolerance": 1e-06,
@@ -16,9 +16,9 @@
   "generator": "_dim_fractional_power",
   "id": "d07_fractional_power",
   "information_asymmetry": [],
-  "prose": "Consider the quantity given by the cube root of a volume.",
+  "prose": "Consider the quantity given by the square root of an area.",
   "question": "What is the physical dimension of that quantity?",
-  "reference_hml": "module FractionalPower\n\nparam L : Quantity[Length]\nparam a : Quantity[Length / Time^2]\n",
+  "reference_hml": "module FractionalPower\n\nparam q : Quantity[Length]\n\ncheck dimension q = Length\n",
   "seed": 7,
   "semantics": {
     "conditioning": {},

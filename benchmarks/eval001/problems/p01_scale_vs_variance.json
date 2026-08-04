@@ -25,8 +25,8 @@
     "constraints": [],
     "declaration_kinds": {
       "W": "rv",
-      "mu": "param",
-      "sigma": "param"
+      "mu": "const",
+      "sigma": "const"
     },
     "dependencies": {},
     "dimensions": {},

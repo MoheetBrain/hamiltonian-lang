@@ -33,14 +33,14 @@
     "declaration_kinds": {
       "A": "rv",
       "B": "rv",
-      "Z": "rv"
+      "Z": "param"
     },
     "dependencies": {},
     "dimensions": {},
     "entities": {
       "A": "RandomVariable[Real]",
       "B": "RandomVariable[Real]",
-      "Z": "RandomVariable[Real]"
+      "Z": "Real"
     },
     "law_families": {},
     "laws": {},

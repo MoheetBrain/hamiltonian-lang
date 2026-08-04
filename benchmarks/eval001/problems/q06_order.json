@@ -26,10 +26,7 @@
     "declaration_kinds": {},
     "dependencies": {},
     "dimensions": {},
-    "entities": {
-      "x": "Real",
-      "y": "Real"
-    },
+    "entities": {},
     "law_families": {},
     "laws": {},
     "objective": null,

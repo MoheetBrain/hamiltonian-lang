@@ -29,11 +29,7 @@
     "declaration_kinds": {},
     "dependencies": {},
     "dimensions": {},
-    "entities": {
-      "delta": "PositiveReal",
-      "eps": "PositiveReal",
-      "x": "Real"
-    },
+    "entities": {},
     "law_families": {},
     "laws": {},
     "objective": null,

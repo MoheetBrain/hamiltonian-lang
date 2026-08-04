@@ -25,7 +25,7 @@
     "constraints": [],
     "declaration_kinds": {
       "T": "rv",
-      "lam": "param"
+      "lam": "const"
     },
     "dependencies": {},
     "dimensions": {},

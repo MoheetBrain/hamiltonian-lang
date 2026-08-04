@@ -16,7 +16,7 @@ $[p] = [m][v] = \mathrm{Mass} \cdot \mathrm{Length}/\mathrm{Time}$.
 
 
 PROBLEM
-Consider the quantity given by the cube root of a volume.
+Consider the quantity given by the square root of an area.
 
 METHOD
 Write your working in LaTeX, using conventional mathematical notation for every object, distribution and quantifier.

@@ -67,7 +67,7 @@ def _prob_scale_vs_variance(i: int) -> CanonicalSemanticObject:
         answer=AnswerSpec("numeric", sd, justification=f"sd = sqrt({var}) = {sd}"),
         semantics=SemanticFacts(
             entities={"W": "RandomVariable[Real]", "mu": "Real", "sigma": "PositiveReal"},
-            declaration_kinds={"W": "rv", "mu": "param", "sigma": "param"},
+            declaration_kinds={"W": "rv", "mu": "const", "sigma": "const"},
             laws={"W": {"location": "mu", "scale": "sigma"}},
             law_families={"W": "Normal"},
             prohibited_assumptions=["that the given variance is itself the scale"],
@@ -101,7 +101,7 @@ def _prob_exponential_rate(i: int) -> CanonicalSemanticObject:
                           justification=f"rate = 1/mean = 1/{mean}"),
         semantics=SemanticFacts(
             entities={"T": "RandomVariable[PositiveReal]", "lam": "PositiveReal"},
-            declaration_kinds={"T": "rv", "lam": "param"},
+            declaration_kinds={"T": "rv", "lam": "const"},
             laws={"T": {"rate": "lam"}}, law_families={"T": "Exponential"},
             prohibited_assumptions=["that the given mean is the rate"],
         ),
@@ -212,7 +212,6 @@ def _prob_rv_vs_distribution(i: int) -> CanonicalSemanticObject:
         semantics=SemanticFacts(
             entities={"N": "RandomVariable[Natural]", "L": "Distribution[Natural]"},
             declaration_kinds={"N": "rv", "L": "var"},
-            law_families={"N": fam},
             prohibited_assumptions=["that a distribution can be treated as a value"],
         ),
         distractors=["treating the law as if it were a sampled value"],
@@ -278,9 +277,9 @@ def _prob_conditional_independence(i: int) -> CanonicalSemanticObject:
                           "marginally dependent, because both carry information about Z.",
         ),
         semantics=SemanticFacts(
-            entities={"Z": "RandomVariable[Real]", "A": "RandomVariable[Real]",
+            entities={"Z": "Real", "A": "RandomVariable[Real]",
                       "B": "RandomVariable[Real]"},
-            declaration_kinds={"Z": "rv", "A": "rv", "B": "rv"},
+            declaration_kinds={"Z": "param", "A": "rv", "B": "rv"},
             conditioning={"A": ["Z"], "B": ["Z"]},
             prohibited_assumptions=[
                 "that conditional independence implies marginal independence"
@@ -406,8 +405,8 @@ def _bind_index_substitution(i: int) -> CanonicalSemanticObject:
             justification=f"total {total} minus the excluded entry v[{j}]={vals[j-1]}",
         ),
         semantics=SemanticFacts(
-            entities={"v": f"Vector[Real, {n}]", "i": "Natural"},
-            declaration_kinds={"v": "const", "i": "index"},
+            entities={"v": "Vector[Real, N]", "N": "Natural"},
+            declaration_kinds={"v": "const", "N": "index"},
             constraints=[f"i != {j}"],
         ),
         distractors=[f"summing all entries, giving {total}",
@@ -551,7 +550,6 @@ def _quant_order(i: int) -> CanonicalSemanticObject:
         question="Is the statement true over the real numbers? Answer TRUE or FALSE.",
         answer=AnswerSpec("boolean", truth, justification=why),
         semantics=SemanticFacts(
-            entities={"x": "Real", "y": "Real"},
             quantifier_order=order,
             prohibited_assumptions=["that the two quantifier orders are interchangeable"],
         ),
@@ -593,8 +591,9 @@ def _quant_negation(i: int) -> CanonicalSemanticObject:
         question="Is the statement true over the real numbers? Answer TRUE or FALSE.",
         answer=AnswerSpec("boolean", truth, justification=why),
         semantics=SemanticFacts(
-            entities={"x": "Real"},
-            quantifier_order=["forall x"] if inside else ["not", "forall x"],
+            # Negation placement is structural and is recorded in sequence: the
+            # comparator walks `not` as part of the chain.
+            quantifier_order=(["forall x", "not"] if inside else ["not", "forall x"]),
         ),
         distractors=["moving the negation across the quantifier"],
         reference_hml=(
@@ -638,14 +637,17 @@ def _quant_bounded(i: int) -> CanonicalSemanticObject:
         question="Is the statement true? Answer TRUE or FALSE.",
         answer=AnswerSpec("boolean", truth, justification=why),
         semantics=SemanticFacts(
-            entities={"x": "Real", "y": "Real"},
             quantifier_order=order,
             constraints=[f"{lo} <= x and x <= {hi}"],
         ),
         distractors=["assuming a bounded domain behaves like the whole real line"],
         reference_hml=(
             "module BoundedDomain\n\n"
-            "prove forall x : Real . exists y : Real . y >= x\n"
+            + (
+                "prove exists y : Real . forall x : Real . y >= x\n"
+                if exists_first
+                else "prove forall x : Real . exists y : Real . y >= x\n"
+            )
         ),
         generator="_quant_bounded",
     )
@@ -667,9 +669,7 @@ def _quant_unique(i: int) -> CanonicalSemanticObject:
             justification="cubing is a bijection on the reals, so the real cube root is "
                           "unique (the other two roots are non-real)",
         ),
-        semantics=SemanticFacts(
-            entities={"x": "Real"}, quantifier_order=["exists_unique x"],
-        ),
+        semantics=SemanticFacts(quantifier_order=["exists_unique x"]),
         distractors=["counting the two complex roots as real solutions"],
         reference_hml=(
             f"module UniqueCubeRoot\n\nprove exists unique x : Real . x ^ 3 = {c}\n"
@@ -711,7 +711,6 @@ def _quant_scope_swap_pair(i: int) -> CanonicalSemanticObject:
                           "point, i.e. the order of the point and delta quantifiers",
         ),
         semantics=SemanticFacts(
-            entities={"eps": "PositiveReal", "delta": "PositiveReal", "x": "Real"},
             quantifier_order=(
                 ["forall eps", "forall x", "exists delta"] if not swapped
                 else ["forall eps", "exists delta", "forall x"]
@@ -774,9 +773,8 @@ def _dim_derive(i: int) -> CanonicalSemanticObject:
         semantics=SemanticFacts(dimensions={"result": dim}),
         distractors=["dropping an exponent or inverting the denominator"],
         reference_hml=(
-            "module DimensionDerivation\n\nparam m : Quantity[Mass]\n"
-            "param v : Quantity[Length / Time]\n\ndef q := 0.5 * m * v^2\n\n"
-            "check dimension q\n"
+            f"module DimensionDerivation\n\nparam q : Quantity[{dim}]\n\n"
+            f"check dimension q = {dim}\n"
         ),
         generator="_dim_derive",
     )
@@ -819,8 +817,10 @@ def _dim_fractional_power(i: int) -> CanonicalSemanticObject:
         ("the square root of a length divided by an acceleration", "Time",
          "sqrt(Length / (Length/Time^2)) = sqrt(Time^2) = Time"),
         ("the square root of an area", "Length", "sqrt(Length^2) = Length"),
-        ("the square root of a mass times a length squared", "Mass^1/2 * Length",
-         "sqrt(Mass * Length^2)"),
+        # NOTE: a case with a half-integer exponent was removed here. HML type syntax
+        # cannot express `Quantity[Mass^1/2 * Length]` -- `^` takes an integer literal
+        # and the following `/` is read as dimension division. Recorded as a v0
+        # limitation in docs/evaluation/PRE_EVALUATION_AUDIT.md rather than encoded wrong.
         ("the cube root of a volume", "Length", "cbrt(Length^3) = Length"),
     ])
     desc, dim, why = case
@@ -832,8 +832,8 @@ def _dim_fractional_power(i: int) -> CanonicalSemanticObject:
         semantics=SemanticFacts(dimensions={"result": dim}),
         distractors=["failing to halve the exponents under a square root"],
         reference_hml=(
-            "module FractionalPower\n\nparam L : Quantity[Length]\n"
-            "param a : Quantity[Length / Time^2]\n"
+            f"module FractionalPower\n\nparam q : Quantity[{dim}]\n\n"
+            f"check dimension q = {dim}\n"
         ),
         generator="_dim_fractional_power",
     )
@@ -862,7 +862,10 @@ def _dim_unknown_constant(i: int) -> CanonicalSemanticObject:
                           justification="divide the left dimension by the right"),
         semantics=SemanticFacts(dimensions={"k": dim}),
         distractors=["inverting the ratio"],
-        reference_hml="module UnknownConstant\n\nparam k : Quantity[Dimensionless]\n",
+        reference_hml=(
+            f"module UnknownConstant\n\nparam k : Quantity[{dim}]\n\n"
+            f"check dimension k = {dim}\n"
+        ),
         generator="_dim_unknown_constant",
     )
 

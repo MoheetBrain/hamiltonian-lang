@@ -28,6 +28,7 @@ __all__ = [
     "AnswerKind",
     "check_answer",
     "normalise_answer",
+    "parse_dimension",
 ]
 
 AnswerKind = Literal["numeric", "exact_string", "choice", "dimension", "role_map", "boolean"]
@@ -139,44 +140,94 @@ class CanonicalSemanticObject:
 # Deterministic answer checking
 # ---------------------------------------------------------------------------
 
-_DIM_TOKEN = re.compile(r"([A-Za-z]+)(?:\^(-?\d+(?:/\d+)?))?")
+_DIM_TOKEN = re.compile(r"([A-Za-z]+)(?:\^(-?\d+(?:[/\u2044]\d+)?))?")
 
 
-def _parse_dimension(text: str) -> dict[str, float] | None:
-    """Parse a dimension expression into an exponent map, so that
-    'Mass * Length^2 / Time^2' and 'Length^2 * Mass / Time^2' compare equal."""
+def parse_dimension(text: str) -> dict[str, float] | None:
+    """Parse a dimension expression into an exponent map.
+
+    Handles parenthesised denominators, so `Mass * Length^2 / (Time^2 * Temperature)`
+    and `Length^2 * Mass / Time^2 / Temperature` compare equal. Without this, ground
+    truths written with a grouped denominator silently fail to parse and their facet is
+    dropped from scoring altogether.
+    """
     from fractions import Fraction
 
-    text = text.strip().replace("·", "*").replace("×", "*")
+    text = text.strip().replace("\u00b7", "*").replace("\u00d7", "*")
     if not text:
         return None
     if text.lower() in ("dimensionless", "1", "none"):
         return {}
+
+    # Protect fractional exponents such as ^1/2 before any split on '/', which would
+    # otherwise tear '1/2' into a numerator and a spurious division.
+    text = re.sub(r"\^\s*(-?\d+)\s*/\s*(\d+)", lambda m: f"^{m.group(1)}\u2044{m.group(2)}", text)
+
     exps: dict[str, Fraction] = {}
-    sign = 1
-    # split on * and / while remembering which
-    parts = re.split(r"([*/])", text)
-    for tok in parts:
-        tok = tok.strip()
-        if not tok:
+
+    def add_group(group: str, sign: int) -> bool:
+        inner_sign = sign
+        for tok in re.split(r"([*/])", group):
+            tok = tok.strip()
+            if not tok:
+                continue
+            if tok == "*":
+                inner_sign = sign
+                continue
+            if tok == "/":
+                inner_sign = -sign
+                continue
+            if tok == "1":
+                continue
+            m = _DIM_TOKEN.fullmatch(tok.replace(" ", ""))
+            if not m:
+                return False
+            name = m.group(1).capitalize()
+            if name not in (
+                "Mass", "Length", "Time", "Temperature", "Current", "Amount",
+                "Luminosity",
+            ):
+                return False
+            e = Fraction(m.group(2).replace("\u2044", "/")) if m.group(2) else Fraction(1)
+            exps[name] = exps.get(name, Fraction(0)) + inner_sign * e
+        return True
+
+    # Peel off parenthesised groups, tracking whether each sits under a '/'.
+    pos, sign, pending = 0, 1, []
+    while pos < len(text):
+        ch = text[pos]
+        if ch == "(":
+            depth, j = 1, pos + 1
+            while j < len(text) and depth:
+                depth += (text[j] == "(") - (text[j] == ")")
+                j += 1
+            if depth:
+                return None
+            if not add_group("".join(pending), sign):
+                return None
+            pending = []
+            if not add_group(text[pos + 1 : j - 1], sign):
+                return None
+            pos = j
             continue
-        if tok == "*":
-            sign = 1
-            continue
-        if tok == "/":
+        if ch == "/" and not pending:
             sign = -1
+            pos += 1
             continue
-        m = _DIM_TOKEN.fullmatch(tok.replace(" ", ""))
-        if not m:
-            return None
-        name, exp = m.group(1), m.group(2)
-        name = name.capitalize()
-        if name not in (
-            "Mass", "Length", "Time", "Temperature", "Current", "Amount", "Luminosity"
-        ):
-            return None
-        e = Fraction(exp) if exp else Fraction(1)
-        exps[name] = exps.get(name, Fraction(0)) + sign * e
+        if ch == "/":
+            if not add_group("".join(pending), sign):
+                return None
+            pending = []
+            sign = -1
+            pos += 1
+            continue
+        if ch == "*" and not pending:
+            pos += 1
+            continue
+        pending.append(ch)
+        pos += 1
+    if pending and not add_group("".join(pending), sign):
+        return None
     return {k: float(v) for k, v in exps.items() if v != 0}
 
 
@@ -239,8 +290,8 @@ def check_answer(spec: AnswerSpec, raw: str) -> tuple[bool, str]:
         return hits[0] == str(spec.value), hits[0]
 
     if spec.kind == "dimension":
-        got = _parse_dimension(text)
-        want = _parse_dimension(str(spec.value))
+        got = parse_dimension(text)
+        want = parse_dimension(str(spec.value))
         if got is None or want is None:
             return False, text
         return got == want, str(sorted(got.items()))

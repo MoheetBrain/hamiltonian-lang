@@ -26,15 +26,14 @@
     "declaration_kinds": {},
     "dependencies": {},
     "dimensions": {},
-    "entities": {
-      "x": "Real"
-    },
+    "entities": {},
     "law_families": {},
     "laws": {},
     "objective": null,
     "prohibited_assumptions": [],
     "quantifier_order": [
-      "forall x"
+      "forall x",
+      "not"
     ]
   },
   "valid_transformations": []

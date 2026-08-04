@@ -27,10 +27,13 @@ from hamiltonian_lang.ast.nodes import (
     Declaration,
     DefineStmt,
     LawStmt,
+    LogicalOp,
     ObjectiveStmt,
     ProveStmt,
     Quantifier,
+    Ref,
     RequireStmt,
+    UnaryOp,
 )
 
 from .corpus.cso import CanonicalSemanticObject
@@ -68,6 +71,7 @@ class SemanticComparison:
     conditioning: tuple[int, int] = (0, 0)
     quantifier_order: tuple[int, int] = (0, 0)
     objective: tuple[int, int] = (0, 0)
+    dimensions: tuple[int, int] = (0, 0)
     notes: list[str] = field(default_factory=list)
 
     def _facets(self) -> list[tuple[str, tuple[int, int]]]:
@@ -77,14 +81,19 @@ class SemanticComparison:
             ("law_families", self.law_families), ("roles", self.roles),
             ("conditioning", self.conditioning),
             ("quantifier_order", self.quantifier_order), ("objective", self.objective),
+            ("dimensions", self.dimensions),
         ]
 
-    def score(self) -> float:
-        """Fraction of checkable facets recovered. Facets with nothing to check are
-        excluded rather than counted as free marks."""
+    def score(self) -> float | None:
+        """Fraction of checkable facets recovered, or None when nothing is checkable.
+
+        Returning 0.0 for "nothing to check" would be a serious bias: the dimensional
+        problems declare no entities, so every Hamiltonian encoding of them would have
+        scored zero regardless of quality. None is excluded from aggregates instead.
+        """
         num = sum(m for _, (m, e) in self._facets() if e)
         den = sum(e for _, (m, e) in self._facets() if e)
-        return (num / den) if den else 0.0
+        return (num / den) if den else None
 
     def exact(self) -> bool:
         return all(m == e for _, (m, e) in self._facets() if e)
@@ -93,7 +102,7 @@ class SemanticComparison:
         return {
             "parsed": self.parsed,
             "diagnostics": self.diagnostics[:8],
-            "score": round(self.score(), 4),
+            "score": (round(self.score(), 4) if self.score() is not None else None),
             "exact": self.exact(),
             **{k: list(v) for k, v in self._facets()},
             "notes": self.notes[:8],
@@ -136,14 +145,45 @@ def _norm(s: str) -> str:
 
 
 def _quantifier_chain(module) -> list[str]:
-    """Outermost-first quantifier kinds across every proposition in the module."""
+    """Outermost-first quantifier kinds across every proposition in the module.
+
+    Follows one level of indirection: `def p := forall …` followed by `prove p` is a
+    legitimate encoding and its quantifier structure must be found, not missed.
+    """
+    defs = {
+        s.name: s.body for s in module.statements
+        if isinstance(s, DefineStmt) and not s.params
+    }
+
+    def walk_chain(node) -> list[str]:
+        out: list[str] = []
+        seen: set[str] = set()
+        while True:
+            if isinstance(node, Ref) and node.name in defs and node.name not in seen:
+                seen.add(node.name)
+                node = defs[node.name]
+                continue
+            # Negation placement is part of the structure: `not forall x . P` and
+            # `forall x . not P` are different statements, so the marker is recorded in
+            # sequence rather than stripped.
+            if isinstance(node, UnaryOp) and node.op == "not":
+                out.append("not")
+                node = node.operand
+                continue
+            if isinstance(node, Quantifier):
+                out.append(node.kind)
+                node = node.body
+                continue
+            if isinstance(node, LogicalOp):
+                # `(exists …) and (forall …)` -- take the first branch that quantifies
+                left = walk_chain(node.left)
+                return out + (left or walk_chain(node.right))
+            return out
+
     chain: list[str] = []
     for st in module.statements:
         if isinstance(st, (RequireStmt, ProveStmt)):
-            node = st.proposition
-            while isinstance(node, Quantifier):
-                chain.append(node.kind)
-                node = node.body
+            chain.extend(walk_chain(st.proposition))
     return chain
 
 
@@ -188,7 +228,20 @@ def compare_semantics(
         return getattr(d, "kind", "def")
 
     def type_of(d) -> str:
+        """The declared type, reconstructing a function type for a parameterised def.
+
+        `def F(w : Real) : Real := ...` carries Real as its *return* type. Comparing that
+        against a ground truth of Function[Real -> Real] would mark a correct encoding
+        wrong.
+        """
         t = getattr(d, "declared_type", None)
+        params = getattr(d, "params", None)
+        if params:
+            dom = " * ".join(
+                (pt.render() if pt is not None else "?") for _, pt in params
+            )
+            cod = t.render() if t is not None else "?"
+            return _norm(f"Function[{dom} -> {cod}]")
         return _norm(t.render()) if t is not None else "?"
 
     # -- entities: count only. Which names were chosen is not part of meaning.
@@ -284,7 +337,7 @@ def compare_semantics(
         cmp.conditioning = (matched, expected)
 
     if facts.quantifier_order:
-        want = [q.split()[0] for q in facts.quantifier_order if q.split()[0] != "not"]
+        want = [q.split()[0] for q in facts.quantifier_order]
         got = _quantifier_chain(module)
         if len(got) != len(want):
             cmp.notes.append(f"quantifier depth {len(got)} vs expected {len(want)}")
@@ -299,7 +352,42 @@ def compare_semantics(
         want_dir = "minimise" if "minimis" in facts.objective else "maximise"
         cmp.objective = (1 if objs and objs[0].direction == want_dir else 0, 1)
 
+    # Dimensional problems declare no entities, so without this facet they would have
+    # nothing checkable at all and would be excluded from encoding accuracy entirely.
+    if facts.dimensions:
+        from hamiltonian_lang.ast.nodes import CheckStmt
+        from hamiltonian_lang.types import dimension_of
+
+        want = {
+            _dimension_key(v) for v in facts.dimensions.values() if _dimension_key(v)
+        }
+        got: set[frozenset] = set()
+        for st in module.statements:
+            if isinstance(st, CheckStmt) and st.subject is not None:
+                d = dimension_of(st.subject.type_) if st.subject.type_ else None
+                if d is not None:
+                    got.add(frozenset(d.as_dict().items()))
+            if isinstance(st, (Declaration, DefineStmt)):
+                t = getattr(st, "declared_type", None)
+                if t is not None:
+                    d = dimension_of(t)
+                    if d is not None and not d.is_dimensionless():
+                        got.add(frozenset(d.as_dict().items()))
+        cmp.dimensions = (len(want & got), len(want))
+
     return cmp
+
+
+def _dimension_key(text: str) -> frozenset | None:
+    """Parse a ground-truth dimension string into a comparable exponent set."""
+    from fractions import Fraction
+
+    from .corpus.cso import parse_dimension
+
+    parsed = parse_dimension(text)
+    if parsed is None:
+        return None
+    return frozenset((k, Fraction(v).limit_denominator(12)) for k, v in parsed.items())
 
 
 # ---------------------------------------------------------------------------

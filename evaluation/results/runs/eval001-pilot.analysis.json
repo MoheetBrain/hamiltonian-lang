@@ -1,0 +1,518 @@
+{
+  "HEADER": {
+    "WHAT_THIS_IS": "Model-in-the-loop measurement for HML-EVAL-001. Every number here is a genuine observation of model behaviour, not a compiler property.",
+    "SCORING": "Answer correctness and encoding comparison are deterministic. No model judged any output at any point.",
+    "PARSER_ACCEPTANCE_WARNING": "Parser acceptance is reported separately and is NOT evidence of a language advantage. A Hamiltonian program can parse cleanly and mistranslate the problem entirely.",
+    "RESCORED": "Encoding scores are recomputed from the stored raw output using the comparator in this repository, not read from the live run log. Raw model output is never modified.",
+    "COVERAGE_WARNING": "Paired contrasts use only problem-generation cells completed in BOTH arms. Unrun cells are reported as unrun and are never imputed."
+  },
+  "run_meta": {
+    "run_id": "eval001-pilot",
+    "started_utc": "2026-08-04T20:41:31Z",
+    "hamiltonian_lang_version": "0.1.0",
+    "git_commit": "82d13ca6e533cc1505de8de450b37c464fceb141",
+    "git_tag": "hml-v0-eval-freeze",
+    "python": "3.14.6",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "model_info": {
+      "base_url": "http://localhost:11434/v1",
+      "model": "gemma4:31b",
+      "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+      "parameter_size": "31.3B",
+      "quantization": "Q4_K_M",
+      "size_bytes": 19868981791
+    },
+    "sampling": {
+      "model": "gemma4:31b",
+      "temperature": 0.7,
+      "max_tokens": 2400,
+      "top_p": 1.0,
+      "seed": null
+    },
+    "arms": [
+      "A",
+      "A_prime",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+    ],
+    "generations": 3,
+    "problems": [
+      "b08_alpha_equivalence",
+      "d24_unknown_constant",
+      "p22_binomial_moments",
+      "p21_rv_vs_distribution",
+      "q14_unique",
+      "q17_negation",
+      "d13_derive",
+      "q05_scope_swap",
+      "d22_invalid_addition",
+      "a13_constrained_min",
+      "b02_index_substitution",
+      "a10_constrained_min",
+      "b24_interface_rename",
+      "p19_beta_binomial_posterior",
+      "a19_constrained_min"
+    ],
+    "n_problems": 15,
+    "planned_calls": 315,
+    "max_repairs_arm_E": 2,
+    "information_asymmetry": [
+      "Arms D/E/F carry a ~90-line specification of a language invented weeks ago. Arm C names Stan and Lean, which the model saw extensively in pretraining and needs no specification for. This is the out-of-distribution confound and prompt construction cannot remove it. Direction: against the Hamiltonian arms.",
+      "Arms D/E/F therefore have a longer prompt than arms A/A'/B. Prompt tokens are recorded per call so the difference is measured rather than assumed away. Direction: raises Hamiltonian cost, does not affect its accuracy.",
+      "Arm E receives compiler diagnostics that no other arm receives. This is the experimental condition under test (H4), not an accident, and arm D is the matched control for it.",
+      "Arm A' receives an explicit reasoning schema that arms B and C do not. A' is the control for scaffolding, so scaffolding is deliberately confounded with A' alone.",
+      "The model under test is a reasoning model: it decomposes problems internally in every arm. This compresses the A-to-A' difference and therefore inflates any A'-to-Hamiltonian difference. Direction: in favour of the Hamiltonian arms."
+    ],
+    "scoring": "deterministic; no model judges any output",
+    "seed": 20260804,
+    "time_budget_min": 400.0
+  },
+  "coverage": {
+    "planned_calls": 315,
+    "completed_calls": 34,
+    "completion_fraction": 0.1079,
+    "trials_per_arm": {
+      "A": 4,
+      "A_prime": 5,
+      "B": 5,
+      "C": 5,
+      "D": 5,
+      "E": 5,
+      "F": 5
+    },
+    "problems_planned": 15,
+    "generations_planned": 3,
+    "fully_covered_problem_generations": 4,
+    "fully_covered_detail": [
+      [
+        "b08_alpha_equivalence",
+        0
+      ],
+      [
+        "d24_unknown_constant",
+        0
+      ],
+      [
+        "p22_binomial_moments",
+        0
+      ],
+      [
+        "p21_rv_vs_distribution",
+        0
+      ]
+    ],
+    "UNRUN_CELLS": 281
+  },
+  "arm_summary": {
+    "A": {
+      "label": "ordinary English",
+      "trials": 4,
+      "answer_accuracy": {
+        "point": 0.75,
+        "lo": 0.25,
+        "hi": 1.0,
+        "n": 4
+      },
+      "parse_success_rate": null,
+      "parse_n": 0,
+      "semantic_encoding_score": null,
+      "encoding_produced_rate": 0.0,
+      "answer_marker_compliance": 1.0,
+      "mean_prompt_tokens": 260.8,
+      "mean_completion_tokens": 1221.0,
+      "mean_latency_s": 110.7,
+      "total_repair_calls": 0,
+      "failure_taxonomy": {
+        "correct_solution": 3,
+        "correct_reasoning_wrong_answer": 1
+      }
+    },
+    "A_prime": {
+      "label": "structured English (scaffolding control)",
+      "trials": 5,
+      "answer_accuracy": {
+        "point": 0.8,
+        "lo": 0.4,
+        "hi": 1.0,
+        "n": 5
+      },
+      "parse_success_rate": null,
+      "parse_n": 0,
+      "semantic_encoding_score": null,
+      "encoding_produced_rate": 0.0,
+      "answer_marker_compliance": 1.0,
+      "mean_prompt_tokens": 560.2,
+      "mean_completion_tokens": 1440.8,
+      "mean_latency_s": 122.0,
+      "total_repair_calls": 0,
+      "failure_taxonomy": {
+        "correct_solution": 4,
+        "correct_reasoning_wrong_answer": 1
+      }
+    },
+    "B": {
+      "label": "LaTeX",
+      "trials": 5,
+      "answer_accuracy": {
+        "point": 0.8,
+        "lo": 0.4,
+        "hi": 1.0,
+        "n": 5
+      },
+      "parse_success_rate": null,
+      "parse_n": 0,
+      "semantic_encoding_score": null,
+      "encoding_produced_rate": 0.0,
+      "answer_marker_compliance": 1.0,
+      "mean_prompt_tokens": 309.2,
+      "mean_completion_tokens": 919.4,
+      "mean_latency_s": 74.9,
+      "total_repair_calls": 0,
+      "failure_taxonomy": {
+        "correct_solution": 4,
+        "correct_reasoning_wrong_answer": 1
+      }
+    },
+    "C": {
+      "label": "Stan / Lean (existing formal language)",
+      "trials": 5,
+      "answer_accuracy": {
+        "point": 0.8,
+        "lo": 0.4,
+        "hi": 1.0,
+        "n": 5
+      },
+      "parse_success_rate": null,
+      "parse_n": 0,
+      "semantic_encoding_score": null,
+      "encoding_produced_rate": 1.0,
+      "answer_marker_compliance": 1.0,
+      "mean_prompt_tokens": 344.2,
+      "mean_completion_tokens": 773.8,
+      "mean_latency_s": 68.6,
+      "total_repair_calls": 0,
+      "failure_taxonomy": {
+        "correct_solution": 4,
+        "needs_review": 1
+      }
+    },
+    "D": {
+      "label": "Hamiltonian, no feedback",
+      "trials": 5,
+      "answer_accuracy": {
+        "point": 0.8,
+        "lo": 0.4,
+        "hi": 1.0,
+        "n": 5
+      },
+      "parse_success_rate": 1.0,
+      "parse_n": 5,
+      "semantic_encoding_score": {
+        "point": 0.7,
+        "lo": 0.3,
+        "hi": 1.0,
+        "n": 5
+      },
+      "encoding_produced_rate": 1.0,
+      "answer_marker_compliance": 1.0,
+      "mean_prompt_tokens": 1200.2,
+      "mean_completion_tokens": 896.2,
+      "mean_latency_s": 83.2,
+      "total_repair_calls": 0,
+      "failure_taxonomy": {
+        "correct_solution": 4,
+        "correct_reasoning_wrong_answer": 1
+      }
+    },
+    "E": {
+      "label": "Hamiltonian + compiler feedback",
+      "trials": 5,
+      "answer_accuracy": {
+        "point": 0.8,
+        "lo": 0.4,
+        "hi": 1.0,
+        "n": 5
+      },
+      "parse_success_rate": 1.0,
+      "parse_n": 5,
+      "semantic_encoding_score": {
+        "point": 0.6833333333333333,
+        "lo": 0.3,
+        "hi": 0.9833333333333334,
+        "n": 5
+      },
+      "encoding_produced_rate": 1.0,
+      "answer_marker_compliance": 1.0,
+      "mean_prompt_tokens": 1228.2,
+      "mean_completion_tokens": 975.0,
+      "mean_latency_s": 83.8,
+      "total_repair_calls": 0,
+      "failure_taxonomy": {
+        "correct_solution": 4,
+        "correct_reasoning_wrong_answer": 1
+      }
+    },
+    "F": {
+      "label": "Hamiltonian graph view",
+      "trials": 5,
+      "answer_accuracy": {
+        "point": 0.8,
+        "lo": 0.4,
+        "hi": 1.0,
+        "n": 5
+      },
+      "parse_success_rate": null,
+      "parse_n": 0,
+      "semantic_encoding_score": null,
+      "encoding_produced_rate": 1.0,
+      "answer_marker_compliance": 1.0,
+      "mean_prompt_tokens": 1432.2,
+      "mean_completion_tokens": 981.2,
+      "mean_latency_s": 85.3,
+      "total_repair_calls": 0,
+      "failure_taxonomy": {
+        "correct_solution": 4,
+        "needs_review": 1
+      }
+    }
+  },
+  "contrasts": [
+    {
+      "treatment": "A_prime",
+      "control": "A",
+      "question": "does explicit scaffolding alone help?",
+      "n_pairs": 4,
+      "treatment_accuracy": 0.75,
+      "control_accuracy": 0.75,
+      "paired_difference": {
+        "point": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "discordant_pairs": {
+        "treatment_only_correct": 0,
+        "control_only_correct": 0
+      },
+      "mcnemar_exact_p": 1.0,
+      "cohens_h": 0.0,
+      "effect_size": "negligible",
+      "ci_excludes_zero": false
+    },
+    {
+      "treatment": "D",
+      "control": "A",
+      "question": "does Hamiltonian beat ordinary English?",
+      "n_pairs": 4,
+      "treatment_accuracy": 0.75,
+      "control_accuracy": 0.75,
+      "paired_difference": {
+        "point": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "discordant_pairs": {
+        "treatment_only_correct": 0,
+        "control_only_correct": 0
+      },
+      "mcnemar_exact_p": 1.0,
+      "cohens_h": 0.0,
+      "effect_size": "negligible",
+      "ci_excludes_zero": false
+    },
+    {
+      "treatment": "D",
+      "control": "A_prime",
+      "question": "does Hamiltonian beat structured English? (the decisive one)",
+      "n_pairs": 5,
+      "treatment_accuracy": 0.8,
+      "control_accuracy": 0.8,
+      "paired_difference": {
+        "point": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "discordant_pairs": {
+        "treatment_only_correct": 0,
+        "control_only_correct": 0
+      },
+      "mcnemar_exact_p": 1.0,
+      "cohens_h": 0.0,
+      "effect_size": "negligible",
+      "ci_excludes_zero": false
+    },
+    {
+      "treatment": "D",
+      "control": "B",
+      "question": "does Hamiltonian beat LaTeX?",
+      "n_pairs": 5,
+      "treatment_accuracy": 0.8,
+      "control_accuracy": 0.8,
+      "paired_difference": {
+        "point": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "discordant_pairs": {
+        "treatment_only_correct": 0,
+        "control_only_correct": 0
+      },
+      "mcnemar_exact_p": 1.0,
+      "cohens_h": 0.0,
+      "effect_size": "negligible",
+      "ci_excludes_zero": false
+    },
+    {
+      "treatment": "D",
+      "control": "C",
+      "question": "does Hamiltonian beat an existing formal language?",
+      "n_pairs": 5,
+      "treatment_accuracy": 0.8,
+      "control_accuracy": 0.8,
+      "paired_difference": {
+        "point": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "discordant_pairs": {
+        "treatment_only_correct": 0,
+        "control_only_correct": 0
+      },
+      "mcnemar_exact_p": 1.0,
+      "cohens_h": 0.0,
+      "effect_size": "negligible",
+      "ci_excludes_zero": false
+    },
+    {
+      "treatment": "E",
+      "control": "D",
+      "question": "does compiler feedback produce the gain?",
+      "n_pairs": 5,
+      "treatment_accuracy": 0.8,
+      "control_accuracy": 0.8,
+      "paired_difference": {
+        "point": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "discordant_pairs": {
+        "treatment_only_correct": 0,
+        "control_only_correct": 0
+      },
+      "mcnemar_exact_p": 1.0,
+      "cohens_h": 0.0,
+      "effect_size": "negligible",
+      "ci_excludes_zero": false
+    },
+    {
+      "treatment": "F",
+      "control": "D",
+      "question": "does the graph view differ from linear Hamiltonian?",
+      "n_pairs": 5,
+      "treatment_accuracy": 0.8,
+      "control_accuracy": 0.8,
+      "paired_difference": {
+        "point": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "discordant_pairs": {
+        "treatment_only_correct": 0,
+        "control_only_correct": 0
+      },
+      "mcnemar_exact_p": 1.0,
+      "cohens_h": 0.0,
+      "effect_size": "negligible",
+      "ci_excludes_zero": false
+    }
+  ],
+  "by_domain": {
+    "binding": {
+      "A": 1.0,
+      "A_prime": 1.0,
+      "B": 1.0,
+      "C": 1.0,
+      "D": 1.0,
+      "E": 1.0,
+      "F": 1.0,
+      "n_per_arm": {
+        "A": 1,
+        "A_prime": 1,
+        "B": 1,
+        "C": 1,
+        "D": 1,
+        "E": 1,
+        "F": 1
+      }
+    },
+    "dimensional": {
+      "A": 0.0,
+      "A_prime": 0.0,
+      "B": 0.0,
+      "C": 0.0,
+      "D": 0.0,
+      "E": 0.0,
+      "F": 0.0,
+      "n_per_arm": {
+        "A": 1,
+        "A_prime": 1,
+        "B": 1,
+        "C": 1,
+        "D": 1,
+        "E": 1,
+        "F": 1
+      }
+    },
+    "probability": {
+      "A": 1.0,
+      "A_prime": 1.0,
+      "B": 1.0,
+      "C": 1.0,
+      "D": 1.0,
+      "E": 1.0,
+      "F": 1.0,
+      "n_per_arm": {
+        "A": 2,
+        "A_prime": 2,
+        "B": 2,
+        "C": 2,
+        "D": 2,
+        "E": 2,
+        "F": 2
+      }
+    },
+    "quantifier": {
+      "A_prime": 1.0,
+      "B": 1.0,
+      "C": 1.0,
+      "D": 1.0,
+      "E": 1.0,
+      "F": 1.0,
+      "n_per_arm": {
+        "A": 0,
+        "A_prime": 1,
+        "B": 1,
+        "C": 1,
+        "D": 1,
+        "E": 1,
+        "F": 1
+      }
+    }
+  }
+}

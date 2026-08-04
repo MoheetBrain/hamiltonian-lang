@@ -18,7 +18,7 @@
   "information_asymmetry": [],
   "prose": "In a physical relationship, a speed equals a constant k times a duration. The relationship is dimensionally consistent.",
   "question": "What is the physical dimension of the constant k?",
-  "reference_hml": "module UnknownConstant\n\nparam k : Quantity[Dimensionless]\n",
+  "reference_hml": "module UnknownConstant\n\nparam k : Quantity[Length / Time^2]\n\ncheck dimension k = Length / Time^2\n",
   "seed": 8,
   "semantics": {
     "conditioning": {},

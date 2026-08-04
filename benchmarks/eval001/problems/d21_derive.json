@@ -18,7 +18,7 @@
   "information_asymmetry": [],
   "prose": "Consider the physical quantity defined as momentum, mass times speed. The dimensions of the inputs are: m: Mass, v: Length/Time.",
   "question": "What is the physical dimension of the resulting quantity?",
-  "reference_hml": "module DimensionDerivation\n\nparam m : Quantity[Mass]\nparam v : Quantity[Length / Time]\n\ndef q := 0.5 * m * v^2\n\ncheck dimension q\n",
+  "reference_hml": "module DimensionDerivation\n\nparam q : Quantity[Mass * Length / Time]\n\ncheck dimension q = Mass * Length / Time\n",
   "seed": 21,
   "semantics": {
     "conditioning": {},

@@ -18,7 +18,7 @@
   "information_asymmetry": [],
   "prose": "Consider the physical quantity defined as luminous efficacy, luminous intensity divided by power. The dimensions of the inputs are: I: Luminosity, P: power.",
   "question": "What is the physical dimension of the resulting quantity?",
-  "reference_hml": "module DimensionDerivation\n\nparam m : Quantity[Mass]\nparam v : Quantity[Length / Time]\n\ndef q := 0.5 * m * v^2\n\ncheck dimension q\n",
+  "reference_hml": "module DimensionDerivation\n\nparam q : Quantity[Luminosity * Time^3 / (Mass * Length^2)]\n\ncheck dimension q = Luminosity * Time^3 / (Mass * Length^2)\n",
   "seed": 9,
   "semantics": {
     "conditioning": {},

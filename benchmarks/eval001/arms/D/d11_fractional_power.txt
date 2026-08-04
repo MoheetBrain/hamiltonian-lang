@@ -96,7 +96,7 @@ The dimension is Mass * Length / Time.
 
 
 PROBLEM
-Consider the quantity given by the square root of a mass times a length squared.
+Consider the quantity given by the square root of an area.
 
 METHOD
 Encode the problem in Hamiltonian Lang, using the reference below. Put the encoding in a fenced block marked ```hml. Then answer the question.

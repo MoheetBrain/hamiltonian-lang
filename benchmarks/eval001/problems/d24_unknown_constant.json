@@ -18,7 +18,7 @@
   "information_asymmetry": [],
   "prose": "In a physical relationship, an energy equals a constant k times a temperature. The relationship is dimensionally consistent.",
   "question": "What is the physical dimension of the constant k?",
-  "reference_hml": "module UnknownConstant\n\nparam k : Quantity[Dimensionless]\n",
+  "reference_hml": "module UnknownConstant\n\nparam k : Quantity[Mass * Length^2 / (Time^2 * Temperature)]\n\ncheck dimension k = Mass * Length^2 / (Time^2 * Temperature)\n",
   "seed": 24,
   "semantics": {
     "conditioning": {},

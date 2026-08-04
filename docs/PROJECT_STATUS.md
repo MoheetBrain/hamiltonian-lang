@@ -76,6 +76,7 @@ against isolated file ownership.
 | `DECISIONS.md` | D-001..D-020 with reversal costs |
 | `benchmarks/eval001/` | 120-problem corpus, 7 arms, 840 prompt files |
 | `evaluation/harness.py` | model-evaluation harness |
+| `evaluation/analyse.py` | paired intervals, McNemar, effect sizes |
 | `docs/evaluation/PRE_EVALUATION_AUDIT.md` | verified state before the experiment |
 | `audits/RED_TEAM_REPORT.md` | adversarial review |
 | `src/hamiltonian_lang/ast/nodes.py` | **frozen IR contract** |
@@ -120,7 +121,7 @@ Commands executed and their real results:
 
 | command | result |
 |---------|--------|
-| `.venv/bin/python -m pytest -q` | **645 passed, 0 failed, 0 xfailed** |
+| `.venv/bin/python -m pytest -q` | **945 passed, 0 failed, 0 xfailed** |
 | `.venv/bin/hml check examples/*/*.hml` | **8/8 check cleanly** |
 | `.venv/bin/ruff check src tests` | **All checks passed** |
 | `.venv/bin/mypy src/hamiltonian_lang` | **Success: no issues found in 22 source files** |

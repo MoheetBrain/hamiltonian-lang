@@ -21,9 +21,13 @@ from pathlib import Path
 
 from hamiltonian_lang import compile_source
 
-from .corpus.cso import CanonicalSemanticObject
 from .corpus.generators import CATEGORY_TARGETS, build_all, build_demos
-from .corpus.renderers import ARMS, INFORMATION_ASYMMETRY, render_arm, verify_shared_content_identical
+from .corpus.renderers import (
+    ARMS,
+    INFORMATION_ASYMMETRY,
+    render_arm,
+    verify_shared_content_identical,
+)
 
 REPO = Path(__file__).resolve().parents[1]
 OUT = REPO / "benchmarks" / "eval001"
@@ -107,7 +111,7 @@ def main() -> int:
     print(f"by answer kind ............ {by_answer_kind}")
     print(f"arm prompt files .......... {len(corpus) * len(ARMS)}")
     print(f"reference HML compiles .... {ref_ok} ok, {ref_fail} failing")
-    print(f"leakage checks ............ passed")
+    print("leakage checks ............ passed")
     print(f"manifest .................. {OUT / 'MANIFEST.json'}")
     return 0 if ref_fail == 0 else 1
 

@@ -16,7 +16,7 @@ Multiplying the dimensions gives Mass * Length / Time.
 
 
 PROBLEM
-Consider the quantity given by the square root of a mass times a length squared.
+Consider the quantity given by the square root of an area.
 
 QUESTION
 What is the physical dimension of that quantity?

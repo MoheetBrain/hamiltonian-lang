@@ -27,14 +27,14 @@
       "i != 5"
     ],
     "declaration_kinds": {
-      "i": "index",
+      "N": "index",
       "v": "const"
     },
     "dependencies": {},
     "dimensions": {},
     "entities": {
-      "i": "Natural",
-      "v": "Vector[Real, 6]"
+      "N": "Natural",
+      "v": "Vector[Real, N]"
     },
     "law_families": {},
     "laws": {},
