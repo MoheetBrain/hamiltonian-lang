@@ -1,0 +1,96 @@
+{
+  "id": "p01_normal_scale_role",
+  "category": "probability_models",
+  "difficulty": "easy",
+  "seed": 101,
+  "expects_rejection": false,
+  "natural_language": "A calibration instrument produces a reading error E. The error is normally distributed. Its centre is the parameter drift, which may be any real number. The spread of the error is reported by the manufacturer as a standard deviation called jitter, and a standard deviation is necessarily strictly positive. Write down the probability model for E.",
+  "expected_semantics": {
+    "symbols": {
+      "E": {
+        "kind": "var",
+        "type": "RandomVariable[Real]",
+        "stochastic": true
+      },
+      "drift": {
+        "kind": "param",
+        "type": "Real",
+        "stochastic": false
+      },
+      "jitter": {
+        "kind": "param",
+        "type": "PositiveReal",
+        "stochastic": false
+      }
+    },
+    "laws": {
+      "E": {
+        "family": "Normal",
+        "roles": {
+          "location": "drift",
+          "scale": "jitter"
+        }
+      }
+    },
+    "proof_obligations": [
+      "jitter > 0"
+    ]
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "jitter",
+        "type": "PositiveReal"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "drift",
+        "type": "Real"
+      },
+      {
+        "assert": "stochastic",
+        "symbol": "E",
+        "value": true
+      },
+      {
+        "assert": "law_family",
+        "symbol": "E",
+        "family": "Normal"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "E",
+        "role": "scale",
+        "argument": "jitter"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "E",
+        "role": "location",
+        "argument": "drift"
+      },
+      {
+        "assert": "obligation_count",
+        "count": 1
+      }
+    ]
+  },
+  "distractors": [
+    "Reading 'jitter' as a variance and passing it where a scale is required. The prose says standard deviation; a careless reader emits Normal(mu, sigma^2).",
+    "Declaring jitter as Real, losing the positivity constraint that 'standard deviation' silently carries.",
+    "Declaring E as Real rather than RandomVariable[Real], conflating the variable with a value of its support."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/p01_normal_scale_role.txt",
+    "latex": "benchmarks/representations/latex/p01_normal_scale_role.tex",
+    "python": "benchmarks/representations/python/p01_normal_scale_role.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/p01_normal_scale_role.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/p01_normal_scale_role.hml"
+  }
+}

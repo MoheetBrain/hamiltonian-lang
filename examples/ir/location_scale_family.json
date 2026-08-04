@@ -1,0 +1,196 @@
+{
+  "_content_hash": "8a2ec86fb4e93ae5394b897fc0e746046bb400e6b08ffd09a41de6ee8399aa22",
+  "_source": "examples/concepts/location_scale_family.hml",
+  "canonical_version": "hml-canonical-0.1.0",
+  "module": "ConceptLibrary",
+  "statements": [
+    {
+      "extends": [],
+      "kind": "Concept",
+      "members": [
+        {
+          "body": null,
+          "kind": "parameter",
+          "name": "location",
+          "parameters": [],
+          "type": "Real"
+        },
+        {
+          "body": null,
+          "kind": "parameter",
+          "name": "scale",
+          "parameters": [],
+          "type": "PositiveReal"
+        },
+        {
+          "body": {
+            "kind": "BinOp",
+            "left": {
+              "kind": "BinOp",
+              "left": {
+                "kind": "Ref",
+                "symbol": "sym:#2.0",
+                "type": "Unknown"
+              },
+              "op": "-",
+              "right": {
+                "kind": "Ref",
+                "symbol": "sym:#1.0",
+                "type": "Real"
+              },
+              "type": "Real"
+            },
+            "op": "/",
+            "right": {
+              "kind": "Ref",
+              "symbol": "sym:#1.1",
+              "type": "PositiveReal"
+            },
+            "type": "Real"
+          },
+          "kind": "transform",
+          "name": "standardise",
+          "parameters": [
+            {
+              "name": "u",
+              "type": null
+            }
+          ],
+          "type": null
+        },
+        {
+          "body": {
+            "kind": "Comparison",
+            "left": {
+              "kind": "Ref",
+              "symbol": "sym:#1.1",
+              "type": "PositiveReal"
+            },
+            "op": ">",
+            "right": {
+              "kind": "Literal",
+              "type": "Natural",
+              "value": 0
+            },
+            "type": "Proposition"
+          },
+          "kind": "invariant",
+          "name": "scale_is_positive",
+          "parameters": [],
+          "type": null
+        },
+        {
+          "body": {
+            "kind": "Comparison",
+            "left": {
+              "arguments": [
+                {
+                  "kind": "Ref",
+                  "symbol": "sym:#1.0",
+                  "type": "Real"
+                }
+              ],
+              "callee": "standardise",
+              "kind": "Call",
+              "type": "Unknown"
+            },
+            "op": "=",
+            "right": {
+              "kind": "Literal",
+              "type": "Natural",
+              "value": 0
+            },
+            "type": "Proposition"
+          },
+          "kind": "invariant",
+          "name": "standardisation_is_affine",
+          "parameters": [],
+          "type": null
+        },
+        {
+          "body": {
+            "kind": "LogicalOp",
+            "left": {
+              "kind": "Comparison",
+              "left": {
+                "kind": "Ref",
+                "symbol": "sym:#1.0",
+                "type": "Real"
+              },
+              "op": "=",
+              "right": {
+                "kind": "Literal",
+                "type": "Natural",
+                "value": 0
+              },
+              "type": "Proposition"
+            },
+            "op": "and",
+            "right": {
+              "kind": "Comparison",
+              "left": {
+                "kind": "Ref",
+                "symbol": "sym:#1.1",
+                "type": "PositiveReal"
+              },
+              "op": "=",
+              "right": {
+                "kind": "Literal",
+                "type": "PositiveNatural",
+                "value": 1
+              },
+              "type": "Proposition"
+            },
+            "type": "Proposition"
+          },
+          "kind": "example",
+          "name": "standard_normal",
+          "parameters": [],
+          "type": null
+        },
+        {
+          "body": {
+            "kind": "LogicalOp",
+            "left": {
+              "kind": "Comparison",
+              "left": {
+                "kind": "Ref",
+                "symbol": "sym:#1.0",
+                "type": "Real"
+              },
+              "op": "=",
+              "right": {
+                "kind": "Literal",
+                "type": "Natural",
+                "value": 0
+              },
+              "type": "Proposition"
+            },
+            "op": "and",
+            "right": {
+              "kind": "Comparison",
+              "left": {
+                "kind": "Ref",
+                "symbol": "sym:#1.1",
+                "type": "PositiveReal"
+              },
+              "op": "=",
+              "right": {
+                "kind": "Literal",
+                "type": "PositiveNatural",
+                "value": 1
+              },
+              "type": "Proposition"
+            },
+            "type": "Proposition"
+          },
+          "kind": "counterexample",
+          "name": "cauchy_has_no_mean",
+          "parameters": [],
+          "type": null
+        }
+      ],
+      "name": "LocationScaleFamily"
+    }
+  ]
+}

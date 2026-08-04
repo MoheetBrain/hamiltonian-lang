@@ -1,0 +1,48 @@
+{
+  "id": "a03_three_way_share_split",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "algebraic_constraints",
+  "expects_rejection": false,
+  "ground_truth": {
+    "unknowns": [
+      "share_a",
+      "share_b",
+      "share_c"
+    ],
+    "constraints": [
+      "share_a + share_b + share_c = 1.0",
+      "share_a >= share_b"
+    ],
+    "obligation_count": 5,
+    "obligation_breakdown": [
+      "2 stated constraints",
+      "0 <= share_a <= 1 (from Probability)",
+      "0 <= share_b <= 1 (from Probability)",
+      "0 <= share_c <= 1 (from Probability)"
+    ]
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "obligation_count",
+      "count": 5
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "share_a",
+      "type": "Probability"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "share_c",
+      "type": "Probability"
+    }
+  ],
+  "distractors": [
+    "Typing the shares as PositiveReal. That admits 1.7 and excludes 0.0, both wrong: the prose says a proportion between zero and one INCLUSIVE.",
+    "Typing them as NonNegativeReal, which admits 1.7.",
+    "Counting only the two written constraints and missing the three range obligations the Probability type generates."
+  ]
+}

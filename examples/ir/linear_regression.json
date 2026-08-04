@@ -1,0 +1,208 @@
+{
+  "_content_hash": "583109a8db26c6c8e42e2b720d6f3327450398ce05e6260394b608ea57ba1501",
+  "_source": "examples/statistics/linear_regression.hml",
+  "canonical_version": "hml-canonical-0.1.0",
+  "module": "LinearRegression",
+  "statements": [
+    {
+      "declaration_kind": "index",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.0",
+        "name": "N"
+      },
+      "type": "Natural",
+      "value": null
+    },
+    {
+      "declaration_kind": "index",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.1",
+        "name": "P"
+      },
+      "type": "Natural",
+      "value": null
+    },
+    {
+      "declaration_kind": "obs",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.2",
+        "name": "x"
+      },
+      "type": "Matrix[Real, N, P]",
+      "value": null
+    },
+    {
+      "declaration_kind": "obs",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.3",
+        "name": "y"
+      },
+      "type": "Vector[Real, N]",
+      "value": null
+    },
+    {
+      "declaration_kind": "param",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.4",
+        "name": "beta"
+      },
+      "type": "Vector[Real, P]",
+      "value": null
+    },
+    {
+      "declaration_kind": "param",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.5",
+        "name": "sigma"
+      },
+      "type": "PositiveReal",
+      "value": null
+    },
+    {
+      "declaration_kind": "const",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.6",
+        "name": "beta_prior_mean"
+      },
+      "type": "Vector[Real, P]",
+      "value": null
+    },
+    {
+      "declaration_kind": "const",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.7",
+        "name": "beta_prior_scale"
+      },
+      "type": "PositiveReal",
+      "value": null
+    },
+    {
+      "declaration_kind": "const",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.8",
+        "name": "sigma_prior_scale"
+      },
+      "type": "PositiveReal",
+      "value": null
+    },
+    {
+      "body": {
+        "kind": "BinOp",
+        "left": {
+          "kind": "Ref",
+          "symbol": "sym:#0.2",
+          "type": "Matrix[Real, N, P]"
+        },
+        "op": "@",
+        "right": {
+          "kind": "Ref",
+          "symbol": "sym:#0.4",
+          "type": "Vector[Real, P]"
+        },
+        "type": "Vector[Real, N]"
+      },
+      "kind": "Definition",
+      "parameters": [],
+      "symbol": {
+        "id": "sym:#0.9",
+        "name": "linear_predictor"
+      },
+      "type": "Vector[Real, N]"
+    },
+    {
+      "distribution": {
+        "arguments": {
+          "location": {
+            "kind": "Ref",
+            "symbol": "sym:#0.6",
+            "type": "Vector[Real, P]"
+          },
+          "scale": {
+            "kind": "Ref",
+            "symbol": "sym:#0.7",
+            "type": "PositiveReal"
+          }
+        },
+        "family": "NormalVector",
+        "kind": "DistributionLaw",
+        "type": "Distribution[Vector[Real, P]]"
+      },
+      "given": [],
+      "kind": "Law",
+      "role": "prior",
+      "target": "sym:#0.4"
+    },
+    {
+      "distribution": {
+        "arguments": {
+          "scale": {
+            "kind": "Ref",
+            "symbol": "sym:#0.8",
+            "type": "PositiveReal"
+          }
+        },
+        "family": "HalfNormal",
+        "kind": "DistributionLaw",
+        "type": "Distribution[PositiveReal]"
+      },
+      "given": [],
+      "kind": "Law",
+      "role": "prior",
+      "target": "sym:#0.5"
+    },
+    {
+      "distribution": {
+        "arguments": {
+          "location": {
+            "kind": "BinOp",
+            "left": {
+              "kind": "Ref",
+              "symbol": "sym:#0.2",
+              "type": "Matrix[Real, N, P]"
+            },
+            "op": "@",
+            "right": {
+              "kind": "Ref",
+              "symbol": "sym:#0.4",
+              "type": "Vector[Real, P]"
+            },
+            "type": "Vector[Real, N]"
+          },
+          "scale": {
+            "kind": "Ref",
+            "symbol": "sym:#0.5",
+            "type": "PositiveReal"
+          }
+        },
+        "family": "NormalVector",
+        "kind": "DistributionLaw",
+        "type": "Distribution[Vector[Real, N]]"
+      },
+      "given": [
+        "sym:#0.2",
+        "sym:#0.4",
+        "sym:#0.5"
+      ],
+      "kind": "Law",
+      "role": "law",
+      "target": "sym:#0.3"
+    },
+    {
+      "kind": "Inference",
+      "query": "posterior",
+      "targets": [
+        "sym:#0.4",
+        "sym:#0.5"
+      ]
+    }
+  ]
+}

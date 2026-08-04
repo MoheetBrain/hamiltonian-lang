@@ -1,0 +1,26 @@
+{
+  "id": "d04_pendulum_half_power",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "dimensional_analysis",
+  "expects_rejection": false,
+  "ground_truth": {
+    "definition": "period := 6.2831853 * (pendulum_length / gravity)^0.5",
+    "dimension": "Time",
+    "requires": "rational exponent 1/2 applied to a dimension vector"
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "dimension_of",
+      "symbol": "period",
+      "dimension": "Time"
+    }
+  ],
+  "distractors": [
+    "Forgetting the square root and reporting Time^2.",
+    "Treating the constant 6.2831853 as carrying a dimension.",
+    "Assuming half-integer exponents cannot be checked exactly. They can, if exponents are rationals rather than floats; a float representation would make Time^0.5 squared fail to equal Time exactly."
+  ]
+}

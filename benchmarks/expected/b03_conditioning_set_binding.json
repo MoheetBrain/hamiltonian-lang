@@ -1,0 +1,59 @@
+{
+  "id": "b03_conditioning_set_binding",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "variable_binding",
+  "expects_rejection": false,
+  "ground_truth": {
+    "conditioning": {
+      "response": [
+        "coefficients",
+        "noise_scale",
+        "predictors"
+      ]
+    },
+    "shapes": {
+      "predictors": "Matrix[Real, N, P]",
+      "coefficients": "Vector[Real, P]",
+      "response": "Vector[Real, N]"
+    }
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "conditioned_on",
+      "symbol": "response",
+      "given": [
+        "coefficients",
+        "noise_scale",
+        "predictors"
+      ]
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "predictors",
+      "type": "Matrix[Real, N, P]"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "coefficients",
+      "type": "Vector[Real, P]"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "response",
+      "type": "Vector[Real, N]"
+    },
+    {
+      "assert": "stochastic",
+      "symbol": "noise_scale",
+      "value": true
+    }
+  ],
+  "distractors": [
+    "Omitting the design matrix from the conditioning set because it is 'just data'. Observed status and conditioning status are different facts.",
+    "Including the prior location vector because it appears in the model. The response depends on it only through the coefficients.",
+    "Transposing the design matrix so that the inner dimensions no longer agree; the prose fixes N as rows and P as columns."
+  ]
+}

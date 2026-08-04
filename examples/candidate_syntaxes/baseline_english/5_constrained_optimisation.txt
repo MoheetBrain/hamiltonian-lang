@@ -1,0 +1,3 @@
+Let x and y be real numbers subject to the constraints that x plus y is at least
+10, that x is at least 0, and that y is at least 0. Minimise x squared plus y
+squared and solve for x and y.

@@ -1,0 +1,33 @@
+# Candidate D. Problem 2.
+module: BayesianCoin
+declarations:
+  - kind: param
+    name: theta
+    type: Probability
+  - kind: const
+    name: trials
+    type: Natural
+    value: "10"
+  - kind: obs
+    name: successes
+    type: Natural
+    value: "7"
+laws:
+  - role: prior
+    target: theta
+    family: Beta
+    args:
+      alpha: "1"
+      beta: "1"
+  - role: likelihood
+    target: successes
+    given:
+      - theta
+    family: Binomial
+    args:
+      trials: trials
+      prob: theta
+infer:
+  query: posterior
+  targets:
+    - theta

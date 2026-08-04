@@ -1,0 +1,48 @@
+{
+  "id": "e03_role_assignment_reordered",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "semantic_equivalence",
+  "expects_rejection": false,
+  "ground_truth": {
+    "laws": {
+      "Z": {
+        "family": "Normal",
+        "roles": {
+          "location": "first",
+          "scale": "second"
+        }
+      }
+    },
+    "relation_to_reference": "same meaning; must share a canonical hash",
+    "note": "argument ORDER is not part of identity because roles are labelled"
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "law_role",
+      "symbol": "Z",
+      "role": "location",
+      "argument": "first"
+    },
+    {
+      "assert": "law_role",
+      "symbol": "Z",
+      "role": "scale",
+      "argument": "second"
+    },
+    {
+      "assert": "hash_equals",
+      "problem": "e01_role_assignment_reference"
+    },
+    {
+      "assert": "hash_differs",
+      "problem": "e02_role_assignment_swapped"
+    }
+  ],
+  "distractors": [
+    "Judging this different from the reference because the text differs. Under labelled roles the textual order is not meaning-bearing.",
+    "Generalising from this case that the canonical hash detects semantic equivalence. It detects a narrow syntactic normalisation: argument order and bound-variable spelling. It does NOT identify 'a > 0' with '0 < a', nor reordered statements."
+  ]
+}

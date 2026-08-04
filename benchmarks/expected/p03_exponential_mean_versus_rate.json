@@ -1,0 +1,50 @@
+{
+  "id": "p03_exponential_mean_versus_rate",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "probability_models",
+  "expects_rejection": false,
+  "ground_truth": {
+    "symbols": {
+      "wait": {
+        "kind": "var",
+        "type": "RandomVariable[PositiveReal]",
+        "stochastic": true
+      }
+    },
+    "laws": {
+      "wait": {
+        "family": "Exponential",
+        "roles": {
+          "rate": "0.25"
+        }
+      }
+    },
+    "derivation": "mean 4.0 minutes -> rate = 1 / 4.0 = 0.25 per minute"
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "law_family",
+      "symbol": "wait",
+      "family": "Exponential"
+    },
+    {
+      "assert": "law_role",
+      "symbol": "wait",
+      "role": "rate",
+      "argument": "0.25"
+    },
+    {
+      "assert": "stochastic",
+      "symbol": "wait",
+      "value": true
+    }
+  ],
+  "distractors": [
+    "Passing 4.0 as the rate. This is the single commonest exponential-distribution error and it is invisible in prose, LaTeX and most code.",
+    "Declaring the waiting time over Real rather than PositiveReal, admitting negative waiting times.",
+    "Assuming 'rate' and 'lambda' are interchangeable without checking which convention the library uses (numpy takes a SCALE, scipy takes a scale, R takes a rate)."
+  ]
+}

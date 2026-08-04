@@ -1,0 +1,2125 @@
+{
+  "header": {
+    "WHAT_THIS_IS": "Deterministic compiler-side baseline for the Hamiltonian Lang benchmark corpus. No language model was called at any point in producing this file.",
+    "WHAT_THIS_IS_NOT": "This is NOT evidence for the project thesis. The thesis is that an AI system reasons more accurately and more verifiably through this representation than through prose, LaTeX, conventional code, or an existing formal language. Testing it requires model-in-the-loop arms A, A', B, C, D, E and E'. Those arms have not been built and no comparative measurement has been run. Any reading of these numbers as support for the thesis is a misreading.",
+    "WHAT_IT_MEASURES": [
+      "that the benchmark corpus compiles as authored (a corpus sanity check)",
+      "that the negative items are rejected with the diagnostic code the dataset asserts",
+      "that structural ground truth authored from prose agrees with what the compiler recovers -- disagreements are findings, not reasons to edit the ground truth",
+      "representation length in tokens, per arm",
+      "whether the compiler points at the line that was actually broken"
+    ],
+    "KNOWN_INSTRUMENT_DEFECTS": "See docs/research/BENCHMARK_PROTOCOL.md section 12 and audits/RED_TEAM_REPORT.md. Three defects named in earlier runs of this file have since been fixed and the claims are withdrawn: alpha-renaming now leaves the content hash unchanged (DECISIONS.md D-010, D-016 finding 1.9); unary minus no longer preserves a positivity refinement, so 'param s : PositiveReal = -1.0' is rejected; and Stan, SymPy and Lean backends now exist. Standing limitations: no backend is faithful -- each reports its own translation loss -- no proof obligation other than a dimensional check is ever discharged, and eight further findings in the red-team report remain open."
+  },
+  "run": {
+    "generated_utc": "2026-08-04T19:22:42+00:00",
+    "hamiltonian_lang_version": "0.1.0",
+    "canonical_version": "hml-canonical-0.1.0",
+    "python": "3.14.6",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "tokenizer": "fallback/regex-word-punct",
+    "token_counts_are_APPROXIMATE": true
+  },
+  "arm_coverage": {
+    "english": {
+      "present": 24,
+      "missing": []
+    },
+    "latex": {
+      "present": 24,
+      "missing": []
+    },
+    "python": {
+      "present": 24,
+      "missing": []
+    },
+    "stan_or_lean": {
+      "present": 24,
+      "missing": []
+    },
+    "hamiltonian": {
+      "present": 24,
+      "missing": []
+    }
+  },
+  "aggregate": {
+    "problems_scored": 24,
+    "problems_expected_valid": 21,
+    "problems_expected_rejected": 3,
+    "valid_parse_success_rate": 1.0,
+    "negative_rejection_rate": 1.0,
+    "assertions_total": 93,
+    "assertions_passed": 93,
+    "problems_all_assertions_passed": 24,
+    "per_metric": {
+      "parse_success": {
+        "passed": 21,
+        "total": 21,
+        "rate": 1.0
+      },
+      "obligation_accounting": {
+        "passed": 5,
+        "total": 5,
+        "rate": 1.0
+      },
+      "type_correctness": {
+        "passed": 23,
+        "total": 23,
+        "rate": 1.0
+      },
+      "error_visibility": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1.0
+      },
+      "binding_accuracy": {
+        "passed": 9,
+        "total": 9,
+        "rate": 1.0
+      },
+      "retrieval_accuracy": {
+        "passed": 2,
+        "total": 2,
+        "rate": 1.0
+      },
+      "dimension_correct": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1.0
+      },
+      "role_accuracy": {
+        "passed": 13,
+        "total": 13,
+        "rate": 1.0
+      },
+      "semantic_discrimination": {
+        "passed": 7,
+        "total": 7,
+        "rate": 1.0
+      },
+      "semantic_equivalence": {
+        "passed": 2,
+        "total": 2,
+        "rate": 1.0
+      },
+      "scope_accuracy": {
+        "passed": 5,
+        "total": 5,
+        "rate": 1.0
+      }
+    },
+    "by_category": {
+      "algebraic_constraints": {
+        "problems": 3,
+        "assertions_total": 12,
+        "assertions_passed": 12,
+        "assertion_rate": 1.0
+      },
+      "variable_binding": {
+        "problems": 4,
+        "assertions_total": 11,
+        "assertions_passed": 11,
+        "assertion_rate": 1.0
+      },
+      "dimensional_analysis": {
+        "problems": 4,
+        "assertions_total": 8,
+        "assertions_passed": 8,
+        "assertion_rate": 1.0
+      },
+      "semantic_equivalence": {
+        "problems": 3,
+        "assertions_total": 14,
+        "assertions_passed": 14,
+        "assertion_rate": 1.0
+      },
+      "probability_models": {
+        "problems": 5,
+        "assertions_total": 32,
+        "assertions_passed": 32,
+        "assertion_rate": 1.0
+      },
+      "quantifier_scope": {
+        "problems": 5,
+        "assertions_total": 16,
+        "assertions_passed": 16,
+        "assertion_rate": 1.0
+      }
+    },
+    "content_hash_shared": {
+      "8441235b36921c0232940eb0acb8748fcb8e9f05f650920bb6403e8290aa5767": {
+        "problems": [
+          "e01_role_assignment_reference",
+          "e03_role_assignment_reordered"
+        ],
+        "intended": true
+      }
+    },
+    "content_hash_collisions_UNINTENDED": {}
+  },
+  "tokens": {
+    "tokenizer": "fallback/regex-word-punct",
+    "APPROXIMATE": true,
+    "by_arm": {
+      "english": {
+        "problems": 24,
+        "total_tokens": 1242,
+        "mean_tokens": 51.75,
+        "min_tokens": 26,
+        "max_tokens": 104,
+        "ratio_to_english": 1.0
+      },
+      "hamiltonian": {
+        "problems": 24,
+        "total_tokens": 879,
+        "mean_tokens": 36.625,
+        "min_tokens": 10,
+        "max_tokens": 106,
+        "ratio_to_english": 0.7077
+      },
+      "latex": {
+        "problems": 24,
+        "total_tokens": 1595,
+        "mean_tokens": 66.45833333333333,
+        "min_tokens": 26,
+        "max_tokens": 128,
+        "ratio_to_english": 1.2842
+      },
+      "python": {
+        "problems": 24,
+        "total_tokens": 1492,
+        "mean_tokens": 62.166666666666664,
+        "min_tokens": 18,
+        "max_tokens": 154,
+        "ratio_to_english": 1.2013
+      },
+      "stan_or_lean": {
+        "problems": 24,
+        "total_tokens": 1391,
+        "mean_tokens": 57.958333333333336,
+        "min_tokens": 24,
+        "max_tokens": 119,
+        "ratio_to_english": 1.12
+      }
+    },
+    "CAVEAT": "These counts are NOT a like-for-like comparison and must not be quoted as one. The english / latex / python / stan_or_lean files state the PROBLEM (prose, the question asked, and commentary on what the notation does and does not capture). The hamiltonian files contain only the ANSWER: the finished encoding, with no problem statement. A shorter hamiltonian total therefore reflects the corpus layout, not token efficiency. The protocol's H5 metric is tokens-to-verified-correct in a model-in-the-loop run, which is not measured here and cannot be estimated from these numbers."
+  },
+  "diagnostic_quality": {
+    "trials": 50,
+    "detection_rate": 1.0,
+    "line_accuracy": 1.0,
+    "by_injection": {
+      "unbound_reference": {
+        "n": 21,
+        "detected": 21,
+        "line_correct": 21,
+        "detection_rate": 1.0,
+        "line_accuracy": 1.0
+      },
+      "bad_distribution_role": {
+        "n": 6,
+        "detected": 6,
+        "line_correct": 6,
+        "detection_rate": 1.0,
+        "line_accuracy": 1.0
+      },
+      "unknown_distribution_family": {
+        "n": 9,
+        "detected": 9,
+        "line_correct": 9,
+        "detection_rate": 1.0,
+        "line_accuracy": 1.0
+      },
+      "positional_distribution_arguments": {
+        "n": 9,
+        "detected": 9,
+        "line_correct": 9,
+        "detection_rate": 1.0,
+        "line_accuracy": 1.0
+      },
+      "quantifier_without_type": {
+        "n": 5,
+        "detected": 5,
+        "line_correct": 5,
+        "detection_rate": 1.0,
+        "line_accuracy": 1.0
+      }
+    }
+  },
+  "assertion_failures": [],
+  "per_problem": [
+    {
+      "problem_id": "a01_minimum_norm_under_half_plane",
+      "category": "algebraic_constraints",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "ea5e1104178dd839ce4bad19129382ad6c6e4202ab1647f359976327efe4c6c0",
+      "obligations": 3,
+      "assertions_total": 4,
+      "assertions_passed": 4,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "7 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "obligation_count",
+          "passed": true,
+          "detail": "obligations=3",
+          "spec": {
+            "assert": "obligation_count",
+            "count": 3
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Real'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "x",
+            "type": "Real"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Real'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "y",
+            "type": "Real"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 54,
+        "latex": 67,
+        "python": 154,
+        "stan_or_lean": 119,
+        "hamiltonian": 38
+      }
+    },
+    {
+      "problem_id": "a02_budget_allocation",
+      "category": "algebraic_constraints",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "fcbb82c1db8289e89f75749632710eb2d9c7038038fe08aaef4bb105ee907fae",
+      "obligations": 4,
+      "assertions_total": 4,
+      "assertions_passed": 4,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "6 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "obligation_count",
+          "passed": true,
+          "detail": "obligations=4",
+          "spec": {
+            "assert": "obligation_count",
+            "count": 4
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='NonNegativeReal'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "digital",
+            "type": "NonNegativeReal"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='PositiveReal'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "budget",
+            "type": "PositiveReal"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 67,
+        "latex": 56,
+        "python": 76,
+        "stan_or_lean": 95,
+        "hamiltonian": 34
+      }
+    },
+    {
+      "problem_id": "a03_three_way_share_split",
+      "category": "algebraic_constraints",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "eccdfd6e589d22e606b96aacce07391233ee93f1e7b0604e1a91294f80568808",
+      "obligations": 5,
+      "assertions_total": 4,
+      "assertions_passed": 4,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "6 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "obligation_count",
+          "passed": true,
+          "detail": "obligations=5",
+          "spec": {
+            "assert": "obligation_count",
+            "count": 5
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Probability'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "share_a",
+            "type": "Probability"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Probability'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "share_c",
+            "type": "Probability"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 53,
+        "latex": 40,
+        "python": 70,
+        "stan_or_lean": 106,
+        "hamiltonian": 31
+      }
+    },
+    {
+      "problem_id": "b01_shadowed_index",
+      "category": "variable_binding",
+      "expects_rejection": true,
+      "compiled": false,
+      "diagnostic_codes": [
+        "HML-N302"
+      ],
+      "content_hash": null,
+      "obligations": 0,
+      "assertions_total": 1,
+      "assertions_passed": 1,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "rejects_with",
+          "passed": true,
+          "detail": "codes=['HML-N302']",
+          "spec": {
+            "assert": "rejects_with",
+            "code": "HML-N302"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 47,
+        "latex": 67,
+        "python": 60,
+        "stan_or_lean": 59,
+        "hamiltonian": 15
+      }
+    },
+    {
+      "problem_id": "b02_conflicting_type_declaration",
+      "category": "variable_binding",
+      "expects_rejection": true,
+      "compiled": false,
+      "diagnostic_codes": [
+        "HML-N303"
+      ],
+      "content_hash": null,
+      "obligations": 0,
+      "assertions_total": 1,
+      "assertions_passed": 1,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "rejects_with",
+          "passed": true,
+          "detail": "codes=['HML-N303']",
+          "spec": {
+            "assert": "rejects_with",
+            "code": "HML-N303"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 47,
+        "latex": 56,
+        "python": 53,
+        "stan_or_lean": 39,
+        "hamiltonian": 10
+      }
+    },
+    {
+      "problem_id": "b03_conditioning_set_binding",
+      "category": "variable_binding",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "d21c2e52550a46fc51a81fcd855594db2ba90124d997830eacc9cc476bf1584d",
+      "obligations": 2,
+      "assertions_total": 6,
+      "assertions_passed": 6,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "12 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "conditioned_on",
+          "passed": true,
+          "detail": "given=['coefficients', 'noise_scale', 'predictors']",
+          "spec": {
+            "assert": "conditioned_on",
+            "symbol": "response",
+            "given": [
+              "coefficients",
+              "noise_scale",
+              "predictors"
+            ]
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Matrix[Real, N, P]'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "predictors",
+            "type": "Matrix[Real, N, P]"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Vector[Real, P]'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "coefficients",
+            "type": "Vector[Real, P]"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Vector[Real, N]'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "response",
+            "type": "Vector[Real, N]"
+          }
+        },
+        {
+          "assert": "stochastic",
+          "passed": true,
+          "detail": "stochastic=True",
+          "spec": {
+            "assert": "stochastic",
+            "symbol": "noise_scale",
+            "value": true
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 104,
+        "latex": 107,
+        "python": 96,
+        "stan_or_lean": 109,
+        "hamiltonian": 106
+      }
+    },
+    {
+      "problem_id": "b04_definition_dependency_chain",
+      "category": "variable_binding",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "a5bc6c99afc8d22b515b9140361da8c33f48bd18e6bd9c5ff0a612f5153ea261",
+      "obligations": 0,
+      "assertions_total": 3,
+      "assertions_passed": 3,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "5 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "depends_on",
+          "passed": true,
+          "detail": "dependencies=['alpha', 'beta', 'total', 'weighted']",
+          "spec": {
+            "assert": "depends_on",
+            "symbol": "residual",
+            "set": [
+              "alpha",
+              "beta",
+              "total",
+              "weighted"
+            ]
+          }
+        },
+        {
+          "assert": "depends_on",
+          "passed": true,
+          "detail": "dependencies=['alpha', 'beta']",
+          "spec": {
+            "assert": "depends_on",
+            "symbol": "total",
+            "set": [
+              "alpha",
+              "beta"
+            ]
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 41,
+        "latex": 60,
+        "python": 42,
+        "stan_or_lean": 37,
+        "hamiltonian": 31
+      }
+    },
+    {
+      "problem_id": "d01_kinetic_energy_dimension",
+      "category": "dimensional_analysis",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "dd2b8566113f00dd4754b62c9cb0e059b38d8719d6e9f8d78c0da082ea9016d2",
+      "obligations": 1,
+      "assertions_total": 3,
+      "assertions_passed": 3,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "4 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "dimension_of",
+          "passed": true,
+          "detail": "dimension='Length^2 * Mass / Time^2'",
+          "spec": {
+            "assert": "dimension_of",
+            "symbol": "kinetic_energy",
+            "dimension": "Length^2 * Mass / Time^2"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Quantity[Length / Time]'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "v",
+            "type": "Quantity[Length / Time]"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 37,
+        "latex": 89,
+        "python": 54,
+        "stan_or_lean": 48,
+        "hamiltonian": 42
+      }
+    },
+    {
+      "problem_id": "d02_invalid_dimensional_addition",
+      "category": "dimensional_analysis",
+      "expects_rejection": true,
+      "compiled": false,
+      "diagnostic_codes": [
+        "HML-D502"
+      ],
+      "content_hash": null,
+      "obligations": 0,
+      "assertions_total": 1,
+      "assertions_passed": 1,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "rejects_with",
+          "passed": true,
+          "detail": "codes=['HML-D502']",
+          "spec": {
+            "assert": "rejects_with",
+            "code": "HML-D502"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 49,
+        "latex": 91,
+        "python": 68,
+        "stan_or_lean": 43,
+        "hamiltonian": 37
+      }
+    },
+    {
+      "problem_id": "d03_pressure_from_force_and_area",
+      "category": "dimensional_analysis",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "7f94faab6d5da9cd10db5205d5168642bbd50dfac6b870600f649c884075c8ba",
+      "obligations": 1,
+      "assertions_total": 2,
+      "assertions_passed": 2,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "4 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "dimension_of",
+          "passed": true,
+          "detail": "dimension='Mass / (Length * Time^2)'",
+          "spec": {
+            "assert": "dimension_of",
+            "symbol": "pressure",
+            "dimension": "Mass / (Length * Time^2)"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 39,
+        "latex": 89,
+        "python": 26,
+        "stan_or_lean": 24,
+        "hamiltonian": 44
+      }
+    },
+    {
+      "problem_id": "d04_pendulum_half_power",
+      "category": "dimensional_analysis",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "d8c58cb8a54ccfe3c9dcf2b07191f77d3ad375ef95711af4f001ca8a53924792",
+      "obligations": 1,
+      "assertions_total": 2,
+      "assertions_passed": 2,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "4 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "dimension_of",
+          "passed": true,
+          "detail": "dimension='Time'",
+          "spec": {
+            "assert": "dimension_of",
+            "symbol": "period",
+            "dimension": "Time"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 54,
+        "latex": 89,
+        "python": 53,
+        "stan_or_lean": 33,
+        "hamiltonian": 38
+      }
+    },
+    {
+      "problem_id": "e01_role_assignment_reference",
+      "category": "semantic_equivalence",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "8441235b36921c0232940eb0acb8748fcb8e9f05f650920bb6403e8290aa5767",
+      "obligations": 2,
+      "assertions_total": 5,
+      "assertions_passed": 5,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "4 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "location := first",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "Z",
+            "role": "location",
+            "argument": "first"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "scale := second",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "Z",
+            "role": "scale",
+            "argument": "second"
+          }
+        },
+        {
+          "assert": "hash_differs",
+          "passed": true,
+          "detail": "8441235b3692 vs 97cae7837714",
+          "spec": {
+            "assert": "hash_differs",
+            "problem": "e02_role_assignment_swapped"
+          }
+        },
+        {
+          "assert": "hash_equals",
+          "passed": true,
+          "detail": "8441235b3692 vs 8441235b3692",
+          "spec": {
+            "assert": "hash_equals",
+            "problem": "e03_role_assignment_reordered"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 33,
+        "latex": 46,
+        "python": 25,
+        "stan_or_lean": 34,
+        "hamiltonian": 32
+      }
+    },
+    {
+      "problem_id": "e02_role_assignment_swapped",
+      "category": "semantic_equivalence",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "97cae78377141711f2685c83c32cf0f4a78cdbf2aacfea306ffaca2fd59941ab",
+      "obligations": 2,
+      "assertions_total": 4,
+      "assertions_passed": 4,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "4 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "location := second",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "Z",
+            "role": "location",
+            "argument": "second"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "scale := first",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "Z",
+            "role": "scale",
+            "argument": "first"
+          }
+        },
+        {
+          "assert": "hash_differs",
+          "passed": true,
+          "detail": "97cae7837714 vs 8441235b3692",
+          "spec": {
+            "assert": "hash_differs",
+            "problem": "e01_role_assignment_reference"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 33,
+        "latex": 26,
+        "python": 25,
+        "stan_or_lean": 34,
+        "hamiltonian": 32
+      }
+    },
+    {
+      "problem_id": "e03_role_assignment_reordered",
+      "category": "semantic_equivalence",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "8441235b36921c0232940eb0acb8748fcb8e9f05f650920bb6403e8290aa5767",
+      "obligations": 2,
+      "assertions_total": 5,
+      "assertions_passed": 5,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "4 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "location := first",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "Z",
+            "role": "location",
+            "argument": "first"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "scale := second",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "Z",
+            "role": "scale",
+            "argument": "second"
+          }
+        },
+        {
+          "assert": "hash_equals",
+          "passed": true,
+          "detail": "8441235b3692 vs 8441235b3692",
+          "spec": {
+            "assert": "hash_equals",
+            "problem": "e01_role_assignment_reference"
+          }
+        },
+        {
+          "assert": "hash_differs",
+          "passed": true,
+          "detail": "8441235b3692 vs 97cae7837714",
+          "spec": {
+            "assert": "hash_differs",
+            "problem": "e02_role_assignment_swapped"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 43,
+        "latex": 44,
+        "python": 33,
+        "stan_or_lean": 66,
+        "hamiltonian": 32
+      }
+    },
+    {
+      "problem_id": "p01_normal_scale_role",
+      "category": "probability_models",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "b8db626bfe130ffbb0587dd92388fa5faf5fd4b38675f97ccdc48652e86845b5",
+      "obligations": 1,
+      "assertions_total": 8,
+      "assertions_passed": 8,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "4 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='PositiveReal'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "jitter",
+            "type": "PositiveReal"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Real'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "drift",
+            "type": "Real"
+          }
+        },
+        {
+          "assert": "stochastic",
+          "passed": true,
+          "detail": "stochastic=True",
+          "spec": {
+            "assert": "stochastic",
+            "symbol": "E",
+            "value": true
+          }
+        },
+        {
+          "assert": "law_family",
+          "passed": true,
+          "detail": "family='Normal'",
+          "spec": {
+            "assert": "law_family",
+            "symbol": "E",
+            "family": "Normal"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "scale := jitter",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "E",
+            "role": "scale",
+            "argument": "jitter"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "location := drift",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "E",
+            "role": "location",
+            "argument": "drift"
+          }
+        },
+        {
+          "assert": "obligation_count",
+          "passed": true,
+          "detail": "obligations=1",
+          "spec": {
+            "assert": "obligation_count",
+            "count": 1
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 63,
+        "latex": 128,
+        "python": 85,
+        "stan_or_lean": 67,
+        "hamiltonian": 32
+      }
+    },
+    {
+      "problem_id": "p02_beta_binomial_germination",
+      "category": "probability_models",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "496a202567b3f5da364a3c7e634d14eb858dfa54f6c2fcedc1dd97f683b07d58",
+      "obligations": 1,
+      "assertions_total": 9,
+      "assertions_passed": 9,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "6 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Probability'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "germination_rate",
+            "type": "Probability"
+          }
+        },
+        {
+          "assert": "symbol_kind",
+          "passed": true,
+          "detail": "kind='obs'",
+          "spec": {
+            "assert": "symbol_kind",
+            "symbol": "planted",
+            "kind": "obs"
+          }
+        },
+        {
+          "assert": "law_family",
+          "passed": true,
+          "detail": "family='Beta'",
+          "spec": {
+            "assert": "law_family",
+            "symbol": "germination_rate",
+            "family": "Beta"
+          }
+        },
+        {
+          "assert": "law_family",
+          "passed": true,
+          "detail": "family='Binomial'",
+          "spec": {
+            "assert": "law_family",
+            "symbol": "sprouted",
+            "family": "Binomial"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "trials := planted",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "sprouted",
+            "role": "trials",
+            "argument": "planted"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "prob := germination_rate",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "sprouted",
+            "role": "prob",
+            "argument": "germination_rate"
+          }
+        },
+        {
+          "assert": "conditioned_on",
+          "passed": true,
+          "detail": "given=['germination_rate']",
+          "spec": {
+            "assert": "conditioned_on",
+            "symbol": "sprouted",
+            "given": [
+              "germination_rate"
+            ]
+          }
+        },
+        {
+          "assert": "stochastic",
+          "passed": true,
+          "detail": "stochastic=True",
+          "spec": {
+            "assert": "stochastic",
+            "symbol": "germination_rate",
+            "value": true
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 82,
+        "latex": 89,
+        "python": 94,
+        "stan_or_lean": 60,
+        "hamiltonian": 51
+      }
+    },
+    {
+      "problem_id": "p03_exponential_mean_versus_rate",
+      "category": "probability_models",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "722e298841a9acfde09a0f5e108c62356cb7fe089675fe88a234bc80775f685f",
+      "obligations": 0,
+      "assertions_total": 4,
+      "assertions_passed": 4,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "2 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "law_family",
+          "passed": true,
+          "detail": "family='Exponential'",
+          "spec": {
+            "assert": "law_family",
+            "symbol": "wait",
+            "family": "Exponential"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "rate := 0.25",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "wait",
+            "role": "rate",
+            "argument": "0.25"
+          }
+        },
+        {
+          "assert": "stochastic",
+          "passed": true,
+          "detail": "stochastic=True",
+          "spec": {
+            "assert": "stochastic",
+            "symbol": "wait",
+            "value": true
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 59,
+        "latex": 82,
+        "python": 67,
+        "stan_or_lean": 50,
+        "hamiltonian": 51
+      }
+    },
+    {
+      "problem_id": "p04_hierarchical_conditioning",
+      "category": "probability_models",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "decc43c66dde30e29aa5fce4c43e34fbac8f445d28fd4734e9b58628559f8482",
+      "obligations": 2,
+      "assertions_total": 6,
+      "assertions_passed": 6,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "9 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Vector[Real, G]'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "clinic_mean",
+            "type": "Vector[Real, G]"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='PositiveReal'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "population_scale",
+            "type": "PositiveReal"
+          }
+        },
+        {
+          "assert": "conditioned_on",
+          "passed": true,
+          "detail": "given=['clinic_mean', 'measurement_scale']",
+          "spec": {
+            "assert": "conditioned_on",
+            "symbol": "outcome",
+            "given": [
+              "clinic_mean",
+              "measurement_scale"
+            ]
+          }
+        },
+        {
+          "assert": "law_family",
+          "passed": true,
+          "detail": "family='NormalVector'",
+          "spec": {
+            "assert": "law_family",
+            "symbol": "clinic_mean",
+            "family": "NormalVector"
+          }
+        },
+        {
+          "assert": "stochastic",
+          "passed": true,
+          "detail": "stochastic=True",
+          "spec": {
+            "assert": "stochastic",
+            "symbol": "outcome",
+            "value": true
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 87,
+        "latex": 109,
+        "python": 79,
+        "stan_or_lean": 77,
+        "hamiltonian": 77
+      }
+    },
+    {
+      "problem_id": "p05_binomial_role_confusion",
+      "category": "probability_models",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "1e4e1cbcc36474f1fcf1b826f513afe7bf83214682b6b6631a2ea050a455a070",
+      "obligations": 1,
+      "assertions_total": 5,
+      "assertions_passed": 5,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "4 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "trials := sample_size",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "failures",
+            "role": "trials",
+            "argument": "sample_size"
+          }
+        },
+        {
+          "assert": "law_role",
+          "passed": true,
+          "detail": "prob := failure_probability",
+          "spec": {
+            "assert": "law_role",
+            "symbol": "failures",
+            "role": "prob",
+            "argument": "failure_probability"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Probability'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "failure_probability",
+            "type": "Probability"
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Natural'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "sample_size",
+            "type": "Natural"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 58,
+        "latex": 46,
+        "python": 53,
+        "stan_or_lean": 46,
+        "hamiltonian": 33
+      }
+    },
+    {
+      "problem_id": "q01_forall_exists",
+      "category": "quantifier_scope",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "201ee9a797cebbb32ec92097193d67a460e6f1769a1f603adeee95d3f4cdd0d2",
+      "obligations": 1,
+      "assertions_total": 4,
+      "assertions_passed": 4,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "1 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "quantifier_prefix",
+          "passed": true,
+          "detail": "prefix=['forall:x', 'exists:y']",
+          "spec": {
+            "assert": "quantifier_prefix",
+            "prefix": [
+              "forall:x",
+              "exists:y"
+            ]
+          }
+        },
+        {
+          "assert": "hash_differs",
+          "passed": true,
+          "detail": "201ee9a797ce vs 329cca6b9e56",
+          "spec": {
+            "assert": "hash_differs",
+            "problem": "q02_exists_forall"
+          }
+        },
+        {
+          "assert": "obligation_count",
+          "passed": true,
+          "detail": "obligations=1",
+          "spec": {
+            "assert": "obligation_count",
+            "count": 1
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 31,
+        "latex": 37,
+        "python": 85,
+        "stan_or_lean": 46,
+        "hamiltonian": 16
+      }
+    },
+    {
+      "problem_id": "q02_exists_forall",
+      "category": "quantifier_scope",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "329cca6b9e56254b94a79c37abde3b1565f358db137a62f781c194cba58c55fe",
+      "obligations": 1,
+      "assertions_total": 3,
+      "assertions_passed": 3,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "1 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "quantifier_prefix",
+          "passed": true,
+          "detail": "prefix=['exists:y', 'forall:x']",
+          "spec": {
+            "assert": "quantifier_prefix",
+            "prefix": [
+              "exists:y",
+              "forall:x"
+            ]
+          }
+        },
+        {
+          "assert": "hash_differs",
+          "passed": true,
+          "detail": "329cca6b9e56 vs 201ee9a797ce",
+          "spec": {
+            "assert": "hash_differs",
+            "problem": "q01_forall_exists"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 29,
+        "latex": 37,
+        "python": 55,
+        "stan_or_lean": 60,
+        "hamiltonian": 16
+      }
+    },
+    {
+      "problem_id": "q03_uniform_continuity_prefix",
+      "category": "quantifier_scope",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "d4239fef2f72f25562ae6ca39029bb003721f97b088946075020a9f54ea0b0dc",
+      "obligations": 1,
+      "assertions_total": 3,
+      "assertions_passed": 3,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "2 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "quantifier_prefix",
+          "passed": true,
+          "detail": "prefix=['forall:eps', 'exists:delta', 'forall:u', 'forall:v']",
+          "spec": {
+            "assert": "quantifier_prefix",
+            "prefix": [
+              "forall:eps",
+              "exists:delta",
+              "forall:u",
+              "forall:v"
+            ]
+          }
+        },
+        {
+          "assert": "symbol_type",
+          "passed": true,
+          "detail": "declared_type='Function[Real -> Real]'",
+          "spec": {
+            "assert": "symbol_type",
+            "symbol": "f",
+            "type": "Function[Real -> Real]"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 73,
+        "latex": 80,
+        "python": 101,
+        "stan_or_lean": 70,
+        "hamiltonian": 57
+      }
+    },
+    {
+      "problem_id": "q04_negation_outside_quantifier",
+      "category": "quantifier_scope",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "4ad8f5172ea090cfbf99f6b5f6933d1ccc9a54a3409f3a7b219d9b41dbb38675",
+      "obligations": 1,
+      "assertions_total": 3,
+      "assertions_passed": 3,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "1 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "quantifier_prefix",
+          "passed": true,
+          "detail": "prefix=['forall:x']",
+          "spec": {
+            "assert": "quantifier_prefix",
+            "prefix": [
+              "forall:x"
+            ]
+          }
+        },
+        {
+          "assert": "hash_differs",
+          "passed": true,
+          "detail": "4ad8f5172ea0 vs 23529ad3932e",
+          "spec": {
+            "assert": "hash_differs",
+            "problem": "q05_negation_inside_quantifier"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 26,
+        "latex": 30,
+        "python": 18,
+        "stan_or_lean": 39,
+        "hamiltonian": 12
+      }
+    },
+    {
+      "problem_id": "q05_negation_inside_quantifier",
+      "category": "quantifier_scope",
+      "expects_rejection": false,
+      "compiled": true,
+      "diagnostic_codes": [],
+      "content_hash": "23529ad3932ef2000e9faa56155408c2acbfa6a4d8e851989ea9ab1a56cbaea7",
+      "obligations": 1,
+      "assertions_total": 3,
+      "assertions_passed": 3,
+      "all_assertions_passed": true,
+      "assertions": [
+        {
+          "assert": "compiles",
+          "passed": true,
+          "detail": "1 statements",
+          "spec": {
+            "assert": "compiles"
+          }
+        },
+        {
+          "assert": "quantifier_prefix",
+          "passed": true,
+          "detail": "prefix=['forall:x']",
+          "spec": {
+            "assert": "quantifier_prefix",
+            "prefix": [
+              "forall:x"
+            ]
+          }
+        },
+        {
+          "assert": "hash_differs",
+          "passed": true,
+          "detail": "23529ad3932e vs 4ad8f5172ea0",
+          "spec": {
+            "assert": "hash_differs",
+            "problem": "q04_negation_outside_quantifier"
+          }
+        }
+      ],
+      "tokens_by_arm": {
+        "english": 33,
+        "latex": 30,
+        "python": 20,
+        "stan_or_lean": 30,
+        "hamiltonian": 12
+      }
+    }
+  ],
+  "diagnostic_detail": [
+    {
+      "problem_id": "a01_minimum_norm_under_half_plane",
+      "injection": "unbound_reference",
+      "expected_line": 13,
+      "detected": true,
+      "reported_line": 13,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "a02_budget_allocation",
+      "injection": "unbound_reference",
+      "expected_line": 12,
+      "detected": true,
+      "reported_line": 12,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "a03_three_way_share_split",
+      "injection": "unbound_reference",
+      "expected_line": 11,
+      "detected": true,
+      "reported_line": 11,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "b03_conditioning_set_binding",
+      "injection": "unbound_reference",
+      "expected_line": 20,
+      "detected": true,
+      "reported_line": 20,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "b03_conditioning_set_binding",
+      "injection": "bad_distribution_role",
+      "expected_line": 15,
+      "detected": true,
+      "reported_line": 15,
+      "reported_code": "HML-T416",
+      "line_correct": true
+    },
+    {
+      "problem_id": "b03_conditioning_set_binding",
+      "injection": "unknown_distribution_family",
+      "expected_line": 15,
+      "detected": true,
+      "reported_line": 15,
+      "reported_code": "HML-T412",
+      "line_correct": true
+    },
+    {
+      "problem_id": "b03_conditioning_set_binding",
+      "injection": "positional_distribution_arguments",
+      "expected_line": 15,
+      "detected": true,
+      "reported_line": 15,
+      "reported_code": "HML-P234",
+      "line_correct": true
+    },
+    {
+      "problem_id": "b04_definition_dependency_chain",
+      "injection": "unbound_reference",
+      "expected_line": 9,
+      "detected": true,
+      "reported_line": 9,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "d01_kinetic_energy_dimension",
+      "injection": "unbound_reference",
+      "expected_line": 9,
+      "detected": true,
+      "reported_line": 9,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "d03_pressure_from_force_and_area",
+      "injection": "unbound_reference",
+      "expected_line": 9,
+      "detected": true,
+      "reported_line": 9,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "d04_pendulum_half_power",
+      "injection": "unbound_reference",
+      "expected_line": 9,
+      "detected": true,
+      "reported_line": 9,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e01_role_assignment_reference",
+      "injection": "unbound_reference",
+      "expected_line": 8,
+      "detected": true,
+      "reported_line": 8,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e01_role_assignment_reference",
+      "injection": "bad_distribution_role",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T416",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e01_role_assignment_reference",
+      "injection": "unknown_distribution_family",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T412",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e01_role_assignment_reference",
+      "injection": "positional_distribution_arguments",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-P234",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e02_role_assignment_swapped",
+      "injection": "unbound_reference",
+      "expected_line": 8,
+      "detected": true,
+      "reported_line": 8,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e02_role_assignment_swapped",
+      "injection": "bad_distribution_role",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T416",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e02_role_assignment_swapped",
+      "injection": "unknown_distribution_family",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T412",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e02_role_assignment_swapped",
+      "injection": "positional_distribution_arguments",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-P234",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e03_role_assignment_reordered",
+      "injection": "unbound_reference",
+      "expected_line": 8,
+      "detected": true,
+      "reported_line": 8,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e03_role_assignment_reordered",
+      "injection": "bad_distribution_role",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T416",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e03_role_assignment_reordered",
+      "injection": "unknown_distribution_family",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T412",
+      "line_correct": true
+    },
+    {
+      "problem_id": "e03_role_assignment_reordered",
+      "injection": "positional_distribution_arguments",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-P234",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p01_normal_scale_role",
+      "injection": "unbound_reference",
+      "expected_line": 8,
+      "detected": true,
+      "reported_line": 8,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p01_normal_scale_role",
+      "injection": "bad_distribution_role",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T416",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p01_normal_scale_role",
+      "injection": "unknown_distribution_family",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T412",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p01_normal_scale_role",
+      "injection": "positional_distribution_arguments",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-P234",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p02_beta_binomial_germination",
+      "injection": "unbound_reference",
+      "expected_line": 11,
+      "detected": true,
+      "reported_line": 11,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p02_beta_binomial_germination",
+      "injection": "unknown_distribution_family",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T412",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p02_beta_binomial_germination",
+      "injection": "positional_distribution_arguments",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-P234",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p03_exponential_mean_versus_rate",
+      "injection": "unbound_reference",
+      "expected_line": 8,
+      "detected": true,
+      "reported_line": 8,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p03_exponential_mean_versus_rate",
+      "injection": "unknown_distribution_family",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T412",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p03_exponential_mean_versus_rate",
+      "injection": "positional_distribution_arguments",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-P234",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p04_hierarchical_conditioning",
+      "injection": "unbound_reference",
+      "expected_line": 15,
+      "detected": true,
+      "reported_line": 15,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p04_hierarchical_conditioning",
+      "injection": "bad_distribution_role",
+      "expected_line": 11,
+      "detected": true,
+      "reported_line": 11,
+      "reported_code": "HML-T416",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p04_hierarchical_conditioning",
+      "injection": "unknown_distribution_family",
+      "expected_line": 11,
+      "detected": true,
+      "reported_line": 11,
+      "reported_code": "HML-T412",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p04_hierarchical_conditioning",
+      "injection": "positional_distribution_arguments",
+      "expected_line": 11,
+      "detected": true,
+      "reported_line": 11,
+      "reported_code": "HML-P234",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p05_binomial_role_confusion",
+      "injection": "unbound_reference",
+      "expected_line": 8,
+      "detected": true,
+      "reported_line": 8,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p05_binomial_role_confusion",
+      "injection": "unknown_distribution_family",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-T412",
+      "line_correct": true
+    },
+    {
+      "problem_id": "p05_binomial_role_confusion",
+      "injection": "positional_distribution_arguments",
+      "expected_line": 7,
+      "detected": true,
+      "reported_line": 7,
+      "reported_code": "HML-P234",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q01_forall_exists",
+      "injection": "unbound_reference",
+      "expected_line": 4,
+      "detected": true,
+      "reported_line": 4,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q01_forall_exists",
+      "injection": "quantifier_without_type",
+      "expected_line": 3,
+      "detected": true,
+      "reported_line": 3,
+      "reported_code": "HML-P236",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q02_exists_forall",
+      "injection": "unbound_reference",
+      "expected_line": 4,
+      "detected": true,
+      "reported_line": 4,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q02_exists_forall",
+      "injection": "quantifier_without_type",
+      "expected_line": 3,
+      "detected": true,
+      "reported_line": 3,
+      "reported_code": "HML-P236",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q03_uniform_continuity_prefix",
+      "injection": "unbound_reference",
+      "expected_line": 6,
+      "detected": true,
+      "reported_line": 6,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q03_uniform_continuity_prefix",
+      "injection": "quantifier_without_type",
+      "expected_line": 5,
+      "detected": true,
+      "reported_line": 5,
+      "reported_code": "HML-P236",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q04_negation_outside_quantifier",
+      "injection": "unbound_reference",
+      "expected_line": 4,
+      "detected": true,
+      "reported_line": 4,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q04_negation_outside_quantifier",
+      "injection": "quantifier_without_type",
+      "expected_line": 3,
+      "detected": true,
+      "reported_line": 3,
+      "reported_code": "HML-P236",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q05_negation_inside_quantifier",
+      "injection": "unbound_reference",
+      "expected_line": 4,
+      "detected": true,
+      "reported_line": 4,
+      "reported_code": "HML-N301",
+      "line_correct": true
+    },
+    {
+      "problem_id": "q05_negation_inside_quantifier",
+      "injection": "quantifier_without_type",
+      "expected_line": 3,
+      "detected": true,
+      "reported_line": 3,
+      "reported_code": "HML-P236",
+      "line_correct": true
+    }
+  ]
+}

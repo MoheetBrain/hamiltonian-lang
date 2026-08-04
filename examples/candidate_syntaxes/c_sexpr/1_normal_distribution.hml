@@ -1,0 +1,7 @@
+; Candidate C. Problem 1.
+(module NormalDistribution
+  (param mu Real)
+  (param sigma PositiveReal)
+  (require (> sigma 0))
+  (rv X (RandomVariable Real))
+  (law X (Normal (location mu) (scale sigma))))

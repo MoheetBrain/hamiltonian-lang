@@ -1,0 +1,5 @@
+module ShadowedIndex
+
+index i : Natural
+
+require forall i : Natural . i > 0

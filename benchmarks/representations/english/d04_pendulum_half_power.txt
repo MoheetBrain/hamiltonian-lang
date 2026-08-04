@@ -1,0 +1,6 @@
+The period of a simple pendulum is proportional to the square root of its length divided
+by the local gravitational acceleration, with a dimensionless constant of proportionality
+of about 6.2831853.
+Length has the dimension of length; gravitational acceleration has length over time squared.
+
+State the dimension of the period.

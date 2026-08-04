@@ -1,0 +1,6 @@
+We have a design matrix x with N rows and P columns of real numbers, and a
+response vector y of N real numbers. The coefficient vector beta has P real
+entries and the noise standard deviation sigma is strictly positive. Conditional
+on x, beta and sigma, the response y is multivariate normal with mean vector
+equal to the matrix product of x and beta, and with each component having
+standard deviation sigma. Infer the posterior distribution of beta and sigma.

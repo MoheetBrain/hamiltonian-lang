@@ -1,0 +1,6 @@
+;B P4  U[..] quantity  Ma=Mass Le=Length Ti=Time  :d check dimension
+%KineticEnergy
+$m:U[Ma]
+$v:U[Le/Ti]
+=kinetic_energy:U[Ma*Le^2/Ti^2]=0.5*m*v^2
+:d kinetic_energy=Ma*Le^2/Ti^2

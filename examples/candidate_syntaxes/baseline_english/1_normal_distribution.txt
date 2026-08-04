@@ -1,0 +1,2 @@
+Let X be a real-valued random variable which follows a normal distribution with
+mean mu and standard deviation sigma, where sigma must be strictly positive.

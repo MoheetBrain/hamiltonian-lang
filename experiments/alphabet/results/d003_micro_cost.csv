@@ -1,0 +1,145 @@
+arm,tokenizer,approximate,labelled_text,labelled_tokens,positional_tokens,delta_tokens,pct_overhead
+A,tiktoken:cl100k_base,False,"law X ~ Normal(location := mu, scale := sigma)",12,8,4,50.0
+A,tiktoken:o200k_base,False,"law X ~ Normal(location := mu, scale := sigma)",12,8,4,50.0
+A,tiktoken:p50k_base,False,"law X ~ Normal(location := mu, scale := sigma)",14,10,4,40.0
+A,tiktoken:r50k_base,False,"law X ~ Normal(location := mu, scale := sigma)",14,10,4,40.0
+A,hf:gpt2,False,"law X ~ Normal(location := mu, scale := sigma)",14,10,4,40.0
+A,hf:llama2,False,"law X ~ Normal(location := mu, scale := sigma)",14,10,4,40.0
+A,hf:gpt-neox-20b,False,"law X ~ Normal(location := mu, scale := sigma)",13,9,4,44.44
+A,hf:starcoder2,False,"law X ~ Normal(location := mu, scale := sigma)",13,9,4,44.44
+A,regex_approx_APPROXIMATE,True,"law X ~ Normal(location := mu, scale := sigma)",24,13,11,84.62
+A,tiktoken:cl100k_base,False,"prior theta ~ Beta(alpha := 1, beta := 1)",14,10,4,40.0
+A,tiktoken:o200k_base,False,"prior theta ~ Beta(alpha := 1, beta := 1)",14,10,4,40.0
+A,tiktoken:p50k_base,False,"prior theta ~ Beta(alpha := 1, beta := 1)",15,11,4,36.36
+A,tiktoken:r50k_base,False,"prior theta ~ Beta(alpha := 1, beta := 1)",15,11,4,36.36
+A,hf:gpt2,False,"prior theta ~ Beta(alpha := 1, beta := 1)",15,11,4,36.36
+A,hf:llama2,False,"prior theta ~ Beta(alpha := 1, beta := 1)",17,12,5,41.67
+A,hf:gpt-neox-20b,False,"prior theta ~ Beta(alpha := 1, beta := 1)",13,9,4,44.44
+A,hf:starcoder2,False,"prior theta ~ Beta(alpha := 1, beta := 1)",15,10,5,50.0
+A,regex_approx_APPROXIMATE,True,"prior theta ~ Beta(alpha := 1, beta := 1)",23,13,10,76.92
+A,tiktoken:cl100k_base,False,"likelihood successes | theta ~ Binomial(trials := trials, prob := theta)",16,12,4,33.33
+A,tiktoken:o200k_base,False,"likelihood successes | theta ~ Binomial(trials := trials, prob := theta)",17,13,4,30.77
+A,tiktoken:p50k_base,False,"likelihood successes | theta ~ Binomial(trials := trials, prob := theta)",20,16,4,25.0
+A,tiktoken:r50k_base,False,"likelihood successes | theta ~ Binomial(trials := trials, prob := theta)",20,16,4,25.0
+A,hf:gpt2,False,"likelihood successes | theta ~ Binomial(trials := trials, prob := theta)",20,16,4,25.0
+A,hf:llama2,False,"likelihood successes | theta ~ Binomial(trials := trials, prob := theta)",22,17,5,29.41
+A,hf:gpt-neox-20b,False,"likelihood successes | theta ~ Binomial(trials := trials, prob := theta)",18,14,4,28.57
+A,hf:starcoder2,False,"likelihood successes | theta ~ Binomial(trials := trials, prob := theta)",18,13,5,38.46
+A,regex_approx_APPROXIMATE,True,"likelihood successes | theta ~ Binomial(trials := trials, prob := theta)",30,20,10,50.0
+A,tiktoken:cl100k_base,False,"likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)",21,17,4,23.53
+A,tiktoken:o200k_base,False,"likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)",22,18,4,22.22
+A,tiktoken:p50k_base,False,"likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)",25,21,4,19.05
+A,tiktoken:r50k_base,False,"likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)",25,21,4,19.05
+A,hf:gpt2,False,"likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)",25,21,4,19.05
+A,hf:llama2,False,"likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)",25,21,4,19.05
+A,hf:gpt-neox-20b,False,"likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)",23,19,4,21.05
+A,hf:starcoder2,False,"likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)",22,18,4,22.22
+A,regex_approx_APPROXIMATE,True,"likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)",40,29,11,37.93
+B,tiktoken:cl100k_base,False,"X::N(m:mu,s:sigma)",10,7,3,42.86
+B,tiktoken:o200k_base,False,"X::N(m:mu,s:sigma)",10,7,3,42.86
+B,tiktoken:p50k_base,False,"X::N(m:mu,s:sigma)",13,9,4,44.44
+B,tiktoken:r50k_base,False,"X::N(m:mu,s:sigma)",13,9,4,44.44
+B,hf:gpt2,False,"X::N(m:mu,s:sigma)",13,9,4,44.44
+B,hf:llama2,False,"X::N(m:mu,s:sigma)",12,8,4,50.0
+B,hf:gpt-neox-20b,False,"X::N(m:mu,s:sigma)",12,8,4,50.0
+B,hf:starcoder2,False,"X::N(m:mu,s:sigma)",12,8,4,50.0
+B,regex_approx_APPROXIMATE,True,"X::N(m:mu,s:sigma)",13,9,4,44.44
+B,tiktoken:cl100k_base,False,"theta:<B(a:1,b:1)",10,8,2,25.0
+B,tiktoken:o200k_base,False,"theta:<B(a:1,b:1)",10,8,2,25.0
+B,tiktoken:p50k_base,False,"theta:<B(a:1,b:1)",14,10,4,40.0
+B,tiktoken:r50k_base,False,"theta:<B(a:1,b:1)",14,10,4,40.0
+B,hf:gpt2,False,"theta:<B(a:1,b:1)",14,10,4,40.0
+B,hf:llama2,False,"theta:<B(a:1,b:1)",14,10,4,40.0
+B,hf:gpt-neox-20b,False,"theta:<B(a:1,b:1)",13,9,4,44.44
+B,hf:starcoder2,False,"theta:<B(a:1,b:1)",12,8,4,50.0
+B,regex_approx_APPROXIMATE,True,"theta:<B(a:1,b:1)",13,9,4,44.44
+B,tiktoken:cl100k_base,False,"successes|theta:>Bi(n:trials,p:theta)",14,11,3,27.27
+B,tiktoken:o200k_base,False,"successes|theta:>Bi(n:trials,p:theta)",15,12,3,25.0
+B,tiktoken:p50k_base,False,"successes|theta:>Bi(n:trials,p:theta)",19,15,4,26.67
+B,tiktoken:r50k_base,False,"successes|theta:>Bi(n:trials,p:theta)",19,15,4,26.67
+B,hf:gpt2,False,"successes|theta:>Bi(n:trials,p:theta)",19,15,4,26.67
+B,hf:llama2,False,"successes|theta:>Bi(n:trials,p:theta)",17,13,4,30.77
+B,hf:gpt-neox-20b,False,"successes|theta:>Bi(n:trials,p:theta)",17,13,4,30.77
+B,hf:starcoder2,False,"successes|theta:>Bi(n:trials,p:theta)",16,12,4,33.33
+B,regex_approx_APPROXIMATE,True,"successes|theta:>Bi(n:trials,p:theta)",16,12,4,33.33
+B,tiktoken:cl100k_base,False,"y|x,beta,sigma:>NV(m:x@beta,s:sigma)",16,14,2,14.29
+B,tiktoken:o200k_base,False,"y|x,beta,sigma:>NV(m:x@beta,s:sigma)",18,16,2,12.5
+B,tiktoken:p50k_base,False,"y|x,beta,sigma:>NV(m:x@beta,s:sigma)",23,19,4,21.05
+B,tiktoken:r50k_base,False,"y|x,beta,sigma:>NV(m:x@beta,s:sigma)",23,19,4,21.05
+B,hf:gpt2,False,"y|x,beta,sigma:>NV(m:x@beta,s:sigma)",23,19,4,21.05
+B,hf:llama2,False,"y|x,beta,sigma:>NV(m:x@beta,s:sigma)",22,18,4,22.22
+B,hf:gpt-neox-20b,False,"y|x,beta,sigma:>NV(m:x@beta,s:sigma)",21,17,4,23.53
+B,hf:starcoder2,False,"y|x,beta,sigma:>NV(m:x@beta,s:sigma)",21,17,4,23.53
+B,regex_approx_APPROXIMATE,True,"y|x,beta,sigma:>NV(m:x@beta,s:sigma)",21,17,4,23.53
+C,tiktoken:cl100k_base,False,(law X (Normal (location mu) (scale sigma))),13,8,5,62.5
+C,tiktoken:o200k_base,False,(law X (Normal (location mu) (scale sigma))),13,8,5,62.5
+C,tiktoken:p50k_base,False,(law X (Normal (location mu) (scale sigma))),14,9,5,55.56
+C,tiktoken:r50k_base,False,(law X (Normal (location mu) (scale sigma))),14,9,5,55.56
+C,hf:gpt2,False,(law X (Normal (location mu) (scale sigma))),14,9,5,55.56
+C,hf:llama2,False,(law X (Normal (location mu) (scale sigma))),14,9,5,55.56
+C,hf:gpt-neox-20b,False,(law X (Normal (location mu) (scale sigma))),13,8,5,62.5
+C,hf:starcoder2,False,(law X (Normal (location mu) (scale sigma))),13,8,5,62.5
+C,regex_approx_APPROXIMATE,True,(law X (Normal (location mu) (scale sigma))),22,13,9,69.23
+C,tiktoken:cl100k_base,False,(prior theta (Beta (alpha 1) (beta 1))),15,10,5,50.0
+C,tiktoken:o200k_base,False,(prior theta (Beta (alpha 1) (beta 1))),15,10,5,50.0
+C,tiktoken:p50k_base,False,(prior theta (Beta (alpha 1) (beta 1))),15,10,5,50.0
+C,tiktoken:r50k_base,False,(prior theta (Beta (alpha 1) (beta 1))),15,10,5,50.0
+C,hf:gpt2,False,(prior theta (Beta (alpha 1) (beta 1))),15,10,5,50.0
+C,hf:llama2,False,(prior theta (Beta (alpha 1) (beta 1))),18,13,5,38.46
+C,hf:gpt-neox-20b,False,(prior theta (Beta (alpha 1) (beta 1))),14,9,5,55.56
+C,hf:starcoder2,False,(prior theta (Beta (alpha 1) (beta 1))),15,10,5,50.0
+C,regex_approx_APPROXIMATE,True,(prior theta (Beta (alpha 1) (beta 1))),21,13,8,61.54
+C,tiktoken:cl100k_base,False,(likelihood successes (given theta) (Binomial (trials trials) (prob theta))),19,13,6,46.15
+C,tiktoken:o200k_base,False,(likelihood successes (given theta) (Binomial (trials trials) (prob theta))),19,13,6,46.15
+C,tiktoken:p50k_base,False,(likelihood successes (given theta) (Binomial (trials trials) (prob theta))),24,17,7,41.18
+C,tiktoken:r50k_base,False,(likelihood successes (given theta) (Binomial (trials trials) (prob theta))),24,17,7,41.18
+C,hf:gpt2,False,(likelihood successes (given theta) (Binomial (trials trials) (prob theta))),24,17,7,41.18
+C,hf:llama2,False,(likelihood successes (given theta) (Binomial (trials trials) (prob theta))),26,20,6,30.0
+C,hf:gpt-neox-20b,False,(likelihood successes (given theta) (Binomial (trials trials) (prob theta))),20,14,6,42.86
+C,hf:starcoder2,False,(likelihood successes (given theta) (Binomial (trials trials) (prob theta))),20,15,5,33.33
+C,regex_approx_APPROXIMATE,True,(likelihood successes (given theta) (Binomial (trials trials) (prob theta))),30,22,8,36.36
+C,tiktoken:cl100k_base,False,(likelihood y (given x beta sigma) (NormalVector (location (@ x beta)) (scale sigma))),22,18,4,22.22
+C,tiktoken:o200k_base,False,(likelihood y (given x beta sigma) (NormalVector (location (@ x beta)) (scale sigma))),22,18,4,22.22
+C,tiktoken:p50k_base,False,(likelihood y (given x beta sigma) (NormalVector (location (@ x beta)) (scale sigma))),25,21,4,19.05
+C,tiktoken:r50k_base,False,(likelihood y (given x beta sigma) (NormalVector (location (@ x beta)) (scale sigma))),25,21,4,19.05
+C,hf:gpt2,False,(likelihood y (given x beta sigma) (NormalVector (location (@ x beta)) (scale sigma))),25,21,4,19.05
+C,hf:llama2,False,(likelihood y (given x beta sigma) (NormalVector (location (@ x beta)) (scale sigma))),26,22,4,18.18
+C,hf:gpt-neox-20b,False,(likelihood y (given x beta sigma) (NormalVector (location (@ x beta)) (scale sigma))),23,19,4,21.05
+C,hf:starcoder2,False,(likelihood y (given x beta sigma) (NormalVector (location (@ x beta)) (scale sigma))),22,18,4,22.22
+C,regex_approx_APPROXIMATE,True,(likelihood y (given x beta sigma) (NormalVector (location (@ x beta)) (scale sigma))),40,31,9,29.03
+D,tiktoken:cl100k_base,False,    args:\n      location: mu\n      scale: sigma\n,13,8,5,62.5
+D,tiktoken:o200k_base,False,    args:\n      location: mu\n      scale: sigma\n,13,8,5,62.5
+D,tiktoken:p50k_base,False,    args:\n      location: mu\n      scale: sigma\n,15,10,5,50.0
+D,tiktoken:r50k_base,False,    args:\n      location: mu\n      scale: sigma\n,25,12,13,108.33
+D,hf:gpt2,False,    args:\n      location: mu\n      scale: sigma\n,25,12,13,108.33
+D,hf:llama2,False,    args:\n      location: mu\n      scale: sigma\n,15,10,5,50.0
+D,hf:gpt-neox-20b,False,    args:\n      location: mu\n      scale: sigma\n,14,9,5,55.56
+D,hf:starcoder2,False,    args:\n      location: mu\n      scale: sigma\n,12,9,3,33.33
+D,regex_approx_APPROXIMATE,True,    args:\n      location: mu\n      scale: sigma\n,15,11,4,36.36
+D,tiktoken:cl100k_base,False,"    args:\n      alpha: ""1""\n      beta: ""1""\n",15,9,6,66.67
+D,tiktoken:o200k_base,False,"    args:\n      alpha: ""1""\n      beta: ""1""\n",15,9,6,66.67
+D,tiktoken:p50k_base,False,"    args:\n      alpha: ""1""\n      beta: ""1""\n",18,10,8,80.0
+D,tiktoken:r50k_base,False,"    args:\n      alpha: ""1""\n      beta: ""1""\n",28,12,16,133.33
+D,hf:gpt2,False,"    args:\n      alpha: ""1""\n      beta: ""1""\n",28,12,16,133.33
+D,hf:llama2,False,"    args:\n      alpha: ""1""\n      beta: ""1""\n",18,10,8,80.0
+D,hf:gpt-neox-20b,False,"    args:\n      alpha: ""1""\n      beta: ""1""\n",18,10,8,80.0
+D,hf:starcoder2,False,"    args:\n      alpha: ""1""\n      beta: ""1""\n",16,10,6,60.0
+D,regex_approx_APPROXIMATE,True,"    args:\n      alpha: ""1""\n      beta: ""1""\n",18,15,3,20.0
+E,tiktoken:cl100k_base,False,_:d distArg _:a1\n_:a1 is Argument\n_:a1 argRole location\n_:a1 argValue _:v1\n,30,31,-1,-3.23
+E,tiktoken:o200k_base,False,_:d distArg _:a1\n_:a1 is Argument\n_:a1 argRole location\n_:a1 argValue _:v1\n,30,31,-1,-3.23
+E,tiktoken:p50k_base,False,_:d distArg _:a1\n_:a1 is Argument\n_:a1 argRole location\n_:a1 argValue _:v1\n,36,36,0,0.0
+E,tiktoken:r50k_base,False,_:d distArg _:a1\n_:a1 is Argument\n_:a1 argRole location\n_:a1 argValue _:v1\n,36,36,0,0.0
+E,hf:gpt2,False,_:d distArg _:a1\n_:a1 is Argument\n_:a1 argRole location\n_:a1 argValue _:v1\n,36,36,0,0.0
+E,hf:llama2,False,_:d distArg _:a1\n_:a1 is Argument\n_:a1 argRole location\n_:a1 argValue _:v1\n,36,37,-1,-2.7
+E,hf:gpt-neox-20b,False,_:d distArg _:a1\n_:a1 is Argument\n_:a1 argRole location\n_:a1 argValue _:v1\n,32,32,0,0.0
+E,hf:starcoder2,False,_:d distArg _:a1\n_:a1 is Argument\n_:a1 argRole location\n_:a1 argValue _:v1\n,30,31,-1,-3.23
+E,regex_approx_APPROXIMATE,True,_:d distArg _:a1\n_:a1 is Argument\n_:a1 argRole location\n_:a1 argValue _:v1\n,46,45,1,2.22
+E,tiktoken:cl100k_base,False,_:d distArg _:a2\n_:a2 is Argument\n_:a2 argRole scale\n_:a2 argValue _:v2\n,30,31,-1,-3.23
+E,tiktoken:o200k_base,False,_:d distArg _:a2\n_:a2 is Argument\n_:a2 argRole scale\n_:a2 argValue _:v2\n,30,31,-1,-3.23
+E,tiktoken:p50k_base,False,_:d distArg _:a2\n_:a2 is Argument\n_:a2 argRole scale\n_:a2 argValue _:v2\n,36,36,0,0.0
+E,tiktoken:r50k_base,False,_:d distArg _:a2\n_:a2 is Argument\n_:a2 argRole scale\n_:a2 argValue _:v2\n,36,36,0,0.0
+E,hf:gpt2,False,_:d distArg _:a2\n_:a2 is Argument\n_:a2 argRole scale\n_:a2 argValue _:v2\n,36,36,0,0.0
+E,hf:llama2,False,_:d distArg _:a2\n_:a2 is Argument\n_:a2 argRole scale\n_:a2 argValue _:v2\n,36,37,-1,-2.7
+E,hf:gpt-neox-20b,False,_:d distArg _:a2\n_:a2 is Argument\n_:a2 argRole scale\n_:a2 argValue _:v2\n,32,32,0,0.0
+E,hf:starcoder2,False,_:d distArg _:a2\n_:a2 is Argument\n_:a2 argRole scale\n_:a2 argValue _:v2\n,30,31,-1,-3.23
+E,regex_approx_APPROXIMATE,True,_:d distArg _:a2\n_:a2 is Argument\n_:a2 argRole scale\n_:a2 argValue _:v2\n,45,45,0,0.0

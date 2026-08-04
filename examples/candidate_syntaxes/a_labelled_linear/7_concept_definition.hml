@@ -1,0 +1,11 @@
+# Candidate A. Problem 7: a minted concept with an invariant and an example.
+module LocationScale
+
+concept LocationScaleFamily
+  parameter location : Real
+  parameter scale : PositiveReal
+  transform standardise(x : Real) := (x - location) / scale
+  invariant scale > 0
+  invariant standardise(location) = 0
+  example standard_normal := Normal(location := 0, scale := 1)
+end

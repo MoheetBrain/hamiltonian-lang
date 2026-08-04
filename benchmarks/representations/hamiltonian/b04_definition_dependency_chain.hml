@@ -1,0 +1,8 @@
+module DefinitionChain
+
+param alpha : Real
+param beta : Real
+
+def total := alpha + beta
+def weighted := total * beta
+def residual := weighted - alpha

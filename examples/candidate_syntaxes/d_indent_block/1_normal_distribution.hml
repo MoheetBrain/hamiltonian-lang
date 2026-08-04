@@ -1,0 +1,21 @@
+# Candidate D. Problem 1. Valid YAML 1.2 block style.
+module: NormalDistribution
+declarations:
+  - kind: param
+    name: mu
+    type: Real
+  - kind: param
+    name: sigma
+    type: PositiveReal
+  - kind: rv
+    name: X
+    type: RandomVariable[Real]
+constraints:
+  - "sigma > 0"
+laws:
+  - role: law
+    target: X
+    family: Normal
+    args:
+      location: mu
+      scale: sigma

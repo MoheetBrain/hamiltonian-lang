@@ -1,0 +1,82 @@
+# Type rules for HML-L1. Normative; implemented in src/hamiltonian_lang/type_system/.
+version: hml-type-rules-0.1.0
+
+scalar_order:
+  # immediate-parent edges; the transitive closure is the subtype relation
+  Bool: []
+  PositiveNatural: [Natural, PositiveReal]
+  Natural: [Integer, NonNegativeReal]
+  Integer: [Rational]
+  Rational: [Real]
+  NonNegativeReal: [Real]
+  PositiveReal: [NonNegativeReal]
+  Probability: [NonNegativeReal]
+incomparable_pairs:
+  - [Probability, PositiveReal]   # 0 in Probability, not in PositiveReal;
+                                  # 2.0 in PositiveReal, not in Probability
+
+variance:
+  Vector: covariant
+  Matrix: covariant
+  Set: covariant
+  RandomVariable: covariant
+  Distribution: covariant
+  Function: {domain: contravariant, codomain: covariant}
+
+no_subtyping_path_between: [T, RandomVariable[T], Distribution[T]]
+
+literal_refinement:
+  rule: A numeric literal is checked against the target refinement by VALUE.
+  rationale: The nominal type of 1 is PositiveNatural, which is not a subtype of
+    Probability, yet the value 1 is a probability. See DECISIONS.md D-009.
+
+rules:
+  - id: T-Add
+    form: "e1 + e2"
+    requires: dimension(e1) == dimension(e2)
+    result: join(type(e1), type(e2)), with positivity refinements dropped for '-'
+    error: HML-D502
+  - id: T-Mul
+    form: "e1 * e2"
+    result: Quantity[dim(e1) * dim(e2)] with base join(base(e1), base(e2))
+  - id: T-Div
+    form: "e1 / e2"
+    result: Quantity[dim(e1) / dim(e2)]
+  - id: T-Pow-Dimensional
+    form: "e ^ n"
+    requires: n is a rational literal when dim(e) is non-trivial
+    result: Quantity[dim(e)^n]
+    error: HML-D505
+    rationale: a symbolic exponent makes the dimension undecidable at check time
+  - id: T-MatMul
+    form: "e1 @ e2"
+    requires: inner extents agree when both are known
+    result: Matrix[.., rows(e1), cols(e2)] or Vector[.., rows(e1)]
+    error: HML-T434
+  - id: T-Law
+    form: "law t | g.. ~ D"
+    requires: support(D) <: codomain(type(t))
+    error: HML-T411
+  - id: T-DistRole
+    form: "F(r := e)"
+    requires: r in roles(F) and type(e) <: roles(F)[r]
+    errors: [HML-T413, HML-T414, HML-T415, HML-T416]
+  - id: T-NoDistArith
+    form: "d op e where type(d) = Distribution[T]"
+    result: rejected
+    error: HML-T430
+  - id: T-Quantifier
+    form: "forall x : T . P"
+    requires: type(P) is Proposition
+    note: nesting order is structural and affects the canonical hash
+    error: HML-T422
+  - id: T-Comparison
+    form: "e1 rel e2"
+    requires: dimension(e1) == dimension(e2); neither side a Distribution
+    result: Proposition
+    errors: [HML-D502, HML-T428, HML-T429]
+
+dimensions:
+  base: [Mass, Length, Time, Temperature, Current, Amount, Luminosity]
+  representation: rational exponent vector (fractions.Fraction, never float)
+  equality: structural, exact, decidable

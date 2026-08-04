@@ -1,0 +1,3 @@
+There is some real number y that is strictly greater than every real number x.
+
+Write this down so that the order of the quantifiers is unambiguous.

@@ -1,0 +1,38 @@
+{
+  "id": "q01_forall_exists",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "quantifier_scope",
+  "expects_rejection": false,
+  "ground_truth": {
+    "quantifier_prefix": [
+      "forall:x",
+      "exists:y"
+    ],
+    "matrix": "y > x",
+    "truth_over_reals": true
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "quantifier_prefix",
+      "prefix": [
+        "forall:x",
+        "exists:y"
+      ]
+    },
+    {
+      "assert": "hash_differs",
+      "problem": "q02_exists_forall"
+    },
+    {
+      "assert": "obligation_count",
+      "count": 1
+    }
+  ],
+  "distractors": [
+    "Swapping the prefix to exists-then-forall, which asserts a largest real number and is false.",
+    "Reading 'there is some y greater than x' as choosing y once, before x."
+  ]
+}

@@ -1,0 +1,9 @@
+; Candidate C. Problem 5.
+(module ConstrainedOptimisation
+  (var x Real)
+  (var y Real)
+  (require (>= (+ x y) 10))
+  (require (>= x 0))
+  (require (>= y 0))
+  (minimise (+ (^ x 2) (^ y 2)))
+  (solve x y))

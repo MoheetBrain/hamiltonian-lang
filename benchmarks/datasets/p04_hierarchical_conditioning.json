@@ -1,0 +1,93 @@
+{
+  "id": "p04_hierarchical_conditioning",
+  "category": "probability_models",
+  "difficulty": "hard",
+  "seed": 104,
+  "expects_rejection": false,
+  "natural_language": "A study measures one outcome for each of G clinics. Each clinic has its own true mean. The vector of clinic means is drawn from a population-level normal law whose centre is a fixed vector of prior locations and whose spread is a single positive population scale shared across clinics. The observed outcome vector is then drawn from a normal law centred on the clinic means with a single positive measurement scale. Record which quantities the observation is conditioned on.",
+  "expected_semantics": {
+    "symbols": {
+      "clinic_mean": {
+        "kind": "param",
+        "type": "Vector[Real, G]",
+        "stochastic": true
+      },
+      "population_scale": {
+        "kind": "param",
+        "type": "PositiveReal"
+      },
+      "measurement_scale": {
+        "kind": "param",
+        "type": "PositiveReal"
+      },
+      "outcome": {
+        "kind": "obs",
+        "type": "Vector[Real, G]",
+        "stochastic": true
+      }
+    },
+    "conditioning": {
+      "outcome": [
+        "clinic_mean",
+        "measurement_scale"
+      ]
+    },
+    "laws": {
+      "clinic_mean": {
+        "family": "NormalVector"
+      },
+      "outcome": {
+        "family": "NormalVector"
+      }
+    }
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "clinic_mean",
+        "type": "Vector[Real, G]"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "population_scale",
+        "type": "PositiveReal"
+      },
+      {
+        "assert": "conditioned_on",
+        "symbol": "outcome",
+        "given": [
+          "clinic_mean",
+          "measurement_scale"
+        ]
+      },
+      {
+        "assert": "law_family",
+        "symbol": "clinic_mean",
+        "family": "NormalVector"
+      },
+      {
+        "assert": "stochastic",
+        "symbol": "outcome",
+        "value": true
+      }
+    ]
+  },
+  "distractors": [
+    "Conditioning the observation on the population scale as well. The observation depends on the population scale only through the clinic means; listing it in the conditioning set asserts a direct dependence that the prose does not state.",
+    "Collapsing the two scales into one symbol because both are 'the spread'.",
+    "Giving the clinic means a scalar type when the prose says a vector over G clinics."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/p04_hierarchical_conditioning.txt",
+    "latex": "benchmarks/representations/latex/p04_hierarchical_conditioning.tex",
+    "python": "benchmarks/representations/python/p04_hierarchical_conditioning.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/p04_hierarchical_conditioning.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/p04_hierarchical_conditioning.hml"
+  }
+}

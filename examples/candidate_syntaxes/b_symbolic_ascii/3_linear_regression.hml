@@ -1,0 +1,11 @@
+;B P3  # index  M matrix  V vector  NV=NormalVector  @ is BOTH obs-sigil and matmul
+%LinearRegression
+#N:N
+#P:N
+@x:M[R,N,P]
+@y:V[R,N]
+$beta:V[R,P]
+$sigma:R+
++sigma>0
+y|x,beta,sigma:>NV(m:x@beta,s:sigma)
+<p beta,sigma

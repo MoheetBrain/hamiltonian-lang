@@ -1,0 +1,5 @@
+Two strictly positive parameters are given, named first and second.
+A real-valued random variable Z is normally distributed.
+Its scale is second and its location is first.
+
+Is this the same object as the reference form?

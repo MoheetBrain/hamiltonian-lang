@@ -1,0 +1,63 @@
+{
+  "id": "a02_budget_allocation",
+  "category": "algebraic_constraints",
+  "difficulty": "medium",
+  "seed": 502,
+  "expects_rejection": false,
+  "natural_language": "A campaign splits its spend between a digital channel and a print channel. Neither amount may be negative. Their total may not exceed a strictly positive budget of 25000.0. Each unit of digital spend returns 3.1 and each unit of print spend returns 1.4. Maximise the total return. Count every proof obligation the formulation generates, including the ones implied by the declared types.",
+  "expected_semantics": {
+    "unknowns": [
+      "digital",
+      "print_spend"
+    ],
+    "constraints": [
+      "digital + print_spend <= budget"
+    ],
+    "objective": {
+      "direction": "maximise",
+      "expression": "3.1 * digital + 1.4 * print_spend"
+    },
+    "obligation_count": 4,
+    "obligation_breakdown": [
+      "1 stated constraint",
+      "digital >= 0 (from NonNegativeReal)",
+      "print_spend >= 0 (from NonNegativeReal)",
+      "budget > 0 (from PositiveReal)"
+    ]
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "obligation_count",
+        "count": 4
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "digital",
+        "type": "NonNegativeReal"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "budget",
+        "type": "PositiveReal"
+      }
+    ]
+  },
+  "distractors": [
+    "Counting only the written constraint and missing the three obligations that the refinement types generate. Non-negativity expressed as a type is still an obligation somebody must discharge.",
+    "Typing the budget as NonNegativeReal, which permits a zero budget and makes the problem degenerate.",
+    "Minimising instead of maximising."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/a02_budget_allocation.txt",
+    "latex": "benchmarks/representations/latex/a02_budget_allocation.tex",
+    "python": "benchmarks/representations/python/a02_budget_allocation.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/a02_budget_allocation.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/a02_budget_allocation.hml"
+  }
+}

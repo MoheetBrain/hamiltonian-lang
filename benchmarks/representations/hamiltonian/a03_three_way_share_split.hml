@@ -1,0 +1,10 @@
+module ThreeWayShareSplit
+
+var share_a : Probability
+var share_b : Probability
+var share_c : Probability
+
+require share_a + share_b + share_c = 1.0
+require share_a >= share_b
+
+solve share_a share_b share_c

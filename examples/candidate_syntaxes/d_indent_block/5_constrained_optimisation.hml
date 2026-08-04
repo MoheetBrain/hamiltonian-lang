@@ -1,0 +1,19 @@
+# Candidate D. Problem 5. "y" quoted: bare y is a YAML 1.1 boolean.
+module: ConstrainedOptimisation
+declarations:
+  - kind: var
+    name: x
+    type: Real
+  - kind: var
+    name: "y"
+    type: Real
+constraints:
+  - "x + y >= 10"
+  - "x >= 0"
+  - "y >= 0"
+objective:
+  direction: minimise
+  expression: "x^2 + y^2"
+solve:
+  - x
+  - "y"

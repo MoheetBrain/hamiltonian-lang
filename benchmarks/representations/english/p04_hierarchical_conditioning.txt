@@ -1,0 +1,7 @@
+A study measures one outcome for each of G clinics. Each clinic has its own true mean.
+The vector of clinic means is drawn from a population-level normal law whose centre is a
+fixed vector of prior locations and whose spread is a single positive population scale
+shared across clinics. The observed outcome vector is then drawn from a normal law
+centred on the clinic means with a single positive measurement scale.
+
+Record which quantities the observation is conditioned on.

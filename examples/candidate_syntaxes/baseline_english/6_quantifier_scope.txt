@@ -1,0 +1,7 @@
+First statement: for every real number x there exists a real number y such that y
+is greater than x. This says the reals are unbounded above, and it is true.
+
+Second statement: there exists a real number y such that for every real number x,
+y is greater than x. This says some real number is greater than every real
+number, and it is false. Note that only the order of the two quantifiers differs
+between the two statements.

@@ -1,0 +1,56 @@
+{
+  "id": "e02_role_assignment_swapped",
+  "category": "semantic_equivalence",
+  "difficulty": "easy",
+  "seed": 602,
+  "expects_rejection": false,
+  "natural_language": "Two strictly positive parameters are given, named first and second. A real-valued random variable Z is normally distributed. Its location is second and its scale is first \u2014 the reverse of the reference form. Both assignments type-check, because both parameters are strictly positive, so nothing but the role labels distinguishes them.",
+  "expected_semantics": {
+    "laws": {
+      "Z": {
+        "family": "Normal",
+        "roles": {
+          "location": "second",
+          "scale": "first"
+        }
+      }
+    },
+    "relation_to_reference": "different meaning; must NOT share a canonical hash"
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "Z",
+        "role": "location",
+        "argument": "second"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "Z",
+        "role": "scale",
+        "argument": "first"
+      },
+      {
+        "assert": "hash_differs",
+        "problem": "e01_role_assignment_reference"
+      }
+    ]
+  },
+  "distractors": [
+    "Judging this equivalent to the reference because the same two symbols appear in the same distribution. Role assignment is the meaning.",
+    "Expecting the type checker to catch the swap. It cannot: both are PositiveReal, and a PositiveReal is a valid location. Only the role label carries the difference."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/e02_role_assignment_swapped.txt",
+    "latex": "benchmarks/representations/latex/e02_role_assignment_swapped.tex",
+    "python": "benchmarks/representations/python/e02_role_assignment_swapped.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/e02_role_assignment_swapped.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/e02_role_assignment_swapped.hml"
+  }
+}

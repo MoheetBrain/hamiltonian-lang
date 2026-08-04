@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hamiltonian-lang"
+version = "0.1.0"
+description = "AI-native mathematical language and semantic representation system (private research prototype)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "Hamiltonian Lang" }]
+classifiers = ["Private :: Do Not Upload"]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "hypothesis>=6", "ruff>=0.6", "mypy>=1.11", "jsonschema>=4"]
+tokenizers = ["tiktoken>=0.7"]
+
+[project.scripts]
+hml = "hamiltonian_lang.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = ["adversarial: cases the language must reject", "slow: long-running"]
+
+[tool.ruff]
+line-length = 96
+src = ["src", "tests"]
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501", "B008"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src/hamiltonian_lang"]
+ignore_missing_imports = true
+warn_unused_ignores = false

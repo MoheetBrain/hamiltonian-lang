@@ -1,0 +1,3 @@
+A body of mass m moves at speed v. Its kinetic energy is one half m v squared.
+
+State the physical dimension of the kinetic energy in terms of mass, length and time.

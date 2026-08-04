@@ -1,0 +1,6 @@
+A quality inspector draws 30 components from a production line. Each component fails
+independently with an unknown failure probability. The count of failures in the sample
+is binomially distributed.
+
+Identify which of the two binomial parameters is the count of draws and which is the
+per-item probability, and state the model.

@@ -1,0 +1,18 @@
+# Candidate D. Problem 7.
+module: LocationScale
+concepts:
+  - name: LocationScaleFamily
+    parameters:
+      location: Real
+      scale: PositiveReal
+    transforms:
+      - name: standardise
+        params:
+          - x
+        body: "(x - location) / scale"
+    invariants:
+      - "scale > 0"
+      - "standardise(location) = 0"
+    examples:
+      - name: standard_normal
+        value: "Normal(location := 0, scale := 1)"

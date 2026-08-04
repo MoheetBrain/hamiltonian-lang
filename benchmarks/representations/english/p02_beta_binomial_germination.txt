@@ -1,0 +1,7 @@
+A nursery plants 48 seeds from one batch and records how many sprout.
+The batch's germination rate is unknown and lies between zero and one.
+Before seeing the data the nursery's belief about the rate is a Beta distribution
+with shape parameters 2.0 and 5.0, in that order.
+Given the rate, the number that sprout is binomial over the 48 planted seeds.
+
+State the model and the quantity to be inferred.

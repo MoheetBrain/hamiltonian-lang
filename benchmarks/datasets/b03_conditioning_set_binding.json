@@ -1,0 +1,72 @@
+{
+  "id": "b03_conditioning_set_binding",
+  "category": "variable_binding",
+  "difficulty": "hard",
+  "seed": 203,
+  "expects_rejection": false,
+  "natural_language": "A regression has N observations and P predictors. The design matrix is observed, as is the response vector. The coefficient vector and a positive noise scale are unknown. The coefficients are drawn from a normal law about a fixed prior location vector with a fixed positive prior scale; the noise scale is drawn from a half normal with that same prior scale. The response is drawn from a normal law whose centre is the design matrix applied to the coefficients and whose spread is the noise scale. List exactly the symbols the response is conditioned on.",
+  "expected_semantics": {
+    "conditioning": {
+      "response": [
+        "coefficients",
+        "noise_scale",
+        "predictors"
+      ]
+    },
+    "shapes": {
+      "predictors": "Matrix[Real, N, P]",
+      "coefficients": "Vector[Real, P]",
+      "response": "Vector[Real, N]"
+    }
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "conditioned_on",
+        "symbol": "response",
+        "given": [
+          "coefficients",
+          "noise_scale",
+          "predictors"
+        ]
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "predictors",
+        "type": "Matrix[Real, N, P]"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "coefficients",
+        "type": "Vector[Real, P]"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "response",
+        "type": "Vector[Real, N]"
+      },
+      {
+        "assert": "stochastic",
+        "symbol": "noise_scale",
+        "value": true
+      }
+    ]
+  },
+  "distractors": [
+    "Omitting the design matrix from the conditioning set because it is 'just data'. Observed status and conditioning status are different facts.",
+    "Including the prior location vector because it appears in the model. The response depends on it only through the coefficients.",
+    "Transposing the design matrix so that the inner dimensions no longer agree; the prose fixes N as rows and P as columns."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/b03_conditioning_set_binding.txt",
+    "latex": "benchmarks/representations/latex/b03_conditioning_set_binding.tex",
+    "python": "benchmarks/representations/python/b03_conditioning_set_binding.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/b03_conditioning_set_binding.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/b03_conditioning_set_binding.hml"
+  }
+}

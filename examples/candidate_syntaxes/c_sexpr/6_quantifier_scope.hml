@@ -1,0 +1,11 @@
+; Candidate C. Problem 6. Binder nesting is bracket nesting: the two orders
+; differ by the position of the closing parens alone.
+(module QuantifierScope
+  ; order 1 TRUE
+  (def unbounded_above () Proposition
+    (forall (x Real) (exists (y Real) (> y x))))
+  ; order 2 FALSE
+  (def greatest_real_exists () Proposition
+    (exists (y Real) (forall (x Real) (> y x))))
+  (prove unbounded_above)
+  (check (not greatest_real_exists)))

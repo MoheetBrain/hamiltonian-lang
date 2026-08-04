@@ -1,0 +1,51 @@
+{
+  "id": "q01_forall_exists",
+  "category": "quantifier_scope",
+  "difficulty": "easy",
+  "seed": 301,
+  "expects_rejection": false,
+  "natural_language": "Consider the statement: for every real number x there is some real number y that is strictly greater than x. Write it down so that the order of the quantifiers is unambiguous. This statement is true over the reals.",
+  "expected_semantics": {
+    "quantifier_prefix": [
+      "forall:x",
+      "exists:y"
+    ],
+    "matrix": "y > x",
+    "truth_over_reals": true
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "quantifier_prefix",
+        "prefix": [
+          "forall:x",
+          "exists:y"
+        ]
+      },
+      {
+        "assert": "hash_differs",
+        "problem": "q02_exists_forall"
+      },
+      {
+        "assert": "obligation_count",
+        "count": 1
+      }
+    ]
+  },
+  "distractors": [
+    "Swapping the prefix to exists-then-forall, which asserts a largest real number and is false.",
+    "Reading 'there is some y greater than x' as choosing y once, before x."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/q01_forall_exists.txt",
+    "latex": "benchmarks/representations/latex/q01_forall_exists.tex",
+    "python": "benchmarks/representations/python/q01_forall_exists.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/q01_forall_exists.lean",
+    "hamiltonian": "benchmarks/representations/hamiltonian/q01_forall_exists.hml"
+  }
+}

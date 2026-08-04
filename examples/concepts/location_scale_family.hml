@@ -1,0 +1,17 @@
+# Example 7 -- concept creation.
+#
+# A minted concept must carry testable consequences. Delete the invariant and the
+# example below and the checker rejects the file with HML-S603: "sounds plausible"
+# is not a definition.
+
+module ConceptLibrary
+
+concept LocationScaleFamily
+    parameter location : Real
+    parameter scale : PositiveReal
+    transform standardise(u : Real) := (u - location) / scale
+    invariant scale_is_positive := scale > 0
+    invariant standardisation_is_affine := standardise(location) = 0
+    example standard_normal := location = 0 and scale = 1
+    counterexample cauchy_has_no_mean := location = 0 and scale = 1
+end

@@ -1,0 +1,7 @@
+module RoleAssignment
+
+param first : PositiveReal
+param second : PositiveReal
+var Z : RandomVariable[Real]
+
+law Z ~ Normal(scale := second, location := first)

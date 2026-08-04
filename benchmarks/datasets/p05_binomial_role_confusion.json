@@ -1,0 +1,78 @@
+{
+  "id": "p05_binomial_role_confusion",
+  "category": "probability_models",
+  "difficulty": "easy",
+  "seed": 105,
+  "expects_rejection": false,
+  "natural_language": "A quality inspector draws 30 components from a production line. Each component fails independently with an unknown failure probability. The count of failures in the sample is binomially distributed. Identify which of the two binomial parameters is the count of draws and which is the per-item probability, and state the model.",
+  "expected_semantics": {
+    "symbols": {
+      "sample_size": {
+        "kind": "obs",
+        "type": "Natural",
+        "value": 30
+      },
+      "failure_probability": {
+        "kind": "param",
+        "type": "Probability"
+      },
+      "failures": {
+        "kind": "obs",
+        "type": "Natural",
+        "stochastic": true
+      }
+    },
+    "laws": {
+      "failures": {
+        "family": "Binomial",
+        "roles": {
+          "trials": "sample_size",
+          "prob": "failure_probability"
+        }
+      }
+    }
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "failures",
+        "role": "trials",
+        "argument": "sample_size"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "failures",
+        "role": "prob",
+        "argument": "failure_probability"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "failure_probability",
+        "type": "Probability"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "sample_size",
+        "type": "Natural"
+      }
+    ]
+  },
+  "distractors": [
+    "Emitting Binomial(p, n) instead of Binomial(n, p). Positional order differs between conventions and the prose does not fix it.",
+    "Typing the failure probability as NonNegativeReal, which admits 4.0.",
+    "Typing the sample size as Real, losing the integrality of a count."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/p05_binomial_role_confusion.txt",
+    "latex": "benchmarks/representations/latex/p05_binomial_role_confusion.tex",
+    "python": "benchmarks/representations/python/p05_binomial_role_confusion.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/p05_binomial_role_confusion.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/p05_binomial_role_confusion.hml"
+  }
+}

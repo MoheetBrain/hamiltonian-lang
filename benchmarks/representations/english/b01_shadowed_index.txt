@@ -1,0 +1,4 @@
+A model declares an index i ranging over the natural numbers.
+A later constraint quantifies over a fresh variable that the author also named i.
+
+Is the inner i the same object as the outer i? What should a language do about it?

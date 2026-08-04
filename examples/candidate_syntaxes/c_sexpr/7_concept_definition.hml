@@ -1,0 +1,9 @@
+; Candidate C. Problem 7.
+(module LocationScale
+  (concept LocationScaleFamily
+    (parameter location Real)
+    (parameter scale PositiveReal)
+    (transform standardise ((x Real)) (/ (- x location) scale))
+    (invariant (> scale 0))
+    (invariant (= (call standardise location) 0))
+    (example standard_normal (Normal (location 0) (scale 1)))))

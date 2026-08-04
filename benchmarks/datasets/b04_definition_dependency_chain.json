@@ -1,0 +1,62 @@
+{
+  "id": "b04_definition_dependency_chain",
+  "category": "variable_binding",
+  "difficulty": "medium",
+  "seed": 204,
+  "expects_rejection": false,
+  "natural_language": "Two real parameters, alpha and beta, are given. Define a quantity called total as their sum. Define a quantity called weighted as total multiplied by beta. Define a quantity called residual as weighted minus alpha. Name every symbol that residual transitively depends on.",
+  "expected_semantics": {
+    "definitions": {
+      "total": "alpha + beta",
+      "weighted": "total * beta",
+      "residual": "weighted - alpha"
+    },
+    "transitive_dependencies": {
+      "residual": [
+        "alpha",
+        "beta",
+        "total",
+        "weighted"
+      ]
+    }
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "depends_on",
+        "symbol": "residual",
+        "set": [
+          "alpha",
+          "beta",
+          "total",
+          "weighted"
+        ]
+      },
+      {
+        "assert": "depends_on",
+        "symbol": "total",
+        "set": [
+          "alpha",
+          "beta"
+        ]
+      }
+    ]
+  },
+  "distractors": [
+    "Reporting only the direct dependencies of residual (weighted, alpha) and missing the transitive ones.",
+    "Including residual itself in its own dependency set.",
+    "Missing beta, which reaches residual only through two hops."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/b04_definition_dependency_chain.txt",
+    "latex": "benchmarks/representations/latex/b04_definition_dependency_chain.tex",
+    "python": "benchmarks/representations/python/b04_definition_dependency_chain.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/b04_definition_dependency_chain.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/b04_definition_dependency_chain.hml"
+  }
+}

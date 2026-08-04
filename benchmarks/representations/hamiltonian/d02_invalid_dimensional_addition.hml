@@ -1,0 +1,6 @@
+module InvalidDimensionalAddition
+
+param work : Quantity[Mass * Length^2 / Time^2]
+param force : Quantity[Mass * Length / Time^2]
+
+def bad := work + force

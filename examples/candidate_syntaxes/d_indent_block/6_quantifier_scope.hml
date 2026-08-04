@@ -1,0 +1,15 @@
+# Candidate D. Problem 6. Both quantifier orders. Note that in D the binder
+# nesting lives INSIDE a quoted string, so YAML sees no structure at all here.
+module: QuantifierScope
+definitions:
+  - name: unbounded_above
+    type: Proposition
+    body: "forall x : Real . exists y : Real . y > x"
+  - name: greatest_real_exists
+    type: Proposition
+    body: "exists y : Real . forall x : Real . y > x"
+proofs:
+  - unbounded_above
+checks:
+  - kind: proposition
+    subject: "not greatest_real_exists"

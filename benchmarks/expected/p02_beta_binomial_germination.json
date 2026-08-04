@@ -1,0 +1,107 @@
+{
+  "id": "p02_beta_binomial_germination",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "probability_models",
+  "expects_rejection": false,
+  "ground_truth": {
+    "symbols": {
+      "germination_rate": {
+        "kind": "param",
+        "type": "Probability",
+        "stochastic": true
+      },
+      "planted": {
+        "kind": "obs",
+        "type": "Natural",
+        "value": 48
+      },
+      "sprouted": {
+        "kind": "obs",
+        "type": "Natural",
+        "stochastic": true
+      }
+    },
+    "laws": {
+      "germination_rate": {
+        "family": "Beta",
+        "roles": {
+          "alpha": "2.0",
+          "beta": "5.0"
+        }
+      },
+      "sprouted": {
+        "family": "Binomial",
+        "roles": {
+          "trials": "planted",
+          "prob": "germination_rate"
+        }
+      }
+    },
+    "conditioning": {
+      "sprouted": [
+        "germination_rate"
+      ]
+    },
+    "inference": {
+      "query": "posterior",
+      "targets": [
+        "germination_rate"
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "germination_rate",
+      "type": "Probability"
+    },
+    {
+      "assert": "symbol_kind",
+      "symbol": "planted",
+      "kind": "obs"
+    },
+    {
+      "assert": "law_family",
+      "symbol": "germination_rate",
+      "family": "Beta"
+    },
+    {
+      "assert": "law_family",
+      "symbol": "sprouted",
+      "family": "Binomial"
+    },
+    {
+      "assert": "law_role",
+      "symbol": "sprouted",
+      "role": "trials",
+      "argument": "planted"
+    },
+    {
+      "assert": "law_role",
+      "symbol": "sprouted",
+      "role": "prob",
+      "argument": "germination_rate"
+    },
+    {
+      "assert": "conditioned_on",
+      "symbol": "sprouted",
+      "given": [
+        "germination_rate"
+      ]
+    },
+    {
+      "assert": "stochastic",
+      "symbol": "germination_rate",
+      "value": true
+    }
+  ],
+  "distractors": [
+    "Treating germination_rate as a Distribution because it 'has a prior'. It remains a Probability-valued parameter; the prior relates it to a law without either becoming the other.",
+    "Swapping the Beta shape parameters: 'with shape parameters 2.0 and 5.0, in that order' is positional in the prose and must become alpha := 2.0, beta := 5.0.",
+    "Passing 'sprouted' as the trials count and 'planted' as the successes.",
+    "Declaring germination_rate as PositiveReal, which admits 1.7."
+  ]
+}

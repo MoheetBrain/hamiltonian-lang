@@ -1,0 +1,17 @@
+# Candidate D. Problem 4.
+module: KineticEnergy
+declarations:
+  - kind: param
+    name: m
+    type: Quantity[Mass]
+  - kind: param
+    name: v
+    type: Quantity[Length / Time]
+definitions:
+  - name: kinetic_energy
+    type: Quantity[Mass * Length^2 / Time^2]
+    body: "0.5 * m * v^2"
+checks:
+  - kind: dimension
+    subject: kinetic_energy
+    expected: Mass * Length^2 / Time^2

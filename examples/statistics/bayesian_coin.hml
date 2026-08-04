@@ -1,0 +1,17 @@
+# Example 2 -- Bayesian coin model.
+#
+# Note the type of theta: Probability, a value in [0, 1]. It is NOT a Distribution.
+# Giving theta a prior does not change its type; the 'prior' statement relates the
+# symbol to a law without either becoming the other.
+
+module BayesianCoin
+
+param theta : Probability
+prior theta ~ Beta(alpha := 1, beta := 1)
+
+obs trials : Natural = 10
+obs successes : Natural = 7
+
+likelihood successes | theta ~ Binomial(trials := trials, prob := theta)
+
+infer posterior theta

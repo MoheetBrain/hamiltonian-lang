@@ -1,0 +1,10 @@
+;B P7  ^ concept ... ^^   .p parameter  .t transform  .i invariant  .e example
+%LocationScale
+^LocationScaleFamily
+.p location:R
+.p scale:R+
+.t standardise(x:R)=(x-location)/scale
+.i scale>0
+.i standardise(location)=0
+.e standard_normal=N(m:0,s:1)
+^^

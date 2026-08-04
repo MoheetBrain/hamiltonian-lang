@@ -1,0 +1,46 @@
+{
+  "id": "a01_minimum_norm_under_half_plane",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "algebraic_constraints",
+  "expects_rejection": false,
+  "ground_truth": {
+    "unknowns": [
+      "x",
+      "y"
+    ],
+    "constraints": [
+      "x + y >= 10.0",
+      "x >= 0.0",
+      "y >= 0.0"
+    ],
+    "objective": {
+      "direction": "minimise",
+      "expression": "x^2 + y^2"
+    },
+    "obligation_count": 3
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "obligation_count",
+      "count": 3
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "x",
+      "type": "Real"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "y",
+      "type": "Real"
+    }
+  ],
+  "distractors": [
+    "Dropping the two non-negativity conditions because the optimum happens to satisfy them. The conditions are part of the problem statement whether or not they bind.",
+    "Declaring x and y as NonNegativeReal, which folds two of the constraints into the type and changes the obligation count. That is a defensible modelling choice but a different problem: the prose states them as conditions.",
+    "Minimising the sum rather than the sum of squares."
+  ]
+}

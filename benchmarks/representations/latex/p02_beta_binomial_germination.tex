@@ -1,0 +1,8 @@
+% Seed germination.
+\begin{align}
+  \theta &\sim \mathrm{Beta}(2.0,\ 5.0) \\
+  n &= 48 \\
+  k \mid \theta &\sim \mathrm{Binomial}(n,\ \theta) \\
+  &\text{infer } p(\theta \mid k)
+\end{align}
+% Which Binomial argument is the count and which the probability is positional only.

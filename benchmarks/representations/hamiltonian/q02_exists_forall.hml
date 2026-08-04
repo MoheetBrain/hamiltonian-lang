@@ -1,0 +1,3 @@
+module ScopePair
+
+require exists y : Real . forall x : Real . y > x

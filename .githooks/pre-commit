@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Deterministic commit gate. Rejects a commit when the project cannot be described
+# truthfully: examples that do not parse, changed canonical hashes, type errors,
+# unresolved placeholders, or private docs referenced publicly.
+set -uo pipefail
+repo="$(git rev-parse --show-toplevel)"
+cd "$repo"
+
+for doc in docs/PROJECT_STATUS.md docs/PROJECT_LEDGER.md; do
+  if [ ! -f "$doc" ]; then
+    echo "pre-commit: $doc is missing. The commit continuity protocol requires it." >&2
+    exit 1
+  fi
+done
+
+if git diff --cached --name-only | grep -qE '(^|/)\.env$|\.pem$|(^|/)venv/|(^|/)\.venv/'; then
+  echo "pre-commit: refusing to commit secrets, environments or virtualenvs." >&2
+  exit 1
+fi
+
+if [ -x scripts/conformance.sh ]; then
+  if ! ./scripts/conformance.sh; then
+    echo "pre-commit: conformance failed. Fix it or describe the failure honestly in the ledger and use an explicit override." >&2
+    exit 1
+  fi
+fi

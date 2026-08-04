@@ -1,0 +1,53 @@
+{
+  "id": "q03_uniform_continuity_prefix",
+  "category": "quantifier_scope",
+  "difficulty": "hard",
+  "seed": 303,
+  "expects_rejection": false,
+  "natural_language": "A real-valued function f is said to be uniformly continuous when, for every positive tolerance eps, there exists a positive delta such that for all real u and all real v, if the absolute difference between u and v is less than delta then the absolute difference between f of u and f of v is less than eps. Record the exact quantifier prefix, in order.",
+  "expected_semantics": {
+    "quantifier_prefix": [
+      "forall:eps",
+      "exists:delta",
+      "forall:u",
+      "forall:v"
+    ],
+    "matrix": "abs(u - v) < delta implies abs(f(u) - f(v)) < eps",
+    "note": "moving 'exists delta' inside 'forall u' yields pointwise, not uniform, continuity"
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "quantifier_prefix",
+        "prefix": [
+          "forall:eps",
+          "exists:delta",
+          "forall:u",
+          "forall:v"
+        ]
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "f",
+        "type": "Function[Real -> Real]"
+      }
+    ]
+  },
+  "distractors": [
+    "Placing 'exists delta' after 'forall u'. That is ordinary pointwise continuity, a strictly weaker statement, and the English word order does not distinguish them.",
+    "Dropping the positivity of eps and delta, which are stated in the prose as 'positive' and are load-bearing.",
+    "Swapping the implication direction: the small-difference hypothesis is on u and v, the small-difference conclusion is on f(u) and f(v)."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/q03_uniform_continuity_prefix.txt",
+    "latex": "benchmarks/representations/latex/q03_uniform_continuity_prefix.tex",
+    "python": "benchmarks/representations/python/q03_uniform_continuity_prefix.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/q03_uniform_continuity_prefix.lean",
+    "hamiltonian": "benchmarks/representations/hamiltonian/q03_uniform_continuity_prefix.hml"
+  }
+}

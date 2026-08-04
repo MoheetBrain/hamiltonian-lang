@@ -1,0 +1,50 @@
+{
+  "id": "a02_budget_allocation",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "algebraic_constraints",
+  "expects_rejection": false,
+  "ground_truth": {
+    "unknowns": [
+      "digital",
+      "print_spend"
+    ],
+    "constraints": [
+      "digital + print_spend <= budget"
+    ],
+    "objective": {
+      "direction": "maximise",
+      "expression": "3.1 * digital + 1.4 * print_spend"
+    },
+    "obligation_count": 4,
+    "obligation_breakdown": [
+      "1 stated constraint",
+      "digital >= 0 (from NonNegativeReal)",
+      "print_spend >= 0 (from NonNegativeReal)",
+      "budget > 0 (from PositiveReal)"
+    ]
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "obligation_count",
+      "count": 4
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "digital",
+      "type": "NonNegativeReal"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "budget",
+      "type": "PositiveReal"
+    }
+  ],
+  "distractors": [
+    "Counting only the written constraint and missing the three obligations that the refinement types generate. Non-negativity expressed as a type is still an obligation somebody must discharge.",
+    "Typing the budget as NonNegativeReal, which permits a zero budget and makes the problem degenerate.",
+    "Minimising instead of maximising."
+  ]
+}

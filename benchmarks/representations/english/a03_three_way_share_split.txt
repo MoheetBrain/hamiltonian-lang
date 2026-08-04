@@ -1,0 +1,5 @@
+Three shares, each a proportion between zero and one inclusive, must sum to exactly 1.0.
+In addition the first share must be at least as large as the second.
+
+State the constraint system and count every proof obligation it generates, including
+those implied by the declared types.

@@ -1,0 +1,5 @@
+module UniformContinuity
+
+param f : Function[Real -> Real]
+
+require forall eps : PositiveReal . exists delta : PositiveReal . forall u : Real . forall v : Real . abs(u - v) < delta => abs(f(u) - f(v)) < eps

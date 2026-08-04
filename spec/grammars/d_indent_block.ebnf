@@ -1,0 +1,112 @@
+(* ===================================================================
+   Candidate D - "indentation-based block" (YAML-like)
+   D is a proper subset of YAML 1.2 block style: every D file parses with a
+   stock YAML parser. Structure is carried by indentation; INDENT and DEDENT
+   are synthesised by the lexer from column positions.
+   Alphabet: 7-bit ASCII (YAML permits Unicode; D forbids it, as in A).
+
+   IMPORTANT HONEST NOTE: D is a HYBRID. Statement structure is YAML, but
+   *expressions* are embedded strings in candidate-A infix notation. Encoding
+   expressions as nested YAML mappings was attempted and rejected as
+   unusably verbose (an expression like 0.5*m*v^2 becomes 9 lines). This
+   means D does not have a self-contained grammar; it delegates. That is
+   recorded as a finding, not hidden.
+   =================================================================== *)
+
+(* ---------- lexical ---------- *)
+
+NEWLINE        ::= "\n" ;
+INDENT         ::= synthesised when a line's indent column exceeds the enclosing block's ;
+DEDENT         ::= synthesised when a line's indent column falls below the current block's ;
+IDENT          ::= ( "A".."Z" | "a".."z" | "_" ) { "A".."Z" | "a".."z" | "0".."9" | "_" } ;
+NUMBER         ::= [ "-" ] "0".."9" { "0".."9" } [ "." "0".."9" { "0".."9" } ] ;
+EXPR_STR       ::= a candidate-A `expr` written on one line (see a_labelled_linear.ebnf) ;
+TYPE_STR       ::= a candidate-A `type` written on one line ;
+COMMENT        ::= "#" { any character except NEWLINE } ;
+
+(* ---------- program ---------- *)
+
+program        ::= "module" ":" IDENT NEWLINE { top_section } ;
+
+top_section    ::= "declarations" ":" NEWLINE INDENT { decl_item } DEDENT
+                 | "definitions"  ":" NEWLINE INDENT { def_item } DEDENT
+                 | "laws"         ":" NEWLINE INDENT { law_item } DEDENT
+                 | "assumptions"  ":" NEWLINE INDENT { expr_item } DEDENT
+                 | "constraints"  ":" NEWLINE INDENT { constraint_item } DEDENT
+                 | "objective"    ":" NEWLINE INDENT objective_body DEDENT
+                 | "solve"        ":" NEWLINE INDENT { name_item } DEDENT
+                 | "infer"        ":" NEWLINE INDENT infer_body DEDENT
+                 | "checks"       ":" NEWLINE INDENT { check_item } DEDENT
+                 | "proofs"       ":" NEWLINE INDENT { expr_item } DEDENT
+                 | "concepts"     ":" NEWLINE INDENT { concept_item } DEDENT ;
+
+(* ---------- block-sequence items ("- " opens a mapping at a deeper column) ---------- *)
+
+decl_item      ::= "-" " " "kind" ":" decl_kind NEWLINE
+                       "name" ":" IDENT NEWLINE
+                       "type" ":" TYPE_STR NEWLINE
+                     [ "value" ":" EXPR_STR NEWLINE ] ;
+decl_kind      ::= "var" | "param" | "const" | "obs" | "index" | "rv" ;
+
+def_item       ::= "-" " " "name" ":" IDENT NEWLINE
+                     [ "params" ":" NEWLINE INDENT { param_item } DEDENT ]
+                     [ "type" ":" TYPE_STR NEWLINE ]
+                       "body" ":" EXPR_STR NEWLINE ;
+param_item     ::= "-" " " "name" ":" IDENT NEWLINE "type" ":" TYPE_STR NEWLINE ;
+
+law_item       ::= "-" " " "role" ":" law_kind NEWLINE
+                       "target" ":" IDENT NEWLINE
+                     [ "given" ":" NEWLINE INDENT { name_item } DEDENT ]
+                       "family" ":" IDENT NEWLINE
+                       "args" ":" NEWLINE INDENT { role_binding } DEDENT ;
+law_kind       ::= "law" | "prior" | "likelihood" ;
+role_binding   ::= IDENT ":" EXPR_STR NEWLINE ;      (* roles MANDATORY: mapping keys *)
+
+expr_item      ::= "-" " " EXPR_STR NEWLINE ;
+name_item      ::= "-" " " IDENT NEWLINE ;
+constraint_item ::= "-" " " "label" ":" IDENT NEWLINE "holds" ":" EXPR_STR NEWLINE
+                 | "-" " " EXPR_STR NEWLINE ;
+
+objective_body ::= "direction" ":" ( "minimise" | "maximise" ) NEWLINE
+                   "expression" ":" EXPR_STR NEWLINE ;
+infer_body     ::= "query" ":" query NEWLINE
+                   "targets" ":" NEWLINE INDENT { name_item } DEDENT ;
+query          ::= "posterior" | "expectation" | "variance" | "mle" | "map" ;
+
+check_item     ::= "-" " " "kind" ":" ( "dimension" | "proposition" | "type" ) NEWLINE
+                       "subject" ":" EXPR_STR NEWLINE
+                     [ "expected" ":" TYPE_STR NEWLINE ] ;
+
+concept_item   ::= "-" " " "name" ":" IDENT NEWLINE
+                     [ "extends" ":" NEWLINE INDENT { name_item } DEDENT ]
+                     [ "parameters" ":" NEWLINE INDENT { decl_pair } DEDENT ]
+                     [ "transforms" ":" NEWLINE INDENT { transform_item } DEDENT ]
+                     [ "invariants" ":" NEWLINE INDENT { expr_item } DEDENT ]
+                     [ "examples" ":" NEWLINE INDENT { example_item } DEDENT ] ;
+decl_pair      ::= IDENT ":" TYPE_STR NEWLINE ;
+transform_item ::= "-" " " "name" ":" IDENT NEWLINE
+                       "params" ":" NEWLINE INDENT { name_item } DEDENT
+                       "body" ":" EXPR_STR NEWLINE ;
+example_item   ::= "-" " " "name" ":" IDENT NEWLINE "value" ":" EXPR_STR NEWLINE ;
+
+(* ===================================================================
+   KNOWN LOOKAHEAD / AMBIGUITY NOTES
+
+   D1. The grammar is LL(1) *given* correct INDENT/DEDENT tokens. All of D's
+       risk is in the lexer, not the parser.
+   D2. Indentation damage is the dominant failure mode and it is SILENT:
+       removing two spaces in front of `scale: sigma` moves that key out of
+       the `args:` mapping and into the enclosing law mapping. The result is
+       still well-formed YAML and still a well-formed D program with a
+       DIFFERENT meaning. No bracket is missing, no token is wrong.
+   D3. YAML's plain scalars swallow expression text: `body: 0.5 * m * v^2` is
+       a string, so a typo inside it is invisible to the structural parser and
+       only surfaces in the embedded expression parser.
+   D4. YAML type coercion is a live hazard: an unquoted `y`, `n`, `on`, `off`,
+       `yes`, `no` becomes a BOOLEAN in YAML 1.1 parsers. `- y` as a variable
+       name in the `solve:` list is a booby trap. D therefore requires all
+       bare names to be quoted when they match the YAML boolean set. This is
+       an alphabet-level tax that A, B, C and E do not pay.
+   D5. Tabs are forbidden (YAML forbids tabs for indentation). A tab pasted
+       into a D file is a hard error, which is at least loud.
+   =================================================================== *)

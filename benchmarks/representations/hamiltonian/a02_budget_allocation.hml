@@ -1,0 +1,11 @@
+module CampaignBudget
+
+var digital : NonNegativeReal
+var print_spend : NonNegativeReal
+const budget : PositiveReal = 25000.0
+
+require digital + print_spend <= budget
+
+maximise 3.1 * digital + 1.4 * print_spend
+
+solve digital print_spend

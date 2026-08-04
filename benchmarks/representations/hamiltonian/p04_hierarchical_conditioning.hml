@@ -1,0 +1,14 @@
+module ClinicHierarchy
+
+index G : Natural
+
+const prior_location : Vector[Real, G]
+param population_scale : PositiveReal
+param measurement_scale : PositiveReal
+param clinic_mean : Vector[Real, G]
+obs outcome : Vector[Real, G]
+
+prior clinic_mean ~ NormalVector(location := prior_location, scale := population_scale)
+law outcome | clinic_mean measurement_scale ~ NormalVector(location := clinic_mean, scale := measurement_scale)
+
+infer posterior clinic_mean

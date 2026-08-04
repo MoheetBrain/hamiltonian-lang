@@ -1,0 +1,61 @@
+{
+  "_content_hash": "89d11ca0a956c48d62e72dcdd2459e22086cdf6a8776368e4d68f094bf9d55dd",
+  "_source": "examples/statistics/normal_distribution.hml",
+  "canonical_version": "hml-canonical-0.1.0",
+  "module": "NormalDistribution",
+  "statements": [
+    {
+      "declaration_kind": "var",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.0",
+        "name": "X"
+      },
+      "type": "RandomVariable[Real]",
+      "value": null
+    },
+    {
+      "declaration_kind": "param",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.1",
+        "name": "mu"
+      },
+      "type": "Real",
+      "value": null
+    },
+    {
+      "declaration_kind": "param",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.2",
+        "name": "sigma"
+      },
+      "type": "PositiveReal",
+      "value": null
+    },
+    {
+      "distribution": {
+        "arguments": {
+          "location": {
+            "kind": "Ref",
+            "symbol": "sym:#0.1",
+            "type": "Real"
+          },
+          "scale": {
+            "kind": "Ref",
+            "symbol": "sym:#0.2",
+            "type": "PositiveReal"
+          }
+        },
+        "family": "Normal",
+        "kind": "DistributionLaw",
+        "type": "Distribution[Real]"
+      },
+      "given": [],
+      "kind": "Law",
+      "role": "law",
+      "target": "sym:#0.0"
+    }
+  ]
+}

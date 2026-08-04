@@ -1,0 +1,4 @@
+A model introduces a symbol named rate and gives it a strictly positive real type.
+Further down the same file the author introduces rate again, as an unrestricted real.
+
+Does the file describe one object or two? What should a language do?

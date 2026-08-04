@@ -1,0 +1,34 @@
+{
+  "id": "b02_conflicting_type_declaration",
+  "category": "variable_binding",
+  "difficulty": "easy",
+  "seed": 202,
+  "expects_rejection": true,
+  "natural_language": "A model introduces a symbol named rate and gives it a strictly positive real type. Further down the same file the author introduces rate again, this time as an unrestricted real. Decide whether the file describes one object or two, and say what a language should do.",
+  "expected_semantics": {
+    "verdict": "invalid",
+    "reason": "rate is declared twice in the same scope with conflicting types",
+    "diagnostic_code": "HML-N303"
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "rejects_with",
+        "code": "HML-N303"
+      }
+    ]
+  },
+  "distractors": [
+    "Taking the last declaration to win, as most dynamic languages do. Silently widening PositiveReal to Real discards a constraint the first declaration asserted.",
+    "Taking the first declaration to win and treating the second as a redundant restatement."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/b02_conflicting_type_declaration.txt",
+    "latex": "benchmarks/representations/latex/b02_conflicting_type_declaration.tex",
+    "python": "benchmarks/representations/python/b02_conflicting_type_declaration.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/b02_conflicting_type_declaration.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/b02_conflicting_type_declaration.hml"
+  }
+}

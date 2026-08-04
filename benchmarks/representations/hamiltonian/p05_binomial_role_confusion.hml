@@ -1,0 +1,7 @@
+module ProductionSampling
+
+obs sample_size : Natural = 30
+param failure_probability : Probability
+obs failures : Natural
+
+likelihood failures | failure_probability ~ Binomial(trials := sample_size, prob := failure_probability)

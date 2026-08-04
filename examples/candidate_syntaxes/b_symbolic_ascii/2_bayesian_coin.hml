@@ -1,0 +1,8 @@
+;B P2  * const  @ obs  :< prior  :> likelihood  <p infer posterior
+%BayesianCoin
+$theta:P
+*trials:N=10
+@successes:N=7
+theta:<B(a:1,b:1)
+successes|theta:>Bi(n:trials,p:theta)
+<p theta

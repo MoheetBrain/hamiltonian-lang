@@ -1,0 +1,4 @@
+A body has mass m, a quantity with the dimension of mass, and speed v, a quantity
+with the dimension of length divided by time. Its kinetic energy is defined as
+one half times m times v squared. Verify that the kinetic energy has dimension
+mass times length squared divided by time squared.

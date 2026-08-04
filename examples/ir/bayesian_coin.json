@@ -1,0 +1,101 @@
+{
+  "_content_hash": "f79c553cca1adaa1fb4c7ec27be419802289e6ebb00f465fb552323cbee3b1bb",
+  "_source": "examples/statistics/bayesian_coin.hml",
+  "canonical_version": "hml-canonical-0.1.0",
+  "module": "BayesianCoin",
+  "statements": [
+    {
+      "declaration_kind": "param",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.0",
+        "name": "theta"
+      },
+      "type": "Probability",
+      "value": null
+    },
+    {
+      "distribution": {
+        "arguments": {
+          "alpha": {
+            "kind": "Literal",
+            "type": "PositiveNatural",
+            "value": 1
+          },
+          "beta": {
+            "kind": "Literal",
+            "type": "PositiveNatural",
+            "value": 1
+          }
+        },
+        "family": "Beta",
+        "kind": "DistributionLaw",
+        "type": "Distribution[Probability]"
+      },
+      "given": [],
+      "kind": "Law",
+      "role": "prior",
+      "target": "sym:#0.0"
+    },
+    {
+      "declaration_kind": "obs",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.1",
+        "name": "trials"
+      },
+      "type": "Natural",
+      "value": {
+        "kind": "Literal",
+        "type": "PositiveNatural",
+        "value": 10
+      }
+    },
+    {
+      "declaration_kind": "obs",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.2",
+        "name": "successes"
+      },
+      "type": "Natural",
+      "value": {
+        "kind": "Literal",
+        "type": "PositiveNatural",
+        "value": 7
+      }
+    },
+    {
+      "distribution": {
+        "arguments": {
+          "prob": {
+            "kind": "Ref",
+            "symbol": "sym:#0.0",
+            "type": "Probability"
+          },
+          "trials": {
+            "kind": "Ref",
+            "symbol": "sym:#0.1",
+            "type": "Natural"
+          }
+        },
+        "family": "Binomial",
+        "kind": "DistributionLaw",
+        "type": "Distribution[Natural]"
+      },
+      "given": [
+        "sym:#0.0"
+      ],
+      "kind": "Law",
+      "role": "likelihood",
+      "target": "sym:#0.2"
+    },
+    {
+      "kind": "Inference",
+      "query": "posterior",
+      "targets": [
+        "sym:#0.0"
+      ]
+    }
+  ]
+}

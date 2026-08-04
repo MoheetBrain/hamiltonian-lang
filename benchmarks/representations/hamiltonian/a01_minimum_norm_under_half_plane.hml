@@ -1,0 +1,12 @@
+module MinimumNormPoint
+
+var x : Real
+var y : Real
+
+require x + y >= 10.0
+require x >= 0.0
+require y >= 0.0
+
+minimise x^2 + y^2
+
+solve x y

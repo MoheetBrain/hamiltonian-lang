@@ -1,0 +1,128 @@
+(* ===================================================================
+   Candidate E - "graph / triple"
+   Every fact is one subject-predicate-object line. Compound expressions are
+   REIFIED as blank nodes; nothing is smuggled into a string literal, so E is
+   self-contained (unlike D). The file IS the semantic graph.
+   Alphabet: 7-bit ASCII. Line-oriented, order-independent, whitespace between
+   the three fields only.
+   =================================================================== *)
+
+(* ---------- lexical ---------- *)
+
+NEWLINE        ::= "\n" ;
+NAME           ::= ( "A".."Z" | "a".."z" | "_" ) { "A".."Z" | "a".."z" | "0".."9" | "_" } ;
+BNODE          ::= "_" ":" NAME ;             (* e.g. _:e1 - an anonymous graph node *)
+NUMBER         ::= [ "-" ] "0".."9" { "0".."9" } [ "." "0".."9" { "0".."9" } ] ;
+STRING         ::= '"' { any character except '"' or NEWLINE } '"' ;
+COMMENT        ::= "#" { any character except NEWLINE } ;
+
+(* ---------- program ---------- *)
+
+program        ::= { line } ;
+line           ::= [ triple ] [ COMMENT ] NEWLINE ;
+triple         ::= subject predicate object ;
+subject        ::= NAME | BNODE ;
+predicate      ::= NAME ;
+object         ::= NAME | BNODE | NUMBER | STRING ;
+
+(* ===================================================================
+   E is grammatically trivial. Its content is a CLOSED VOCABULARY, which is
+   the real specification. The vocabulary below is normative: a triple whose
+   predicate is not listed is rejected.
+   =================================================================== *)
+
+(* ---------- node classes (object of the `is` predicate) ---------- *)
+(*
+   Module Declaration Definition Law Assumption Constraint Objective
+   Solve Infer Check Proof Concept ConceptMember Argument
+   Literal Ref BinOp UnaryOp Comparison LogicalOp Quantifier Call Index
+   DistExpr Type
+*)
+
+(* ---------- predicates ---------- *)
+(*
+   STRUCTURAL
+     is             node -> class name
+     inModule       node -> Module node
+     order          node -> NUMBER            (* statement order; E is otherwise unordered *)
+
+   DECLARATIONS
+     declKind       Declaration -> var|param|const|obs|index|rv
+     name           Declaration|Definition|Concept|ConceptMember|Ref -> NAME
+     hasType        Declaration|Definition -> Type node
+     hasValue       Declaration -> Expr node
+
+   TYPES
+     typeCtor       Type -> Real|PositiveReal|Probability|Vector|Matrix|Quantity|...
+     typeElement    Type -> Type node
+     typeRows       Type -> NAME|NUMBER
+     typeCols       Type -> NAME|NUMBER
+     typeLength     Type -> NAME|NUMBER
+     typeSupport    Type -> Type node          (* Distribution[T] / RandomVariable[T] *)
+     dimExponent    Type -> Argument node       (* reified (base, exponent) pair *)
+     dimBase        Argument -> Mass|Length|Time|...
+     dimPower       Argument -> NUMBER
+
+   LAWS
+     lawRole        Law -> law|prior|likelihood
+     lawTarget      Law -> Declaration node
+     lawGiven       Law -> Declaration node     (* repeatable *)
+     lawDist        Law -> DistExpr node
+     distFamily     DistExpr -> NAME
+     distArg        DistExpr -> Argument node   (* repeatable *)
+     argRole        Argument -> NAME            (* MANDATORY: no positional args exist *)
+     argValue       Argument -> Expr node
+
+   EXPRESSIONS (reified)
+     op             BinOp|UnaryOp|Comparison|LogicalOp -> +|-|*|/|@|^|=|!=|<|<=|>|>=|and|or|not|implies|iff
+     lhs            BinOp|Comparison|LogicalOp -> Expr node
+     rhs            BinOp|Comparison|LogicalOp -> Expr node
+     operand        UnaryOp -> Expr node
+     litValue       Literal -> NUMBER
+     refTo          Ref -> Declaration|Definition|ConceptMember node
+     callee         Call -> NAME
+     callArg        Call -> Expr node           (* repeatable, ordered by argIndex *)
+     argIndex       Expr -> NUMBER
+     indexBase      Index -> Expr node
+     indexAt        Index -> Expr node
+
+   QUANTIFIERS
+     quantKind      Quantifier -> forall|exists|exists_unique
+     quantVar       Quantifier -> Declaration node
+     quantBody      Quantifier -> Expr node
+
+   STATEMENTS
+     asserts        Assumption|Constraint|Check|Proof -> Expr node
+     objDirection   Objective -> minimise|maximise
+     objExpr        Objective -> Expr node
+     solveFor       Solve -> Declaration node   (* repeatable *)
+     inferQuery     Infer -> posterior|expectation|variance|mle|map
+     inferTarget    Infer -> Declaration node   (* repeatable *)
+     checkKind      Check -> dimension|proposition|type
+     checkExpected  Check -> Type node
+
+   CONCEPTS
+     extends        Concept -> Concept node
+     hasMember      Concept -> ConceptMember node
+     memberKind     ConceptMember -> parameter|property|transform|invariant|example|counterexample
+     memberParam    ConceptMember -> Declaration node
+     memberBody     ConceptMember -> Expr node
+*)
+
+(* ===================================================================
+   KNOWN LOOKAHEAD / AMBIGUITY NOTES
+
+   E1. LL(1) and in fact regular: three fields, one line. No lookahead at all.
+   E2. E has NO SYNTACTIC SCOPE. Quantifier nesting is expressed only by the
+       quantBody edge. `forall x . exists y . y > x` and
+       `exists y . forall x . y > x` differ by exactly ONE triple
+       (which node is the outer Quantifier). A single corrupted line silently
+       flips the meaning and the file remains perfectly well-formed. This is
+       E's characteristic risk and it is the opposite of A's.
+   E3. Statement ORDER is not carried by the file order; it must be stated
+       with `order`. Omitting `order` is well-formed but under-determined.
+   E4. Node-name collisions are the only structural error mode: reusing a
+       blank-node name in two roles produces a merged, wrong graph. Detectable
+       only by a vocabulary-aware checker, never by the grammar.
+   E5. Verbosity is inherent: an expression of k operators costs >= 3k lines.
+   =================================================================== *)

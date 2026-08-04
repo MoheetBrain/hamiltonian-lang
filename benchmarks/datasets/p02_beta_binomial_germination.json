@@ -1,0 +1,120 @@
+{
+  "id": "p02_beta_binomial_germination",
+  "category": "probability_models",
+  "difficulty": "medium",
+  "seed": 102,
+  "expects_rejection": false,
+  "natural_language": "A nursery plants 48 seeds from one batch and records how many sprout. The batch's germination rate is unknown and lies between zero and one. Before seeing the data the nursery's belief about the rate is a Beta distribution with shape parameters 2.0 and 5.0, in that order. Given the rate, the number that sprout is binomial over the 48 planted seeds. State the model and the quantity to be inferred.",
+  "expected_semantics": {
+    "symbols": {
+      "germination_rate": {
+        "kind": "param",
+        "type": "Probability",
+        "stochastic": true
+      },
+      "planted": {
+        "kind": "obs",
+        "type": "Natural",
+        "value": 48
+      },
+      "sprouted": {
+        "kind": "obs",
+        "type": "Natural",
+        "stochastic": true
+      }
+    },
+    "laws": {
+      "germination_rate": {
+        "family": "Beta",
+        "roles": {
+          "alpha": "2.0",
+          "beta": "5.0"
+        }
+      },
+      "sprouted": {
+        "family": "Binomial",
+        "roles": {
+          "trials": "planted",
+          "prob": "germination_rate"
+        }
+      }
+    },
+    "conditioning": {
+      "sprouted": [
+        "germination_rate"
+      ]
+    },
+    "inference": {
+      "query": "posterior",
+      "targets": [
+        "germination_rate"
+      ]
+    }
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "germination_rate",
+        "type": "Probability"
+      },
+      {
+        "assert": "symbol_kind",
+        "symbol": "planted",
+        "kind": "obs"
+      },
+      {
+        "assert": "law_family",
+        "symbol": "germination_rate",
+        "family": "Beta"
+      },
+      {
+        "assert": "law_family",
+        "symbol": "sprouted",
+        "family": "Binomial"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "sprouted",
+        "role": "trials",
+        "argument": "planted"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "sprouted",
+        "role": "prob",
+        "argument": "germination_rate"
+      },
+      {
+        "assert": "conditioned_on",
+        "symbol": "sprouted",
+        "given": [
+          "germination_rate"
+        ]
+      },
+      {
+        "assert": "stochastic",
+        "symbol": "germination_rate",
+        "value": true
+      }
+    ]
+  },
+  "distractors": [
+    "Treating germination_rate as a Distribution because it 'has a prior'. It remains a Probability-valued parameter; the prior relates it to a law without either becoming the other.",
+    "Swapping the Beta shape parameters: 'with shape parameters 2.0 and 5.0, in that order' is positional in the prose and must become alpha := 2.0, beta := 5.0.",
+    "Passing 'sprouted' as the trials count and 'planted' as the successes.",
+    "Declaring germination_rate as PositiveReal, which admits 1.7."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/p02_beta_binomial_germination.txt",
+    "latex": "benchmarks/representations/latex/p02_beta_binomial_germination.tex",
+    "python": "benchmarks/representations/python/p02_beta_binomial_germination.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/p02_beta_binomial_germination.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/p02_beta_binomial_germination.hml"
+  }
+}

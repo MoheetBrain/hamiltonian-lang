@@ -1,0 +1,172 @@
+arm,problem,tokenizer,approximate,transform,labelled_tokens,positional_tokens,delta_tokens,pct_overhead,labelled_chars,positional_chars
+A,1_normal_distribution,tiktoken:cl100k_base,False,delete '<role> := ' inside every distribution argument list,70,66,4,6.06,243,222
+A,1_normal_distribution,tiktoken:o200k_base,False,delete '<role> := ' inside every distribution argument list,70,66,4,6.06,243,222
+A,1_normal_distribution,tiktoken:p50k_base,False,delete '<role> := ' inside every distribution argument list,81,77,4,5.19,243,222
+A,1_normal_distribution,tiktoken:r50k_base,False,delete '<role> := ' inside every distribution argument list,81,77,4,5.19,243,222
+A,1_normal_distribution,hf:gpt2,False,delete '<role> := ' inside every distribution argument list,81,77,4,5.19,243,222
+A,1_normal_distribution,hf:llama2,False,delete '<role> := ' inside every distribution argument list,87,83,4,4.82,243,222
+A,1_normal_distribution,hf:gpt-neox-20b,False,delete '<role> := ' inside every distribution argument list,75,71,4,5.63,243,222
+A,1_normal_distribution,hf:starcoder2,False,delete '<role> := ' inside every distribution argument list,78,74,4,5.41,243,222
+A,1_normal_distribution,regex_approx_APPROXIMATE,True,delete '<role> := ' inside every distribution argument list,117,106,11,10.38,243,222
+A,2_bayesian_coin,tiktoken:cl100k_base,False,delete '<role> := ' inside every distribution argument list,85,77,8,10.39,317,282
+A,2_bayesian_coin,tiktoken:o200k_base,False,delete '<role> := ' inside every distribution argument list,86,78,8,10.26,317,282
+A,2_bayesian_coin,tiktoken:p50k_base,False,delete '<role> := ' inside every distribution argument list,95,87,8,9.2,317,282
+A,2_bayesian_coin,tiktoken:r50k_base,False,delete '<role> := ' inside every distribution argument list,95,87,8,9.2,317,282
+A,2_bayesian_coin,hf:gpt2,False,delete '<role> := ' inside every distribution argument list,95,87,8,9.2,317,282
+A,2_bayesian_coin,hf:llama2,False,delete '<role> := ' inside every distribution argument list,115,105,10,9.52,317,282
+A,2_bayesian_coin,hf:gpt-neox-20b,False,delete '<role> := ' inside every distribution argument list,88,80,8,10.0,317,282
+A,2_bayesian_coin,hf:starcoder2,False,delete '<role> := ' inside every distribution argument list,101,91,10,10.99,317,282
+A,2_bayesian_coin,regex_approx_APPROXIMATE,True,delete '<role> := ' inside every distribution argument list,143,123,20,16.26,317,282
+A,3_linear_regression,tiktoken:cl100k_base,False,delete '<role> := ' inside every distribution argument list,94,90,4,4.44,351,330
+A,3_linear_regression,tiktoken:o200k_base,False,delete '<role> := ' inside every distribution argument list,95,91,4,4.4,351,330
+A,3_linear_regression,tiktoken:p50k_base,False,delete '<role> := ' inside every distribution argument list,108,104,4,3.85,351,330
+A,3_linear_regression,tiktoken:r50k_base,False,delete '<role> := ' inside every distribution argument list,108,104,4,3.85,351,330
+A,3_linear_regression,hf:gpt2,False,delete '<role> := ' inside every distribution argument list,108,104,4,3.85,351,330
+A,3_linear_regression,hf:llama2,False,delete '<role> := ' inside every distribution argument list,113,109,4,3.67,351,330
+A,3_linear_regression,hf:gpt-neox-20b,False,delete '<role> := ' inside every distribution argument list,102,98,4,4.08,351,330
+A,3_linear_regression,hf:starcoder2,False,delete '<role> := ' inside every distribution argument list,103,99,4,4.04,351,330
+A,3_linear_regression,regex_approx_APPROXIMATE,True,delete '<role> := ' inside every distribution argument list,161,150,11,7.33,351,330
+A,7_concept_definition,tiktoken:cl100k_base,False,delete '<role> := ' inside every distribution argument list,93,89,4,4.49,375,354
+A,7_concept_definition,tiktoken:o200k_base,False,delete '<role> := ' inside every distribution argument list,92,88,4,4.55,375,354
+A,7_concept_definition,tiktoken:p50k_base,False,delete '<role> := ' inside every distribution argument list,98,94,4,4.26,375,354
+A,7_concept_definition,tiktoken:r50k_base,False,delete '<role> := ' inside every distribution argument list,98,94,4,4.26,375,354
+A,7_concept_definition,hf:gpt2,False,delete '<role> := ' inside every distribution argument list,98,94,4,4.26,375,354
+A,7_concept_definition,hf:llama2,False,delete '<role> := ' inside every distribution argument list,104,99,5,5.05,375,354
+A,7_concept_definition,hf:gpt-neox-20b,False,delete '<role> := ' inside every distribution argument list,96,92,4,4.35,375,354
+A,7_concept_definition,hf:starcoder2,False,delete '<role> := ' inside every distribution argument list,95,90,5,5.56,375,354
+A,7_concept_definition,regex_approx_APPROXIMATE,True,delete '<role> := ' inside every distribution argument list,154,143,11,7.69,375,354
+B,1_normal_distribution,tiktoken:cl100k_base,False,delete '<rolecode>:' inside every distribution argument list,64,61,3,4.92,151,147
+B,1_normal_distribution,tiktoken:o200k_base,False,delete '<rolecode>:' inside every distribution argument list,62,59,3,5.08,151,147
+B,1_normal_distribution,tiktoken:p50k_base,False,delete '<rolecode>:' inside every distribution argument list,76,72,4,5.56,151,147
+B,1_normal_distribution,tiktoken:r50k_base,False,delete '<rolecode>:' inside every distribution argument list,76,72,4,5.56,151,147
+B,1_normal_distribution,hf:gpt2,False,delete '<rolecode>:' inside every distribution argument list,76,72,4,5.56,151,147
+B,1_normal_distribution,hf:llama2,False,delete '<rolecode>:' inside every distribution argument list,73,69,4,5.8,151,147
+B,1_normal_distribution,hf:gpt-neox-20b,False,delete '<rolecode>:' inside every distribution argument list,71,67,4,5.97,151,147
+B,1_normal_distribution,hf:starcoder2,False,delete '<rolecode>:' inside every distribution argument list,71,67,4,5.97,151,147
+B,1_normal_distribution,regex_approx_APPROXIMATE,True,delete '<rolecode>:' inside every distribution argument list,84,80,4,5.0,151,147
+B,2_bayesian_coin,tiktoken:cl100k_base,False,delete '<rolecode>:' inside every distribution argument list,74,69,5,7.25,183,175
+B,2_bayesian_coin,tiktoken:o200k_base,False,delete '<rolecode>:' inside every distribution argument list,75,70,5,7.14,183,175
+B,2_bayesian_coin,tiktoken:p50k_base,False,delete '<rolecode>:' inside every distribution argument list,91,83,8,9.64,183,175
+B,2_bayesian_coin,tiktoken:r50k_base,False,delete '<rolecode>:' inside every distribution argument list,91,83,8,9.64,183,175
+B,2_bayesian_coin,hf:gpt2,False,delete '<rolecode>:' inside every distribution argument list,91,83,8,9.64,183,175
+B,2_bayesian_coin,hf:llama2,False,delete '<rolecode>:' inside every distribution argument list,91,83,8,9.64,183,175
+B,2_bayesian_coin,hf:gpt-neox-20b,False,delete '<rolecode>:' inside every distribution argument list,87,79,8,10.13,183,175
+B,2_bayesian_coin,hf:starcoder2,False,delete '<rolecode>:' inside every distribution argument list,83,75,8,10.67,183,175
+B,2_bayesian_coin,regex_approx_APPROXIMATE,True,delete '<rolecode>:' inside every distribution argument list,93,85,8,9.41,183,175
+B,3_linear_regression,tiktoken:cl100k_base,False,delete '<rolecode>:' inside every distribution argument list,94,92,2,2.17,217,213
+B,3_linear_regression,tiktoken:o200k_base,False,delete '<rolecode>:' inside every distribution argument list,93,91,2,2.2,217,213
+B,3_linear_regression,tiktoken:p50k_base,False,delete '<rolecode>:' inside every distribution argument list,124,120,4,3.33,217,213
+B,3_linear_regression,tiktoken:r50k_base,False,delete '<rolecode>:' inside every distribution argument list,124,120,4,3.33,217,213
+B,3_linear_regression,hf:gpt2,False,delete '<rolecode>:' inside every distribution argument list,124,120,4,3.33,217,213
+B,3_linear_regression,hf:llama2,False,delete '<rolecode>:' inside every distribution argument list,120,116,4,3.45,217,213
+B,3_linear_regression,hf:gpt-neox-20b,False,delete '<rolecode>:' inside every distribution argument list,117,113,4,3.54,217,213
+B,3_linear_regression,hf:starcoder2,False,delete '<rolecode>:' inside every distribution argument list,116,112,4,3.57,217,213
+B,3_linear_regression,regex_approx_APPROXIMATE,True,delete '<rolecode>:' inside every distribution argument list,124,120,4,3.33,217,213
+B,7_concept_definition,tiktoken:cl100k_base,False,delete '<rolecode>:' inside every distribution argument list,82,80,2,2.5,251,247
+B,7_concept_definition,tiktoken:o200k_base,False,delete '<rolecode>:' inside every distribution argument list,80,78,2,2.56,251,247
+B,7_concept_definition,tiktoken:p50k_base,False,delete '<rolecode>:' inside every distribution argument list,99,95,4,4.21,251,247
+B,7_concept_definition,tiktoken:r50k_base,False,delete '<rolecode>:' inside every distribution argument list,100,96,4,4.17,251,247
+B,7_concept_definition,hf:gpt2,False,delete '<rolecode>:' inside every distribution argument list,100,96,4,4.17,251,247
+B,7_concept_definition,hf:llama2,False,delete '<rolecode>:' inside every distribution argument list,99,95,4,4.21,251,247
+B,7_concept_definition,hf:gpt-neox-20b,False,delete '<rolecode>:' inside every distribution argument list,98,94,4,4.26,251,247
+B,7_concept_definition,hf:starcoder2,False,delete '<rolecode>:' inside every distribution argument list,99,95,4,4.21,251,247
+B,7_concept_definition,regex_approx_APPROXIMATE,True,delete '<rolecode>:' inside every distribution argument list,130,126,4,3.17,251,247
+C,1_normal_distribution,tiktoken:cl100k_base,False,"splice out the (role expr) wrapper form, leaving expr",56,51,5,9.8,203,184
+C,1_normal_distribution,tiktoken:o200k_base,False,"splice out the (role expr) wrapper form, leaving expr",56,51,5,9.8,203,184
+C,1_normal_distribution,tiktoken:p50k_base,False,"splice out the (role expr) wrapper form, leaving expr",66,61,5,8.2,203,184
+C,1_normal_distribution,tiktoken:r50k_base,False,"splice out the (role expr) wrapper form, leaving expr",66,61,5,8.2,203,184
+C,1_normal_distribution,hf:gpt2,False,"splice out the (role expr) wrapper form, leaving expr",66,61,5,8.2,203,184
+C,1_normal_distribution,hf:llama2,False,"splice out the (role expr) wrapper form, leaving expr",71,66,5,7.58,203,184
+C,1_normal_distribution,hf:gpt-neox-20b,False,"splice out the (role expr) wrapper form, leaving expr",62,57,5,8.77,203,184
+C,1_normal_distribution,hf:starcoder2,False,"splice out the (role expr) wrapper form, leaving expr",59,54,5,9.26,203,184
+C,1_normal_distribution,regex_approx_APPROXIMATE,True,"splice out the (role expr) wrapper form, leaving expr",89,80,9,11.25,203,184
+C,2_bayesian_coin,tiktoken:cl100k_base,False,"splice out the (role expr) wrapper form, leaving expr",76,65,11,16.92,279,248
+C,2_bayesian_coin,tiktoken:o200k_base,False,"splice out the (role expr) wrapper form, leaving expr",77,66,11,16.67,279,248
+C,2_bayesian_coin,tiktoken:p50k_base,False,"splice out the (role expr) wrapper form, leaving expr",91,79,12,15.19,279,248
+C,2_bayesian_coin,tiktoken:r50k_base,False,"splice out the (role expr) wrapper form, leaving expr",91,79,12,15.19,279,248
+C,2_bayesian_coin,hf:gpt2,False,"splice out the (role expr) wrapper form, leaving expr",91,79,12,15.19,279,248
+C,2_bayesian_coin,hf:llama2,False,"splice out the (role expr) wrapper form, leaving expr",106,95,11,11.58,279,248
+C,2_bayesian_coin,hf:gpt-neox-20b,False,"splice out the (role expr) wrapper form, leaving expr",84,73,11,15.07,279,248
+C,2_bayesian_coin,hf:starcoder2,False,"splice out the (role expr) wrapper form, leaving expr",85,75,10,13.33,279,248
+C,2_bayesian_coin,regex_approx_APPROXIMATE,True,"splice out the (role expr) wrapper form, leaving expr",115,99,16,16.16,279,248
+C,3_linear_regression,tiktoken:cl100k_base,False,"splice out the (role expr) wrapper form, leaving expr",98,94,4,4.26,354,335
+C,3_linear_regression,tiktoken:o200k_base,False,"splice out the (role expr) wrapper form, leaving expr",99,95,4,4.21,354,335
+C,3_linear_regression,tiktoken:p50k_base,False,"splice out the (role expr) wrapper form, leaving expr",116,112,4,3.57,354,335
+C,3_linear_regression,tiktoken:r50k_base,False,"splice out the (role expr) wrapper form, leaving expr",118,114,4,3.51,354,335
+C,3_linear_regression,hf:gpt2,False,"splice out the (role expr) wrapper form, leaving expr",118,114,4,3.51,354,335
+C,3_linear_regression,hf:llama2,False,"splice out the (role expr) wrapper form, leaving expr",123,119,4,3.36,354,335
+C,3_linear_regression,hf:gpt-neox-20b,False,"splice out the (role expr) wrapper form, leaving expr",111,107,4,3.74,354,335
+C,3_linear_regression,hf:starcoder2,False,"splice out the (role expr) wrapper form, leaving expr",101,97,4,4.12,354,335
+C,3_linear_regression,regex_approx_APPROXIMATE,True,"splice out the (role expr) wrapper form, leaving expr",158,149,9,6.04,354,335
+C,7_concept_definition,tiktoken:cl100k_base,False,"splice out the (role expr) wrapper form, leaving expr",88,83,5,6.02,350,331
+C,7_concept_definition,tiktoken:o200k_base,False,"splice out the (role expr) wrapper form, leaving expr",88,83,5,6.02,350,331
+C,7_concept_definition,tiktoken:p50k_base,False,"splice out the (role expr) wrapper form, leaving expr",97,91,6,6.59,350,331
+C,7_concept_definition,tiktoken:r50k_base,False,"splice out the (role expr) wrapper form, leaving expr",109,103,6,5.83,350,331
+C,7_concept_definition,hf:gpt2,False,"splice out the (role expr) wrapper form, leaving expr",109,103,6,5.83,350,331
+C,7_concept_definition,hf:llama2,False,"splice out the (role expr) wrapper form, leaving expr",103,97,6,6.19,350,331
+C,7_concept_definition,hf:gpt-neox-20b,False,"splice out the (role expr) wrapper form, leaving expr",92,86,6,6.98,350,331
+C,7_concept_definition,hf:starcoder2,False,"splice out the (role expr) wrapper form, leaving expr",91,86,5,5.81,350,331
+C,7_concept_definition,regex_approx_APPROXIMATE,True,"splice out the (role expr) wrapper form, leaving expr",144,135,9,6.67,350,331
+D,1_normal_distribution,tiktoken:cl100k_base,False,replace the args: block mapping with a flow sequence of values,118,113,5,4.42,380,354
+D,1_normal_distribution,tiktoken:o200k_base,False,replace the args: block mapping with a flow sequence of values,118,113,5,4.42,380,354
+D,1_normal_distribution,tiktoken:p50k_base,False,replace the args: block mapping with a flow sequence of values,131,126,5,3.97,380,354
+D,1_normal_distribution,tiktoken:r50k_base,False,replace the args: block mapping with a flow sequence of values,157,144,13,9.03,380,354
+D,1_normal_distribution,hf:gpt2,False,replace the args: block mapping with a flow sequence of values,157,144,13,9.03,380,354
+D,1_normal_distribution,hf:llama2,False,replace the args: block mapping with a flow sequence of values,136,131,5,3.82,380,354
+D,1_normal_distribution,hf:gpt-neox-20b,False,replace the args: block mapping with a flow sequence of values,126,121,5,4.13,380,354
+D,1_normal_distribution,hf:starcoder2,False,replace the args: block mapping with a flow sequence of values,110,107,3,2.8,380,354
+D,1_normal_distribution,regex_approx_APPROXIMATE,True,replace the args: block mapping with a flow sequence of values,143,139,4,2.88,380,354
+D,2_bayesian_coin,tiktoken:cl100k_base,False,replace the args: block mapping with a flow sequence of values,160,150,10,6.67,536,491
+D,2_bayesian_coin,tiktoken:o200k_base,False,replace the args: block mapping with a flow sequence of values,160,150,10,6.67,536,491
+D,2_bayesian_coin,tiktoken:p50k_base,False,replace the args: block mapping with a flow sequence of values,179,167,12,7.19,536,491
+D,2_bayesian_coin,tiktoken:r50k_base,False,replace the args: block mapping with a flow sequence of values,231,203,28,13.79,536,491
+D,2_bayesian_coin,hf:gpt2,False,replace the args: block mapping with a flow sequence of values,231,203,28,13.79,536,491
+D,2_bayesian_coin,hf:llama2,False,replace the args: block mapping with a flow sequence of values,194,180,14,7.78,536,491
+D,2_bayesian_coin,hf:gpt-neox-20b,False,replace the args: block mapping with a flow sequence of values,176,163,13,7.98,536,491
+D,2_bayesian_coin,hf:starcoder2,False,replace the args: block mapping with a flow sequence of values,153,142,11,7.75,536,491
+D,2_bayesian_coin,regex_approx_APPROXIMATE,True,replace the args: block mapping with a flow sequence of values,187,181,6,3.31,536,491
+D,3_linear_regression,tiktoken:cl100k_base,False,replace the args: block mapping with a flow sequence of values,247,241,6,2.49,761,735
+D,3_linear_regression,tiktoken:o200k_base,False,replace the args: block mapping with a flow sequence of values,247,241,6,2.49,761,735
+D,3_linear_regression,tiktoken:p50k_base,False,replace the args: block mapping with a flow sequence of values,273,266,7,2.63,761,735
+D,3_linear_regression,tiktoken:r50k_base,False,replace the args: block mapping with a flow sequence of values,329,314,15,4.78,761,735
+D,3_linear_regression,hf:gpt2,False,replace the args: block mapping with a flow sequence of values,329,314,15,4.78,761,735
+D,3_linear_regression,hf:llama2,False,replace the args: block mapping with a flow sequence of values,281,274,7,2.55,761,735
+D,3_linear_regression,hf:gpt-neox-20b,False,replace the args: block mapping with a flow sequence of values,267,260,7,2.69,761,735
+D,3_linear_regression,hf:starcoder2,False,replace the args: block mapping with a flow sequence of values,231,226,5,2.21,761,735
+D,3_linear_regression,regex_approx_APPROXIMATE,True,replace the args: block mapping with a flow sequence of values,313,309,4,1.29,761,735
+E,1_normal_distribution,tiktoken:cl100k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,391,393,-2,-0.51,1044,1035
+E,1_normal_distribution,tiktoken:o200k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,390,392,-2,-0.51,1044,1035
+E,1_normal_distribution,tiktoken:p50k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,463,463,0,0.0,1044,1035
+E,1_normal_distribution,tiktoken:r50k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,463,463,0,0.0,1044,1035
+E,1_normal_distribution,hf:gpt2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,463,463,0,0.0,1044,1035
+E,1_normal_distribution,hf:llama2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,472,474,-2,-0.42,1044,1035
+E,1_normal_distribution,hf:gpt-neox-20b,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,421,421,0,0.0,1044,1035
+E,1_normal_distribution,hf:starcoder2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,401,403,-2,-0.5,1044,1035
+E,1_normal_distribution,regex_approx_APPROXIMATE,True,replace 'argRole <name>' triples with 'argIndex <n>' triples,575,574,1,0.17,1044,1035
+E,2_bayesian_coin,tiktoken:cl100k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,497,501,-4,-0.8,1459,1448
+E,2_bayesian_coin,tiktoken:o200k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,500,504,-4,-0.79,1459,1448
+E,2_bayesian_coin,tiktoken:p50k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,585,585,0,0.0,1459,1448
+E,2_bayesian_coin,tiktoken:r50k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,585,585,0,0.0,1459,1448
+E,2_bayesian_coin,hf:gpt2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,585,585,0,0.0,1459,1448
+E,2_bayesian_coin,hf:llama2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,603,606,-3,-0.5,1459,1448
+E,2_bayesian_coin,hf:gpt-neox-20b,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,525,525,0,0.0,1459,1448
+E,2_bayesian_coin,hf:starcoder2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,512,515,-3,-0.58,1459,1448
+E,2_bayesian_coin,regex_approx_APPROXIMATE,True,replace 'argRole <name>' triples with 'argIndex <n>' triples,717,717,0,0.0,1459,1448
+E,3_linear_regression,tiktoken:cl100k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,677,679,-2,-0.29,1835,1826
+E,3_linear_regression,tiktoken:o200k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,668,670,-2,-0.3,1835,1826
+E,3_linear_regression,tiktoken:p50k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,801,801,0,0.0,1835,1826
+E,3_linear_regression,tiktoken:r50k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,801,801,0,0.0,1835,1826
+E,3_linear_regression,hf:gpt2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,801,801,0,0.0,1835,1826
+E,3_linear_regression,hf:llama2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,807,809,-2,-0.25,1835,1826
+E,3_linear_regression,hf:gpt-neox-20b,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,720,720,0,0.0,1835,1826
+E,3_linear_regression,hf:starcoder2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,701,703,-2,-0.28,1835,1826
+E,3_linear_regression,regex_approx_APPROXIMATE,True,replace 'argRole <name>' triples with 'argIndex <n>' triples,972,971,1,0.1,1835,1826
+E,7_concept_definition,tiktoken:cl100k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,665,667,-2,-0.3,1876,1867
+E,7_concept_definition,tiktoken:o200k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,655,657,-2,-0.3,1876,1867
+E,7_concept_definition,tiktoken:p50k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,815,815,0,0.0,1876,1867
+E,7_concept_definition,tiktoken:r50k_base,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,815,815,0,0.0,1876,1867
+E,7_concept_definition,hf:gpt2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,815,815,0,0.0,1876,1867
+E,7_concept_definition,hf:llama2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,828,830,-2,-0.24,1876,1867
+E,7_concept_definition,hf:gpt-neox-20b,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,752,752,0,0.0,1876,1867
+E,7_concept_definition,hf:starcoder2,False,replace 'argRole <name>' triples with 'argIndex <n>' triples,722,724,-2,-0.28,1876,1867
+E,7_concept_definition,regex_approx_APPROXIMATE,True,replace 'argRole <name>' triples with 'argIndex <n>' triples,973,972,1,0.1,1876,1867

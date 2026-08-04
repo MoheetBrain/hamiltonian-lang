@@ -1,0 +1,19 @@
+# Example 5 -- constrained optimisation.
+#
+# Each 'require' generates a proof obligation. Run:
+#   hml obligations examples/algebra/constrained_optimisation.hml
+# to see that none of them is discharged by v0 -- the language states the obligation,
+# it does not prove it.
+
+module ConstrainedOptimisation
+
+var x : Real
+var y : Real
+
+require x + y >= 10
+require x >= 0
+require y >= 0
+
+minimise x^2 + y^2
+
+solve x y

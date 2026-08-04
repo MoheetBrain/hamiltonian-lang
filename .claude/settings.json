@@ -1,0 +1,46 @@
+{
+  "$comment": "Deterministic gates. Critical checks are encoded here and in scripts/conformance.sh rather than relying on an agent remembering to run them (master directive section 15).",
+  "permissions": {
+    "allow": [
+      "Bash(.venv/bin/hml:*)",
+      "Bash(.venv/bin/python -m pytest:*)",
+      "Bash(.venv/bin/ruff:*)",
+      "Bash(.venv/bin/mypy:*)",
+      "Bash(./scripts/conformance.sh)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(gh repo create:*)",
+      "Bash(gh repo edit:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh issue create:*)",
+      "Bash(git commit --no-verify:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(cat | python3 -c 'import json,sys; print(json.load(sys.stdin).get(\"tool_input\",{}).get(\"file_path\",\"\"))'); case \"$f\" in *.py) [ -x .venv/bin/ruff ] && .venv/bin/ruff check --quiet \"$f\" || true;; *.hml) [ -x .venv/bin/hml ] && .venv/bin/hml check \"$f\" || true;; *.json) python3 -c \"import json,sys; json.load(open(sys.argv[1]))\" \"$f\" || true;; esac"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x .venv/bin/python ] && .venv/bin/python -m pytest tests/parser tests/type_system tests/roundtrip tests/golden -q --no-header 2>&1 | tail -3 || true"
+          }
+        ]
+      }
+    ]
+  }
+}

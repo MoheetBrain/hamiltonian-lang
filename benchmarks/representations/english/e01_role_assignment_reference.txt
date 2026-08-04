@@ -1,0 +1,3 @@
+Two strictly positive parameters are given, named first and second.
+A real-valued random variable Z is normally distributed.
+Its location is first and its scale is second.

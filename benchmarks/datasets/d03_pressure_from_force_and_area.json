@@ -1,0 +1,42 @@
+{
+  "id": "d03_pressure_from_force_and_area",
+  "category": "dimensional_analysis",
+  "difficulty": "medium",
+  "seed": 403,
+  "expects_rejection": false,
+  "natural_language": "A force is applied over an area. Pressure is force divided by area. Force has dimension mass times length over time squared; area has dimension length squared. State the dimension of the resulting pressure.",
+  "expected_semantics": {
+    "definition": "pressure := force / area",
+    "dimension": "Mass / (Length * Time^2)",
+    "base_exponents": {
+      "Mass": 1,
+      "Length": -1,
+      "Time": -2
+    }
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "dimension_of",
+        "symbol": "pressure",
+        "dimension": "Mass / (Length * Time^2)"
+      }
+    ]
+  },
+  "distractors": [
+    "Cancelling the length exponents in the wrong direction, giving mass times length over time squared.",
+    "Reporting 'pascals'. A unit is not a dimension."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/d03_pressure_from_force_and_area.txt",
+    "latex": "benchmarks/representations/latex/d03_pressure_from_force_and_area.tex",
+    "python": "benchmarks/representations/python/d03_pressure_from_force_and_area.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/d03_pressure_from_force_and_area.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/d03_pressure_from_force_and_area.hml"
+  }
+}

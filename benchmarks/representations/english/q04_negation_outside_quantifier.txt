@@ -1,0 +1,4 @@
+It is not the case that every real number is strictly positive.
+The negation applies to the whole quantified statement.
+
+Write it down.

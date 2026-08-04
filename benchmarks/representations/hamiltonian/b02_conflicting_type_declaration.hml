@@ -1,0 +1,4 @@
+module ConflictingDeclaration
+
+param rate : PositiveReal
+param rate : Real

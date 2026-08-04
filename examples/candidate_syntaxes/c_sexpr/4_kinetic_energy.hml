@@ -1,0 +1,7 @@
+; Candidate C. Problem 4.
+(module KineticEnergy
+  (param m (Quantity (dim (Mass 1))))
+  (param v (Quantity (dim (Length 1) (Time -1))))
+  (def kinetic_energy () (Quantity (dim (Mass 1) (Length 2) (Time -2)))
+    (* 0.5 (* m (^ v 2))))
+  (check dimension kinetic_energy (dim (Mass 1) (Length 2) (Time -2))))

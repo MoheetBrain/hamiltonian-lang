@@ -1,0 +1,4 @@
+A force is applied over an area. Pressure is force divided by area.
+Force has dimension mass times length over time squared; area has dimension length squared.
+
+State the dimension of the resulting pressure.

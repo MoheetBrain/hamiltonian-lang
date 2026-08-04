@@ -1,0 +1,162 @@
+(* ===================================================================
+   Candidate B - "restricted-symbolic ASCII"
+   Design goal: minimum characters and minimum tokens, at the cost of
+   requiring a memorised opcode / role / family abbreviation table.
+   Alphabet: 7-bit ASCII. STRICTLY line-oriented: the statement opcode is
+   determined by the FIRST CHARACTER of a line, which is why characters that
+   are infix operators inside expressions ("@", "^", "*", "/", "+", "<", ">")
+   can be reused as line opcodes without ambiguity.
+   =================================================================== *)
+
+(* ---------- lexical ---------- *)
+
+NEWLINE        ::= "\n" | "\r\n" ;
+IDENT          ::= ( "A".."Z" | "a".."z" | "_" ) { "A".."Z" | "a".."z" | "0".."9" | "_" } ;
+NUMBER         ::= "0".."9" { "0".."9" } [ "." "0".."9" { "0".."9" } ] ;
+COMMENT        ::= ";" { any character except NEWLINE } ;
+
+(* Operator munch order, longest first:
+   ":<" ":>" "::" "<=" ">=" "!=" "->" "R0" ... then single chars.       *)
+
+(* ---------- program ---------- *)
+
+program        ::= { line } ;
+line           ::= [ statement ] [ COMMENT ] NEWLINE ;
+
+statement      ::= module | decl | define | law
+                 | assume | require | objective | solve | infer | check
+                 | prove | concept ;
+
+(* ---------- statement opcodes (first character of the line) ---------- *)
+
+module         ::= "%" IDENT ;
+decl           ::= decl_sigil IDENT ":" type [ "=" expr ] ;
+decl_sigil     ::= "$"      (* param *)
+                 | "&"      (* var   *)
+                 | "*"      (* const *)
+                 | "@"      (* obs   *)
+                 | "#"      (* index *)
+                 | "'" ;    (* rv    *)
+define         ::= "=" IDENT [ "(" [ formal_list ] ")" ] [ ":" type ] "=" expr ;
+formal_list    ::= IDENT [ ":" type ] { "," IDENT [ ":" type ] } ;
+
+law            ::= IDENT [ "|" ref_list ] dist_op dist ;
+dist_op        ::= "::"    (* law        *)
+                 | ":<"    (* prior      *)
+                 | ":>" ;  (* likelihood *)
+ref_list       ::= IDENT { "," IDENT } ;
+
+assume         ::= "~" expr ;
+require        ::= "+" expr ;
+objective      ::= "\\" expr        (* minimise: wedge points down *)
+                 | "/" expr ;       (* maximise: wedge points up   *)
+solve          ::= ">" ref_list ;
+infer          ::= "<" query ref_list ;
+query          ::= "p" | "e" | "v" | "m" | "a" ;   (* posterior expectation variance mle map *)
+check          ::= ":d" expr [ "=" dim_expr ]      (* dimension check *)
+                 | ":p" expr ;                     (* proposition check *)
+prove          ::= "|-" expr ;
+
+(* ---------- concepts ---------- *)
+
+concept        ::= "^" IDENT [ ":" IDENT { "," IDENT } ] NEWLINE
+                   { member NEWLINE }
+                   "^^" ;
+member         ::= ".p" IDENT ":" type                       (* parameter      *)
+                 | ".y" IDENT ":" type                       (* propertY       *)
+                 | ".t" IDENT "(" [ formal_list ] ")" "=" expr  (* transform   *)
+                 | ".i" expr                                 (* invariant      *)
+                 | ".e" IDENT "=" expr                       (* example        *)
+                 | ".x" IDENT "=" expr ;                     (* counterexample *)
+
+(* ---------- distributions: roles are 1-2 letter codes, still MANDATORY ---------- *)
+
+dist           ::= family "(" [ arg { "," arg } ] ")" ;
+family         ::= IDENT ;          (* N Normal, B Beta, Bi Binomial, NV NormalVector,
+                                       U Uniform, G Gamma, Po Poisson, E Exponential *)
+arg            ::= role ":" expr [ "+" ] ;   (* trailing "+" = inline positivity assertion,
+                                                sugar for an extra `require` on that argument *)
+role           ::= "m"   (* location / mean  *)
+                 | "s"   (* scale            *)
+                 | "v"   (* variance         *)
+                 | "a"   (* alpha / shape1   *)
+                 | "b"   (* beta  / shape2   *)
+                 | "n"   (* trials           *)
+                 | "p"   (* probability      *)
+                 | "r"   (* rate             *)
+                 | "lo" | "hi" ;
+
+(* ---------- expressions ---------- *)
+
+expr           ::= quantified | iff ;
+quantified     ::= "!" "[" IDENT ":" type "]" "." expr      (* forall, TPTP-style *)
+                 | "?" "[" IDENT ":" type "]" "." expr ;    (* exists             *)
+iff            ::= impl { "<>" impl } ;
+impl           ::= disj [ "->" impl ] ;
+disj           ::= conj { "\\/" conj } ;
+conj           ::= neg { "/\\" neg } ;
+neg            ::= "~" neg | cmp ;
+cmp            ::= add [ cmp_op add ] ;
+cmp_op         ::= "=" | "!=" | "<" | "<=" | ">" | ">=" ;
+add            ::= mul { ( "+" | "-" ) mul } ;
+mul            ::= un { ( "*" | "/" | "@" ) un } ;
+un             ::= "-" un | pow ;
+pow            ::= post [ "^" un ] ;
+post           ::= prim { "[" expr { "," expr } "]" } ;
+prim           ::= NUMBER | IDENT [ "(" [ expr { "," expr } ] ")" ] | "(" expr ")" ;
+
+(* ---------- types (single-letter codes) ---------- *)
+
+type           ::= "R"          (* Real            *)
+                 | "R+"         (* PositiveReal    *)
+                 | "R0"         (* NonNegativeReal *)
+                 | "P"          (* Probability     *)
+                 | "Z"          (* Integer         *)
+                 | "N"          (* Natural         *)
+                 | "Q"          (* Rational        *)
+                 | "B"          (* Bool            *)
+                 | "O"          (* Proposition     *)
+                 | "V" "[" type "," extent "]"
+                 | "M" "[" type "," extent "," extent "]"
+                 | "T" "[" type { "," extent } "]"
+                 | "S" "[" type "]"
+                 | "F" "[" type { "*" type } "->" type "]"
+                 | "K" "[" type { "*" type } "]"    (* Predicate *)
+                 | "X" "[" type "]"                 (* RandomVariable *)
+                 | "D" "[" type "]"                 (* Distribution   *)
+                 | "U" "[" dim_expr "]"             (* Quantity       *)
+                 | IDENT ;                          (* concept name   *)
+extent         ::= IDENT | NUMBER | "?" ;
+
+dim_expr       ::= dim_term { ( "*" | "/" ) dim_term } ;
+dim_term       ::= base_dim [ "^" NUMBER ] | "1" ;
+base_dim       ::= "Ma" | "Le" | "Ti" | "Te" | "Cu" | "Am" | "Lu" ;
+
+(* ===================================================================
+   KNOWN LOOKAHEAD / AMBIGUITY NOTES
+
+   B1. Line-start position is load-bearing. "@x:R" is an obs declaration;
+       "y|x@beta" uses "@" as matrix product. The grammar is therefore NOT
+       free-form: two statements can never share a line, and a statement can
+       never be wrapped onto a second line. This is a REAL restriction that
+       A, C and E do not have.
+   B2. ":<" / ":>" / "::" require 1 character of lookahead after ":" during
+       lexing (maximal munch). Because a type never begins with "<" or ">",
+       this is decidable, but `theta:<B(...)` is easy for a human to mis-read
+       as `theta : <B(...)`.
+   B3. The namespaces of TYPE codes and DISTRIBUTION FAMILY codes collide:
+       "N" is Natural as a type and Normal as a family; "B" is Bool and Beta;
+       "P" is Probability and (nearly) Poisson. Disambiguated purely by
+       grammatical position. This is decidable but is a genuine legibility and
+       error-localisation hazard: a wrong-position token yields a type error
+       that is far from the typo.
+   B4. The role codes are a closed table. A misremembered role code
+       ("m" vs "v", i.e. mean vs variance) is a SILENT semantic change, since
+       both are legal roles of Normal. This is the exact failure mode D-003
+       was designed to prevent, reintroduced by abbreviation.
+   B5. ".p" as concept-parameter and "p" as the probability role are distinct
+       tokens in distinct positions but visually near-identical.
+   B6. "^" opens a concept at line start and is exponentiation inside an
+       expression; "*" is a const declaration at line start and multiplication
+       inside an expression. Same restriction as B1.
+   =================================================================== *)

@@ -1,0 +1,60 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+tokenizers available: ['tiktoken:cl100k_base', 'tiktoken:o200k_base', 'tiktoken:p50k_base', 'tiktoken:r50k_base', 'hf:gpt2', 'hf:llama2', 'hf:gpt-neox-20b', 'hf:starcoder2', 'regex_approx_APPROXIMATE']
+  real (non-approximate): 8
+corpus: 49 documents
+
+=== TOKEN TOTALS ACROSS ALL 7 PROBLEMS ===
+     arm |    chars |    lines |       tiktoken:cl100k_base |        tiktoken:o200k_base |         tiktoken:p50k_base |         tiktoken:r50k_base |                    hf:gpt2 |                  hf:llama2 |            hf:gpt-neox-20b |              hf:starcoder2 |   regex_approx_APPROXIMATE
+       A |     2222 |       68 |                        620 |                        621 |                        676 |                        676 |                        676 |                        743 |                        657 |                        691 |                       1043
+       B |     1411 |       59 |                        566 |                        559 |                        687 |                        692 |                        692 |                        684 |                        658 |                        655 |                        772
+       C |     2131 |       63 |                        619 |                        621 |                        697 |                        717 |                        717 |                        763 |                        669 |                        656 |                        987
+       D |     3321 |      163 |                       1019 |                       1020 |                       1131 |                       1357 |                       1357 |                       1192 |                       1118 |                        998 |                       1340
+       E |    10765 |      587 |                       4092 |                       4058 |                       4838 |                       4840 |                       4840 |                       4926 |                       4402 |                       4241 |                       5932
+     ENG |     2347 |       33 |                        521 |                        520 |                        542 |                        542 |                        542 |                        561 |                        526 |                        543 |                        991
+     TEX |     1684 |       54 |                        697 |                        695 |                        772 |                        772 |                        772 |                        687 |                        656 |                        678 |                        990
+
+=== EDIT ROBUSTNESS (all corruptions pooled) ===
+  A: trials= 1600 LOCAL= 51.44%  NONLOCAL=  3.12%  SILENT-MEANING-CHANGE=  7.94%  SILENT-BENIGN=  37.5%
+  B: trials= 1600 LOCAL= 46.56%  NONLOCAL=  6.56%  SILENT-MEANING-CHANGE= 14.75%  SILENT-BENIGN= 32.12%
+  C: trials= 2240 LOCAL= 25.09%  NONLOCAL= 23.21%  SILENT-MEANING-CHANGE= 16.56%  SILENT-BENIGN= 35.13%
+  D: trials= 2000 LOCAL= 34.25%  NONLOCAL= 27.25%  SILENT-MEANING-CHANGE=  28.0%  SILENT-BENIGN=  10.5%
+  E: trials= 1200 LOCAL= 67.17%  NONLOCAL=   0.0%  SILENT-MEANING-CHANGE= 21.17%  SILENT-BENIGN= 11.67%
+
+=== D-003 ROLE-LABEL OVERHEAD (real tokenizers only) ===
+  A: whole-file +166 tokens (5.88%)   micro mean +4.12 tok (33.59%)
+  B: whole-file +144 tokens (5.19%)   micro mean +3.62 tok (33.12%)
+  C: whole-file +207 tokens (7.79%)   micro mean +5.06 tok (42.23%)
+  D: whole-file +248 tokens (5.52%)   micro mean +8.0 tok (76.91%)
+  E: whole-file +-38 tokens (-0.19%)   micro mean +-0.5 tok (-1.55%)
+
+=== DETERMINISTIC ADVERSARIAL CASES ===
+  case                           expected                 actual                   ok
+  A-transpose-labelled           SILENT_BENIGN            SILENT_BENIGN            OK
+  A-transpose-positional         LOCAL                    LOCAL                    OK   [L8: positional distribution argument 'mu' (D-003 requires a role label)]
+  A-positional-correct-order     LOCAL                    LOCAL                    OK   [L8: positional distribution argument 'mu' (D-003 requires a role label)]
+  A-sd-vs-variance               SILENT_MEANING_CHANGE    SILENT_MEANING_CHANGE    OK
+  B-role-code-typo               SILENT_MEANING_CHANGE    SILENT_MEANING_CHANGE    OK
+  B-transpose-positional         LOCAL                    LOCAL                    OK   [L7: positional distribution argument 'mu']
+  C-transpose-labelled           SILENT_BENIGN            SILENT_BENIGN            OK
+  D-dedent-scale-out-of-args     LOCAL                    LOCAL                    OK   [L21: unknown law key 'scale']
+  D-dedent-into-toplevel         LOCAL                    LOCAL                    OK   [L33: YAML parse error: expected <block end>, but found '-']
+  D-indent-law-into-args         LOCAL                    LOCAL                    OK   [L19: YAML parse error: mapping values are not allowed here]
+  A-dedent-concept-member        SILENT_BENIGN            SILENT_BENIGN            OK
+  C-dedent                       SILENT_BENIGN            SILENT_BENIGN            OK
+  C-drop-inner-paren             NONLOCAL                 NONLOCAL                 OK   [L12: 1 unclosed '(' at end of file]
+  A-drop-paren                   LOCAL                    LOCAL                    OK   [L8: distribution is not Family(...)]
+  D-drop-type-bracket            SILENT_MEANING_CHANGE    SILENT_MEANING_CHANGE    OK
+  A-quantifier-swap              SILENT_MEANING_CHANGE    SILENT_MEANING_CHANGE    OK
+  C-quantifier-swap              SILENT_MEANING_CHANGE    SILENT_MEANING_CHANGE    OK
+  E-quantifier-swap              SILENT_MEANING_CHANGE    SILENT_MEANING_CHANGE    OK
+  E-drop-edge                    SILENT_MEANING_CHANGE    SILENT_MEANING_CHANGE    OK
+  E-dangling-ref                 LOCAL                    LOCAL                    OK   [L57: dangling reference to undefined node '_:v9']
+  A-typo-in-reference            LOCAL                    LOCAL                    OK   [L8: undeclared identifier 'sigmaa']
+  B-typo-in-reference            LOCAL                    LOCAL                    OK   [L7: undeclared identifier 'sigmaa']
+  D-typo-in-expr-string          LOCAL                    LOCAL                    OK   [L34: undeclared identifier 'betaa']
+  --> 23/23 matched the stated expectation
+
+=== BASELINE WELL-FORMEDNESS OF THE PRISTINE CORPUS ===
+  all candidate files pass their own checker with 0 errors
+
+wrote results to /Users/moheet/hamiltonian_lang/experiments/alphabet/results

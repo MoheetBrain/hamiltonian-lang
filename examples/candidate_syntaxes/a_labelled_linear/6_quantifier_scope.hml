@@ -1,0 +1,11 @@
+# Candidate A. Problem 6: the two quantifier orders, side by side.
+module QuantifierScope
+
+# Order 1: for every real there is a larger real. TRUE.
+def unbounded_above : Proposition := forall x : Real . exists y : Real . y > x
+
+# Order 2: one real exceeds every real. FALSE. Same atoms, swapped binders.
+def greatest_real_exists : Proposition := exists y : Real . forall x : Real . y > x
+
+prove unbounded_above
+check not greatest_real_exists

@@ -1,0 +1,8 @@
+module PressureDimension
+
+param force : Quantity[Mass * Length / Time^2]
+param area : Quantity[Length^2]
+
+def pressure := force / area
+
+check dimension pressure = Mass / (Length * Time^2)

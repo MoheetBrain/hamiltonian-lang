@@ -1,0 +1,314 @@
+# Candidate surface syntaxes for Hamiltonian Lang Layer 1.
+#
+# Every numeric field in this file was produced by
+#   experiments/alphabet/tokenisation_benchmark.py
+# and can be re-derived from experiments/alphabet/results/. Nothing here is
+# an estimate. Fields whose value could not be measured say so explicitly.
+#
+# Measurement basis: the 7 reference problems in
+# examples/candidate_syntaxes/<id>/, tokenised with 8 real tokenizers
+# (tiktoken cl100k_base, o200k_base, p50k_base, r50k_base; HuggingFace gpt2,
+# Llama-2, gpt-neox-20b, starcoder2). Llama-3 was NOT available (gated repo)
+# and contributes no numbers.
+
+version: 1
+generated_from: experiments/alphabet/results/summary.json
+reference_problems:
+  - 1_normal_distribution
+  - 2_bayesian_coin
+  - 3_linear_regression
+  - 4_kinetic_energy
+  - 5_constrained_optimisation
+  - 6_quantifier_scope
+  - 7_concept_definition
+
+# AST coverage caveat, applies to ALL candidates: the seven reference
+# problems do not exercise ast.nodes.Index, ast.nodes.LogicalOp,
+# ast.nodes.AssumeStmt, or Quantifier(kind="exists_unique"). All five
+# grammars contain productions for them; none of the five has been
+# *demonstrated* on them. This is a gap in the problem set, not in the
+# grammars, and it is recorded rather than papered over.
+
+candidates:
+
+  - id: A
+    name: labelled-linear
+    aka: HML-L1
+    status: CURRENTLY FROZEN (docs/design/V0_DESIGN_FREEZE.md)
+    grammar: spec/grammars/a_labelled_linear.ebnf
+    examples: examples/candidate_syntaxes/a_labelled_linear/
+    alphabet_family: 7-bit ASCII, reserved punctuation operators, word keywords
+    line_model: one statement per line; blocks closed by the keyword `end`
+    whitespace: insignificant everywhere
+    canonical_or_display: CANONICAL candidate
+    measured:
+      total_chars: 2222
+      chars_per_problem: 317.4
+      total_lines: 68
+      mean_tokens_8_real_tokenizers: 670.0
+      tokens_relative_to_english: 1.247
+      fragmentation_cl100k_tokens_per_char: 0.2790
+      edit_local_detection_pct: 55.50
+      edit_nonlocal_detection_pct: 2.00
+      edit_silent_meaning_change_pct: 9.88
+      error_localisation_precision_pct: 96.52   # LOCAL / (LOCAL + NONLOCAL)
+      d003_role_label_overhead_pct: 5.88        # whole file, mean over 8 tokenizers
+      d003_absolute_tokens_per_tokenizer: 20.8  # over all 7 problems; range 20-23
+      d003_tokens_per_law_statement: 4          # cl100k, all four law micro-cases
+    strengths:
+      - Lowest silent-meaning-change rate of all five candidates (9.88%).
+      - >-
+        Highest error-localisation precision of any bracketed candidate
+        (96.5% of detected errors are reported on the corrupted line).
+      - >-
+        Damage is confined to one line, because meaning is confined to one line.
+        Dropping a closing bracket is detected locally 80.5% of the time.
+      - >-
+        Whitespace damage is a verified no-op (adversarial case
+        A-dedent-concept-member classified SILENT_BENIGN).
+      - >-
+        Every reserved operator costs exactly 1 token in all 8 tokenizers when
+        space-delimited; `<=>` is the sole exception at 2 tokens in 7 of 8.
+      - >-
+        Role keywords are free. The strings ' prior', ' likelihood', ' location', ' scale'
+        are 1 token each in cl100k, o200k, gpt2 and Llama-2.
+      - Highest human readability of the five.
+    weaknesses:
+      - >-
+        LL(2), not LL(1) - `IDENT "(" ...` needs 2 tokens to distinguish an
+        ordinary call from a role-labelled argument list.
+      - >-
+        `check dimension` makes `dimension` a contextual keyword.
+      - 24.7% more tokens than English prose.
+      - >-
+        Role labels do NOT prevent choosing the WRONG role. Writing
+        `variance := sigma` instead of `scale := sigma` is well-formed and
+        silent (adversarial case A-sd-vs-variance).
+    expressible_problems: [1, 2, 3, 4, 5, 6, 7]
+    inexpressible: []
+
+  - id: B
+    name: restricted-symbolic-ascii
+    status: candidate
+    grammar: spec/grammars/b_symbolic_ascii.ebnf
+    examples: examples/candidate_syntaxes/b_symbolic_ascii/
+    alphabet_family: >-
+      7-bit ASCII, single-character statement opcodes,
+      abbreviated type / family / role code tables
+    line_model: strictly line-oriented; the FIRST CHARACTER selects the statement
+    whitespace: insignificant, but statements may never share or span a line
+    canonical_or_display: rejected as canonical
+    measured:
+      total_chars: 1411
+      chars_per_problem: 201.6
+      total_lines: 59
+      mean_tokens_8_real_tokenizers: 649.1
+      tokens_relative_to_english: 1.209
+      fragmentation_cl100k_tokens_per_char: 0.4011
+      edit_local_detection_pct: 47.31
+      edit_nonlocal_detection_pct: 5.44
+      edit_silent_meaning_change_pct: 13.56
+      error_localisation_precision_pct: 89.68
+      d003_role_label_overhead_pct: 5.19
+      chars_saved_vs_A_pct: 36.5
+      tokens_saved_vs_A_pct: 3.1
+    strengths:
+      - Fewest characters of any candidate (202 per problem vs A's 317).
+      - Best raw token total on cl100k_base (566) and o200k_base (559).
+      - Best local detection of bracket damage (90.8%).
+    weaknesses:
+      - >-
+        THE CENTRAL FINDING. A 36.5% character saving converts into only a
+        3.1% mean token saving, and that mean hides a 4-4 SPLIT. B wins on
+        cl100k (566 vs 620), o200k (559 vs 621), Llama-2 (684 vs 743) and
+        starcoder2 (655 vs 691); B LOSES on p50k (687 vs 676), r50k
+        (692 vs 676), gpt2 (692 vs 676) and gpt-neox-20b (658 vs 657).
+      - >-
+        Worst fragmentation of any ASCII candidate (0.401 tokens/char vs A's
+        0.279): dense punctuation is exactly what BPE handles badly.
+      - >-
+        The digraph opcodes `:<` and `:>` cost 2 tokens in gpt2 and Llama-2,
+        whereas A's words ` prior` and ` likelihood` cost 1. The abbreviation
+        is more expensive than the word it replaces.
+      - >-
+        Role codes are one character apart - `s` (scale) vs `v` (variance).
+        Measured: B-role-code-typo is a SILENT_MEANING_CHANGE.
+      - >-
+        Type codes and distribution-family codes share a namespace
+        (`N` = Natural and Normal, `B` = Bool and Beta, `P` = Probability).
+      - 37% higher silent-meaning-change rate than A.
+    expressible_problems: [1, 2, 3, 4, 5, 6, 7]
+    inexpressible: []
+
+  - id: C
+    name: prefix-sexpr
+    status: candidate
+    grammar: spec/grammars/c_sexpr.ebnf
+    examples: examples/candidate_syntaxes/c_sexpr/
+    alphabet_family: 7-bit ASCII, fully parenthesised prefix forms
+    line_model: none - whitespace and newlines are pure separators
+    whitespace: insignificant everywhere
+    canonical_or_display: viable canonical alternative; second on both scorings
+    measured:
+      total_chars: 2131
+      chars_per_problem: 304.4
+      total_lines: 63
+      mean_tokens_8_real_tokenizers: 682.4
+      tokens_relative_to_english: 1.271
+      fragmentation_cl100k_tokens_per_char: 0.2905
+      edit_local_detection_pct: 24.82
+      edit_nonlocal_detection_pct: 23.35
+      edit_silent_meaning_change_pct: 15.58
+      error_localisation_precision_pct: 51.53
+      d003_role_label_overhead_pct: 7.79
+    strengths:
+      - >-
+        No operator precedence and no infix position, so the parse tree IS
+        the AST and there is nothing to get wrong about associativity.
+      - >-
+        Quantifier nesting is bracket nesting, which makes scope structural
+        rather than conventional.
+      - Cheapest in characters after B, and better fragmentation than B.
+      - Whitespace damage is a verified no-op (C-dedent -> SILENT_BENIGN).
+    weaknesses:
+      - >-
+        THE DISQUALIFIER. Only 51.5% of detected errors land on the corrupted
+        line. A dropped closing paren is reported at EOF: measured
+        C-drop-inner-paren -> NONLOCAL, error at line 12 for an edit at line 11
+        of a 13-line file, and the gap grows with file size.
+      - Only 21.4% of bracket deletions are locally detectable, against A's 80.5%.
+      - >-
+        Highest D-003 overhead (7.79%), because each role costs a whole
+        additional bracket pair.
+      - Arity is not constrained by the grammar; `(^ a)` and `(- a b c)` parse.
+    expressible_problems: [1, 2, 3, 4, 5, 6, 7]
+    inexpressible: []
+
+  - id: D
+    name: indentation-block
+    status: candidate
+    grammar: spec/grammars/d_indent_block.ebnf
+    examples: examples/candidate_syntaxes/d_indent_block/
+    alphabet_family: 7-bit ASCII subset of YAML 1.2 block style
+    line_model: indentation-structured blocks
+    whitespace: SEMANTIC - the only candidate for which this is true
+    canonical_or_display: REJECTED
+    verified: >-
+      all 7 D files parse with PyYAML safe_load (checked; see
+      results/baseline_wellformedness.csv, 0 errors)
+    measured:
+      total_chars: 3321
+      chars_per_problem: 474.4
+      total_lines: 163
+      mean_tokens_8_real_tokenizers: 1149.0
+      tokens_relative_to_english: 2.139
+      fragmentation_cl100k_tokens_per_char: 0.3068
+      edit_local_detection_pct: 34.85
+      edit_nonlocal_detection_pct: 28.00
+      edit_silent_meaning_change_pct: 27.10
+      error_localisation_precision_pct: 55.44
+      d003_role_label_overhead_pct: 5.52
+      dedent_local_detection_pct: 40.89
+      dedent_silent_meaning_change_pct: 0.00
+      bracket_deletion_silent_meaning_change_pct: 100.00
+    strengths:
+      - Reuses an enormous existing toolchain; every file is real YAML.
+      - >-
+        Role labels are mapping keys, so argument order is structurally inert
+        and duplicate roles are a YAML-level error.
+      - >-
+        Indentation damage was NOT silent in this corpus. 100% of dedents were
+        detected (40.9% on the exact line). The predicted whitespace failure
+        did not occur in the form predicted.
+    weaknesses:
+      - WORST silent-meaning-change rate of all five (27.1%).
+      - >-
+        CATASTROPHIC on bracket damage. 100% of closing-bracket deletions
+        silently changed meaning and 0% were detected. Every bracket in a D
+        file lives inside a quoted type or expression STRING, which the
+        structural layer cannot see into at all.
+      - >-
+        Not self-contained. D delegates all expression syntax to embedded
+        candidate-A strings. Its grammar does not cover its own expressions.
+      - 2.14x English token cost; 71% more tokens than A.
+      - >-
+        YAML 1.1 vs 1.2 portability defect. Bare `N`, `y`, `n`, `on`, `off`
+        are BOOLEANS to a 1.1 parser, so `- y` in a solve list is a booby
+        trap. The corpus quotes them; the tax is real and permanent.
+    expressible_problems: [1, 2, 3, 4, 5, 6, 7]
+    inexpressible: []
+    caveat: >-
+      "expressible" is true only because D embeds candidate-A expression
+      strings. On its own structural vocabulary D cannot express an expression.
+
+  - id: E
+    name: graph-triple
+    status: candidate
+    grammar: spec/grammars/e_graph_triple.ebnf
+    examples: examples/candidate_syntaxes/e_graph_triple/
+    alphabet_family: 7-bit ASCII, subject-predicate-object lines, blank nodes
+    line_model: one fact per line; file order is not statement order
+    whitespace: separator only
+    canonical_or_display: RECOMMENDED AS A PROJECTION, not as a surface syntax
+    measured:
+      total_chars: 10765
+      chars_per_problem: 1537.9
+      total_lines: 587
+      mean_tokens_8_real_tokenizers: 4529.6
+      tokens_relative_to_english: 8.433
+      fragmentation_cl100k_tokens_per_char: 0.3801
+      edit_local_detection_pct: 66.83
+      edit_nonlocal_detection_pct: 0.00
+      edit_silent_meaning_change_pct: 22.00
+      error_localisation_precision_pct: 100.00
+      d003_role_label_overhead_pct: -0.19    # role labels are FREE in E
+    strengths:
+      - >-
+        Perfect error localisation. 100% of detected errors are on the
+        corrupted line, because there is no cross-line syntax to break.
+      - Zero conversion cost to the semantic graph; the file IS the graph.
+      - >-
+        Role labels are free (-0.19% - `argRole location` and `argIndex 0`
+        cost the same), so D-003 has literally no token cost in this form.
+      - Grammatically regular; no lookahead of any kind.
+    weaknesses:
+      - >-
+        8.4x English token cost and 6.8x candidate A. Disqualifying for
+        authoring or for anything inside a context window.
+      - >-
+        No syntactic scope. Quantifier nesting is one `quantBody` edge:
+        measured E-quantifier-swap flips forall/exists with a ONE-CHARACTER
+        class of edit and is classified SILENT_MEANING_CHANGE.
+      - >-
+        Deleting a single line deletes a distribution argument outright
+        (E-drop-edge -> SILENT_MEANING_CHANGE).
+      - 22% silent-meaning-change rate, second worst.
+    expressible_problems: [1, 2, 3, 4, 5, 6, 7]
+    inexpressible: []
+    note: >-
+      E is the only candidate that reifies expressions completely rather
+      than embedding them as strings, which is why it is both the most
+      verbose and the most machine-transparent.
+
+baselines:
+  - id: ENG
+    name: English prose
+    path: examples/candidate_syntaxes/baseline_english/
+    measured:
+      total_chars: 2347
+      mean_tokens_8_real_tokenizers: 537.1
+      fragmentation_cl100k_tokens_per_char: 0.2220
+    note: the token-efficiency reference point. Every candidate costs more.
+  - id: TEX
+    name: LaTeX
+    path: examples/candidate_syntaxes/baseline_latex/
+    measured:
+      total_chars: 1684
+      mean_tokens_8_real_tokenizers: 716.1
+      tokens_relative_to_english: 1.333
+      fragmentation_cl100k_tokens_per_char: 0.4139
+    note: >
+      LaTeX costs MORE tokens than candidates A, B and C despite using fewer
+      characters than A, and it cannot express the six commitments of GOAL.md
+      section 2 at all - the baseline file for problem 1 has to write
+      "(not the variance)" in prose because the notation cannot say it.

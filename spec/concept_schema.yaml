@@ -1,0 +1,33 @@
+# Concept minting protocol.
+# A new mathematical term cannot survive because it sounds plausible. It survives
+# because it has a formal identity with testable consequences.
+version: hml-concept-schema-0.1.0
+
+required_fields:
+  identifier:   {type: string, note: must be unique within the module}
+  namespace:    {type: string, default: module name}
+  parameters:   {type: list, note: each with an explicit type}
+  invariants:   {type: list, note: propositions that must hold of every instance}
+  examples:     {type: list, note: witnesses that the concept is inhabited}
+
+optional_fields:
+  extends:          {type: list, note: parent concepts; cycles rejected HML-S602}
+  transforms:       {type: list, note: named maps with explicit parameters}
+  properties:       {type: list}
+  counterexamples:  {type: list, note: witnesses that a nearby claim is false}
+
+admission_rule:
+  statement: >
+    A concept declaring neither an invariant nor an example is REJECTED with HML-S603.
+  rationale: >
+    Without a testable consequence a concept is a name, not a definition. The rule is
+    deliberately cheap to satisfy and impossible to satisfy vacuously.
+  enforced_in: src/hamiltonian_lang/semantics/__init__.py
+
+scope_rule:
+  statement: >
+    Parameters and transforms are visible to every member body, so an invariant may
+    reference a transform declared after it. Transform parameters bind in a nested scope.
+
+example:
+  source: examples/concepts/location_scale_family.hml

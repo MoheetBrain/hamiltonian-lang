@@ -1,0 +1,21 @@
+{
+  "id": "b02_conflicting_type_declaration",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "variable_binding",
+  "expects_rejection": true,
+  "ground_truth": {
+    "verdict": "invalid",
+    "reason": "rate is declared twice in the same scope with conflicting types",
+    "diagnostic_code": "HML-N303"
+  },
+  "assertions": [
+    {
+      "assert": "rejects_with",
+      "code": "HML-N303"
+    }
+  ],
+  "distractors": [
+    "Taking the last declaration to win, as most dynamic languages do. Silently widening PositiveReal to Real discards a constraint the first declaration asserted.",
+    "Taking the first declaration to win and treating the second as a redundant restatement."
+  ]
+}

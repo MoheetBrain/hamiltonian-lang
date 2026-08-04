@@ -1,0 +1,48 @@
+{
+  "id": "d01_kinetic_energy_dimension",
+  "category": "dimensional_analysis",
+  "difficulty": "easy",
+  "seed": 401,
+  "expects_rejection": false,
+  "natural_language": "A body of mass m moves at speed v. Its kinetic energy is one half m v squared. State the physical dimension of the kinetic energy in terms of the base dimensions mass, length and time.",
+  "expected_semantics": {
+    "definition": "kinetic_energy := 0.5 * m * v^2",
+    "dimension": "Length^2 * Mass / Time^2",
+    "base_exponents": {
+      "Mass": 1,
+      "Length": 2,
+      "Time": -2
+    }
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "dimension_of",
+        "symbol": "kinetic_energy",
+        "dimension": "Length^2 * Mass / Time^2"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "v",
+        "type": "Quantity[Length / Time]"
+      }
+    ]
+  },
+  "distractors": [
+    "Dropping the square on the velocity, giving Mass * Length / Time.",
+    "Treating the one-half as dimensional.",
+    "Reporting 'joules' as if a unit name were a dimension. Units and dimensions are different; this language checks dimensions and does not reconcile units."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/d01_kinetic_energy_dimension.txt",
+    "latex": "benchmarks/representations/latex/d01_kinetic_energy_dimension.tex",
+    "python": "benchmarks/representations/python/d01_kinetic_energy_dimension.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/d01_kinetic_energy_dimension.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/d01_kinetic_energy_dimension.hml"
+  }
+}

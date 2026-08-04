@@ -1,0 +1,46 @@
+{
+  "id": "q05_negation_inside_quantifier",
+  "category": "quantifier_scope",
+  "difficulty": "medium",
+  "seed": 305,
+  "expects_rejection": false,
+  "natural_language": "Consider the statement: every real number fails to be strictly positive. The negation applies to the body only, underneath the quantifier. Write it down. This statement is false over the reals.",
+  "expected_semantics": {
+    "quantifier_prefix": [
+      "forall:x"
+    ],
+    "negation_position": "inside the quantifier body",
+    "reading": "forall x . not (x > 0)",
+    "truth_over_reals": false
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "quantifier_prefix",
+        "prefix": [
+          "forall:x"
+        ]
+      },
+      {
+        "assert": "hash_differs",
+        "problem": "q04_negation_outside_quantifier"
+      }
+    ]
+  },
+  "distractors": [
+    "Confusing this with the outer-negation form of q04. Identical prefix, different meaning, different truth value.",
+    "Assuming that because both statements mention 'not' and 'every real number', a prefix-only answer suffices. It does not."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/q05_negation_inside_quantifier.txt",
+    "latex": "benchmarks/representations/latex/q05_negation_inside_quantifier.tex",
+    "python": "benchmarks/representations/python/q05_negation_inside_quantifier.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/q05_negation_inside_quantifier.lean",
+    "hamiltonian": "benchmarks/representations/hamiltonian/q05_negation_inside_quantifier.hml"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "id": "a01_minimum_norm_under_half_plane",
+  "category": "algebraic_constraints",
+  "difficulty": "medium",
+  "seed": 501,
+  "expects_rejection": false,
+  "natural_language": "Two real unknowns x and y must satisfy three conditions: their sum is at least 10.0, x is at least 0.0, and y is at least 0.0. Subject to those conditions, minimise the sum of their squares. State the problem, including every condition as an explicit obligation.",
+  "expected_semantics": {
+    "unknowns": [
+      "x",
+      "y"
+    ],
+    "constraints": [
+      "x + y >= 10.0",
+      "x >= 0.0",
+      "y >= 0.0"
+    ],
+    "objective": {
+      "direction": "minimise",
+      "expression": "x^2 + y^2"
+    },
+    "obligation_count": 3
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "obligation_count",
+        "count": 3
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "x",
+        "type": "Real"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "y",
+        "type": "Real"
+      }
+    ]
+  },
+  "distractors": [
+    "Dropping the two non-negativity conditions because the optimum happens to satisfy them. The conditions are part of the problem statement whether or not they bind.",
+    "Declaring x and y as NonNegativeReal, which folds two of the constraints into the type and changes the obligation count. That is a defensible modelling choice but a different problem: the prose states them as conditions.",
+    "Minimising the sum rather than the sum of squares."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/a01_minimum_norm_under_half_plane.txt",
+    "latex": "benchmarks/representations/latex/a01_minimum_norm_under_half_plane.tex",
+    "python": "benchmarks/representations/python/a01_minimum_norm_under_half_plane.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/a01_minimum_norm_under_half_plane.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/a01_minimum_norm_under_half_plane.hml"
+  }
+}

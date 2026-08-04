@@ -1,0 +1,13 @@
+# Example 4 -- dimensional analysis.
+#
+# The asserted dimension is checked exactly, using rational exponent vectors.
+# Changing '2' to '3' below makes this file fail with HML-D504.
+
+module KineticEnergy
+
+param m : Quantity[Mass]
+param v : Quantity[Length / Time]
+
+def kinetic_energy := 0.5 * m * v^2
+
+check dimension kinetic_energy = Mass * Length^2 / Time^2

@@ -1,0 +1,5 @@
+Calls arrive at a helpdesk one at a time. The waiting time until the next call,
+in minutes, follows an exponential distribution whose MEAN waiting time is 4.0 minutes.
+
+Express the waiting-time model. The exponential family here is parameterised by its
+rate, and rate equals one divided by the mean.

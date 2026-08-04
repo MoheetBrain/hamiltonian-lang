@@ -1,0 +1,7 @@
+;B P1  % module  $ param  + require  ' rv  :: law  N=Normal m=location s=scale
+%NormalDistribution
+$mu:R
+$sigma:R+
++sigma>0
+'X:X[R]
+X::N(m:mu,s:sigma)

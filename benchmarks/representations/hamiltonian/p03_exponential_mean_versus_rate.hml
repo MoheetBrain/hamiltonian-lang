@@ -1,0 +1,7 @@
+module HelpdeskWait
+
+# The prose states a MEAN of 4.0 minutes. The Exponential family is parameterised
+# by its rate, so the rate is 1 / 4.0 = 0.25 per minute.
+var wait : RandomVariable[PositiveReal]
+
+law wait ~ Exponential(rate := 0.25)

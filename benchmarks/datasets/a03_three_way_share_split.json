@@ -1,0 +1,61 @@
+{
+  "id": "a03_three_way_share_split",
+  "category": "algebraic_constraints",
+  "difficulty": "medium",
+  "seed": 503,
+  "expects_rejection": false,
+  "natural_language": "Three shares, each a proportion between zero and one inclusive, must sum to exactly 1.0. In addition the first share must be at least as large as the second. State the constraint system and count every proof obligation it generates, including the ones implied by the declared types.",
+  "expected_semantics": {
+    "unknowns": [
+      "share_a",
+      "share_b",
+      "share_c"
+    ],
+    "constraints": [
+      "share_a + share_b + share_c = 1.0",
+      "share_a >= share_b"
+    ],
+    "obligation_count": 5,
+    "obligation_breakdown": [
+      "2 stated constraints",
+      "0 <= share_a <= 1 (from Probability)",
+      "0 <= share_b <= 1 (from Probability)",
+      "0 <= share_c <= 1 (from Probability)"
+    ]
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "obligation_count",
+        "count": 5
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "share_a",
+        "type": "Probability"
+      },
+      {
+        "assert": "symbol_type",
+        "symbol": "share_c",
+        "type": "Probability"
+      }
+    ]
+  },
+  "distractors": [
+    "Typing the shares as PositiveReal. That admits 1.7 and excludes 0.0, both wrong: the prose says a proportion between zero and one INCLUSIVE.",
+    "Typing them as NonNegativeReal, which admits 1.7.",
+    "Counting only the two written constraints and missing the three range obligations the Probability type generates."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/a03_three_way_share_split.txt",
+    "latex": "benchmarks/representations/latex/a03_three_way_share_split.tex",
+    "python": "benchmarks/representations/python/a03_three_way_share_split.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/a03_three_way_share_split.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/a03_three_way_share_split.hml"
+  }
+}

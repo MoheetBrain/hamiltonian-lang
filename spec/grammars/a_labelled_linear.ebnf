@@ -1,0 +1,152 @@
+(* ===================================================================
+   Candidate A - "labelled-linear"  (HML-L1, the v0 frozen syntax)
+   Reconstructed from docs/design/V0_DESIGN_FREEZE.md sections 1-3.
+   Alphabet: 7-bit ASCII only. Line-oriented. Blocks closed by "end".
+   Notation: ISO-ish EBNF.  ::= production, | alternation,
+             [ ] optional, { } zero-or-more, ( ) grouping,
+             "..." terminal, UPPERCASE lexical class.
+   =================================================================== *)
+
+(* ---------- lexical ---------- *)
+
+NEWLINE        ::= "\n" | "\r\n" ;
+WS             ::= " " | "\t" ;                      (* never semantic *)
+IDENT          ::= ( "A".."Z" | "a".."z" | "_" ) { "A".."Z" | "a".."z" | "0".."9" | "_" } ;
+NATURAL        ::= "0".."9" { "0".."9" } ;
+NUMBER         ::= NATURAL [ "." NATURAL ] [ ( "e" | "E" ) [ "+" | "-" ] NATURAL ] ;
+BOOL           ::= "true" | "false" ;
+RATIONAL       ::= [ "-" ] NATURAL [ "/" NATURAL ] ;
+COMMENT        ::= "#" { any character except NEWLINE } ;
+
+(* Reserved operator tokens, maximal munch, longest first:
+   "<=>" "<=" ">=" "!=" ":=" "=>" "->" "~" "|" "@" "^" ":" "." "="
+   "<" ">" "+" "-" "*" "/" "(" ")" "[" "]" "," "?" "!"            *)
+
+(* ---------- program ---------- *)
+
+program        ::= { line } ;
+line           ::= { WS } [ statement ] { WS } [ COMMENT ] NEWLINE ;
+
+statement      ::= module_decl
+                 | declaration
+                 | define_stmt
+                 | law_stmt
+                 | assume_stmt
+                 | require_stmt
+                 | objective_stmt
+                 | solve_stmt
+                 | infer_stmt
+                 | check_stmt
+                 | prove_stmt
+                 | concept_decl ;
+
+(* ---------- statements ---------- *)
+
+module_decl    ::= "module" IDENT ;
+
+declaration    ::= decl_kind IDENT ":" type [ "=" expr ] ;
+decl_kind      ::= "var" | "param" | "const" | "obs" | "index" | "rv" ;
+
+define_stmt    ::= "def" IDENT [ "(" [ formal_list ] ")" ] [ ":" type ] ":=" expr ;
+formal_list    ::= formal { "," formal } ;
+formal         ::= IDENT [ ":" type ] ;
+
+law_stmt       ::= law_kind IDENT [ "|" ref_list ] "~" dist_expr ;
+law_kind       ::= "law" | "prior" | "likelihood" ;
+ref_list       ::= IDENT { "," IDENT } ;
+
+assume_stmt    ::= "assume" expr ;
+require_stmt   ::= "require" expr ;                 (* proof obligation *)
+objective_stmt ::= ( "minimise" | "maximise" ) expr ;
+solve_stmt     ::= "solve" ref_list ;
+infer_stmt     ::= "infer" query_kind ref_list ;
+query_kind     ::= "posterior" | "expectation" | "variance" | "mle" | "map" ;
+
+check_stmt     ::= "check" "dimension" expr [ "=" dim_expr ]
+                 | "check" expr ;
+prove_stmt     ::= "prove" expr ;
+
+(* ---------- distributions: D-003, roles are MANDATORY ---------- *)
+
+dist_expr      ::= family "(" [ arg_list ] ")" ;
+family         ::= IDENT ;
+arg_list       ::= arg { "," arg } ;
+arg            ::= role ":=" expr ;                 (* positional args are a parse error *)
+role           ::= IDENT ;
+
+(* ---------- concepts ---------- *)
+
+concept_decl   ::= "concept" IDENT [ "extends" IDENT { "," IDENT } ] NEWLINE
+                   { { WS } concept_member { WS } [ COMMENT ] NEWLINE }
+                   { WS } "end" ;
+concept_member ::= "parameter"      IDENT ":" type
+                 | "property"       IDENT ":" type
+                 | "transform"      IDENT "(" [ formal_list ] ")" ":=" expr
+                 | "invariant"      expr
+                 | "example"        IDENT ":=" expr
+                 | "counterexample" IDENT ":=" expr ;
+
+(* ---------- expressions (precedence low -> high) ---------- *)
+
+expr           ::= quantified | iff_expr ;
+quantified     ::= quantifier IDENT ":" type "." expr ;    (* body extends maximally right *)
+quantifier     ::= "forall" | "exists" | "exists_unique" ;
+
+iff_expr       ::= implies_expr { "<=>" implies_expr } ;   (* left assoc *)
+implies_expr   ::= or_expr [ "=>" implies_expr ] ;         (* right assoc *)
+or_expr        ::= and_expr { "or" and_expr } ;
+and_expr       ::= not_expr { "and" not_expr } ;
+not_expr       ::= "not" not_expr | comparison ;
+comparison     ::= additive [ cmp_op additive ] ;          (* NON-associative *)
+cmp_op         ::= "=" | "!=" | "<" | "<=" | ">" | ">=" ;
+additive       ::= multiplicative { ( "+" | "-" ) multiplicative } ;
+multiplicative ::= unary { ( "*" | "/" | "@" ) unary } ;
+unary          ::= "-" unary | power ;
+power          ::= postfix [ "^" unary ] ;                 (* right assoc *)
+postfix        ::= primary { "[" expr { "," expr } "]" } ;
+primary        ::= NUMBER
+                 | BOOL
+                 | IDENT [ "(" [ call_args ] ")" ]
+                 | "(" expr ")" ;
+call_args      ::= expr { "," expr }                       (* ordinary functions *)
+                 | arg_list ;                              (* role-labelled constructors *)
+
+(* ---------- types ---------- *)
+
+type           ::= scalar_type | ctor_type | IDENT ;
+scalar_type    ::= "Bool" | "Natural" | "Integer" | "Rational" | "Real"
+                 | "NonNegativeReal" | "PositiveReal" | "Probability"
+                 | "Proposition" ;
+ctor_type      ::= "Vector"         "[" type "," extent "]"
+                 | "Matrix"         "[" type "," extent "," extent "]"
+                 | "Tensor"         "[" type { "," extent } "]"
+                 | "Set"            "[" type "]"
+                 | "Function"       "[" type { "*" type } "->" type "]"
+                 | "Predicate"      "[" type { "*" type } "]"
+                 | "RandomVariable" "[" type "]"
+                 | "Distribution"   "[" type "]"
+                 | "Quantity"       "[" dim_expr "]" ;
+extent         ::= IDENT | NATURAL | "?" ;
+
+dim_expr       ::= dim_term { ( "*" | "/" ) dim_term } ;
+dim_term       ::= base_dim [ "^" RATIONAL ] | "Dimensionless" | "1" ;
+base_dim       ::= "Mass" | "Length" | "Time" | "Temperature"
+                 | "Current" | "Amount" | "Luminosity" ;
+
+(* ===================================================================
+   KNOWN LOOKAHEAD / AMBIGUITY NOTES (see docs/design/GRAMMAR_CANDIDATES.md)
+
+   A1. `check` needs 1 token of lookahead: `check dimension ...` vs
+       `check <proposition>`. `dimension` is a CONTEXTUAL keyword, so
+       `check dimension` is genuinely ambiguous if a user binds a name
+       `dimension`. Resolved by declaring `dimension` reserved after `check`.
+   A2. `primary` -> `IDENT "(" call_args ")"` needs 2 tokens of lookahead to
+       choose between `expr {"," expr}` and `arg_list` (`IDENT ":=" ...`).
+       LL(2), not LL(1). An LR(1) parser handles it with no lookahead problem.
+   A3. `quantified` bodies extend maximally to the right; `forall x:Real . P and Q`
+       parses as `forall x:Real . (P and Q)`. This is a stated convention, not
+       an ambiguity, but it is the single most misread rule in the grammar.
+   A4. `-` is both binary (additive) and unary; resolved by position, LL(1).
+   A5. Everything else is LL(1) on the first token of a line: each statement
+       keyword is distinct and reserved.
+   =================================================================== *)

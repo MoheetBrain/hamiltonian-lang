@@ -1,0 +1,46 @@
+{
+  "id": "q04_negation_outside_quantifier",
+  "category": "quantifier_scope",
+  "difficulty": "medium",
+  "seed": 304,
+  "expects_rejection": false,
+  "natural_language": "Consider the statement: it is not the case that every real number is strictly positive. The negation applies to the whole quantified statement. Write it down.",
+  "expected_semantics": {
+    "quantifier_prefix": [
+      "forall:x"
+    ],
+    "negation_position": "outside the quantifier",
+    "reading": "not (forall x . x > 0)",
+    "truth_over_reals": true
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "quantifier_prefix",
+        "prefix": [
+          "forall:x"
+        ]
+      },
+      {
+        "assert": "hash_differs",
+        "problem": "q05_negation_inside_quantifier"
+      }
+    ]
+  },
+  "distractors": [
+    "Pushing the negation inside the quantifier, giving 'every real number is not positive'. That is a different and false statement, yet it has the SAME quantifier prefix, so prefix order alone does not distinguish the two.",
+    "Rewriting as 'there exists a real number that is not positive' and assuming the representations must therefore be identical. They are logically equivalent but structurally different, and a syntactic canonical form will not identify them."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/q04_negation_outside_quantifier.txt",
+    "latex": "benchmarks/representations/latex/q04_negation_outside_quantifier.tex",
+    "python": "benchmarks/representations/python/q04_negation_outside_quantifier.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/q04_negation_outside_quantifier.lean",
+    "hamiltonian": "benchmarks/representations/hamiltonian/q04_negation_outside_quantifier.hml"
+  }
+}

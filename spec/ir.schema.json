@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hamiltonian-lang.local/spec/ir.schema.json",
+  "title": "Hamiltonian Lang canonical IR",
+  "description": "Canonical serialization of a Hamiltonian Lang module. Produced by hamiltonian_lang.backends.canonical. Deterministic: sorted keys, ASCII, no source spans, symbols by structural identity.",
+  "type": "object",
+  "required": [
+    "canonical_version",
+    "module",
+    "statements"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "canonical_version": {
+      "type": "string",
+      "pattern": "^hml-canonical-"
+    },
+    "module": {
+      "type": "string"
+    },
+    "statements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/statement"
+      }
+    },
+    "proof_obligations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/obligation"
+      }
+    }
+  },
+  "$defs": {
+    "symbolRef": {
+      "description": "Structural symbol identity sym:#<depth>.<ordinal>. The spelling is deliberately absent so that alpha-renaming is invisible to identity.",
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^sym:#[0-9]+\\.[0-9]+$"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^sym:#[0-9]+\\.[0-9]+$"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "typeRef": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "expr": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "Literal",
+            "Ref",
+            "UnaryOp",
+            "BinOp",
+            "Comparison",
+            "LogicalOp",
+            "Call",
+            "Index",
+            "DistributionLaw",
+            "Quantifier"
+          ]
+        }
+      }
+    },
+    "statement": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "Declaration",
+            "Definition",
+            "Law",
+            "Assumption",
+            "Constraint",
+            "Theorem",
+            "Objective",
+            "Solve",
+            "Inference",
+            "Check",
+            "Concept"
+          ]
+        }
+      }
+    },
+    "obligation": {
+      "type": "object",
+      "required": [
+        "kind",
+        "description"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "constraint",
+            "assumption",
+            "theorem",
+            "dimension",
+            "parameter_positivity"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer"
+        },
+        "discharged_by": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "null means NOT proved. v0 discharges only dimensional checks."
+        }
+      }
+    }
+  }
+}

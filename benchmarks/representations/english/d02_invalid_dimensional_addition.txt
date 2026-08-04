@@ -1,0 +1,5 @@
+An author writes an expression that adds a quantity of work to a quantity of force.
+Work has dimension mass times length squared over time squared.
+Force has dimension mass times length over time squared.
+
+Is the sum meaningful? What should a language do?

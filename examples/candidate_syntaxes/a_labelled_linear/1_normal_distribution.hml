@@ -1,0 +1,8 @@
+# Candidate A (HML-L1, frozen v0). Problem 1: X ~ Normal(mu, sigma), sigma > 0.
+module NormalDistribution
+
+param mu : Real
+param sigma : PositiveReal
+require sigma > 0
+rv X : RandomVariable[Real]
+law X ~ Normal(location := mu, scale := sigma)

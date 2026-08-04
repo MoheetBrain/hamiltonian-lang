@@ -1,0 +1,8 @@
+A regression has N observations and P predictors. The design matrix is observed, as is
+the response vector. The coefficient vector and a positive noise scale are unknown.
+The coefficients are drawn from a normal law about a fixed prior location vector with a
+fixed positive prior scale; the noise scale is drawn from a half normal with that same
+prior scale. The response is drawn from a normal law whose centre is the design matrix
+applied to the coefficients and whose spread is the noise scale.
+
+List exactly the symbols the response is conditioned on.

@@ -1,0 +1,109 @@
+(* ===================================================================
+   Candidate C - "prefix / S-expression"
+   Everything is a parenthesised form. There is no operator precedence and
+   no infix position, so the grammar is LL(1) with a single-token lookahead
+   everywhere and the parse tree IS the AST.
+   Alphabet: 7-bit ASCII. Whitespace (including newlines) is pure separator.
+   =================================================================== *)
+
+(* ---------- lexical ---------- *)
+
+IDENT          ::= ( "A".."Z" | "a".."z" | "_" ) { "A".."Z" | "a".."z" | "0".."9" | "_" } ;
+NUMBER         ::= [ "-" ] "0".."9" { "0".."9" } [ "." "0".."9" { "0".."9" } ] ;
+BOOL           ::= "true" | "false" ;
+COMMENT        ::= ";" { any character except newline } ;
+WS             ::= " " | "\t" | "\n" | "\r" | COMMENT ;   (* all equivalent *)
+
+(* ---------- program ---------- *)
+
+program        ::= { WS } module { WS } ;
+module         ::= "(" "module" IDENT { statement } ")" ;
+
+statement      ::= declaration | define | law | assume | require
+                 | objective | solve | infer | check | prove | concept ;
+
+(* ---------- statements ---------- *)
+
+declaration    ::= "(" decl_kind IDENT type [ expr ] ")" ;
+decl_kind      ::= "var" | "param" | "const" | "obs" | "index" | "rv" ;
+
+define         ::= "(" "def" IDENT "(" { formal } ")" type expr ")" ;
+formal         ::= "(" IDENT type ")" ;
+
+law            ::= "(" law_kind IDENT "(" "given" { IDENT } ")" dist ")"
+                 | "(" law_kind IDENT dist ")" ;
+law_kind       ::= "law" | "prior" | "likelihood" ;
+
+assume         ::= "(" "assume" expr ")" ;
+require        ::= "(" "require" expr ")" ;
+objective      ::= "(" ( "minimise" | "maximise" ) expr ")" ;
+solve          ::= "(" "solve" IDENT { IDENT } ")" ;
+infer          ::= "(" "infer" query IDENT { IDENT } ")" ;
+query          ::= "posterior" | "expectation" | "variance" | "mle" | "map" ;
+check          ::= "(" "check" "dimension" expr [ dim ] ")"
+                 | "(" "check" expr ")" ;
+prove          ::= "(" "prove" expr ")" ;
+
+(* ---------- concepts ---------- *)
+
+concept        ::= "(" "concept" IDENT "(" "extends" { IDENT } ")" { member } ")"
+                 | "(" "concept" IDENT { member } ")" ;
+member         ::= "(" "parameter" IDENT type ")"
+                 | "(" "property" IDENT type ")"
+                 | "(" "transform" IDENT "(" { formal } ")" expr ")"
+                 | "(" "invariant" expr ")"
+                 | "(" "example" IDENT expr ")"
+                 | "(" "counterexample" IDENT expr ")" ;
+
+(* ---------- distributions: roles MANDATORY, as nested forms ---------- *)
+
+dist           ::= "(" family { arg } ")" ;
+family         ::= IDENT ;
+arg            ::= "(" role expr ")" ;
+role           ::= IDENT ;              (* full role words: location scale alpha beta trials prob ... *)
+
+(* ---------- expressions ---------- *)
+
+expr           ::= NUMBER | BOOL | IDENT | form ;
+form           ::= "(" op { expr } ")"
+                 | "(" quantifier "(" IDENT type ")" expr ")"
+                 | "(" "index" expr expr { expr } ")"
+                 | "(" "call" IDENT { expr } ")"
+                 | dist ;
+op             ::= "+" | "-" | "*" | "/" | "@" | "^"
+                 | "=" | "!=" | "<" | "<=" | ">" | ">="
+                 | "and" | "or" | "not" | "implies" | "iff" ;
+quantifier     ::= "forall" | "exists" | "exists_unique" ;
+
+(* ---------- types ---------- *)
+
+type           ::= scalar | "(" ctor { type_arg } ")" | IDENT ;
+scalar         ::= "Bool" | "Natural" | "Integer" | "Rational" | "Real"
+                 | "NonNegativeReal" | "PositiveReal" | "Probability" | "Proposition" ;
+ctor           ::= "Vector" | "Matrix" | "Tensor" | "Set" | "Function"
+                 | "Predicate" | "RandomVariable" | "Distribution" | "Quantity" ;
+type_arg       ::= type | IDENT | NUMBER | dim ;
+dim            ::= "(" "dim" { "(" base_dim NUMBER ")" } ")" ;
+base_dim       ::= "Mass" | "Length" | "Time" | "Temperature"
+                 | "Current" | "Amount" | "Luminosity" ;
+
+(* ===================================================================
+   KNOWN LOOKAHEAD / AMBIGUITY NOTES
+
+   C1. Zero ambiguity in the bracket structure: every construct is delimited,
+       so recovery after a lexical error is exact up to bracket balance.
+   C2. The ONE place needing 2 tokens of lookahead is the head keyword of a
+       form: `(law X (given a b) ...)` vs `(law X (Normal ...))` - the parser
+       must read the head of the SECOND subform to know whether it is a
+       `given` list or the distribution. Resolved by making `given` reserved.
+   C3. `(check dimension e)` vs `(check <prop>)` - same contextual-keyword
+       issue as A1, but here it is confined inside a known bracket, so a
+       misparse cannot leak past the closing paren.
+   C4. Arity is unchecked by the grammar: `(- a b c)` and `(^ a)` are
+       grammatically well-formed. Arity is a semantic check, not a parse
+       error. This weakens "parse determinism" as a proxy for correctness.
+   C5. A dropped closing paren is detectable but NOT locally: the error is
+       reported at EOF or at the next `(module`, arbitrarily far from the
+       typo. This is C's characteristic error-localisation weakness and is
+       measured directly in the edit-robustness experiment.
+   =================================================================== *)

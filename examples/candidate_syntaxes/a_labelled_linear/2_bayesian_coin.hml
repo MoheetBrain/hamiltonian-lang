@@ -1,0 +1,9 @@
+# Candidate A. Problem 2: Bayesian coin, Beta(1,1) prior, 7 of 10 successes.
+module BayesianCoin
+
+param theta : Probability
+const trials : Natural = 10
+obs successes : Natural = 7
+prior theta ~ Beta(alpha := 1, beta := 1)
+likelihood successes | theta ~ Binomial(trials := trials, prob := theta)
+infer posterior theta

@@ -1,0 +1,12 @@
+# Candidate A. Problem 3: Bayesian linear regression.
+module LinearRegression
+
+index N : Natural
+index P : Natural
+obs x : Matrix[Real, N, P]
+obs y : Vector[Real, N]
+param beta : Vector[Real, P]
+param sigma : PositiveReal
+require sigma > 0
+likelihood y | x, beta, sigma ~ NormalVector(location := x @ beta, scale := sigma)
+infer posterior beta, sigma

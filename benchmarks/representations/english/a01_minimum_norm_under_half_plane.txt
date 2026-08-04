@@ -1,0 +1,7 @@
+Two real unknowns x and y must satisfy three conditions:
+  their sum is at least 10.0,
+  x is at least 0.0,
+  y is at least 0.0.
+Subject to those conditions, minimise the sum of their squares.
+
+State the problem, including every condition as an explicit obligation.

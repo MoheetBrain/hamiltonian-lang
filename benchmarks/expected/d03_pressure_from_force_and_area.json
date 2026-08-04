@@ -1,0 +1,29 @@
+{
+  "id": "d03_pressure_from_force_and_area",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "dimensional_analysis",
+  "expects_rejection": false,
+  "ground_truth": {
+    "definition": "pressure := force / area",
+    "dimension": "Mass / (Length * Time^2)",
+    "base_exponents": {
+      "Mass": 1,
+      "Length": -1,
+      "Time": -2
+    }
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "dimension_of",
+      "symbol": "pressure",
+      "dimension": "Mass / (Length * Time^2)"
+    }
+  ],
+  "distractors": [
+    "Cancelling the length exponents in the wrong direction, giving mass times length over time squared.",
+    "Reporting 'pascals'. A unit is not a dimension."
+  ]
+}

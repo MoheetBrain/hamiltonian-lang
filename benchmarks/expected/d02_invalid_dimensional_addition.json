@@ -1,0 +1,21 @@
+{
+  "id": "d02_invalid_dimensional_addition",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "dimensional_analysis",
+  "expects_rejection": true,
+  "ground_truth": {
+    "verdict": "invalid",
+    "reason": "addition requires dimensional equality; work and force differ by a length",
+    "diagnostic_code": "HML-D502"
+  },
+  "assertions": [
+    {
+      "assert": "rejects_with",
+      "code": "HML-D502"
+    }
+  ],
+  "distractors": [
+    "Adding the numbers anyway because both are reals once the units are stripped. This is precisely the error dimensional analysis exists to catch.",
+    "Assuming the mismatch will be caught downstream by a unit conversion. There is no conversion that makes a force commensurable with a work."
+  ]
+}

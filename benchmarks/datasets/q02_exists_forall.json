@@ -1,0 +1,47 @@
+{
+  "id": "q02_exists_forall",
+  "category": "quantifier_scope",
+  "difficulty": "easy",
+  "seed": 302,
+  "expects_rejection": false,
+  "natural_language": "Consider the statement: there is some real number y that is strictly greater than every real number x. Write it down so that the order of the quantifiers is unambiguous. This statement is false over the reals.",
+  "expected_semantics": {
+    "quantifier_prefix": [
+      "exists:y",
+      "forall:x"
+    ],
+    "matrix": "y > x",
+    "truth_over_reals": false
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "quantifier_prefix",
+        "prefix": [
+          "exists:y",
+          "forall:x"
+        ]
+      },
+      {
+        "assert": "hash_differs",
+        "problem": "q01_forall_exists"
+      }
+    ]
+  },
+  "distractors": [
+    "Reading this as the same claim as q01. It is not: this one is false.",
+    "Assuming the English word order 'greater than every real number' forces the quantifier order; it does not, which is exactly the ambiguity under test."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/q02_exists_forall.txt",
+    "latex": "benchmarks/representations/latex/q02_exists_forall.tex",
+    "python": "benchmarks/representations/python/q02_exists_forall.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/q02_exists_forall.lean",
+    "hamiltonian": "benchmarks/representations/hamiltonian/q02_exists_forall.hml"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "id": "e02_role_assignment_swapped",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "semantic_equivalence",
+  "expects_rejection": false,
+  "ground_truth": {
+    "laws": {
+      "Z": {
+        "family": "Normal",
+        "roles": {
+          "location": "second",
+          "scale": "first"
+        }
+      }
+    },
+    "relation_to_reference": "different meaning; must NOT share a canonical hash"
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "law_role",
+      "symbol": "Z",
+      "role": "location",
+      "argument": "second"
+    },
+    {
+      "assert": "law_role",
+      "symbol": "Z",
+      "role": "scale",
+      "argument": "first"
+    },
+    {
+      "assert": "hash_differs",
+      "problem": "e01_role_assignment_reference"
+    }
+  ],
+  "distractors": [
+    "Judging this equivalent to the reference because the same two symbols appear in the same distribution. Role assignment is the meaning.",
+    "Expecting the type checker to catch the swap. It cannot: both are PositiveReal, and a PositiveReal is a valid location. Only the role label carries the difference."
+  ]
+}

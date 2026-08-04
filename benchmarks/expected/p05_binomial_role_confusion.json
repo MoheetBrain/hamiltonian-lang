@@ -1,0 +1,65 @@
+{
+  "id": "p05_binomial_role_confusion",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "probability_models",
+  "expects_rejection": false,
+  "ground_truth": {
+    "symbols": {
+      "sample_size": {
+        "kind": "obs",
+        "type": "Natural",
+        "value": 30
+      },
+      "failure_probability": {
+        "kind": "param",
+        "type": "Probability"
+      },
+      "failures": {
+        "kind": "obs",
+        "type": "Natural",
+        "stochastic": true
+      }
+    },
+    "laws": {
+      "failures": {
+        "family": "Binomial",
+        "roles": {
+          "trials": "sample_size",
+          "prob": "failure_probability"
+        }
+      }
+    }
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "law_role",
+      "symbol": "failures",
+      "role": "trials",
+      "argument": "sample_size"
+    },
+    {
+      "assert": "law_role",
+      "symbol": "failures",
+      "role": "prob",
+      "argument": "failure_probability"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "failure_probability",
+      "type": "Probability"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "sample_size",
+      "type": "Natural"
+    }
+  ],
+  "distractors": [
+    "Emitting Binomial(p, n) instead of Binomial(n, p). Positional order differs between conventions and the prose does not fix it.",
+    "Typing the failure probability as NonNegativeReal, which admits 4.0.",
+    "Typing the sample size as Real, losing the integrality of a count."
+  ]
+}

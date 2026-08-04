@@ -1,0 +1,7 @@
+Define a concept called a location-scale family. It has two parameters: a
+location, which is a real number, and a scale, which is a strictly positive real
+number. It provides a transformation called standardise, which maps a real number
+x to x minus the location, all divided by the scale. Two invariants must hold:
+the scale is strictly positive, and standardising the location yields zero. An
+example of a location-scale family is the standard normal distribution, which has
+location 0 and scale 1.

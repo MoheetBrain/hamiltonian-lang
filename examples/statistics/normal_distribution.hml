@@ -1,0 +1,20 @@
+# Example 1 -- the worked example from GOAL.md section 2.
+#
+# Ordinary English: "X follows a normal distribution with mean mu and standard
+# deviation sigma, where sigma is positive."
+#
+# Six commitments are implicit in that sentence. All six are written down below:
+#   1. X is a random variable            -> var X : RandomVariable[Real]
+#   2. its outcome domain is real        -> RandomVariable[Real]
+#   3. its law is in the normal family   -> ~ Normal(...)
+#   4. mu occupies the location role     -> location := mu
+#   5. sigma occupies the scale role     -> scale := sigma   (scale, NOT variance)
+#   6. sigma must be positive            -> sigma : PositiveReal
+
+module NormalDistribution
+
+var X : RandomVariable[Real]
+param mu : Real
+param sigma : PositiveReal
+
+law X ~ Normal(location := mu, scale := sigma)

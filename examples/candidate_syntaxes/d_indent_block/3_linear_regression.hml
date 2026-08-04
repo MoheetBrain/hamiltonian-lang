@@ -1,0 +1,40 @@
+# Candidate D. Problem 3. NOTE: "N" and "y" are quoted because bare N/y are
+# BOOLEANS to a YAML 1.1 parser. This is an alphabet tax unique to D.
+module: LinearRegression
+declarations:
+  - kind: index
+    name: "N"
+    type: Natural
+  - kind: index
+    name: P
+    type: Natural
+  - kind: obs
+    name: x
+    type: Matrix[Real, N, P]
+  - kind: obs
+    name: "y"
+    type: Vector[Real, N]
+  - kind: param
+    name: beta
+    type: Vector[Real, P]
+  - kind: param
+    name: sigma
+    type: PositiveReal
+constraints:
+  - "sigma > 0"
+laws:
+  - role: likelihood
+    target: "y"
+    given:
+      - x
+      - beta
+      - sigma
+    family: NormalVector
+    args:
+      location: "x @ beta"
+      scale: sigma
+infer:
+  query: posterior
+  targets:
+    - beta
+    - sigma

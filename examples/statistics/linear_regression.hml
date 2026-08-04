@@ -1,0 +1,28 @@
+# Example 3 -- Bayesian linear regression.
+#
+# Shape agreement is checked: x @ beta has type Vector[Real, N] because x is
+# Matrix[Real, N, P] and beta is Vector[Real, P]. A mismatch is HML-T434.
+
+module LinearRegression
+
+index N : Natural
+index P : Natural
+
+obs x : Matrix[Real, N, P]
+obs y : Vector[Real, N]
+
+param beta : Vector[Real, P]
+param sigma : PositiveReal
+
+const beta_prior_mean : Vector[Real, P]
+const beta_prior_scale : PositiveReal
+const sigma_prior_scale : PositiveReal
+
+def linear_predictor : Vector[Real, N] := x @ beta
+
+prior beta ~ NormalVector(location := beta_prior_mean, scale := beta_prior_scale)
+prior sigma ~ HalfNormal(scale := sigma_prior_scale)
+
+law y | x beta sigma ~ NormalVector(location := x @ beta, scale := sigma)
+
+infer posterior beta sigma

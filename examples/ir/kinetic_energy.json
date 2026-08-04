@@ -1,0 +1,82 @@
+{
+  "_content_hash": "25efff792d32ccf0785806946328a67d934d4fd183f3f950f55085ba00588eff",
+  "_source": "examples/physics/kinetic_energy.hml",
+  "canonical_version": "hml-canonical-0.1.0",
+  "module": "KineticEnergy",
+  "statements": [
+    {
+      "declaration_kind": "param",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.0",
+        "name": "m"
+      },
+      "type": "Quantity[Mass]",
+      "value": null
+    },
+    {
+      "declaration_kind": "param",
+      "kind": "Declaration",
+      "symbol": {
+        "id": "sym:#0.1",
+        "name": "v"
+      },
+      "type": "Quantity[Length / Time]",
+      "value": null
+    },
+    {
+      "body": {
+        "kind": "BinOp",
+        "left": {
+          "kind": "BinOp",
+          "left": {
+            "kind": "Literal",
+            "type": "PositiveReal",
+            "value": 0.5
+          },
+          "op": "*",
+          "right": {
+            "kind": "Ref",
+            "symbol": "sym:#0.0",
+            "type": "Quantity[Mass]"
+          },
+          "type": "Quantity[Mass]"
+        },
+        "op": "*",
+        "right": {
+          "kind": "BinOp",
+          "left": {
+            "kind": "Ref",
+            "symbol": "sym:#0.1",
+            "type": "Quantity[Length / Time]"
+          },
+          "op": "^",
+          "right": {
+            "kind": "Literal",
+            "type": "PositiveNatural",
+            "value": 2
+          },
+          "type": "Quantity[Length^2 / Time^2]"
+        },
+        "type": "Quantity[Length^2 * Mass / Time^2]"
+      },
+      "kind": "Definition",
+      "parameters": [],
+      "symbol": {
+        "id": "sym:#0.2",
+        "name": "kinetic_energy"
+      },
+      "type": null
+    },
+    {
+      "check_kind": "dimension",
+      "expected": "Length^2 * Mass / Time^2",
+      "kind": "Check",
+      "subject": {
+        "kind": "Ref",
+        "symbol": "sym:#0.2",
+        "type": "Quantity[Length^2 * Mass / Time^2]"
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+A coin has an unknown probability theta of landing heads. Before seeing any data
+we place a uniform Beta(1, 1) prior on theta. We then toss the coin 10 times and
+observe 7 heads. Assuming the number of heads is binomially distributed with 10
+trials and success probability theta, find the posterior distribution of theta.

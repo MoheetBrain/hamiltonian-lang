@@ -1,0 +1,24 @@
+case,arm,problem,intent,expected,actual,agrees,edited_line,first_error
+A-transpose-labelled,A,1_normal_distribution,"transpose the two distribution arguments, keeping their role labels",SILENT_BENIGN,SILENT_BENIGN,True,8,
+A-transpose-positional,A,1_normal_distribution,the same transposition in the POSITIONAL form D-003 forbids,LOCAL,LOCAL,True,8,L8: positional distribution argument 'mu' (D-003 requires a role label)
+A-positional-correct-order,A,1_normal_distribution,correct positional form; D-003 must still reject it,LOCAL,LOCAL,True,8,L8: positional distribution argument 'mu' (D-003 requires a role label)
+A-sd-vs-variance,A,1_normal_distribution,"the classic Normal(mu, sigma) vs Normal(mu, sigma^2) confusion, written explicitly",SILENT_MEANING_CHANGE,SILENT_MEANING_CHANGE,True,8,
+B-role-code-typo,B,1_normal_distribution,one-character role-code slip: scale -> variance,SILENT_MEANING_CHANGE,SILENT_MEANING_CHANGE,True,7,
+B-transpose-positional,B,1_normal_distribution,positional transposition in B,LOCAL,LOCAL,True,7,L7: positional distribution argument 'mu'
+C-transpose-labelled,C,1_normal_distribution,transpose role-labelled forms in C,SILENT_BENIGN,SILENT_BENIGN,True,7,
+D-dedent-scale-out-of-args,D,1_normal_distribution,remove 2 spaces so `scale` leaves the args mapping; still valid YAML,LOCAL,LOCAL,True,19,L21: unknown law key 'scale'
+D-dedent-into-toplevel,D,2_bayesian_coin,dedent a sequence item out of the infer block,LOCAL,LOCAL,True,32,"L33: YAML parse error: expected <block end>, but found '-'"
+D-indent-law-into-args,D,1_normal_distribution,over-indent `args` so it is no longer a sibling of `family`,LOCAL,LOCAL,True,18,L19: YAML parse error: mapping values are not allowed here
+A-dedent-concept-member,A,7_concept_definition,same class of whitespace damage in A: must be a total no-op,SILENT_BENIGN,SILENT_BENIGN,True,8,
+C-dedent,C,1_normal_distribution,same class of whitespace damage in C: must be a total no-op,SILENT_BENIGN,SILENT_BENIGN,True,3,
+C-drop-inner-paren,C,3_linear_regression,"drop one closing paren deep inside a form, two lines before EOF",NONLOCAL,NONLOCAL,True,11,L12: 1 unclosed '(' at end of file
+A-drop-paren,A,1_normal_distribution,drop the closing paren of a distribution,LOCAL,LOCAL,True,8,L8: distribution is not Family(...)
+D-drop-type-bracket,D,3_linear_regression,drop a bracket inside a D type STRING: invisible to the YAML layer,SILENT_MEANING_CHANGE,SILENT_MEANING_CHANGE,True,13,
+A-quantifier-swap,A,6_quantifier_scope,silently reverse quantifier order in A,SILENT_MEANING_CHANGE,SILENT_MEANING_CHANGE,True,5,
+C-quantifier-swap,C,6_quantifier_scope,silently reverse quantifier order in C,SILENT_MEANING_CHANGE,SILENT_MEANING_CHANGE,True,6,
+E-quantifier-swap,E,6_quantifier_scope,a ONE-LINE edit in E reverses a quantifier; nothing else changes,SILENT_MEANING_CHANGE,SILENT_MEANING_CHANGE,True,16,
+E-drop-edge,E,1_normal_distribution,delete one edge in E: the scale argument simply vanishes,SILENT_MEANING_CHANGE,SILENT_MEANING_CHANGE,True,54,
+E-dangling-ref,E,1_normal_distribution,retarget an edge at an undefined node,LOCAL,LOCAL,True,57,L57: dangling reference to undefined node '_:v9'
+A-typo-in-reference,A,1_normal_distribution,one-character typo in a variable reference,LOCAL,LOCAL,True,8,L8: undeclared identifier 'sigmaa'
+B-typo-in-reference,B,1_normal_distribution,one-character typo in a variable reference,LOCAL,LOCAL,True,7,L7: undeclared identifier 'sigmaa'
+D-typo-in-expr-string,D,3_linear_regression,typo inside a D expression string,LOCAL,LOCAL,True,34,L34: undeclared identifier 'betaa'

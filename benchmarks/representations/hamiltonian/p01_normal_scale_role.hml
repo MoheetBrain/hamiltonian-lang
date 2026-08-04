@@ -1,0 +1,7 @@
+module CalibrationError
+
+var E : RandomVariable[Real]
+param drift : Real
+param jitter : PositiveReal
+
+law E ~ Normal(location := drift, scale := jitter)

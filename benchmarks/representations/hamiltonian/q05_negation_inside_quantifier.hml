@@ -1,0 +1,3 @@
+module NegationScope
+
+require forall x : Real . not x > 0.0

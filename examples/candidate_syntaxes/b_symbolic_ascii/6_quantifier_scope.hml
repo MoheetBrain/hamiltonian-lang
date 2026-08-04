@@ -1,0 +1,8 @@
+;B P6  ![v:T]. forall   ?[v:T]. exists   |- prove   :p check proposition   ~ not
+%QuantifierScope
+;order 1 TRUE: every real is exceeded by some real
+=unbounded_above:O=![x:R].?[y:R].y>x
+;order 2 FALSE: some real exceeds every real
+=greatest_real_exists:O=?[y:R].![x:R].y>x
+|-unbounded_above
+:p ~greatest_real_exists

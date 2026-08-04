@@ -1,0 +1,80 @@
+{
+  "id": "p04_hierarchical_conditioning",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "probability_models",
+  "expects_rejection": false,
+  "ground_truth": {
+    "symbols": {
+      "clinic_mean": {
+        "kind": "param",
+        "type": "Vector[Real, G]",
+        "stochastic": true
+      },
+      "population_scale": {
+        "kind": "param",
+        "type": "PositiveReal"
+      },
+      "measurement_scale": {
+        "kind": "param",
+        "type": "PositiveReal"
+      },
+      "outcome": {
+        "kind": "obs",
+        "type": "Vector[Real, G]",
+        "stochastic": true
+      }
+    },
+    "conditioning": {
+      "outcome": [
+        "clinic_mean",
+        "measurement_scale"
+      ]
+    },
+    "laws": {
+      "clinic_mean": {
+        "family": "NormalVector"
+      },
+      "outcome": {
+        "family": "NormalVector"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "clinic_mean",
+      "type": "Vector[Real, G]"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "population_scale",
+      "type": "PositiveReal"
+    },
+    {
+      "assert": "conditioned_on",
+      "symbol": "outcome",
+      "given": [
+        "clinic_mean",
+        "measurement_scale"
+      ]
+    },
+    {
+      "assert": "law_family",
+      "symbol": "clinic_mean",
+      "family": "NormalVector"
+    },
+    {
+      "assert": "stochastic",
+      "symbol": "outcome",
+      "value": true
+    }
+  ],
+  "distractors": [
+    "Conditioning the observation on the population scale as well. The observation depends on the population scale only through the clinic means; listing it in the conditioning set asserts a direct dependence that the prose does not state.",
+    "Collapsing the two scales into one symbol because both are 'the spread'.",
+    "Giving the clinic means a scalar type when the prose says a vector over G clinics."
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "_content_hash": "8250373bb23c814a462ba8621e2df516f4d2dd4835743be0c53fde5a97545b1c",
+  "_source": "examples/logic/quantifier_scope.hml",
+  "canonical_version": "hml-canonical-0.1.0",
+  "module": "QuantifierScope",
+  "statements": [
+    {
+      "kind": "Constraint",
+      "proposition": {
+        "binder": "sym:#1.0",
+        "binder_type": "Real",
+        "body": {
+          "binder": "sym:#2.0",
+          "binder_type": "Real",
+          "body": {
+            "kind": "Comparison",
+            "left": {
+              "kind": "Ref",
+              "symbol": "sym:#2.0",
+              "type": "Real"
+            },
+            "op": ">",
+            "right": {
+              "kind": "Ref",
+              "symbol": "sym:#1.0",
+              "type": "Real"
+            },
+            "type": "Proposition"
+          },
+          "kind": "Quantifier",
+          "quantifier": "exists",
+          "type": "Proposition"
+        },
+        "kind": "Quantifier",
+        "quantifier": "forall",
+        "type": "Proposition"
+      }
+    },
+    {
+      "kind": "Theorem",
+      "proposition": {
+        "binder": "sym:#1.0",
+        "binder_type": "Real",
+        "body": {
+          "binder": "sym:#2.0",
+          "binder_type": "Real",
+          "body": {
+            "kind": "Comparison",
+            "left": {
+              "kind": "Ref",
+              "symbol": "sym:#1.0",
+              "type": "Real"
+            },
+            "op": ">",
+            "right": {
+              "kind": "Ref",
+              "symbol": "sym:#2.0",
+              "type": "Real"
+            },
+            "type": "Proposition"
+          },
+          "kind": "Quantifier",
+          "quantifier": "forall",
+          "type": "Proposition"
+        },
+        "kind": "Quantifier",
+        "quantifier": "exists",
+        "type": "Proposition"
+      }
+    }
+  ]
+}

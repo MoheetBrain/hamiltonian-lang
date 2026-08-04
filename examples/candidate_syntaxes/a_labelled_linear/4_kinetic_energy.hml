@@ -1,0 +1,7 @@
+# Candidate A. Problem 4: kinetic energy and its dimension.
+module KineticEnergy
+
+param m : Quantity[Mass]
+param v : Quantity[Length / Time]
+def kinetic_energy : Quantity[Mass * Length^2 / Time^2] := 0.5 * m * v^2
+check dimension kinetic_energy = Mass * Length^2 / Time^2

@@ -1,0 +1,6 @@
+A calibration instrument produces a reading error E. The error is normally distributed.
+Its centre is the parameter drift, which may be any real number. The spread of the error
+is reported by the manufacturer as a standard deviation called jitter, and a standard
+deviation is necessarily strictly positive.
+
+Write down the probability model for E.

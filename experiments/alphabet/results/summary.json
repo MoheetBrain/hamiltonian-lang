@@ -1,0 +1,780 @@
+{
+  "generated_by": "experiments/alphabet/tokenisation_benchmark.py",
+  "python": "3.14.6",
+  "tokenizers": {
+    "real": [
+      "tiktoken:cl100k_base",
+      "tiktoken:o200k_base",
+      "tiktoken:p50k_base",
+      "tiktoken:r50k_base",
+      "hf:gpt2",
+      "hf:llama2",
+      "hf:gpt-neox-20b",
+      "hf:starcoder2"
+    ],
+    "approximate": [
+      "regex_approx_APPROXIMATE"
+    ],
+    "availability": {
+      "tiktoken": {
+        "importable": true,
+        "version": "0.13.0"
+      },
+      "tiktoken:cl100k_base": {
+        "available": true
+      },
+      "tiktoken:o200k_base": {
+        "available": true
+      },
+      "tiktoken:p50k_base": {
+        "available": true
+      },
+      "tiktoken:r50k_base": {
+        "available": true
+      },
+      "transformers": {
+        "importable": true,
+        "version": "5.14.1"
+      },
+      "hf:gpt2": {
+        "available": true,
+        "repo": "gpt2"
+      },
+      "hf:llama2": {
+        "available": true,
+        "repo": "NousResearch/Llama-2-7b-hf"
+      },
+      "hf:llama3": {
+        "available": false,
+        "repo": "meta-llama/Meta-Llama-3-8B",
+        "error": "OSError: You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Meta-Llama-3-8B.\n401 Client Error. (Request ID: Root=1-6a723939-303f0bdf166153412adc1210;ec52"
+      },
+      "hf:gpt-neox-20b": {
+        "available": true,
+        "repo": "EleutherAI/gpt-neox-20b"
+      },
+      "hf:starcoder2": {
+        "available": true,
+        "repo": "bigcode/starcoder2-3b"
+      },
+      "regex_approx_APPROXIMATE": {
+        "available": true,
+        "approximate": true,
+        "note": "documented fallback; never quote as a model tokenizer"
+      }
+    }
+  },
+  "problems": [
+    "1_normal_distribution",
+    "2_bayesian_coin",
+    "3_linear_regression",
+    "4_kinetic_energy",
+    "5_constrained_optimisation",
+    "6_quantifier_scope",
+    "7_concept_definition"
+  ],
+  "per_arm": {
+    "A": {
+      "total_chars": 2222,
+      "total_lines": 68,
+      "total_content_lines": 50,
+      "tokens": {
+        "tiktoken:cl100k_base": 620,
+        "tiktoken:o200k_base": 621,
+        "tiktoken:p50k_base": 676,
+        "tiktoken:r50k_base": 676,
+        "hf:gpt2": 676,
+        "hf:llama2": 743,
+        "hf:gpt-neox-20b": 657,
+        "hf:starcoder2": 691,
+        "regex_approx_APPROXIMATE": 1043
+      },
+      "fragmentation_tokens_per_char": {
+        "tiktoken:cl100k_base": 0.27903,
+        "tiktoken:o200k_base": 0.27948,
+        "tiktoken:p50k_base": 0.30423,
+        "tiktoken:r50k_base": 0.30423,
+        "hf:gpt2": 0.30423,
+        "hf:llama2": 0.33438,
+        "hf:gpt-neox-20b": 0.29568,
+        "hf:starcoder2": 0.31098,
+        "regex_approx_APPROXIMATE": 0.4694
+      },
+      "mean_tokens_real_tokenizers": 670.0,
+      "tokens_relative_to_english": 1.247
+    },
+    "B": {
+      "total_chars": 1411,
+      "total_lines": 59,
+      "total_content_lines": 50,
+      "tokens": {
+        "tiktoken:cl100k_base": 566,
+        "tiktoken:o200k_base": 559,
+        "tiktoken:p50k_base": 687,
+        "tiktoken:r50k_base": 692,
+        "hf:gpt2": 692,
+        "hf:llama2": 684,
+        "hf:gpt-neox-20b": 658,
+        "hf:starcoder2": 655,
+        "regex_approx_APPROXIMATE": 772
+      },
+      "fragmentation_tokens_per_char": {
+        "tiktoken:cl100k_base": 0.40113,
+        "tiktoken:o200k_base": 0.39617,
+        "tiktoken:p50k_base": 0.48689,
+        "tiktoken:r50k_base": 0.49043,
+        "hf:gpt2": 0.49043,
+        "hf:llama2": 0.48476,
+        "hf:gpt-neox-20b": 0.46634,
+        "hf:starcoder2": 0.46421,
+        "regex_approx_APPROXIMATE": 0.54713
+      },
+      "mean_tokens_real_tokenizers": 649.1,
+      "tokens_relative_to_english": 1.209
+    },
+    "C": {
+      "total_chars": 2131,
+      "total_lines": 63,
+      "total_content_lines": 53,
+      "tokens": {
+        "tiktoken:cl100k_base": 619,
+        "tiktoken:o200k_base": 621,
+        "tiktoken:p50k_base": 697,
+        "tiktoken:r50k_base": 717,
+        "hf:gpt2": 717,
+        "hf:llama2": 763,
+        "hf:gpt-neox-20b": 669,
+        "hf:starcoder2": 656,
+        "regex_approx_APPROXIMATE": 987
+      },
+      "fragmentation_tokens_per_char": {
+        "tiktoken:cl100k_base": 0.29047,
+        "tiktoken:o200k_base": 0.29141,
+        "tiktoken:p50k_base": 0.32708,
+        "tiktoken:r50k_base": 0.33646,
+        "hf:gpt2": 0.33646,
+        "hf:llama2": 0.35805,
+        "hf:gpt-neox-20b": 0.31394,
+        "hf:starcoder2": 0.30784,
+        "regex_approx_APPROXIMATE": 0.46316
+      },
+      "mean_tokens_real_tokenizers": 682.4,
+      "tokens_relative_to_english": 1.271
+    },
+    "D": {
+      "total_chars": 3321,
+      "total_lines": 163,
+      "total_content_lines": 154,
+      "tokens": {
+        "tiktoken:cl100k_base": 1019,
+        "tiktoken:o200k_base": 1020,
+        "tiktoken:p50k_base": 1131,
+        "tiktoken:r50k_base": 1357,
+        "hf:gpt2": 1357,
+        "hf:llama2": 1192,
+        "hf:gpt-neox-20b": 1118,
+        "hf:starcoder2": 998,
+        "regex_approx_APPROXIMATE": 1340
+      },
+      "fragmentation_tokens_per_char": {
+        "tiktoken:cl100k_base": 0.30684,
+        "tiktoken:o200k_base": 0.30714,
+        "tiktoken:p50k_base": 0.34056,
+        "tiktoken:r50k_base": 0.40861,
+        "hf:gpt2": 0.40861,
+        "hf:llama2": 0.35893,
+        "hf:gpt-neox-20b": 0.33665,
+        "hf:starcoder2": 0.30051,
+        "regex_approx_APPROXIMATE": 0.40349
+      },
+      "mean_tokens_real_tokenizers": 1149.0,
+      "tokens_relative_to_english": 2.139
+    },
+    "E": {
+      "total_chars": 10765,
+      "total_lines": 587,
+      "total_content_lines": 575,
+      "tokens": {
+        "tiktoken:cl100k_base": 4092,
+        "tiktoken:o200k_base": 4058,
+        "tiktoken:p50k_base": 4838,
+        "tiktoken:r50k_base": 4840,
+        "hf:gpt2": 4840,
+        "hf:llama2": 4926,
+        "hf:gpt-neox-20b": 4402,
+        "hf:starcoder2": 4241,
+        "regex_approx_APPROXIMATE": 5932
+      },
+      "fragmentation_tokens_per_char": {
+        "tiktoken:cl100k_base": 0.38012,
+        "tiktoken:o200k_base": 0.37696,
+        "tiktoken:p50k_base": 0.44942,
+        "tiktoken:r50k_base": 0.44961,
+        "hf:gpt2": 0.44961,
+        "hf:llama2": 0.45759,
+        "hf:gpt-neox-20b": 0.40892,
+        "hf:starcoder2": 0.39396,
+        "regex_approx_APPROXIMATE": 0.55105
+      },
+      "mean_tokens_real_tokenizers": 4529.6,
+      "tokens_relative_to_english": 8.433
+    },
+    "ENG": {
+      "total_chars": 2347,
+      "total_lines": 33,
+      "total_content_lines": 32,
+      "tokens": {
+        "tiktoken:cl100k_base": 521,
+        "tiktoken:o200k_base": 520,
+        "tiktoken:p50k_base": 542,
+        "tiktoken:r50k_base": 542,
+        "hf:gpt2": 542,
+        "hf:llama2": 561,
+        "hf:gpt-neox-20b": 526,
+        "hf:starcoder2": 543,
+        "regex_approx_APPROXIMATE": 991
+      },
+      "fragmentation_tokens_per_char": {
+        "tiktoken:cl100k_base": 0.22199,
+        "tiktoken:o200k_base": 0.22156,
+        "tiktoken:p50k_base": 0.23093,
+        "tiktoken:r50k_base": 0.23093,
+        "hf:gpt2": 0.23093,
+        "hf:llama2": 0.23903,
+        "hf:gpt-neox-20b": 0.22412,
+        "hf:starcoder2": 0.23136,
+        "regex_approx_APPROXIMATE": 0.42224
+      },
+      "mean_tokens_real_tokenizers": 537.1,
+      "tokens_relative_to_english": 1.0
+    },
+    "TEX": {
+      "total_chars": 1684,
+      "total_lines": 54,
+      "total_content_lines": 54,
+      "tokens": {
+        "tiktoken:cl100k_base": 697,
+        "tiktoken:o200k_base": 695,
+        "tiktoken:p50k_base": 772,
+        "tiktoken:r50k_base": 772,
+        "hf:gpt2": 772,
+        "hf:llama2": 687,
+        "hf:gpt-neox-20b": 656,
+        "hf:starcoder2": 678,
+        "regex_approx_APPROXIMATE": 990
+      },
+      "fragmentation_tokens_per_char": {
+        "tiktoken:cl100k_base": 0.4139,
+        "tiktoken:o200k_base": 0.41271,
+        "tiktoken:p50k_base": 0.45843,
+        "tiktoken:r50k_base": 0.45843,
+        "hf:gpt2": 0.45843,
+        "hf:llama2": 0.40796,
+        "hf:gpt-neox-20b": 0.38955,
+        "hf:starcoder2": 0.40261,
+        "regex_approx_APPROXIMATE": 0.58789
+      },
+      "mean_tokens_real_tokenizers": 716.1,
+      "tokens_relative_to_english": 1.333
+    }
+  },
+  "d003": {
+    "A": {
+      "whole_file_delta_tokens_total": 166,
+      "whole_file_labelled_tokens_total": 2988,
+      "whole_file_pct_overhead": 5.88,
+      "transform": "delete '<role> := ' inside every distribution argument list",
+      "tokenizers_counted": [
+        "hf:gpt-neox-20b",
+        "hf:gpt2",
+        "hf:llama2",
+        "hf:starcoder2",
+        "tiktoken:cl100k_base",
+        "tiktoken:o200k_base",
+        "tiktoken:p50k_base",
+        "tiktoken:r50k_base"
+      ],
+      "micro_mean_pct_overhead": 33.59,
+      "micro_mean_delta_tokens": 4.12
+    },
+    "B": {
+      "whole_file_delta_tokens_total": 144,
+      "whole_file_labelled_tokens_total": 2921,
+      "whole_file_pct_overhead": 5.19,
+      "transform": "delete '<rolecode>:' inside every distribution argument list",
+      "tokenizers_counted": [
+        "hf:gpt-neox-20b",
+        "hf:gpt2",
+        "hf:llama2",
+        "hf:starcoder2",
+        "tiktoken:cl100k_base",
+        "tiktoken:o200k_base",
+        "tiktoken:p50k_base",
+        "tiktoken:r50k_base"
+      ],
+      "micro_mean_pct_overhead": 33.12,
+      "micro_mean_delta_tokens": 3.62
+    },
+    "C": {
+      "whole_file_delta_tokens_total": 207,
+      "whole_file_labelled_tokens_total": 2864,
+      "whole_file_pct_overhead": 7.79,
+      "transform": "splice out the (role expr) wrapper form, leaving expr",
+      "tokenizers_counted": [
+        "hf:gpt-neox-20b",
+        "hf:gpt2",
+        "hf:llama2",
+        "hf:starcoder2",
+        "tiktoken:cl100k_base",
+        "tiktoken:o200k_base",
+        "tiktoken:p50k_base",
+        "tiktoken:r50k_base"
+      ],
+      "micro_mean_pct_overhead": 42.23,
+      "micro_mean_delta_tokens": 5.06
+    },
+    "D": {
+      "whole_file_delta_tokens_total": 248,
+      "whole_file_labelled_tokens_total": 4741,
+      "whole_file_pct_overhead": 5.52,
+      "transform": "replace the args: block mapping with a flow sequence of values",
+      "tokenizers_counted": [
+        "hf:gpt-neox-20b",
+        "hf:gpt2",
+        "hf:llama2",
+        "hf:starcoder2",
+        "tiktoken:cl100k_base",
+        "tiktoken:o200k_base",
+        "tiktoken:p50k_base",
+        "tiktoken:r50k_base"
+      ],
+      "micro_mean_pct_overhead": 76.91,
+      "micro_mean_delta_tokens": 8.0
+    },
+    "E": {
+      "whole_file_delta_tokens_total": -38,
+      "whole_file_labelled_tokens_total": 19899,
+      "whole_file_pct_overhead": -0.19,
+      "transform": "replace 'argRole <name>' triples with 'argIndex <n>' triples",
+      "tokenizers_counted": [
+        "hf:gpt-neox-20b",
+        "hf:gpt2",
+        "hf:llama2",
+        "hf:starcoder2",
+        "tiktoken:cl100k_base",
+        "tiktoken:o200k_base",
+        "tiktoken:p50k_base",
+        "tiktoken:r50k_base"
+      ],
+      "micro_mean_pct_overhead": -1.55,
+      "micro_mean_delta_tokens": -0.5
+    }
+  },
+  "edit_robustness": {
+    "A": {
+      "total_applicable_trials": 1600,
+      "local_pct": 51.44,
+      "nonlocal_pct": 3.12,
+      "silent_meaning_change_pct": 7.94,
+      "silent_benign_pct": 37.5,
+      "by_corruption": {
+        "delete_char": {
+          "trials": 560,
+          "local_pct": 43.93,
+          "silent_meaning_change_pct": 12.68
+        },
+        "swap_adjacent_chars": {
+          "trials": 560,
+          "local_pct": 44.82,
+          "silent_meaning_change_pct": 10.0
+        },
+        "drop_leading_whitespace": {
+          "trials": 80,
+          "local_pct": 0.0,
+          "silent_meaning_change_pct": 0.0
+        },
+        "delete_closing_bracket": {
+          "trials": 400,
+          "local_pct": 81.5,
+          "silent_meaning_change_pct": 0.0
+        }
+      }
+    },
+    "B": {
+      "total_applicable_trials": 1600,
+      "local_pct": 46.56,
+      "nonlocal_pct": 6.56,
+      "silent_meaning_change_pct": 14.75,
+      "silent_benign_pct": 32.12,
+      "by_corruption": {
+        "delete_char": {
+          "trials": 560,
+          "local_pct": 24.46,
+          "silent_meaning_change_pct": 23.57
+        },
+        "swap_adjacent_chars": {
+          "trials": 560,
+          "local_pct": 30.54,
+          "silent_meaning_change_pct": 18.57
+        },
+        "delete_closing_bracket": {
+          "trials": 480,
+          "local_pct": 91.04,
+          "silent_meaning_change_pct": 0.0
+        }
+      }
+    },
+    "C": {
+      "total_applicable_trials": 2240,
+      "local_pct": 25.09,
+      "nonlocal_pct": 23.21,
+      "silent_meaning_change_pct": 16.56,
+      "silent_benign_pct": 35.13,
+      "by_corruption": {
+        "delete_char": {
+          "trials": 560,
+          "local_pct": 32.32,
+          "silent_meaning_change_pct": 35.18
+        },
+        "swap_adjacent_chars": {
+          "trials": 560,
+          "local_pct": 43.04,
+          "silent_meaning_change_pct": 31.07
+        },
+        "drop_leading_whitespace": {
+          "trials": 560,
+          "local_pct": 0.0,
+          "silent_meaning_change_pct": 0.0
+        },
+        "delete_closing_bracket": {
+          "trials": 560,
+          "local_pct": 25.0,
+          "silent_meaning_change_pct": 0.0
+        }
+      }
+    },
+    "D": {
+      "total_applicable_trials": 2000,
+      "local_pct": 34.25,
+      "nonlocal_pct": 27.25,
+      "silent_meaning_change_pct": 28.0,
+      "silent_benign_pct": 10.5,
+      "by_corruption": {
+        "delete_char": {
+          "trials": 560,
+          "local_pct": 43.39,
+          "silent_meaning_change_pct": 20.54
+        },
+        "swap_adjacent_chars": {
+          "trials": 560,
+          "local_pct": 38.75,
+          "silent_meaning_change_pct": 22.32
+        },
+        "drop_leading_whitespace": {
+          "trials": 560,
+          "local_pct": 40.18,
+          "silent_meaning_change_pct": 0.0
+        },
+        "delete_closing_bracket": {
+          "trials": 320,
+          "local_pct": 0.0,
+          "silent_meaning_change_pct": 100.0
+        }
+      }
+    },
+    "E": {
+      "total_applicable_trials": 1200,
+      "local_pct": 67.17,
+      "nonlocal_pct": 0.0,
+      "silent_meaning_change_pct": 21.17,
+      "silent_benign_pct": 11.67,
+      "by_corruption": {
+        "delete_char": {
+          "trials": 560,
+          "local_pct": 67.5,
+          "silent_meaning_change_pct": 27.68
+        },
+        "swap_adjacent_chars": {
+          "trials": 560,
+          "local_pct": 76.43,
+          "silent_meaning_change_pct": 17.68
+        },
+        "delete_closing_bracket": {
+          "trials": 80,
+          "local_pct": 0.0,
+          "silent_meaning_change_pct": 0.0
+        }
+      }
+    }
+  },
+  "unicode": {
+    "nfkc_collisions": [
+      "U+03BC (GREEK SMALL LETTER MU) == U+00B5 (MICRO SIGN) after NFKC",
+      "U+03A9 (GREEK CAPITAL LETTER OMEGA) == U+2126 (OHM SIGN) after NFKC",
+      "U+00C5 (LATIN CAPITAL LETTER A WITH RING ABOVE) == U+212B (ANGSTROM SIGN) after NFKC",
+      "U+03B8 (GREEK SMALL LETTER THETA) == U+03D1 (GREEK THETA SYMBOL) after NFKC"
+    ],
+    "identical_token_ids_despite_different_codepoints": {
+      "tiktoken:cl100k_base": [],
+      "tiktoken:o200k_base": [],
+      "tiktoken:p50k_base": [],
+      "tiktoken:r50k_base": [],
+      "hf:gpt2": [],
+      "hf:llama2": [],
+      "hf:gpt-neox-20b": [
+        "U+03A9/U+2126",
+        "U+00C5/U+212B"
+      ],
+      "hf:starcoder2": [],
+      "regex_approx_APPROXIMATE": []
+    },
+    "worst_fragmenting_symbols": {
+      "tiktoken:cl100k_base": [
+        [
+          "U+21D2",
+          3
+        ],
+        [
+          "U+21D4",
+          3
+        ],
+        [
+          "U+2200",
+          2
+        ],
+        [
+          "U+2203",
+          2
+        ],
+        [
+          "U+2208",
+          2
+        ]
+      ],
+      "tiktoken:o200k_base": [
+        [
+          "U+2203",
+          2
+        ],
+        [
+          "U+2208",
+          2
+        ],
+        [
+          "U+21D4",
+          2
+        ],
+        [
+          "U+2211",
+          2
+        ],
+        [
+          "U+220F",
+          2
+        ]
+      ],
+      "tiktoken:p50k_base": [
+        [
+          "U+21D2",
+          3
+        ],
+        [
+          "U+21D4",
+          3
+        ],
+        [
+          "U+2200",
+          2
+        ],
+        [
+          "U+2203",
+          2
+        ],
+        [
+          "U+2208",
+          2
+        ]
+      ],
+      "tiktoken:r50k_base": [
+        [
+          "U+21D2",
+          3
+        ],
+        [
+          "U+21D4",
+          3
+        ],
+        [
+          "U+2200",
+          2
+        ],
+        [
+          "U+2203",
+          2
+        ],
+        [
+          "U+2208",
+          2
+        ]
+      ],
+      "hf:gpt2": [
+        [
+          "U+21D2",
+          3
+        ],
+        [
+          "U+21D4",
+          3
+        ],
+        [
+          "U+2200",
+          2
+        ],
+        [
+          "U+2203",
+          2
+        ],
+        [
+          "U+2208",
+          2
+        ]
+      ],
+      "hf:llama2": [
+        [
+          "U+220F",
+          4
+        ],
+        [
+          "U+2200",
+          2
+        ],
+        [
+          "U+2203",
+          2
+        ],
+        [
+          "U+2208",
+          2
+        ],
+        [
+          "U+21D2",
+          2
+        ]
+      ],
+      "hf:gpt-neox-20b": [
+        [
+          "U+21D2",
+          3
+        ],
+        [
+          "U+21D4",
+          3
+        ],
+        [
+          "U+2200",
+          2
+        ],
+        [
+          "U+2203",
+          2
+        ],
+        [
+          "U+2208",
+          2
+        ]
+      ],
+      "hf:starcoder2": [
+        [
+          "U+21D4",
+          3
+        ],
+        [
+          "U+2200",
+          2
+        ],
+        [
+          "U+2203",
+          2
+        ],
+        [
+          "U+2208",
+          2
+        ],
+        [
+          "U+21D2",
+          2
+        ]
+      ],
+      "regex_approx_APPROXIMATE": [
+        [
+          "U+2200",
+          1
+        ],
+        [
+          "U+2203",
+          1
+        ],
+        [
+          "U+2208",
+          1
+        ],
+        [
+          "U+2192",
+          1
+        ],
+        [
+          "U+21D2",
+          1
+        ]
+      ]
+    },
+    "mean_tokens_per_symbol": {
+      "tiktoken:cl100k_base": 1.8,
+      "tiktoken:o200k_base": 1.47,
+      "tiktoken:p50k_base": 1.87,
+      "tiktoken:r50k_base": 1.87,
+      "hf:gpt2": 1.87,
+      "hf:llama2": 2.07,
+      "hf:gpt-neox-20b": 1.8,
+      "hf:starcoder2": 1.73,
+      "regex_approx_APPROXIMATE": 1.0
+    }
+  },
+  "baseline_wellformedness_errors": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0,
+    "E": 0
+  },
+  "adversarial_cases": {
+    "total": 23,
+    "expectation_met": 23,
+    "expectation_missed": [],
+    "by_case": {
+      "A-transpose-labelled": "SILENT_BENIGN",
+      "A-transpose-positional": "LOCAL",
+      "A-positional-correct-order": "LOCAL",
+      "A-sd-vs-variance": "SILENT_MEANING_CHANGE",
+      "B-role-code-typo": "SILENT_MEANING_CHANGE",
+      "B-transpose-positional": "LOCAL",
+      "C-transpose-labelled": "SILENT_BENIGN",
+      "D-dedent-scale-out-of-args": "LOCAL",
+      "D-dedent-into-toplevel": "LOCAL",
+      "D-indent-law-into-args": "LOCAL",
+      "A-dedent-concept-member": "SILENT_BENIGN",
+      "C-dedent": "SILENT_BENIGN",
+      "C-drop-inner-paren": "NONLOCAL",
+      "A-drop-paren": "LOCAL",
+      "D-drop-type-bracket": "SILENT_MEANING_CHANGE",
+      "A-quantifier-swap": "SILENT_MEANING_CHANGE",
+      "C-quantifier-swap": "SILENT_MEANING_CHANGE",
+      "E-quantifier-swap": "SILENT_MEANING_CHANGE",
+      "E-drop-edge": "SILENT_MEANING_CHANGE",
+      "E-dangling-ref": "LOCAL",
+      "A-typo-in-reference": "LOCAL",
+      "B-typo-in-reference": "LOCAL",
+      "D-typo-in-expr-string": "LOCAL"
+    }
+  }
+}

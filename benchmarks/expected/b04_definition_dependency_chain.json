@@ -1,0 +1,49 @@
+{
+  "id": "b04_definition_dependency_chain",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "variable_binding",
+  "expects_rejection": false,
+  "ground_truth": {
+    "definitions": {
+      "total": "alpha + beta",
+      "weighted": "total * beta",
+      "residual": "weighted - alpha"
+    },
+    "transitive_dependencies": {
+      "residual": [
+        "alpha",
+        "beta",
+        "total",
+        "weighted"
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "depends_on",
+      "symbol": "residual",
+      "set": [
+        "alpha",
+        "beta",
+        "total",
+        "weighted"
+      ]
+    },
+    {
+      "assert": "depends_on",
+      "symbol": "total",
+      "set": [
+        "alpha",
+        "beta"
+      ]
+    }
+  ],
+  "distractors": [
+    "Reporting only the direct dependencies of residual (weighted, alpha) and missing the transitive ones.",
+    "Including residual itself in its own dependency set.",
+    "Missing beta, which reaches residual only through two hops."
+  ]
+}

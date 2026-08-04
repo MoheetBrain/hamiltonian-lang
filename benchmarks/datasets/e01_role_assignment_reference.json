@@ -1,0 +1,59 @@
+{
+  "id": "e01_role_assignment_reference",
+  "category": "semantic_equivalence",
+  "difficulty": "easy",
+  "seed": 601,
+  "expects_rejection": false,
+  "natural_language": "Two strictly positive parameters are given, named first and second. A real-valued random variable Z is normally distributed. Its location is first and its scale is second. This is the reference form against which the other two items in this family are compared.",
+  "expected_semantics": {
+    "laws": {
+      "Z": {
+        "family": "Normal",
+        "roles": {
+          "location": "first",
+          "scale": "second"
+        }
+      }
+    },
+    "role_of_note": "location := first, scale := second"
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "compiles"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "Z",
+        "role": "location",
+        "argument": "first"
+      },
+      {
+        "assert": "law_role",
+        "symbol": "Z",
+        "role": "scale",
+        "argument": "second"
+      },
+      {
+        "assert": "hash_differs",
+        "problem": "e02_role_assignment_swapped"
+      },
+      {
+        "assert": "hash_equals",
+        "problem": "e03_role_assignment_reordered"
+      }
+    ]
+  },
+  "distractors": [
+    "Assuming that because both parameters are strictly positive, swapping them is harmless. It changes the distribution."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/e01_role_assignment_reference.txt",
+    "latex": "benchmarks/representations/latex/e01_role_assignment_reference.tex",
+    "python": "benchmarks/representations/python/e01_role_assignment_reference.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/e01_role_assignment_reference.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/e01_role_assignment_reference.hml"
+  }
+}

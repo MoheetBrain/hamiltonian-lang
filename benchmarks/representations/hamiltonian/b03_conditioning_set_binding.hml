@@ -1,0 +1,19 @@
+module ConditioningStructure
+
+index N : Natural
+index P : Natural
+
+obs predictors : Matrix[Real, N, P]
+obs response : Vector[Real, N]
+
+param coefficients : Vector[Real, P]
+param noise_scale : PositiveReal
+
+const prior_location : Vector[Real, P]
+const prior_scale : PositiveReal
+
+prior coefficients ~ NormalVector(location := prior_location, scale := prior_scale)
+prior noise_scale ~ HalfNormal(scale := prior_scale)
+law response | predictors coefficients noise_scale ~ NormalVector(location := predictors @ coefficients, scale := noise_scale)
+
+infer posterior coefficients noise_scale

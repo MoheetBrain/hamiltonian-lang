@@ -1,0 +1,10 @@
+module SeedGermination
+
+param germination_rate : Probability
+obs planted : Natural = 48
+obs sprouted : Natural
+
+prior germination_rate ~ Beta(alpha := 2.0, beta := 5.0)
+likelihood sprouted | germination_rate ~ Binomial(trials := planted, prob := germination_rate)
+
+infer posterior germination_rate

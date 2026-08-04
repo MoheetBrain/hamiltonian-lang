@@ -1,0 +1,34 @@
+{
+  "id": "q02_exists_forall",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "quantifier_scope",
+  "expects_rejection": false,
+  "ground_truth": {
+    "quantifier_prefix": [
+      "exists:y",
+      "forall:x"
+    ],
+    "matrix": "y > x",
+    "truth_over_reals": false
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "quantifier_prefix",
+      "prefix": [
+        "exists:y",
+        "forall:x"
+      ]
+    },
+    {
+      "assert": "hash_differs",
+      "problem": "q01_forall_exists"
+    }
+  ],
+  "distractors": [
+    "Reading this as the same claim as q01. It is not: this one is false.",
+    "Assuming the English word order 'greater than every real number' forces the quantifier order; it does not, which is exactly the ambiguity under test."
+  ]
+}

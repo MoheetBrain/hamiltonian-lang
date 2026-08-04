@@ -1,0 +1,35 @@
+{
+  "id": "d01_kinetic_energy_dimension",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "dimensional_analysis",
+  "expects_rejection": false,
+  "ground_truth": {
+    "definition": "kinetic_energy := 0.5 * m * v^2",
+    "dimension": "Length^2 * Mass / Time^2",
+    "base_exponents": {
+      "Mass": 1,
+      "Length": 2,
+      "Time": -2
+    }
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "dimension_of",
+      "symbol": "kinetic_energy",
+      "dimension": "Length^2 * Mass / Time^2"
+    },
+    {
+      "assert": "symbol_type",
+      "symbol": "v",
+      "type": "Quantity[Length / Time]"
+    }
+  ],
+  "distractors": [
+    "Dropping the square on the velocity, giving Mass * Length / Time.",
+    "Treating the one-half as dimensional.",
+    "Reporting 'joules' as if a unit name were a dimension. Units and dimensions are different; this language checks dimensions and does not reconcile units."
+  ]
+}

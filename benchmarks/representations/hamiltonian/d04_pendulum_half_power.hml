@@ -1,0 +1,8 @@
+module PendulumPeriod
+
+param pendulum_length : Quantity[Length]
+param gravity : Quantity[Length / Time^2]
+
+def period := 6.2831853 * (pendulum_length / gravity)^0.5
+
+check dimension period = Time

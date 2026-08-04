@@ -1,0 +1,6 @@
+A real-valued function f is uniformly continuous when, for every positive tolerance eps,
+there exists a positive delta such that for all real u and all real v, if the absolute
+difference between u and v is less than delta then the absolute difference between f(u)
+and f(v) is less than eps.
+
+Record the exact quantifier prefix, in order.

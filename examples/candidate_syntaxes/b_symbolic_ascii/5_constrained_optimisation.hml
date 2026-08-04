@@ -1,0 +1,9 @@
+;B P5  & var  + require  \ minimise  > solve
+%ConstrainedOptimisation
+&x:R
+&y:R
++x+y>=10
++x>=0
++y>=0
+\x^2+y^2
+>x,y

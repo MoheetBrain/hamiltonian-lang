@@ -1,0 +1,34 @@
+{
+  "id": "d02_invalid_dimensional_addition",
+  "category": "dimensional_analysis",
+  "difficulty": "easy",
+  "seed": 402,
+  "expects_rejection": true,
+  "natural_language": "An author writes an expression that adds a quantity of work to a quantity of force. Work has the dimension of mass times length squared over time squared; force has mass times length over time squared. Decide whether the sum is meaningful and say what a language should do.",
+  "expected_semantics": {
+    "verdict": "invalid",
+    "reason": "addition requires dimensional equality; work and force differ by a length",
+    "diagnostic_code": "HML-D502"
+  },
+  "deterministic_check": {
+    "scorer": "evaluation/score.py",
+    "assertion_language": "docs/research/BENCHMARK_PROTOCOL.md#11",
+    "assertions": [
+      {
+        "assert": "rejects_with",
+        "code": "HML-D502"
+      }
+    ]
+  },
+  "distractors": [
+    "Adding the numbers anyway because both are reals once the units are stripped. This is precisely the error dimensional analysis exists to catch.",
+    "Assuming the mismatch will be caught downstream by a unit conversion. There is no conversion that makes a force commensurable with a work."
+  ],
+  "arms": {
+    "english": "benchmarks/representations/english/d02_invalid_dimensional_addition.txt",
+    "latex": "benchmarks/representations/latex/d02_invalid_dimensional_addition.tex",
+    "python": "benchmarks/representations/python/d02_invalid_dimensional_addition.py",
+    "stan_or_lean": "benchmarks/representations/stan_or_lean/d02_invalid_dimensional_addition.stan",
+    "hamiltonian": "benchmarks/representations/hamiltonian/d02_invalid_dimensional_addition.hml"
+  }
+}

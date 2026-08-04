@@ -1,0 +1,14 @@
+# Example 6 -- quantifier scope.
+#
+# These two statements are NOT equivalent. The first is true over the reals; the
+# second is false. Their canonical hashes differ, and the semantic graph records the
+# nesting order explicitly via scope_of edges.
+#
+#   forall x . exists y . y > x     -- for each x, some larger y exists (true)
+#   exists y . forall x . y > x     -- one y exceeds every x (false)
+
+module QuantifierScope
+
+require forall x : Real . exists y : Real . y > x
+
+prove exists y : Real . forall x : Real . y > x

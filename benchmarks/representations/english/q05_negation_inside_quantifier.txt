@@ -1,0 +1,4 @@
+Every real number fails to be strictly positive.
+The negation applies to the body only, underneath the quantifier.
+
+Write it down. This statement is false over the reals.

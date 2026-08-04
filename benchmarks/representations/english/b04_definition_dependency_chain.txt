@@ -1,0 +1,6 @@
+Two real parameters, alpha and beta, are given.
+Define total as their sum.
+Define weighted as total multiplied by beta.
+Define residual as weighted minus alpha.
+
+Name every symbol that residual transitively depends on.

@@ -1,0 +1,6 @@
+A campaign splits its spend between a digital channel and a print channel.
+Neither amount may be negative. Their total may not exceed a strictly positive budget
+of 25000.0. Each unit of digital spend returns 3.1 and each unit of print spend returns 1.4.
+Maximise the total return.
+
+Count every proof obligation the formulation generates, including those implied by types.

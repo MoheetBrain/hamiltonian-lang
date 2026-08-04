@@ -1,0 +1,21 @@
+{
+  "id": "b01_shadowed_index",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "variable_binding",
+  "expects_rejection": true,
+  "ground_truth": {
+    "verdict": "invalid",
+    "reason": "the quantified binder i shadows the module-level index i",
+    "diagnostic_code": "HML-N302"
+  },
+  "assertions": [
+    {
+      "assert": "rejects_with",
+      "code": "HML-N302"
+    }
+  ],
+  "distractors": [
+    "Assuming the inner i simply refers to the outer index. It does not: the quantifier introduces a new binder, and every reference to i inside the body resolves to it.",
+    "Treating the collision as a style warning. A warning does not prevent a silent scope change; design decision D-006 makes it an error."
+  ]
+}

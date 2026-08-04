@@ -1,0 +1,8 @@
+# Companion to quantifier_scope.hml with the order swapped in the 'require'.
+# tests/golden/ asserts that this file's hash differs from its companion's.
+
+module QuantifierScope
+
+require exists y : Real . forall x : Real . y > x
+
+prove exists y : Real . forall x : Real . y > x

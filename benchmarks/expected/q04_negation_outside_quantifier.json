@@ -1,0 +1,33 @@
+{
+  "id": "q04_negation_outside_quantifier",
+  "provenance": "Authored from the natural-language statement by the benchmark author BEFORE running the compiler on the hamiltonian arm. Where the compiler disagrees with this file, the disagreement is a finding, not a reason to edit this file.",
+  "category": "quantifier_scope",
+  "expects_rejection": false,
+  "ground_truth": {
+    "quantifier_prefix": [
+      "forall:x"
+    ],
+    "negation_position": "outside the quantifier",
+    "reading": "not (forall x . x > 0)",
+    "truth_over_reals": true
+  },
+  "assertions": [
+    {
+      "assert": "compiles"
+    },
+    {
+      "assert": "quantifier_prefix",
+      "prefix": [
+        "forall:x"
+      ]
+    },
+    {
+      "assert": "hash_differs",
+      "problem": "q05_negation_inside_quantifier"
+    }
+  ],
+  "distractors": [
+    "Pushing the negation inside the quantifier, giving 'every real number is not positive'. That is a different and false statement, yet it has the SAME quantifier prefix, so prefix order alone does not distinguish the two.",
+    "Rewriting as 'there exists a real number that is not positive' and assuming the representations must therefore be identical. They are logically equivalent but structurally different, and a syntactic canonical form will not identify them."
+  ]
+}
