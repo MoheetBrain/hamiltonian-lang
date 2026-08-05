@@ -17,7 +17,11 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**V0 closed and preserved; V1 in design.** V0 is tagged `hml-v0-baseline` — the language,
+**HML-V1-CONCEPT-001 in progress.** Gate passed on two criteria only — compiler-feedback
+reliability and an identified weakness — **not** on reasoning improvement. V1 may claim to
+make errors catchable; it may not claim to make reasoning better.
+
+Previously: **V0 closed and preserved; V1 in design.** V0 is tagged `hml-v0-baseline` — the language,
 the frozen spec, and 221 stored model trials. `src/` does not change under that tag.
 **Hamiltonian V1: Discourse, Transformation and Epistemics** is specified in
 `docs/design/V1_KERNEL.md` with a preregistered comparison plan in
@@ -30,7 +34,8 @@ structured English, LaTeX, or an existing formal representation.
 
 ## Current Branch
 
-`main`. No remote pushes. Repository is private.
+`hml-v1-concept-kernel`. V0 preserved on `main` at tag `hml-v0-baseline`. No remote
+pushes. Repository is private.
 
 ## Current System Architecture
 

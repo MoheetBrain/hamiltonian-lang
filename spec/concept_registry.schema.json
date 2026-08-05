@@ -1,0 +1,391 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hamiltonian-lang.local/spec/concept_registry.schema.json",
+  "title": "Hamiltonian V1 typed concept registry",
+  "description": "A concept NAME is only a handle. The typed definition below is authoritative. Nothing enters the trusted registry without passing the minting protocol; admission_status records where it is in that process.",
+  "type": "object",
+  "required": [
+    "registry_version",
+    "concepts"
+  ],
+  "properties": {
+    "registry_version": {
+      "type": "string"
+    },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/concept"
+      }
+    }
+  },
+  "$defs": {
+    "lifecycle": {
+      "description": "proposed -> defined -> checked -> admitted, with three terminal states. A concept may only be cited by other concepts once admitted.",
+      "enum": [
+        "proposed",
+        "defined",
+        "checked",
+        "admitted",
+        "rejected",
+        "duplicate",
+        "deprecated"
+      ]
+    },
+    "claimStatus": {
+      "description": "Which claims are established and which are merely asserted. Recorded per claim so a report cannot present a conjecture as a theorem.",
+      "enum": [
+        "proved",
+        "tested",
+        "conjectured",
+        "unsupported"
+      ]
+    },
+    "concept": {
+      "type": "object",
+      "required": [
+        "canonical_id",
+        "namespace",
+        "version",
+        "type_signature",
+        "domain",
+        "codomain",
+        "formal_definition",
+        "parameters",
+        "admission_status",
+        "provenance"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "canonical_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Human-readable handles. Carry NO semantics; two concepts may not share a canonical_id via an alias."
+        },
+        "type_signature": {
+          "type": "string",
+          "description": "e.g. Dataset[Real] * LossFunction[Real, Real] -> ArgminSet[Real]"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "codomain": {
+          "type": "string"
+        },
+        "formal_definition": {
+          "type": "string",
+          "description": "Required. A concept with no formal definition may not leave `proposed`."
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "type",
+              "role"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "description": "The semantic role, not the position. Roles are meaning (V0 decision D-003)."
+              },
+              "optional": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "invariants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "equivalences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relation"
+          }
+        },
+        "implications": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relation"
+          }
+        },
+        "counterexamples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "refutes",
+              "witness"
+            ],
+            "properties": {
+              "refutes": {
+                "type": "string"
+              },
+              "witness": {
+                "type": "string"
+              },
+              "verified": {
+                "type": "boolean"
+              }
+            }
+          },
+          "description": "A counterexample refutes a NEARBY claim, which is how a concept's boundary is recorded."
+        },
+        "proof_obligations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "computation_methods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "method",
+              "backend"
+            ],
+            "properties": {
+              "method": {
+                "type": "string"
+              },
+              "backend": {
+                "enum": [
+                  "sympy",
+                  "python",
+                  "stan",
+                  "lean",
+                  "none"
+                ]
+              },
+              "exact": {
+                "type": "boolean",
+                "description": "False means numerical evidence, which is NOT proof."
+              }
+            }
+          }
+        },
+        "backend_support": {
+          "type": "object",
+          "description": "Per backend: what survives translation. Absence of an entry means unsupported, never 'assumed fine'.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "supported": {
+                "type": "boolean"
+              },
+              "losses": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "verified_by_toolchain": {
+                "type": "boolean",
+                "description": "True ONLY if a real compiler accepted it. An unproved theorem is never labelled verified."
+              }
+            }
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "canonical_ids this concept rests on. Must all be `admitted`; cycles are rejected."
+        },
+        "compresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Recurring structures this concept abbreviates. A concept that compresses nothing is a synonym and must be rejected as `duplicate`."
+        },
+        "provenance": {
+          "type": "object",
+          "required": [
+            "proposed_by",
+            "proposed_at"
+          ],
+          "properties": {
+            "proposed_by": {
+              "type": "string"
+            },
+            "proposed_at": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "admitted_at": {
+              "type": "string"
+            },
+            "rejected_reason": {
+              "type": "string"
+            },
+            "duplicate_of": {
+              "type": "string"
+            }
+          }
+        },
+        "admission_status": {
+          "$ref": "#/$defs/lifecycle"
+        },
+        "admission_report": {
+          "type": "object",
+          "description": "Output of the minting protocol. Every field must be present before `admitted`.",
+          "properties": {
+            "registry_search_performed": {
+              "type": "boolean"
+            },
+            "equality_matches": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "equivalence_matches": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "renaming_matches": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "specialisation_of": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "generalisation_of": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "type_valid": {
+              "type": "boolean"
+            },
+            "definition_present": {
+              "type": "boolean"
+            },
+            "constraints_verified": {
+              "type": "boolean"
+            },
+            "obligations_generated": {
+              "type": "integer"
+            },
+            "examples_tested": {
+              "type": "integer"
+            },
+            "examples_passed": {
+              "type": "integer"
+            },
+            "counterexamples_tested": {
+              "type": "integer"
+            },
+            "compression_demonstrated": {
+              "type": "boolean",
+              "description": "At least one recurring structure abbreviated. Required for admission."
+            },
+            "verdict": {
+              "$ref": "#/$defs/lifecycle"
+            }
+          }
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "required": [
+        "statement",
+        "status"
+      ],
+      "properties": {
+        "statement": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/claimStatus"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "discharged_by": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "null means NOT established. Numerical agreement is `tested`, never `proved`."
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "required": [
+        "other",
+        "kind",
+        "status"
+      ],
+      "properties": {
+        "other": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "equivalent_to",
+            "implies",
+            "implied_by",
+            "specialises",
+            "generalises",
+            "disjoint_from"
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/claimStatus"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Side conditions. An unconditional claim of equivalence that actually holds only under conditions is the error this field prevents."
+        }
+      }
+    }
+  }
+}

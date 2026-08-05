@@ -592,3 +592,62 @@ as a whole.
 **Next intended step.** Redesign the corpus to a 50–60% baseline accuracy at n >= 60, then
 attack the parse-rate gate. No V1 layer is testable until the model can write the language.
 
+---
+
+## 2026-08-04 — HML-V1-CONCEPT-001: gate, branch, semantic contract
+
+**Branch.** `hml-v1-concept-kernel` (created from `main` at `hml-v0-baseline`).
+**Stage.** V1 Phase 0–1 complete; Phases 2–10 delegated to four agents.
+
+**Objective.** Evaluate the V1 gate against pilot evidence, branch, and build the semantic
+contract agents must work against.
+
+**Files changed.** `docs/evaluation/V1_GATE_DECISION.md`,
+`docs/design/V1_CONCEPT_KERNEL.md`, `spec/concept_registry.schema.json`,
+`src/hamiltonian_lang/v1/{__init__,epistemic}.py` — all new.
+
+**Gate verdict.** PASSED on criteria 4 and 5 only. Criterion 1 (answer accuracy) is
+**refuted**, not merely unproven: D−A, D−A′ and D−B were all +0.000 with **zero discordant
+pairs**. Criterion 2 has no comparison arm and criterion 3 was never measured (no prover
+was invoked). The pass rests on compiler feedback raising parse rate 73.3%→85.7% and
+50.0%→93.3% with encoding fidelity +0.065 CI [0.006, 0.136], and on the 27–50%
+parse-failure weakness being directly testable.
+
+**Decisions made and why.** The gate constrains what V1 may claim: errors catchable, not
+reasoning improved. The primary outcome is therefore error detection (precision and recall
+on injected errors), not answer accuracy — the pilot settled that representation does not
+change what the model computes.
+
+The Lead Architect owns and has frozen two artefacts before any agent ran:
+`spec/concept_registry.schema.json` and `src/hamiltonian_lang/v1/epistemic.py`. The latter
+implements the prohibition the whole layer exists for: `fail_to_reject` yields `Evidence`,
+`prove` demands `Proof`, and `coercion_allowed` refuses the pair with an explicit reason.
+Verified by execution, not assertion.
+
+**Verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `git checkout -b hml-v1-concept-kernel` | branch created |
+| epistemic contract executed directly | `fail_to_reject` → Evidence; discharges_goals False; coercion to Proof refused with reason |
+| context enforcement | `with_high_probability` with no regime, `model_conditional` with no model, `fail_to_reject` with no alpha — all rejected |
+| `jsonschema.Draft202012Validator.check_schema` | registry schema valid |
+| `.venv/bin/python -m pytest` | 967 passed (V0 suite, unchanged) |
+| `./scripts/conformance.sh` | CONFORMANCE: PASS, all 8 stages |
+
+**Failures and unresolved uncertainty.**
+
+- **The principal risk is stated, not buried:** V1 is *larger* than a language the model
+  already wrote unparseably 27–50% of the time. A hard gate blocks any V0-vs-V1
+  comparison until V1 parse rate reaches 90%.
+- Predicted layer survival is recorded in advance — epistemic most likely, inference least
+  — so a surprise is visible as a surprise rather than rationalised afterwards.
+- Four agents are running; none has reported. No V1 implementation claim is made in this
+  entry beyond the two contract artefacts, which were executed and verified here.
+
+**Effect on the overall project.** The contract that the whole milestone depends on exists
+and enforces its central prohibition before any dependent code was written.
+
+**Next intended step.** Integrate the four agents' output, run conformance, and produce
+`docs/evaluation/HML_V1_CONCEPT_ABLATION_REPORT.md`.
+
