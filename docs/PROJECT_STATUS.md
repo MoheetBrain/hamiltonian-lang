@@ -17,7 +17,13 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**HML-EVAL-001 — empirical evaluation phase.** v0 is frozen at tag `hml-v0-eval-freeze`.
+**V0 closed and preserved; V1 in design.** V0 is tagged `hml-v0-baseline` — the language,
+the frozen spec, and 221 stored model trials. `src/` does not change under that tag.
+**Hamiltonian V1: Discourse, Transformation and Epistemics** is specified in
+`docs/design/V1_KERNEL.md` with a preregistered comparison plan in
+`docs/design/V1_EXPERIMENT_PLAN.md`. Nothing of V1 is implemented.
+
+Previously: **HML-EVAL-001 — empirical evaluation phase.** v0 is frozen at tag `hml-v0-eval-freeze`.
 No new language features, domains, or abstractions are being added. The sole objective is
 to test whether a model reasons better through Hamiltonian Lang than through English,
 structured English, LaTeX, or an existing formal representation.
@@ -76,11 +82,14 @@ against isolated file ownership.
 | `GOAL.md` | project thesis |
 | `docs/design/V0_DESIGN_FREEZE.md` | the frozen v0 contract |
 | `SPEC.md` | normative language reference |
-| `DECISIONS.md` | D-001..D-020 with reversal costs |
+| `DECISIONS.md` | D-001..D-021 with reversal costs |
 | `benchmarks/eval001/` | 120-problem corpus, 7 arms, 840 prompt files |
 | `evaluation/harness.py` | model-evaluation harness |
 | `evaluation/analyse.py` | paired intervals, McNemar, effect sizes |
 | `docs/evaluation/HML_EVAL_001_PILOT_REPORT.md` | **the pilot result and decision** |
+| `docs/design/V1_KERNEL.md` | **V1 five-layer design** |
+| `docs/design/V1_EXPERIMENT_PLAN.md` | preregistered V0-vs-V1 plan |
+| `spec/v1/semantic_objects.yaml` | V1 objects, machine-readable |
 | `evaluation/results/EVAL_SPEC_v1.1.json` | frozen spec + defect record |
 | `docs/evaluation/PRE_EVALUATION_AUDIT.md` | verified state before the experiment |
 | `audits/RED_TEAM_REPORT.md` | adversarial review |
@@ -99,7 +108,7 @@ recorded in `docs/research/PRIOR_ART_MATRIX.csv` with an explicit UNVERIFIED reg
 
 ## Decisions and Rationale
 
-D-001..D-020 in `DECISIONS.md`. Load-bearing ones:
+D-001..D-021 in `DECISIONS.md`. Load-bearing ones:
 
 - **D-003** mandatory role-labelled distribution arguments. Prior art shows the
   *mechanism* is not novel (PyMC, SciPy already use named parameters); the delta is that
@@ -220,6 +229,10 @@ build.
 4. Run the morphology analysis — deferred in session 1 and a prerequisite for H6.
 5. Work through the remaining findings in `audits/RED_TEAM_REPORT.md` that were not
    resolved in session 1.
+7. **V1, in order:** redesign the corpus to a 50–60% baseline (n ≥ 60); raise the
+   Hamiltonian parse rate to ≥ 90% — **a hard gate, since a language the model cannot
+   write is not being tested**; then implement L4 epistemic first, because it has the
+   clearest correctness claim and the strictest kill criterion.
 6. **Cheapest high-value step, no model needed:** demonstrate HML → Stan → HML and
    HML → Lean → HML preserving the content hash, or characterise exactly where it fails.
    The only round trip verified today is HML → HML, which is the one that cannot lose

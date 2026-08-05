@@ -524,3 +524,71 @@ one out.
 baseline accuracy, more of them — and reduce the Hamiltonian syntax-failure rate before
 retesting.
 
+---
+
+## 2026-08-04 — V0 preserved as baseline; V1 designed
+
+**Branch.** `main` · **Stage.** V0 closed; V1 in design, unimplemented.
+
+**Objective.** Preserve the completed V0 experiment as the comparison baseline, then
+specify Hamiltonian V1: Discourse, Transformation and Epistemics.
+
+**Files changed.** Tag `hml-v0-baseline`; `docs/design/V1_KERNEL.md`,
+`docs/design/V1_EXPERIMENT_PLAN.md`, `spec/v1/semantic_objects.yaml` (all new);
+`DECISIONS.md` (D-021), `ROADMAP.md`, `docs/PROJECT_STATUS.md`.
+
+**What was completed.** V0 is tagged with its pilot result and 221 stored trials; `src/`
+is closed under it, so no V1 work can invalidate the only model-in-the-loop measurement
+this project has. V1 is specified as four layers above V0's mathematical content:
+transformation edges (what rewrites to what, with side conditions), inferential relations
+(what follows logically — a different relation), epistemic status (how strongly, on what
+grounds) and discourse state (what remains to be shown).
+
+**Decisions made and why.** D-021. The governing rule is that **a construct enters the
+kernel only if it changes what the checker reports** — "we now show" becomes `goal`
+because it opens an obligation; "for completeness" stays in the renderer because it
+changes nothing. That rule exists because the pilot demonstrated surface area is not
+self-justifying.
+
+The load-bearing addition is the epistemic layer: `fail_to_reject` returns `Evidence`,
+`prove` requires `Proof`, and there is **no coercion between them**, so
+`prove(fail_to_reject(H0))` is a type error. This applies V0's own method — prohibit a
+conflation by making the two things incompatible types — to the most consequential
+misreading in applied statistics. `PValue` is likewise a distinct type with no coercion to
+a posterior.
+
+Concept families are **declared, never generated**: `vary -> variance` is not a safe rule
+and neither is `estimate -> estimator`, so there is no suffix rule and no derivation
+engine. `estimator`, `estimate` and `estimation procedure` are three independently
+declared types, which makes "the estimate is unbiased" a type error.
+
+**Verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `git tag -a hml-v0-baseline` | created; `git describe` returns it |
+| `.venv/bin/python -m pytest` | 967 passed |
+| `./scripts/conformance.sh` | CONFORMANCE: PASS, all 8 stages |
+
+**Failures and unresolved uncertainty.**
+
+- **V1 is design only. Nothing is implemented and nothing is claimed.**
+- The honest prior is poor: V1 adds substantially more surface than V0, and V0's surface
+  bought nothing measurable. **V1-H4 — that the model can write V1 as reliably as V0 — is
+  the hypothesis most likely to fail**, since the model already wrote V0 unparseably
+  27–50% of the time. A hard gate now blocks any V0-vs-V1 comparison until parse rate
+  reaches 90%.
+- L3 inference is predicted **least** likely to survive: checking inference chains without
+  a prover approaches re-implementing one, which the founding directive forbids. Recorded
+  in advance so that a surprise is visible as a surprise.
+- The primary outcome changes from answer accuracy to **error detection** (precision and
+  recall on injected errors), because the pilot settled that representation does not
+  change what the model computes.
+
+**Effect on the overall project.** The measured V0 result is safe from further editing,
+and V1 is specified in a form that can be falsified layer by layer rather than defended
+as a whole.
+
+**Next intended step.** Redesign the corpus to a 50–60% baseline accuracy at n >= 60, then
+attack the parse-rate gate. No V1 layer is testable until the model can write the language.
+

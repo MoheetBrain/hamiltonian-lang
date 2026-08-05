@@ -446,6 +446,59 @@ bug. It widens what is accepted, so no previously valid program becomes invalid.
 
 ## Open questions
 
+---
+
+## D-021 — V0 is preserved as a baseline; V1 is a separate, additive, separately-tested language
+
+**Question.** The pilot returned REDESIGN AND RETEST. Does that mean editing V0?
+
+**No.** Editing V0 would invalidate the 221 stored model trials, which are the only
+model-in-the-loop measurement this project has. V0 is tagged `hml-v0-baseline` and
+`src/` is closed under it. V1 is a **new, additive** language specified in
+`docs/design/V1_KERNEL.md`, and it must be *measured against* V0 rather than assumed to
+improve on it.
+
+**What V1 adds.** Four layers above V0's mathematical content: transformation edges (what
+rewrites to what, with side conditions), inferential relations (what follows logically —
+a *different* relation from rewriting), epistemic status (how strongly, on what grounds),
+and discourse state (what remains to be shown).
+
+**The governing admission rule.** A construct enters the kernel only if it changes what
+the checker reports. "We now show" becomes `goal` because it opens an obligation. "For
+completeness" stays in the renderer because it changes nothing. This rule exists because
+the pilot demonstrated that surface area is not self-justifying.
+
+**The load-bearing addition** is the epistemic layer, and specifically that
+`fail_to_reject` returns `Evidence` while `prove` requires `Proof`, with **no coercion
+between them**. `prove(fail_to_reject(H0))` becomes a type error. This applies V0's own
+method — prohibit a conflation by giving the two things incompatible types — to the most
+consequential misreading in applied statistics.
+
+**A constraint adopted from the directive and made hard.** Concept families are
+**declared, never generated**. `vary -> variance` is not a safe grammatical rule and
+neither is `estimate -> estimator`. Productive morphology over mathematical vocabulary
+manufactures plausible nonsense, so there is no suffix rule and no derivation engine;
+`estimator`, `estimate` and `estimation procedure` are three independently declared types.
+
+**Falsifiability.** Every layer carries its own kill criterion and is dropped
+independently if it fails. Predicted survival order is recorded in advance
+(`V1_EXPERIMENT_PLAN.md` §6) so a surprise is visible as one: L4 most likely, L3 least —
+verifying inference chains without a prover approaches re-implementing one, which the
+founding directive forbids.
+
+**Honest prior.** V1 adds substantially more surface than V0, and V0's surface bought
+nothing measurable. The reason to build it anyway is that V1's claims are *correctness*
+claims checkable without a model in the loop, not reasoning-speed claims. **V1-H4 — that
+the model can write V1 as reliably as V0 — is the hypothesis most likely to fail**, since
+the model already wrote V0 unparseably 27–50% of the time.
+
+**Confidence.** Medium on the design; low on the outcome, deliberately.
+**Reversal cost.** None yet — nothing is implemented.
+
+---
+
+## Open questions
+
 | id | question | blocked on |
 |----|----------|------------|
 | Q-01 | Does the mandatory-role token cost exceed its accuracy benefit? | H5 measurement |
@@ -453,3 +506,6 @@ bug. It widens what is accepted, so no previously valid program becomes invalid.
 | Q-03 | Is OpenMath reusable? No licence statement was found on openmath.org. | legal review |
 | Q-04 | Does arm E's out-of-distribution status confound every comparison? | benchmark design |
 | Q-05 | Should `Call` arguments be role-labelled too, or only `DistExpr`? | usage evidence |
+| Q-06 | Can the model write V1 at >=90% parse rate? If not, no V1 layer is testable. | V1-H4 |
+| Q-07 | Does L3 inference checking reduce to re-implementing a prover (forbidden)? | L3 prototype |
+| Q-08 | What corpus difficulty yields 50-60% baseline accuracy on gemma4:31b? | corpus redesign |

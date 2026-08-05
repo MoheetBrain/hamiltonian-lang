@@ -1,0 +1,182 @@
+# Hamiltonian V1 semantic objects — DESIGN ONLY, nothing implemented.
+#
+# Step 1 of the meaning-outward build order (docs/design/V1_KERNEL.md section 6):
+# the object and its type come first, the surface syntax last.
+#
+# Layer 1 is V0 and is defined in spec/semantic_objects.yaml. It is unchanged.
+version: hml-v1-semantic-objects-0.1.0-DESIGN
+status: DESIGN — no implementation exists; src/ is frozen at tag hml-v0-baseline
+baseline: hml-v0-baseline
+
+admission_rule: >
+  A construct enters the kernel only if it changes what the checker reports: an
+  obligation, a type, a dependency, or the open-goal set. Anything else is a renderer
+  feature. This rule exists because the V0 pilot showed that added surface area is not
+  self-justifying.
+
+# ---------------------------------------------------------------------------
+layer_2_transformation:
+  purpose: >
+    Record what rewrites to what, algebraically, together with the side conditions that
+    make the rewrite valid. This is the layer that catches an algebra step which silently
+    divides by a quantity that may be zero.
+
+  objects:
+    Step:
+      description: One named transformation with a typed operation.
+      arguments: {operation: Operation, plus the operation's own typed roles}
+    Derivation:
+      description: An expression obtained from others via a Step.
+      arguments: {result: Expr, from: list[Expr], via: Step}
+      NOT: >
+        A Derivation is NOT an Entailment. It relates expressions, not propositions.
+        There is no coercion between them.
+
+  operations:
+    substitute:      {arguments: {source: Expr, into: Expr},               obligations: []}
+    divide:          {arguments: {expr: Expr, by: Expr},                   obligations: ["by != 0"]}
+    cancel:          {arguments: {expr: Expr, factor: Expr},               obligations: ["factor != 0"]}
+    sqrt_both_sides: {arguments: {expr: Equation},                         obligations: ["lhs >= 0", "rhs >= 0"], note: "sign branch is not unique; records a case split"}
+    square_both_sides: {arguments: {expr: Equation},                       obligations: [], note: "NOT reversible; records a weakening, not an equivalence"}
+    differentiate:   {arguments: {expr: Expr, wrt: Symbol},                obligations: ["expr differentiable on its domain"]}
+    integrate:       {arguments: {expr: Expr, wrt: Symbol, over: Domain},  obligations: ["expr integrable over `over`"]}
+    limit:           {arguments: {expr: Expr, variable: Symbol, approaches: Expr}, obligations: ["the limit exists"]}
+    apply:           {arguments: {fn: Function, to: Expr},                 obligations: ["to in domain(fn)"]}
+    rearrange:       {arguments: {expr: Equation, for: Symbol},            obligations: ["`for` is isolable in expr"]}
+    expand:          {arguments: {expr: Expr},                             obligations: []}
+    factor:          {arguments: {expr: Expr},                             obligations: []}
+    simplify:        {arguments: {expr: Expr},                             obligations: [], note: "must record WHICH identity was used, or it is not checkable"}
+
+# ---------------------------------------------------------------------------
+layer_3_inference:
+  purpose: What follows from what, logically — as distinct from what rewrites to what.
+
+  objects:
+    Entailment:
+      arguments: {conclusion: Proposition, from: list[Proposition], via: InferenceRule}
+    Equivalence:
+      arguments: {left: Proposition, right: Proposition}
+      note: bidirectional; asserting it generates obligations in both directions
+    Counterexample:
+      arguments: {refutes: Proposition, witness: Expr}
+      note: >
+        The canonical encoding of "the converse need not hold" is a counterexample to the
+        converse, not a hedged sentence.
+    ConverseClaim:
+      arguments: {of: Entailment}
+      note: >
+        Stating a converse does not assert it. It must be separately established or
+        refuted; an unresolved converse remains a pending obligation.
+
+  inference_rules: [modus_ponens, modus_tollens, universal_instantiation,
+                    existential_generalisation, contraposition, induction, case_analysis,
+                    contradiction]
+
+  prohibited:
+    - Entailment is not Derivation (layer 2). No coercion.
+    - Asserting `implies(P, Q)` does not license `implies(Q, P)`.
+
+# ---------------------------------------------------------------------------
+layer_4_epistemic:
+  purpose: >
+    How strongly something is held, and on what grounds. This layer exists mainly to make
+    one error unrepresentable: "fail to reject H0" must never become "H0 is proved".
+
+  type_hierarchy:
+    Justification:
+      Proof:      {discharges_goals: true,  note: established}
+      Assumption: {discharges_goals: false, note: granted; carried forward as a dependency}
+      Evidence:   {discharges_goals: false, note: data-derived support; NEVER becomes a Proof}
+      Credence:   {discharges_goals: false, note: a degree of belief ABOUT a model, not a probability WITHIN one}
+    no_coercion_between: [[Evidence, Proof], [Credence, Probability],
+                          [Assumption, Proof], [PValue, Probability]]
+
+  distinct_types:
+    PValue: >
+      A refinement of Probability with NO coercion to a posterior. `posterior(H0 | data)
+      := p_value` must not type-check. This is the most common misreading in applied
+      statistics and it is prevented here by typing, not by a comment.
+
+  constructors:
+    proved:                       {returns: Proof,       arguments: {proposition: Proposition, via: Proof}}
+    by_definition:                {returns: Proof,       arguments: {proposition: Proposition}}
+    assumed:                      {returns: Assumption,  arguments: {proposition: Proposition}}
+    almost_sure:                  {returns: Proposition, arguments: {proposition: Proposition}, note: "measure-1 qualifier; NOT removable"}
+    with_high_probability:        {returns: Proposition, arguments: {proposition: Proposition, regime: AsymptoticRegime}, note: "regime is MANDATORY; without one this is not a mathematical statement"}
+    likely:                       {returns: Credence,    arguments: {proposition: Proposition, probability: Probability}}
+    possible:                     {returns: Credence,    arguments: {proposition: Proposition}}
+    consistent_with:              {returns: Evidence,    arguments: {proposition: Proposition, data: Dataset}, note: "compatibility is NOT support for the proposition alone"}
+    insufficient_evidence_against:{returns: Evidence,    arguments: {hypothesis: Proposition, under: HypothesisTest}, note: "the ONLY correct encoding of a non-rejection"}
+    model_conditional:            {returns: Proposition, arguments: {proposition: Proposition, model: Model}, note: "model becomes a dependency"}
+    hypothesis_test:              {returns: HypothesisTest, arguments: {null: Proposition, alternative: Proposition, alpha: Probability}}
+    fail_to_reject:               {returns: Evidence,    arguments: {test: HypothesisTest, p_value: PValue}, obligations: ["p_value > alpha(test)"]}
+    reject:                       {returns: Evidence,    arguments: {test: HypothesisTest, p_value: PValue}, obligations: ["p_value <= alpha(test)"]}
+
+# ---------------------------------------------------------------------------
+layer_5_discourse:
+  purpose: >
+    What remains to be shown. Executable state, not decoration: a goal opens an
+    obligation and the checker reports every goal still open at end of module.
+
+  objects:
+    Goal:              {arguments: {name: Symbol, proposition: Proposition}, effect: opens an obligation}
+    Discharge:         {arguments: {goal: Goal, by: Proof}, effect: closes it, note: "requires Proof; Evidence and Assumption are rejected"}
+    PendingObligation: {derived: true, note: "never written by hand; it is the open set"}
+    Case:              {arguments: {name: Symbol, condition: Proposition}, effect: opens a branch}
+    Otherwise:         {effect: the complement branch}
+    EndCase:           {effect: closes the branch, checks: exhaustiveness}
+
+  checks:
+    - open goals at end of module are reported
+    - a case split without `otherwise` must be shown exhaustive, or is reported
+    - discharging a goal with Evidence or Assumption is a type error
+
+  excluded_from_kernel:
+    reason: fails the admission rule — changes no checker state
+    items: ["for completeness", "recall that", "note that", "it is worth observing",
+            "as is well known", "clearly", "obviously"]
+
+# ---------------------------------------------------------------------------
+concept_families:
+  rule: >
+    DECLARED, never GENERATED. There is no suffix rule and no derivation engine.
+    `vary -> variance` is not a safe grammatical rule and neither is
+    `estimate -> estimator`; productive morphology over mathematical vocabulary
+    manufactures plausible nonsense.
+
+  example_Estimation:
+    parameterised_by: {theta: ParameterSpace}
+    members:
+      procedure:      {type: "EstimationProcedure", note: the algorithm, independent of any sample}
+      estimator:      {type: "Function[Sample -> ParameterSpace]", note: a function}
+      estimate:       {type: "ParameterSpace", note: the value from ONE sample}
+      sampling_law:   {type: "Distribution[ParameterSpace]", note: the estimator's law under repeated sampling}
+      standard_error: {type: "PositiveReal"}
+    relations:
+      - "estimate = apply(estimator, to := sample)"
+      - "sampling_law = law_of(estimator, under := sampling_model)"
+    invariants:
+      - estimator_is_a_function_not_a_value
+      - estimate_depends_on_sample
+    consequence: >
+      "the estimate is unbiased" becomes a TYPE ERROR: unbiasedness is a property of the
+      estimator, not of a number.
+
+# ---------------------------------------------------------------------------
+prohibited_conflations_added_in_v1:
+  - Evidence is not Proof — failing to reject is not proving
+  - Credence is not Probability — belief about a model is not a measure within it
+  - PValue is not a posterior probability
+  - Derivation (L2) is not Entailment (L3) — rewriting is not implying
+  - estimator is not estimate is not procedure
+  - Goal (L5) is not Theorem (L1) — intent is not a claim
+  - assumed(P) never discharges a goal
+  - almost_sure(P) is not P
+  - with_high_probability without a regime is not well formed
+
+kill_criteria:
+  L2: fewer than 30% of injected invalid-step errors detected
+  L3: does not separate valid from invalid inference chains better than chance
+  L4: any prohibited conflation type-checks
+  L5: adds no diagnostic V0 does not already produce
+  families: the estimator/estimate confusion still type-checks

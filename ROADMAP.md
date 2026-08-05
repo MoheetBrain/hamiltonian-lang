@@ -54,6 +54,25 @@ closes most of the gap — in which case the right artefact is a prompt, not a c
 
 That is why A′ is built first.
 
+## v1 — Discourse, Transformation and Epistemics
+
+Specified in `docs/design/V1_KERNEL.md`; preregistered plan in
+`docs/design/V1_EXPERIMENT_PLAN.md`. Nothing implemented; `src/` is frozen at
+`hml-v0-baseline`.
+
+- [ ] Redesign the corpus to a 50-60% baseline accuracy, n >= 60 (the pilot's ceiling
+      effect is the single reason it could conclude nothing)
+- [ ] Raise Hamiltonian parse rate to >= 90% -- **gate: no V0-vs-V1 comparison starts
+      until this is met.** A language the model cannot write is not being tested
+- [ ] Implement L4 epistemic first: it has the clearest correctness claim and the
+      strictest kill criterion
+- [ ] Then L5 discourse, then L2 transformation, then L3 inference -- in predicted
+      order of survival, so a surprise is visible
+- [ ] Run the error-detection experiment: precision and recall on injected errors, not
+      answer accuracy. The pilot settled that representation does not change what the
+      model computes
+- [ ] Drop any layer that fails its kill criterion, and re-measure without it
+
 ## Not planned
 
 - a theorem-prover kernel
