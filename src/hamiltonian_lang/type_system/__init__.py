@@ -202,6 +202,79 @@ class TypeChecker:
                         "parameter_positivity", f"{sym.name} >= 0", sym.span
                     )
 
+    # -- unknown-type detection -------------------------------------------
+    def _known_type_names(self) -> list[str]:
+        from ..types import SCALARS
+
+        return [
+            *SCALARS,
+            "Vector", "Matrix", "Tensor", "Set", "Function", "Predicate",
+            "RandomVariable", "Distribution", "Quantity", "Proposition",
+            "Dimensionless",
+            *self.concepts,
+        ]
+
+    def _validate_type(self, t: Type | None, span: Span, where: str) -> None:
+        """Reject a type naming something that does not exist.
+
+        An unknown capitalised name parses as a *concept reference*, so before this check
+        `param x : Frobnicator` and `param sigma : Positiv` (a truncated `PositiveReal`)
+        were both accepted in silence. That is precisely the failure mode of generated
+        code — a hallucinated or truncated type name — and it corrupts encoding fidelity
+        with no diagnostic to trigger a repair.
+
+        The correction is a nearest-name suggestion, because a diagnostic that cannot be
+        acted on does not help a repair loop.
+        """
+        if t is None:
+            return
+        from ..types import ConceptType, FunctionType, PredicateType
+
+        if isinstance(t, ConceptType):
+            if t.name not in self.concepts:
+                self.diags.error(
+                    "HML-T440",
+                    f"unknown type {t.name!r}",
+                    span,
+                    found=t.name,
+                    correction=self._nearest_type(t.name),
+                    notes=[
+                        f"{t.name!r} is neither a built-in type nor a concept declared "
+                        f"in this module",
+                        f"used as the type of {where}",
+                    ],
+                )
+            return
+        for sub in (
+            getattr(t, "element", None), getattr(t, "codomain", None),
+            getattr(t, "support", None),
+        ):
+            self._validate_type(sub, span, where)
+        if isinstance(t, FunctionType | PredicateType):
+            for d in t.domain:
+                self._validate_type(d, span, where)
+
+    def _nearest_type(self, name: str) -> str:
+        """Suggest the closest real type name, so the diagnostic is actionable."""
+        from ..semantics import _levenshtein
+
+        pool = self._known_type_names()
+        scored = sorted(
+            ((_levenshtein(name.lower(), k.lower()), k) for k in pool), key=lambda x: x[0]
+        )
+        best_d, best = scored[0]
+        # A truncation such as `Positiv` -> `PositiveReal` is a large edit distance but an
+        # exact prefix, so prefix agreement is checked as well as distance.
+        prefix = sorted(
+            (k for k in pool if k.lower().startswith(name.lower()) and k != name),
+            key=lambda k: (len(k) - len(name), k),
+        )
+        if prefix:
+            return f"did you mean {prefix[0]!r}?"
+        if best_d <= max(2, len(name) // 3):
+            return f"did you mean {best!r}?"
+        return f"declare a concept named {name!r}, or use a built-in type"
+
     # -- statements -------------------------------------------------------
     def check_statement(self, st: Statement) -> None:
         if isinstance(st, ModuleDecl):
@@ -217,6 +290,7 @@ class TypeChecker:
                     notes=["every object has a type (governing principle 1)"],
                 )
                 return
+            self._validate_type(st.declared_type, st.span, f"{st.kind} {st.name!r}")
             st.type_ = st.declared_type
             if st.value is not None:
                 vt = self.expr_type(st.value)
@@ -233,6 +307,9 @@ class TypeChecker:
             return
 
         if isinstance(st, DefineStmt):
+            self._validate_type(st.declared_type, st.span, f"definition {st.name!r}")
+            for pname, ptype in st.params:
+                self._validate_type(ptype, st.span, f"parameter {pname!r}")
             bt = self.expr_type(st.body)
             st.type_ = st.declared_type or bt
             if st.declared_type is not None and not is_subtype(bt, st.declared_type):
@@ -750,6 +827,7 @@ class TypeChecker:
             return PROP
 
         if isinstance(e, Quantifier):
+            self._validate_type(e.var_type, e.span, f"quantified variable {e.var!r}")
             sym = self.symbols.get(e.symbol_id) if e.symbol_id else None
             if sym is not None and e.var_type is not None:
                 sym.declared_type = e.var_type

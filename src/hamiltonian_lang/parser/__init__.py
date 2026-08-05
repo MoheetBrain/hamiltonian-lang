@@ -87,12 +87,27 @@ class ParseAbort(Exception):
     """Internal control flow: abandon the current line."""
 
 
+#: Maximum nesting depth for expressions. Recursive descent recurses once per level, so
+#: without a bound a degenerate generation -- `((((( ... ` repeated a few hundred times --
+#: raises RecursionError and crashes the process. A generated encoding that is truncated
+#: mid-expression can reach this, so the parser must reject it with a diagnostic rather
+#: than die.
+#:
+#: The bound is MEASURED, not guessed. Each nesting level costs ~12.2 Python stack frames
+#: (parse_expr -> implication -> disjunction -> ... -> primary -> parse_expr), and the
+#: default recursion limit of 1000 breaks at depth 82. 50 leaves roughly a 40% margin for
+#: the frames already on the stack when parsing begins, and for statement-level nesting
+#: above the expression. Re-measure this if the expression grammar gains levels.
+MAX_EXPR_DEPTH = 50
+
+
 class Parser:
     def __init__(self, tokens: list[Token], diags: DiagnosticBag, file: str = "<input>") -> None:
         self.toks = tokens
         self.k = 0
         self.diags = diags
         self.file = file
+        self._depth = 0
 
     # -- token helpers ----------------------------------------------------
     @property
@@ -673,7 +688,27 @@ class Parser:
 
     # -- expressions ------------------------------------------------------
     def parse_expr(self) -> Expr:
-        return self.parse_implication()
+        """Entry point for expression parsing, with a hard nesting bound.
+
+        The bound is enforced here rather than at each recursive site so that every path
+        into an expression is covered by one check.
+        """
+        self._depth += 1
+        try:
+            if self._depth > MAX_EXPR_DEPTH:
+                self._err(
+                    "HML-P240",
+                    f"expression nested more than {MAX_EXPR_DEPTH} levels deep",
+                    correction="simplify the expression, or check for unbalanced '('",
+                    notes=[
+                        "a deeply nested or truncated expression is rejected rather than "
+                        "risking a crash"
+                    ],
+                )
+                raise ParseAbort
+            return self.parse_implication()
+        finally:
+            self._depth -= 1
 
     def parse_implication(self) -> Expr:
         left = self.parse_disjunction()
@@ -931,8 +966,26 @@ class Parser:
 
 
 def parse(source: str, file: str = "<input>", diags: DiagnosticBag | None = None):
-    """Parse HML-L1 source into a ``Module``. Returns ``(module, diagnostics)``."""
+    """Parse HML-L1 source into a ``Module``. Returns ``(module, diagnostics)``.
+
+    Guarantees, which the evaluation harness depends on: finite runtime, no uncaught
+    exception, and at least one diagnostic or a valid parse for **any** input. Arbitrary
+    model output reaches this function, so a crash here would take down a run rather than
+    scoring a bad generation.
+    """
     bag = diags if diags is not None else DiagnosticBag(source, file)
-    tokens, bag = tokenize(source, bag, file)
-    module = Parser(tokens, bag, file).parse_module()
+    try:
+        tokens, bag = tokenize(source, bag, file)
+        module = Parser(tokens, bag, file).parse_module()
+    except RecursionError:
+        # Backstop only. MAX_EXPR_DEPTH should catch nesting first; if this fires, the
+        # bound is wrong for some path and needs re-measuring.
+        bag.error(
+            "HML-P241",
+            "input is nested too deeply for the parser to process",
+            Span(1, 0, 1, 0, file),
+            correction="simplify the expression, or check for unbalanced delimiters",
+            notes=["recursion backstop reached; MAX_EXPR_DEPTH did not cover this path"],
+        )
+        module = Module(name="Main", source_file=file, span=Span(1, 0, 1, 0, file))
     return module, bag

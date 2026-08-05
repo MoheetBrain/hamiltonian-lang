@@ -1,0 +1,22 @@
+{
+  "content": "132",
+  "reasoning": "The user wants the result of $12 \\times 11$.\n$12 \\times 11 = 132$.\nConstraint: \"Only the number\" and \"Answer tersely\".",
+  "prompt_tokens": 33,
+  "completion_tokens": 52,
+  "total_tokens": 85,
+  "latency_s": 2.53,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "d7131d2c29d6576a8f7598e435c249632e601a8c58e0b21921f61a86122dc971",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 800,
+    "seed": null
+  },
+  "captured_utc": "2026-08-05T13:33:17Z"
+}

@@ -23,6 +23,10 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 
 __all__ = [
+    "PValue",
+    "PosteriorProbability",
+    "ProbabilityKind",
+    "probability_coercion_allowed",
     "Justification",
     "EpistemicStatus",
     "STATUS_JUSTIFICATION",
@@ -137,6 +141,101 @@ PROHIBITED_COERCIONS: dict[tuple[Justification, Justification], str] = {
 
 class ContextError(ValueError):
     """A status was used without the context that gives it meaning."""
+
+
+class ProbabilityKind(StrEnum):
+    """What a number in [0, 1] actually *is*.
+
+    All three are reals in the unit interval, which is exactly why they get confused. The
+    distinction is epistemic, not numeric, so the type system has to carry it — the value
+    alone never can.
+    """
+
+    P_VALUE = "PValue"
+    POSTERIOR = "PosteriorProbability"
+    MODEL_PROBABILITY = "Probability"
+
+
+#: Pairs that may never be coerced, with the reason. A p-value is P(data at least this
+#: extreme | H0); a posterior is P(H0 | data). Reading one as the other is the
+#: prosecutor's fallacy, and it is the single most common misreading in applied
+#: statistics -- so it is prevented by typing rather than by a comment.
+PROHIBITED_PROBABILITY_COERCIONS: dict[tuple[ProbabilityKind, ProbabilityKind], str] = {
+    (ProbabilityKind.P_VALUE, ProbabilityKind.POSTERIOR): (
+        "a p-value is P(data at least this extreme | H0); a posterior is P(H0 | data). "
+        "Reading a p-value as a posterior is the prosecutor's fallacy"
+    ),
+    (ProbabilityKind.POSTERIOR, ProbabilityKind.P_VALUE): (
+        "a posterior is not a tail probability under the null and cannot be compared "
+        "to a significance level"
+    ),
+    (ProbabilityKind.P_VALUE, ProbabilityKind.MODEL_PROBABILITY): (
+        "a p-value is a property of a test procedure, not a probability within the model"
+    ),
+    (ProbabilityKind.MODEL_PROBABILITY, ProbabilityKind.P_VALUE): (
+        "a model probability is not the output of a hypothesis test"
+    ),
+}
+
+
+def probability_coercion_allowed(
+    source: ProbabilityKind, target: ProbabilityKind
+) -> tuple[bool, str]:
+    """Identity only. Everything else is refused by default, as elsewhere in the kernel."""
+    if source == target:
+        return True, ""
+    reason = PROHIBITED_PROBABILITY_COERCIONS.get((source, target))
+    if reason:
+        return False, reason
+    return False, f"no coercion from {source} to {target} is defined"
+
+
+@dataclass(frozen=True)
+class PValue:
+    """The tail probability from a test. Numerically in [0, 1]; epistemically not a belief.
+
+    Deliberately NOT a subclass of any probability type: subclassing would create exactly
+    the coercion path this exists to forbid.
+    """
+
+    value: float
+    kind: ProbabilityKind = ProbabilityKind.P_VALUE
+
+    def __post_init__(self) -> None:
+        if not 0.0 <= self.value <= 1.0:
+            raise ValueError(f"a p-value must lie in [0, 1]; got {self.value}")
+
+    def may_be_used_as(self, target: ProbabilityKind) -> tuple[bool, str]:
+        return probability_coercion_allowed(self.kind, target)
+
+    def as_posterior(self) -> float:
+        raise TypeError(
+            PROHIBITED_PROBABILITY_COERCIONS[
+                (ProbabilityKind.P_VALUE, ProbabilityKind.POSTERIOR)
+            ]
+        )
+
+
+@dataclass(frozen=True)
+class PosteriorProbability:
+    """P(hypothesis | data). Requires the prior it was computed against."""
+
+    value: float
+    prior: str
+    kind: ProbabilityKind = ProbabilityKind.POSTERIOR
+
+    def __post_init__(self) -> None:
+        if not 0.0 <= self.value <= 1.0:
+            raise ValueError(f"a probability must lie in [0, 1]; got {self.value}")
+        if not self.prior:
+            raise ContextError(
+                "a posterior probability requires the prior it was computed against; "
+                "without one it is not a posterior"
+            )
+
+    def may_be_used_as(self, target: ProbabilityKind) -> tuple[bool, str]:
+        return probability_coercion_allowed(self.kind, target)
+
 
 
 def coercion_allowed(source: Justification, target: Justification) -> tuple[bool, str]:

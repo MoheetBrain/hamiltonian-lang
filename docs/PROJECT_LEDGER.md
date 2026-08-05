@@ -725,3 +725,82 @@ belong to unstaged agent work and will be resolved at integration.
 acquisition comparison. Nothing about reasoning can be measured until a surface form
 reaches 95% parse.
 
+---
+
+## 2026-08-04 — HML-COMPILER-CORE-003 Phase 0-1; four V1 agents integrated
+
+**Branch.** `hml-v1-concept-kernel` · **Stage.** Compiler hardening; V1 integrated.
+
+**Objective.** Measure before modifying, fix only what measurement justifies, and
+integrate the four V1 agents to a clean conformance pass.
+
+**Phase 0 audit — `docs/evaluation/COMPILER_CORE_AUDIT.md`.** 22 malformed inputs, 800
+fuzz inputs, 8 precedence probes, 4 semantic-hole probes, 5 dimensional probes, 4 identity
+probes. The audit's main effect was to *prevent* four rewrites: expression precedence and
+associativity are measurably correct (5/5 probes), all four canonical-identity rules are
+correct, binder identity is correct, and the lexer survived 800 fuzz inputs with no hang or
+crash. **The directive's own conditions for a Pratt parser, a locally nameless
+representation, a red-green tree and an e-graph are each unmet by measurement**, and each
+is recorded as a deferred decision with a trigger rather than as an omission.
+
+**Two measured defects fixed by the Lead Architect.**
+
+1. **`RecursionError` on deep nesting.** 400 nested parens crashed the process — a Phase 1
+   violation, and reachable by a truncated generation. The first fix did not work: a bound
+   of 120 was never reached because each nesting level costs ~12.2 Python stack frames and
+   the default limit of 1000 breaks at **depth 82**, measured by bisection. `MAX_EXPR_DEPTH`
+   is now 50, derived from that measurement, with a `RecursionError` backstop at the parse
+   boundary and a test asserting the bound stays below the measured ceiling.
+2. **The unknown-type hole, the audit's most consequential finding.** `param x :
+   Frobnicator` and `param sigma : Positiv` — a truncation of `PositiveReal` — were both
+   **accepted in silence**, because an unknown capitalised name parses as a concept
+   reference. That is exactly the failure mode of generated code and it corrupts encoding
+   fidelity with no diagnostic to trigger a repair. Now `HML-T440`, with a nearest-name
+   correction (`Positiv` → `did you mean 'PositiveReal'?`), because one-repair success is a
+   gate metric and a diagnostic that cannot be acted on does not help a repair loop.
+
+**A gap in my own contract, found by the adversarial agent.** `spec/v1/semantic_objects.yaml`
+named `PValue` as a distinct type with no coercion to a posterior. **I never implemented
+it.** Both sides were typed `Probability`, so p-value-as-posterior type-checked — meaning
+**L4 was failing its own kill criterion**. Now closed: `PValue` and `PosteriorProbability`
+are distinct frozen types, deliberately not subclasses of anything (subclassing would
+create the coercion path the types exist to forbid), identity is the only permitted
+coercion, and a posterior without its prior is rejected.
+
+**Three of six V1 layers had no kill criterion** — registry, minting and morphology, the
+three the milestone is named after. Added, including the minting criterion recording its
+own current **FAILURE**: the adversarial agent seeded a registry with one concept and got
+three further copies admitted via a vacuous constraint, an undeclared parameter, and a
+trivially rearranged definition.
+
+**Tests and verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `.venv/bin/python -m pytest` | **1469 passed, 4 skipped, 1 xfailed** |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS — without override** |
+| `.venv/bin/ruff check src tests` | All checks passed |
+| `.venv/bin/mypy src/hamiltonian_lang` | no issues, 32 source files |
+| front-end fuzz battery, re-run | 0 hangs, 0 crashes, deep nesting now `HML-P240` |
+| `hml check examples/*/*.hml` | 8/8 pass; golden hashes unmoved |
+
+**Failures and unresolved uncertainty.**
+
+- The **minting protocol is gameable and currently fails its criterion**. Not fixed in this
+  entry; recorded with a runnable reproduction in `audits/V1_RED_TEAM.md` §3.
+- **V0 cannot express 38 of the 60 ablation problems**, so the pilot's encoding-fidelity
+  metric is undefined on that corpus and the V0 control is disadvantaged by construction.
+- Per-block ablation contrasts need a **50 pp** effect at 12 items — worse than the pilot.
+  Whole-corpus MDE is 10.0 pp. Block results are marked descriptive-only.
+- Lean's `sorry` **compiles and exits 0**, so exit status alone would certify a false
+  theorem; `#print axioms` is the real discriminator. Since V0's Lean backend closes every
+  obligation with `sorry`, no V0-emitted theorem could ever count as verified.
+- A **V0 SymPy defect** remains open: generated modules raise `NameError` on import when a
+  quantified `Proposition` is dropped but a reference survives.
+
+**Effect on the overall project.** The compiler is hardened where measurement justified it
+and left alone where it did not, and conformance passes cleanly with all V1 work integrated.
+
+**Next intended step.** Freeze the compiler, freeze four syntax candidates, and run the
+syntax-acquisition gate on `gemma4:31b`.
+
