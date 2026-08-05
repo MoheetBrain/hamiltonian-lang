@@ -127,7 +127,7 @@
     }
   },
   "eval_spec_version": "EVAL_SPEC_v1.0",
-  "frozen_at_utc": "2026-08-04T22:33:58+01:00",
+  "frozen_at_utc": "2026-08-05T13:29:16+01:00",
   "information_asymmetry": [
     "Arms D/E/F carry a ~90-line specification of a language invented weeks ago. Arm C names Stan and Lean, which the model saw extensively in pretraining and needs no specification for. This is the out-of-distribution confound and prompt construction cannot remove it. Direction: against the Hamiltonian arms.",
     "Arms D/E/F therefore have a longer prompt than arms A/A'/B. Prompt tokens are recorded per call so the difference is measured rather than assumed away. Direction: raises Hamiltonian cost, does not affect its accuracy.",
@@ -146,10 +146,10 @@
       "src/hamiltonian_lang/type_system/distributions.py": "8279f3ce4dd4adee851b7d030e75e21a92038c55a0a963fd42d8bb9d75cdf152",
       "src/hamiltonian_lang/types.py": "e00b37072ef4cf4626095df489a3ed5189a371aed83aa08edb7c62217928577a"
     },
-    "git_commit": "81f04742dcbe8fe97b4ce24b4b2cfab3746454d1",
+    "git_commit": "286a711a35dda82e1cc3990447c8131a0e5f6142",
     "git_describe_exact": "",
-    "git_tag": "hml-v0-eval-freeze-2-g81f0474",
-    "working_tree_clean": false
+    "git_tag": "hml-v0-eval-freeze-3-g286a711",
+    "working_tree_clean": true
   },
   "model": {
     "endpoint": "http://localhost:11434/v1",
@@ -360,9 +360,9 @@
     "seed": 20260804
   },
   "scorer": {
-    "combined_sha256": "9ff78d5f603cf67eac094b1290fd3e4fbfb6443be7a534ee8b406858c72b6276",
+    "combined_sha256": "724bb77606662d228e66f355b5edeeb7d43fc97e250e4beb312709cdcc4e8680",
     "file_hashes": {
-      "evaluation/analyse.py": "f43bf7797e4ef1657bf9345d0cd41a3cb0508f27d0a92c2d6434756e25858540",
+      "evaluation/analyse.py": "4b419a4964ecc04d26e3e9f9f86e7519e9d0c5b4785cc28f57b5d4ccc5233cc9",
       "evaluation/corpus/cso.py": "996ec684d787da8e31fb92b9df04c52f83d426c7c24be5b8202fb56af7834dd3",
       "evaluation/corpus/generators.py": "02aa6dc0a7cc6d48fb4044530206d45ad6b2a7bd473e2c725e1753626fa956ca",
       "evaluation/corpus/renderers.py": "16bcd841ee96972cc7ee94f6dbd58e688488c2c0f667dbf75383597a3b556952",

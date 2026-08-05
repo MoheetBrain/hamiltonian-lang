@@ -138,10 +138,26 @@ def rescore(rows: list[dict]) -> list[dict]:
     the code in the repository rather than with whatever version happened to be loaded
     while the run was in flight. The raw model output is never modified.
     """
+    from evaluation.corpus.cso import check_answer
     from evaluation.corpus.generators import build_all
     from evaluation.semantic_equiv import compare_semantics
 
     corpus = {c.id: c for c in build_all()}
+
+    # EVAL_SPEC_v1.1: ANSWER correctness is re-derived too, not only the encoding score.
+    # In v1.0 only the encoding score was recomputed, so `answer_correct` remained
+    # whatever the scorer wrote during the run. `d24_unknown_constant` was scored wrong
+    # in all seven arms because the trial-time `parse_dimension` could not read a
+    # parenthesised denominator -- every arm had in fact answered it correctly.
+    for r in rows:
+        cso_a = corpus.get(r["problem_id"])
+        if cso_a is not None:
+            correct, extracted = check_answer(cso_a.answer, r.get("raw_output") or "")
+            if correct != r.get("answer_correct"):
+                r["_answer_rescored_from"] = r.get("answer_correct")
+            r["answer_correct"] = correct
+            r["extracted_answer"] = extracted
+
     for r in rows:
         if r["arm"] not in ("D", "E") or not r.get("encoding_text"):
             continue

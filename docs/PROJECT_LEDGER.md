@@ -464,3 +464,63 @@ here requires a new EVAL_SPEC version with the v1.0 result preserved.
 **Next intended step.** Primary analysis on generation 0 and
 `docs/evaluation/HML_EVAL_001_PILOT_REPORT.md` with a single decision.
 
+---
+
+## 2026-08-04 — HML-EVAL-001 pilot complete: result and decision
+
+**Branch.** `main` · **Stage.** HML-EVAL-001 pilot closed.
+
+**Objective.** Complete one fully paired generation, freeze the spec, validate the
+evaluator blind, analyse, and record one decision.
+
+**What was completed.** Generation 0: **105/105 cells, 15 problems × 7 arms, zero unrun.**
+`EVAL_SPEC_v1.0` frozen on a clean tree before any comparative result was viewed; 22
+mutation tests and a 20-case blinded audit (20/20 answer, 6/6 semantic, no disagreements).
+`docs/evaluation/HML_EVAL_001_PILOT_REPORT.md` written.
+
+**Result.** Answer accuracy: A, A′, B, D, E, F all 14/15 = 93.3%; C 13/15 = 86.7%. Six of
+seven paired contrasts had **zero discordant pairs** — the arms succeeded and failed on the
+same problems. Encoding fidelity: D 0.648, E 0.701; parse rate D 73.3%, E 85.7%. The single
+interval excluding zero was E−D encoding fidelity, +0.065 [0.006, 0.136].
+
+**Decisions made and why.** **REDESIGN AND RETEST.** Not "no advantage", because a set
+saturated at 93% with n=15 could only detect an effect of ~33 points and therefore had
+almost no power; and not "continue", because there is no answer-accuracy effect to amplify
+and 27–50% of Hamiltonian encodings do not compile — an explicit redesign trigger.
+
+**Failures and unresolved uncertainty.**
+
+- **A scorer defect was found after comparative results were viewed.** All seven arms were
+  marked wrong on `d24_unknown_constant` and all seven had answered it correctly: answer
+  correctness was computed once at trial time and the re-scoring path re-derived only the
+  encoding score, so a dimension-parser fix never reached the stored verdicts. Handled
+  under the directive's protocol — v1.0 preserved verbatim, defect recorded as
+  EVAL-DEFECT-001, raw outputs transparently rescored under v1.1. Effect: 7 cells, one per
+  arm, all False→True; every paired difference unchanged.
+- The blind-audit tool itself was initially reading stale run-time scores; fixed before any
+  verdict was recorded.
+- 6 of 105 cells produced empty output from reasoning-budget exhaustion, concentrated on
+  one problem, which is the sole source of the 1/15 shortfall in every arm.
+- Structured English (A′) was the **least stable** arm on replication, falling to 66.7% in
+  generation 1, while costing 48% more generated tokens than plain English for zero gain.
+- Two comparator limitations documented, not corrected, both biasing against the
+  Hamiltonian arms; `prohibited_assumptions` is carried but not scored, so
+  missing-assumption detection is **not measured**.
+
+**Tests and verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `.venv/bin/python -m pytest` | 967 passed |
+| `./scripts/conformance.sh` | CONFORMANCE: PASS, all 8 stages |
+| `evaluation.analyse --generation 0` | 105/105 cells, 0 unrun |
+| `evaluation.blind_audit unblind` | 20/20 answer, 6/6 semantic, no disagreements |
+
+**Effect on the overall project.** The thesis now has its first real measurement against
+it. Nothing observed supports a representation advantage; the design was too weak to rule
+one out.
+
+**Next intended step.** Redesign the corpus so it discriminates — harder problems, lower
+baseline accuracy, more of them — and reduce the Hamiltonian syntax-failure rate before
+retesting.
+

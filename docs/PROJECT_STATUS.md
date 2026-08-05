@@ -10,7 +10,10 @@ verification and generalisation relative to ordinary mathematical English, LaTeX
 conventional code, and direct use of existing formal languages.
 
 The project succeeds only if a reproducible advantage is demonstrated on at least one
-important mathematical task. **No such measurement has been taken.**
+important mathematical task. **A pilot measurement has now been taken and found no
+advantage — see `docs/evaluation/HML_EVAL_001_PILOT_REPORT.md`. The decision is REDESIGN
+AND RETEST.** The pilot was saturated at 93% accuracy across all seven arms and had almost
+no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
@@ -77,6 +80,8 @@ against isolated file ownership.
 | `benchmarks/eval001/` | 120-problem corpus, 7 arms, 840 prompt files |
 | `evaluation/harness.py` | model-evaluation harness |
 | `evaluation/analyse.py` | paired intervals, McNemar, effect sizes |
+| `docs/evaluation/HML_EVAL_001_PILOT_REPORT.md` | **the pilot result and decision** |
+| `evaluation/results/EVAL_SPEC_v1.1.json` | frozen spec + defect record |
 | `docs/evaluation/PRE_EVALUATION_AUDIT.md` | verified state before the experiment |
 | `audits/RED_TEAM_REPORT.md` | adversarial review |
 | `src/hamiltonian_lang/ast/nodes.py` | **frozen IR contract** |
@@ -122,6 +127,7 @@ Commands executed and their real results:
 | command | result |
 |---------|--------|
 | `.venv/bin/python -m pytest -q` | **967 passed, 0 failed, 0 xfailed** |
+| `evaluation.analyse --generation 0` | 105/105 cells; all arms 93.3% except C 86.7% |
 | `.venv/bin/hml check examples/*/*.hml` | **8/8 check cleanly** |
 | `.venv/bin/ruff check src tests` | **All checks passed** |
 | `.venv/bin/mypy src/hamiltonian_lang` | **Success: no issues found in 22 source files** |
@@ -138,8 +144,15 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Known Failures and Limitations
 
-- **The central hypothesis is untested.** No model-in-the-loop comparison has been run.
-  Nothing in this repository is evidence for the thesis.
+- **The pilot found no representation advantage.** Every paired contrast against ordinary
+  English, structured English and LaTeX was exactly zero with **zero discordant pairs**.
+  Hamiltonian encoding fidelity was 0.648 and 27–50% of encodings did not compile.
+- **The pilot was underpowered.** 14 of 15 problems were answered correctly by every arm;
+  the design could only detect an effect of roughly 33 percentage points. The zero
+  differences are not evidence that no difference exists.
+- **The one positive signal:** compiler feedback raised encoding fidelity by +0.065
+  (CI [0.006, 0.136]) and parse rate by 12–43 points across both generations, at +38%
+  generated tokens. It did not change answer accuracy at all.
 - **Round trips now measured, not assumed** (HML-EVAL-001 §9). Four routes implemented
   with explicitly declared narrow subsets: canonical IR (5/5 in-subset fixtures preserve
   the content hash), graph triples (2/2), Stan (2/2), Lean statement subset (2/2). What

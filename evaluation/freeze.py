@@ -135,6 +135,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--version", default="1.0")
     ap.add_argument("--run", default="eval001-pilot")
     ap.add_argument("--generation", type=int, default=0)
+    ap.add_argument("--supersedes", default=None)
+    ap.add_argument("--defect-file", default=None)
     args = ap.parse_args(argv)
 
     meta_path = RUNS / f"{args.run}.meta.json"
@@ -188,6 +190,10 @@ def main(argv: list[str] | None = None) -> int:
         "raw_output_manifest": raw_manifest(args.run, args.generation),
         "information_asymmetry": run_meta.get("information_asymmetry"),
     }
+    if args.supersedes:
+        spec["supersedes"] = args.supersedes
+    if args.defect_file:
+        spec["defect_record"] = json.loads(Path(args.defect_file).read_text())
 
     out = OUT / f"EVAL_SPEC_v{args.version}.json"
     out.write_text(json.dumps(spec, indent=2, sort_keys=True) + "\n")
