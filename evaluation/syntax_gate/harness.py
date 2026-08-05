@@ -85,7 +85,17 @@ CONCURRENCY_CITATION = (
 )
 
 #: Scoring and analysis are CPU-bound and this is where 18 cores help.
-SCORING_WORKERS = int(os.environ.get("HML_JOBS") or (os.cpu_count() or 4))
+#:
+#: Deliberately NOT ``HML_JOBS``. That variable is ``scripts/conformance.sh``'s serial
+#: escape hatch -- ``HML_JOBS=1`` forces a one-process pytest run, which is the only way
+#: to diagnose an ordering-dependent failure that ``-n 18`` hides. Reading it here made
+#: ``HML_JOBS=1`` set ``SCORING_WORKERS = 1`` and fail
+#: ``test_scoring_uses_the_cores_that_model_calls_cannot`` on ``1 >= 4`` -- so the
+#: documented debugging knob broke conformance for a reason unrelated to the bug being
+#: chased. Two different concerns had collided on one name.
+SCORING_WORKERS = max(
+    1, int(os.environ.get("HML_SCORING_WORKERS") or (os.cpu_count() or 4))
+)
 
 
 #: ``OLLAMA_NUM_PARALLEL=4`` divides the 32768-token context into four 8192-token slots

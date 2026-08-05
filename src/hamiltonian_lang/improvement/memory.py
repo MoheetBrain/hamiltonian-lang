@@ -76,6 +76,8 @@ __all__ = [
     "MemoryStore",
     "MemoryBank",
     "QuarantineEligibilityError",
+    "UnknownVerifierStatus",
+    "verifier_outcome_from_status",
     "exact_hash_of",
     "canonical_hash_of",
 ]
@@ -138,6 +140,51 @@ class VerifierOutcome(StrEnum):
 
 class QuarantineEligibilityError(ValueError):
     """Raised on any attempt to mark quarantined data as training-eligible."""
+
+
+class UnknownVerifierStatus(ValueError):
+    """Raised when a verifier reports a status this router has no rule for."""
+
+
+#: Translation from the verification protocol's status names to routing outcomes.
+#:
+#: Taken by *name*, not by importing the enum, so that this module keeps no dependency on
+#: the verification layer and a rename over there fails loudly here instead of silently
+#: mislabelling a row. ``SEMANTIC_LOSS`` is deliberately absent from the mapping: it is not
+#: a verdict about the candidate, it is a statement that the translation lost meaning, and
+#: it belongs in ``RoutingFacts.semantic_loss`` where it quarantines the episode.
+_STATUS_TO_OUTCOME: Mapping[str, VerifierOutcome] = {
+    "SUPPORTED_AND_VERIFIED": VerifierOutcome.PASS,
+    "PASS": VerifierOutcome.PASS,
+    "SUPPORTED_AND_FAILED": VerifierOutcome.FAIL,
+    "INVALID": VerifierOutcome.FAIL,
+    "FAIL": VerifierOutcome.FAIL,
+    "INCONCLUSIVE": VerifierOutcome.INCONCLUSIVE,
+    "UNSUPPORTED": VerifierOutcome.UNSUPPORTED,
+}
+
+
+def verifier_outcome_from_status(status: str) -> VerifierOutcome:
+    """Map a verification-protocol status name onto a routing outcome.
+
+    ``SEMANTIC_LOSS`` raises rather than being folded into ``FAIL``: an episode whose
+    translation lost meaning has not been shown to be wrong, and filing it as a negative
+    example would teach the wrong thing. Set ``RoutingFacts.semantic_loss`` instead.
+    """
+    name = status.upper()
+    if name == "SEMANTIC_LOSS":
+        raise UnknownVerifierStatus(
+            "SEMANTIC_LOSS is not a verdict about the candidate. Record it as "
+            "RoutingFacts.semantic_loss, which quarantines the episode, rather than "
+            "converting it into a verifier outcome."
+        )
+    try:
+        return _STATUS_TO_OUTCOME[name]
+    except KeyError:
+        raise UnknownVerifierStatus(
+            f"no routing rule for verifier status {status!r}; known: "
+            f"{sorted(_STATUS_TO_OUTCOME)} plus SEMANTIC_LOSS, which is handled separately"
+        ) from None
 
 
 # ---------------------------------------------------------------------------

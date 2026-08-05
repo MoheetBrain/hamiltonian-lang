@@ -73,10 +73,10 @@ __all__ = [
     "ScriptedModel",
     "ScriptError",
     "RepairBudgetExceeded",
-    "VerificationResult",
+    "ArenaVerification",
     "Verifier",
     "CanonicalFormVerifier",
-    "StructuredDiagnostic",
+    "ArenaDiagnostic",
     "DiagnosticSource",
     "CompilerDiagnostics",
     "EventName",
@@ -243,7 +243,7 @@ class ScriptedModel:
 
 
 @dataclass(frozen=True)
-class VerificationResult:
+class ArenaVerification:
     """A verdict about one candidate encoding of one task.
 
     ``INCONCLUSIVE`` is used when the output does not compile: there is no canonical form
@@ -255,6 +255,7 @@ class VerificationResult:
     verifier: str
     outcome: VerifierOutcome
     parsed: bool
+    checked: bool
     canonical_hash: str | None
     detail: str
     diagnostic_codes: tuple[str, ...] = ()
@@ -265,6 +266,7 @@ class VerificationResult:
             "verifier": self.verifier,
             "outcome": self.outcome.value,
             "parsed": self.parsed,
+            "checked": self.checked,
             "canonical_hash": self.canonical_hash,
             "detail": self.detail,
             "diagnostic_codes": list(self.diagnostic_codes),
@@ -276,7 +278,7 @@ class VerificationResult:
 class Verifier(Protocol):
     name: str
 
-    def verify(self, task: ArenaTask, source: str) -> VerificationResult: ...
+    def verify(self, task: ArenaTask, source: str) -> ArenaVerification: ...
 
 
 class CanonicalFormVerifier:
@@ -285,33 +287,45 @@ class CanonicalFormVerifier:
     No model judges anything here. The hash excludes bound-variable names, so a correct
     answer that renames a binder passes, and a wrong-arity call — which canonicalises
     differently — fails.
+
+    ``parsed`` and ``checked`` are separate facets and are measured separately. A
+    wrong-arity call **parses** and fails the type check; reporting it as a parse failure
+    would understate first-attempt parse rate and misattribute the defect to the surface
+    syntax. The parser is therefore run in its own right rather than inferred from the
+    compile verdict.
     """
 
     name = "canonical_form"
 
-    def verify(self, task: ArenaTask, source: str) -> VerificationResult:
-        from .. import compile_source
+    def verify(self, task: ArenaTask, source: str) -> ArenaVerification:
+        from .. import compile_source, parse
 
-        result = compile_source(source, f"<candidate:{task.task_id}>")
+        file = f"<candidate:{task.task_id}>"
+        _, parse_bag = parse(source, file)
+        parsed = parse_bag.ok()
+        result = compile_source(source, file)
         codes = tuple(d.code for d in result.diagnostics.errors)
         if not result.ok():
-            return VerificationResult(
+            stage = "parse" if not parsed else "resolution or type checking"
+            return ArenaVerification(
                 verifier=self.name,
                 outcome=VerifierOutcome.INCONCLUSIVE,
-                parsed=False,
+                parsed=parsed,
+                checked=False,
                 canonical_hash=None,
                 detail=(
-                    "the candidate does not compile, so it has no canonical form to "
+                    f"the candidate fails at {stage}, so it has no canonical form to "
                     "compare; the semantic question is unanswered rather than answered no"
                 ),
                 diagnostic_codes=codes,
             )
         candidate_hash = result.hash()
         matched = candidate_hash == task.reference_hash()
-        return VerificationResult(
+        return ArenaVerification(
             verifier=self.name,
             outcome=VerifierOutcome.PASS if matched else VerifierOutcome.FAIL,
             parsed=True,
+            checked=True,
             canonical_hash=candidate_hash,
             detail=(
                 "canonical form matches the reference"
@@ -329,7 +343,7 @@ class CanonicalFormVerifier:
 
 
 @dataclass(frozen=True)
-class StructuredDiagnostic:
+class ArenaDiagnostic:
     """Codes first, prose second. A repair loop acts on the codes."""
 
     codes: tuple[str, ...]
@@ -352,7 +366,7 @@ class StructuredDiagnostic:
 class DiagnosticSource(Protocol):
     name: str
 
-    def diagnose(self, task: ArenaTask, source: str) -> StructuredDiagnostic: ...
+    def diagnose(self, task: ArenaTask, source: str) -> ArenaDiagnostic: ...
 
 
 class CompilerDiagnostics:
@@ -373,14 +387,14 @@ class CompilerDiagnostics:
             self._taxonomy = default_taxonomy()
         return self._taxonomy
 
-    def diagnose(self, task: ArenaTask, source: str) -> StructuredDiagnostic:
+    def diagnose(self, task: ArenaTask, source: str) -> ArenaDiagnostic:
         from .. import compile_source
 
         result = compile_source(source, f"<candidate:{task.task_id}>")
         errors = result.diagnostics.errors
         codes = tuple(d.code for d in errors)
         if not codes:
-            return StructuredDiagnostic(
+            return ArenaDiagnostic(
                 codes=(),
                 text=(
                     "the candidate compiles; no diagnostic was issued. The failure is "
@@ -388,7 +402,7 @@ class CompilerDiagnostics:
                 ),
             )
         skill = self._tax().attribute(codes[0])
-        return StructuredDiagnostic(
+        return ArenaDiagnostic(
             codes=codes, text=result.diagnostics.render(), primary_skill_id=skill
         )
 
@@ -477,7 +491,7 @@ class AttemptRecord:
     label: str
     text: str
     exact_hash: str
-    verification: VerificationResult
+    verification: ArenaVerification
     tokens: TokenAccount
     latency_s: float | None = None
 
@@ -534,7 +548,7 @@ class ArenaOutcome:
     required_verifiers: tuple[str, ...]
     reference_hash: str
     first_attempt: AttemptRecord
-    diagnostic: StructuredDiagnostic | None
+    diagnostic: ArenaDiagnostic | None
     repair_attempt: AttemptRecord | None
     backend_reports: tuple[BackendSupportReport, ...]
     status: ArenaStatus
@@ -547,7 +561,7 @@ class ArenaOutcome:
         return 1 if self.repair_attempt is not None else 0
 
     @property
-    def final_verification(self) -> VerificationResult:
+    def final_verification(self) -> ArenaVerification:
         return (
             self.repair_attempt.verification
             if self.repair_attempt is not None
@@ -789,10 +803,11 @@ def run_arena(
             label="first",
             text=first_response.text,
             exact_hash=exact_hash_of(first_response.text),
-            verification=VerificationResult(
+            verification=ArenaVerification(
                 verifier=checker.name,
                 outcome=VerifierOutcome.INCONCLUSIVE,
                 parsed=False,
+                checked=False,
                 canonical_hash=None,
                 detail=f"the adapter reported an error: {first_response.error}",
             ),
@@ -835,7 +850,7 @@ def run_arena(
         latency_s=first_response.latency_s,
     )
 
-    diagnostic: StructuredDiagnostic | None = None
+    diagnostic: ArenaDiagnostic | None = None
     repair: AttemptRecord | None = None
     status: ArenaStatus
 

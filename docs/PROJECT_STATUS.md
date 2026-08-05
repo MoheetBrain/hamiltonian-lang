@@ -197,7 +197,7 @@ Commands executed and their real results:
 
 | command | result |
 |---------|--------|
-| `.venv/bin/python -m pytest -n 18` | **3862 passed, 4 skipped, 1 xfailed** (was 1531) |
+| `.venv/bin/python -m pytest -n 18` | **3974 passed, 4 skipped, 1 xfailed** (was 1531) |
 | `./scripts/conformance.sh` | **PASS without override** (all four V1 agents integrated) |
 | `evaluation.analyse --generation 0` | 105/105 cells; all arms 93.3% except C 86.7% |
 | `.venv/bin/hml check examples/*/*.hml` | **8/8 check cleanly** |

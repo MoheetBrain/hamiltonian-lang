@@ -12,7 +12,6 @@
       "Bash(git log:*)"
     ],
     "deny": [
-      "Bash(git push:*)",
       "Bash(gh repo create:*)",
       "Bash(gh repo edit:*)",
       "Bash(gh pr create:*)",

@@ -64,6 +64,42 @@ def test_scoring_uses_the_cores_that_model_calls_cannot():
     assert SCORING_WORKERS >= MAX_WORKERS
 
 
+def test_the_conformance_serial_knob_does_not_throttle_scoring():
+    """``HML_JOBS=1`` must not reach ``SCORING_WORKERS``.
+
+    ``scripts/conformance.sh`` documents ``HML_JOBS=1`` as the way to force a serial
+    pytest run when diagnosing an ordering-dependent failure. Reading the same variable
+    here made that knob fail this module's own concurrency assertion on ``1 >= 4``, so
+    the debugging tool broke the build for a reason unrelated to the bug being chased.
+
+    A subprocess is used deliberately: ``importlib.reload`` rebinds the module's exception
+    classes, so a reloaded ``PhaseGateError`` is no longer the one sibling tests catch.
+    Verifying an import-time constant must not mutate this interpreter.
+    """
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    repo = Path(__file__).resolve().parents[2]
+    env = {**os.environ, "HML_JOBS": "1"}
+    env.pop("HML_SCORING_WORKERS", None)
+
+    result = subprocess.run(
+        [
+            sys.executable, "-c",
+            "from evaluation.syntax_gate.harness import SCORING_WORKERS, MAX_WORKERS;"
+            "print(SCORING_WORKERS, MAX_WORKERS)",
+        ],
+        capture_output=True, text=True, cwd=repo, env=env, timeout=120,
+    )
+    assert result.returncode == 0, result.stderr
+    scoring, model = (int(x) for x in result.stdout.split())
+    assert scoring >= model, (
+        f"HML_JOBS=1 leaked into scoring concurrency again: {scoring} < {model}"
+    )
+
+
 def test_overriding_max_workers_is_recorded_in_the_run_notes():
     cfg = RunConfig(run_id="r", stage="G2_screening", max_workers=8)
     assert any("max_workers overridden" in n for n in cfg.notes)

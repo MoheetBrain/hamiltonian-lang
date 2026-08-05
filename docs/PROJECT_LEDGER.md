@@ -1280,3 +1280,87 @@ for arity and argument-type errors, which were previously unrepairable by constr
 would have depressed any future H3 measurement for reasons unrelated to the hypothesis.
 
 **Next intended step.** Unblock remote privacy, then M1 freeze manifests and tag.
+
+---
+
+## 2026-08-05 — M1 completed: all three subagents integrated; remote privatised and pushed
+
+**Branch.** `hml-v1-concept-kernel`
+
+**Project stage.** HML-MARKOV-TRANSITION-002, M1 completion.
+
+**Objective.** Integrate the final subagent outputs, repair the Lead-owned defect Subagent
+A found, and clear `REMOTE_SAFETY_BLOCKED`.
+
+**Files and systems changed.**
+
+- `evaluation/syntax_gate/harness.py` — `SCORING_WORKERS` now reads `HML_SCORING_WORKERS`
+- `tests/evaluation/test_syntax_gate_harness.py` — regression test for the collision
+- `tests/improvement/test_{evidence_package,hypothesis_separation,repair_arena,stage_controller}.py`,
+  `improvement/{memory,runner}.py` — Subagent C's final work
+- `.claude/settings.json` — the user removed `Bash(git push:*)` from the deny list
+
+**What was completed.**
+
+*A Lead-owned defect, found by Subagent A.* `scripts/conformance.sh` documents `HML_JOBS=1`
+as the serial escape hatch for diagnosing ordering-dependent failures that `-n 18` hides.
+`evaluation/syntax_gate/harness.py` read the **same** variable for `SCORING_WORKERS`, so
+`HML_JOBS=1` set scoring concurrency to 1 and failed
+`test_scoring_uses_the_cores_that_model_calls_cannot` on `1 >= 4`. **The documented
+debugging tool broke the build for a reason unrelated to the bug being chased.** Two
+concerns had collided on one name. Scoring now reads `HML_SCORING_WORKERS`, and a
+regression test runs a subprocess with `HML_JOBS=1` to prove the knob no longer leaks.
+
+*A defect I introduced while fixing it.* The first version of that regression test used
+`importlib.reload`, which rebinds the module's exception classes — a reloaded
+`PhaseGateError` is no longer the one sibling tests catch, so
+`test_a_live_backend_is_refused_before_the_phase_f4_freeze` began failing. Replaced with a
+subprocess, which cannot mutate this interpreter. A second slip left a stray `"""` and
+broke collection; also fixed. Both are recorded because the ledger is for what happened,
+not for what it would be tidier to have happened.
+
+*Remote safety cleared.* The repository was **PUBLIC**. `gh repo edit --visibility private`
+is denied by `.claude/settings.json`, so the user performed it; verified
+`"isPrivate": true`. The user then removed `Bash(git push:*)` from the deny list while
+**keeping** `gh repo edit` denied — push is permitted, visibility changes stay human-gated.
+
+**Decisions made and why.**
+
+- The env-var split is `HML_SCORING_WORKERS`, not a widened assertion. Relaxing
+  `SCORING_WORKERS >= MAX_WORKERS` would have hidden a real constraint (measured: four
+  client workers give 2.08x, eight degrade to 1.43x) to accommodate an unrelated knob.
+- `.claude/settings.json` is committed rather than left dirty. It records the project's
+  outward-action policy, and a policy that only exists in an untracked working file is not
+  a policy.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---------|--------|
+| `pytest -n 18` (x3, checking flakiness) | **3974 passed, 4 skipped, 1 xfailed**, stable |
+| `pytest tests/improvement` serial | all passed; not ordering-dependent |
+| `HML_JOBS=1 pytest tests/evaluation/test_syntax_gate_harness.py` | 28 passed — knob restored |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, 8/8, no override |
+| `gh repo view` | `"isPrivate": true, "visibility": "PRIVATE"` |
+
+**Failures and unresolved uncertainty.**
+
+- Subagent A added `PosteriorProbability` to the scalar lattice. Its brief said not to add
+  it merely because a quarantine test names it; A's justification is that the stated
+  invariant `PValue != PosteriorProbability` requires it. A rated its own confidence
+  **medium**. Accepted, and flagged here so it is reviewable rather than assumed.
+- **The mis-declaration residual is open and no type system can close it.**
+  `param p_value : Probability` followed by `def posterior_h0 : Probability := p_value`
+  compiles, because both sides genuinely *are* `Probability`. A correctly rejected
+  inferring epistemic kind from spelling. Pinned by a test so it cannot be reported closed.
+- **Seven of twelve expression positions still do not check contextually** (up from ten of
+  twelve). The checker is **not** fully bidirectional and is not claimed to be.
+- `HML-T428`'s `expectation(<law>)` branch is unreachable from source: `expectation` is a
+  reserved keyword, so `expectation(d)` is `HML-P231` before the checker runs.
+- **ACQ0 = BLOCKED, H1 = H2 = H3 = UNTESTED.** No model call beyond tuning probes.
+
+**Effect on the overall project.** M1 is complete and pushable. The repair loop now emits
+actionable arity and argument-type diagnostics that leak no values, which is a precondition
+for any honest future H3 measurement.
+
+**Next intended step.** Push, tag `hml-m1-constitutional-core`, then M2 calibration.
