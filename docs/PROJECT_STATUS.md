@@ -28,6 +28,17 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**HML-PHASE-FG-001 — freezing the supported V1 subset and preparing the Gemma syntax
+tournament.** Phases F1 (freeze-eligibility audit), F2 (fair benchmark partition) and F3
+(offline equivalence gate) are in progress. No model call is legitimate until the offline
+gate passes and the Lead tags `hml-v1-eval-freeze`.
+
+Host tuning is measured and recorded in `docs/evaluation/EXECUTION_ENVIRONMENT.md`: stock
+Ollama serialises every request at one slot (~23 tok/s regardless of client concurrency);
+four batching slots with exactly four client workers give **2.08x**, and eight workers
+*degrade* to 1.43x. The 18 CPU cores do not accelerate a GPU-resident 31B model — they
+accelerate the offline round-trip matrix and the test suite (13.3s to 6.5s).
+
 **HML-EVAL-002 preregistered; V1 implementation in progress.**
 
 **Status of the central thesis: UNPROVEN, NOT REFUTED.** The precise conclusion from the
@@ -162,6 +173,9 @@ Commands executed and their real results:
 | `./scripts/conformance.sh` | **PASS without override** (all four V1 agents integrated) |
 | `evaluation.analyse --generation 0` | 105/105 cells; all arms 93.3% except C 86.7% |
 | `.venv/bin/hml check examples/*/*.hml` | **8/8 check cleanly** |
+| `pytest tests/golden/test_examples_compile.py` | **23 passed** — recursive example gate |
+| Ollama concurrency probe, stock `-np 1` | 23 tok/s at 1, 2, 4 and 6 workers — fully serialised |
+| Ollama concurrency probe, `-np 4` | 22.8 / 35.1 / **47.4** / 32.7 tok/s at 1 / 2 / **4** / 8 workers |
 | `.venv/bin/ruff check src tests` | **All checks passed** |
 | `.venv/bin/mypy src/hamiltonian_lang` | **Success: no issues found in 22 source files** |
 | `experiments/alphabet/tokenisation_benchmark.py` | ran; 8 tokenisers real, Llama-3 gated and excluded |

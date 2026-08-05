@@ -938,3 +938,87 @@ particular way, which is the property it previously lacked.
 **Next intended step.** Freeze the V1 compiler and run the four-syntax Gemma acquisition
 tournament.
 
+
+---
+
+## 2026-08-05 — host tuning measured; the example-compile gate was not enforcing its own rule
+
+**Branch.** `hml-v1-concept-kernel`
+
+**Project stage.** HML-PHASE-FG-001, preparation before the Phase F freeze.
+
+**Objective.** Tune execution for this host (18 cores, 52 GB, `gemma4:31b` on Ollama) before
+spending ~360 model calls on the tournament, and establish a clean conformance baseline.
+
+**Files and systems changed.**
+
+- `docs/evaluation/EXECUTION_ENVIRONMENT.md` — new; measured tuning, part of the F4 manifest
+- `scripts/conformance.sh` — `pytest -n 18`; recursive, marker-aware example walk
+- `tests/golden/test_examples_compile.py` — new; enforces CLAUDE.md rule 10
+- `examples/candidate_syntaxes/README.md` + six `.illustrative` markers — new
+- `examples/candidate_syntaxes/a_labelled_linear/{3_linear_regression,7_concept_definition}.hml` — fixed
+
+**What was completed.**
+
+Two findings, both measured.
+
+*Ollama serialises by default.* `llama-server` ran with `-np 1`. Client concurrency bought
+exactly nothing: wall time was linear in request count (12 requests x 2.8s = 33.2s) and
+throughput was pinned at ~23 tok/s from 1 to 6 workers. With `OLLAMA_NUM_PARALLEL=4` the
+same probe gave 22.8 / 35.1 / 47.4 / 32.7 tok/s at 1 / 2 / 4 / 8 workers — **2.08x at four
+workers, degrading to 1.43x at eight**. Client concurrency must equal the slot count. The
+harness will pin `max_workers=4`.
+
+*The example gate was checking 8 of 43 files.* Conformance globbed `examples/*/*.hml`, one
+level deep, so all 35 files under `examples/candidate_syntaxes/` were unchecked. Widening
+to a recursive walk exposed that two files in `a_labelled_linear` — the **implemented**
+syntax — no longer compiled: `3_linear_regression.hml` used `infer posterior` with no
+prior (an error since D-016) and `7_concept_definition.hml` used unnamed invariants. In
+both cases the compiler was right and the example was stale.
+
+CLAUDE.md rule 10 claims `tests/golden` compiles every `.hml` under `examples/`. It did
+not; `test_golden.py` referenced two files by name and globbed nothing. That is now true
+rather than merely asserted.
+
+**Decisions made and why.**
+
+- The 28 non-L1 files are design sketches in surfaces the compiler does not accept, so they
+  are marked `.illustrative` per directory rather than deleted — `c_sexpr` and
+  `e_graph_triple` are the direct ancestors of candidates C and D in this milestone.
+- The marker is a **directory file, not a filename convention**, because the sketches use
+  different comment characters (`;`, `#`) and no single header syntax covers them.
+- A test asserts each marker states a reason of >=30 characters and that the marker never
+  covers `a_labelled_linear`. A bare `touch .illustrative` must not be able to silence a
+  real failure.
+- Reconfiguring Ollama is reversible: relaunching Ollama.app restores stock behaviour.
+  `launchctl setenv` and shell exports both failed because Ollama.app respawns a server
+  that does not inherit them; the app must be quit and `ollama serve` started manually.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---------|--------|
+| Ollama concurrency probe, `-np 1` | 23 tok/s flat across 1/2/4/6 workers |
+| Ollama concurrency probe, `-np 4` | 2.08x at 4 workers; 1.43x at 8 |
+| `ps aux \| grep llama-server` | confirmed `-c 32768 -np 4` after restart |
+| `pytest -q` serial vs `-n 18` | 13.26s vs 6.53s |
+| `pytest tests/golden/test_examples_compile.py -q` | 23 passed |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, all 8 stages |
+
+**Failures and unresolved uncertainty.**
+
+- `-np 4` splits the 32768-token context into four 8192-token slots. The
+  50-demonstration curriculum must be measured against **8192**, not 32768. If it does not
+  fit, the correct response is to drop to `-np 2` (16384 per slot, 1.54x), not to truncate
+  a curriculum — a truncated curriculum is a different experimental condition. **Not yet
+  measured**, because the curricula do not exist yet.
+- The 2.08x figure comes from 160-token completions. Tournament completions are longer and
+  prompts carry demonstrations; the ratio may differ and will be re-measured in G2.
+- Whether the two stale examples indicate wider drift in unchecked corners is **unknown**;
+  only `examples/` was audited.
+
+**Effect on the overall project.** The tournament's dominant cost is now roughly halved,
+and the project's own rule 10 is enforced rather than merely stated.
+
+**Next intended step.** Integrate the three agents' Phase F output, then freeze and tag
+`hml-v1-eval-freeze`.

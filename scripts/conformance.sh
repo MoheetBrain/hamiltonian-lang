@@ -28,14 +28,32 @@ skip_or_stage() {
 skip_or_stage "ruff lint"     ".venv/bin/ruff"  .venv/bin/ruff check src tests
 skip_or_stage "mypy"          ".venv/bin/mypy"  .venv/bin/mypy src/hamiltonian_lang
 
-stage "examples check" bash -c '
-  rc=0
-  for f in examples/*/*.hml; do
-    .venv/bin/hml check "$f" >/dev/null 2>&1 || { echo "  example failed: $f"; rc=1; }
-  done
-  exit $rc'
+# This machine has 18 physical cores. Both stages below are embarrassingly parallel and
+# were serial; measured 13.3s -> 6.5s for pytest. HML_JOBS allows a serial run when
+# diagnosing an ordering-dependent failure, which -n hides.
+JOBS="${HML_JOBS:-18}"
 
-stage "pytest" "$PY" -m pytest -q
+# Recursive, not `examples/*/*.hml`: the old one-level glob silently skipped 35 files.
+# Directories carrying `.illustrative` are design sketches in surfaces the compiler does
+# not accept (see examples/candidate_syntaxes/README.md); tests/golden/test_examples_compile.py
+# enforces that the marker states a reason and never covers the implemented syntax.
+stage "examples check" bash -c '
+  find examples -name "*.hml" -print0 |
+    while IFS= read -r -d "" f; do
+      d=$(dirname "$f"); skip=""
+      while [ "$d" != "." ]; do
+        [ -f "$d/.illustrative" ] && { skip=1; break; }; d=$(dirname "$d")
+      done
+      [ -z "$skip" ] && printf "%s\0" "$f"
+    done |
+    xargs -0 -P "'"$JOBS"'" -I{} sh -c \
+      ".venv/bin/hml check {} >/dev/null 2>&1 || { echo \"  example failed: {}\"; exit 1; }"'
+
+if [ "$JOBS" != "1" ] && .venv/bin/python -c "import xdist" 2>/dev/null; then
+  stage "pytest (-n $JOBS)" "$PY" -m pytest -q -n "$JOBS"
+else
+  stage "pytest" "$PY" -m pytest -q
+fi
 
 stage "canonical form validates against spec/ir.schema.json" "$PY" - <<'PYEOF'
 import json, pathlib, sys
