@@ -611,3 +611,48 @@ reverted without one.
 | Q-06 | Can the model write V1 at >=90% parse rate? If not, no V1 layer is testable. | V1-H4 |
 | Q-07 | Does L3 inference checking reduce to re-implementing a prover (forbidden)? | L3 prototype |
 | Q-08 | What corpus difficulty yields 50-60% baseline accuracy on gemma4:31b? | corpus redesign |
+
+## D-024 — canonical include-names is a ContextVar, not a module global
+
+**Date.** 2026-08-05 · **Status.** Accepted · **Touches the contract.**
+`backends/canonical.py` is a semantic-contract file, so this record is mandatory
+(`CLAUDE.md` rule 2).
+
+**Problem.** `to_canonical` selected whether declaration names appear via a module global
+with save/restore. That is reentrancy-safe and **not thread-safe**. `content_hash` always
+forces names *off*; while one thread hashed, a concurrent
+`canonical_json(..., include_names=True)` on another thread silently received the
+**nameless** document. No exception, no diagnostic — an authoritative-looking wrong
+answer, which `CLAUDE.md` names as the worst failure mode in this codebase.
+
+Found by the M1 reproducibility audit: 8 hasher threads, a 600-statement module and
+`sys.setswitchinterval(1e-6)` produced **1 corrupted named canonical form**.
+
+**Decision.** Replace the global with
+`ContextVar("hml_canonical_include_names", default=True)`. Each thread gets an independent
+value; `set`/`reset(token)` preserves the reentrancy the global already had.
+
+**Why now, given the milestone freezes rather than extends.** ACQ0 scores semantic
+preservation by comparing canonical forms. The hazard was latent — the only existing
+thread pool (`evaluation/syntax_gate/scorer.py::score_many`) reaches `compile_source` and
+`render_module` but never canonicalisation — so nothing shipped was wrong. But the first
+threaded scorer that canonicalises would have hit it, and the corruption is **silent**.
+Fixing it before the tournament is far cheaper than discovering it in the results.
+
+**Evidence the change is behaviour-preserving.** Content hashes byte-identical across the
+change on `bayesian_coin` (`f79c553cca1adaa1…`), `quantifier_scope` (`8250373bb23c814a…`)
+and `kinetic_energy` (`25efff792d32ccf0…`); `tests/roundtrip` and `tests/golden` pass
+unchanged. The hazard probe reports 0 corrupted forms after the fix.
+
+**On the regression test, honestly.** The stress test is a **weak** guard: the race window
+is narrow enough that a deliberately reverted implementation survived 16 threads over a
+2000-statement module in this session, and the original audit hit it only once. A test that
+only sometimes detects the regression it exists for is decoration. The load-bearing guard
+is therefore `test_the_include_names_flag_is_per_thread_by_construction`, which asserts the
+flag *is* a `ContextVar` and that a second thread does not observe this thread's setting.
+Verified against a simulated revert: it fires on both checks, every run. The stress tests
+are retained as secondary evidence and labelled as such.
+
+**Reversal.** Restore the module global and delete the two structural assertions. Reversal
+reintroduces silent cross-thread corruption and must not be done to make a threaded scorer
+simpler.

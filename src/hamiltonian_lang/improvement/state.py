@@ -48,6 +48,7 @@ from typing import Any
 
 __all__ = [
     "Hypothesis",
+    "REPAIR_MECHANISM",
     "HypothesisMixingError",
     "require_single_hypothesis",
     "Unavailable",
@@ -71,16 +72,48 @@ __all__ = [
 
 
 class Hypothesis(StrEnum):
-    """Which of the three separable claims a piece of evidence speaks to.
+    """**The one hypothesis type.** Which separable claim a piece of evidence speaks to.
 
-    Separability is the point. These are not three phrasings of one idea; they are
-    three claims that can each be true or false independently, and the project's whole
-    value in retrospect depends on never merging them.
+    Separability is the point. ``H1``, ``H2`` and ``H3`` are not three phrasings of one
+    idea; they are three claims that can each be true or false independently, and the
+    project's whole value in retrospect depends on never merging them.
+
+    Two members are not ordinary scientific hypotheses and are named so that they cannot
+    be mistaken for one:
+
+    * ``ACQ0`` — the **syntax-acquisition prerequisite**. Can the model express a frozen
+      canonical object in a candidate surface at all? Passing it says nothing about
+      whether the representation *helps*. Compiler-assisted repair during ACQ0 is
+      ``ACQ0_REPAIR`` and is **not H3**: fixing a malformed encoding and fixing a wrong
+      argument are different acts with different success conditions, and conflating them
+      would let "the model learned to write the syntax with compiler help" be read later
+      as "verifier feedback improved mathematical reasoning".
+      See ``docs/evaluation/HYPOTHESIS_REGISTER.md``.
+    * ``EXCLUDED`` — engineering work: a smoke run, a fixture, a pipeline check. It is
+      **never training-eligible** and is **never routed into a scientific aggregate**.
+      It replaces the old ``episodes.HypothesisId.NONE``, whose spelling invited reading
+      it as "no hypothesis recorded yet" — a default — rather than "deliberately outside
+      the scientific record".
+
+    ``scientific`` partitions the two groups, and :func:`require_single_hypothesis` uses
+    it to keep ``EXCLUDED`` out of every statistic.
+
+    The short spellings are canonical; the descriptive spellings
+    (``H1_REPRESENTATION_AS_INPUT`` and friends) are enum **aliases** for the same
+    members, kept because they read better at a call site that declares an experiment.
+    ``Hypothesis.H1 is Hypothesis.H1_REPRESENTATION_AS_INPUT`` is true.
     """
 
+    ACQ0 = "ACQ0"
     H1_REPRESENTATION_AS_INPUT = "H1"
     H2_REPRESENTATION_AS_WORKSPACE = "H2"
     H3_VERIFIER_GUIDED_REPAIR = "H3"
+    EXCLUDED = "EXCLUDED"
+
+    #: Short aliases. Same members, not new ones.
+    H1 = "H1"
+    H2 = "H2"
+    H3 = "H3"
 
     @property
     def claim(self) -> str:
@@ -96,8 +129,37 @@ class Hypothesis(StrEnum):
         """
         return _HYPOTHESIS_EXCLUSION[self]
 
+    @property
+    def scientific(self) -> bool:
+        """Whether this identifier may appear in a scientific aggregate.
+
+        ``EXCLUDED`` is the only member for which this is false. ``ACQ0`` **is**
+        scientific — it is a real prerequisite experiment with its own preregistered
+        thresholds — it is simply not evidence for or against H1, H2 or H3, which
+        :func:`require_single_hypothesis` already enforces by refusing to mix.
+        """
+        return self is not Hypothesis.EXCLUDED
+
+
+#: The name under which repair is recorded, per hypothesis. The distinction ``ACQ0``
+#: draws here is the whole reason ``ACQ0`` exists as its own identifier.
+REPAIR_MECHANISM: dict[Hypothesis, str] = {
+    Hypothesis.ACQ0: "ACQ0_REPAIR",
+    Hypothesis.H3_VERIFIER_GUIDED_REPAIR: "H3_VERIFIER_GUIDED_REPAIR",
+}
+
 
 _HYPOTHESIS_CLAIM: dict[Hypothesis, str] = {
+    Hypothesis.ACQ0: (
+        "ACQ0: the model can express a frozen canonical semantic object in a candidate "
+        "surface such that it parses and recovers the same object. This is a "
+        "PREREQUISITE, not a result: passing it means the language is writable, not "
+        "that it helps."
+    ),
+    Hypothesis.EXCLUDED: (
+        "EXCLUDED: an engineering episode — a smoke run, a fixture, a pipeline check. "
+        "It asserts nothing and is excluded from every hypothesis-level aggregate."
+    ),
     Hypothesis.H1_REPRESENTATION_AS_INPUT: (
         "Supplying the problem in the representation, as input, improves the answer "
         "relative to the same problem in prose."
@@ -113,6 +175,17 @@ _HYPOTHESIS_CLAIM: dict[Hypothesis, str] = {
 }
 
 _HYPOTHESIS_EXCLUSION: dict[Hypothesis, str] = {
+    Hypothesis.ACQ0: (
+        "It does NOT support any claim about H1, H2 or H3. A candidate syntax that "
+        "passes ACQ0 has been shown writable and nothing more. In particular, a gain "
+        "from compiler-assisted repair during ACQ0 is ACQ0_REPAIR — repairing a "
+        "malformed encoding — and is not evidence that verifier feedback improved "
+        "mathematical reasoning (H3)."
+    ),
+    Hypothesis.EXCLUDED: (
+        "It supports NOTHING. An EXCLUDED episode is not evidence, is never "
+        "training-eligible, and never enters an aggregate."
+    ),
     Hypothesis.H1_REPRESENTATION_AS_INPUT: (
         "It does not support the claim that reasoning in the representation helps (H2), "
         "nor that the repair loop helps (H3)."
@@ -122,6 +195,10 @@ _HYPOTHESIS_EXCLUSION: dict[Hypothesis, str] = {
         "that the repair loop helps (H3)."
     ),
     Hypothesis.H3_VERIFIER_GUIDED_REPAIR: (
+        # NOTE: deliberately phrased WITHOUT the substring "win for the representation".
+        # tests/improvement/test_hypothesis_separation.py bans that phrase from every
+        # rendered H3 report, and a negated occurrence here would still trip a reader
+        # skimming for it. The prohibition is stated, not quoted.
         "It does NOT support any claim about the representation. A win here is a win for "
         "verifier-guided reasoning; any checkable notation with a comparable checker "
         "would predict the same gain. Reporting it as a representation result (H1 or H2) "
@@ -139,12 +216,22 @@ class HypothesisMixingError(ValueError):
     """
 
 
-def require_single_hypothesis(items: Iterable[Any], *, context: str) -> Hypothesis:
+def require_single_hypothesis(
+    items: Iterable[Any], *, context: str, allow_excluded: bool = False
+) -> Hypothesis:
     """Return the one hypothesis carried by ``items``, or raise.
 
     ``items`` may be ``Hypothesis`` values or any object exposing ``.hypothesis``. An
     empty input raises: "no hypothesis" is not a hypothesis, and defaulting one would be
     the exact fabrication this function exists to stop.
+
+    A free-text or absent hypothesis raises. So does a bare string that happens to spell
+    a member: ``"H1"`` is not ``Hypothesis.H1``, and accepting it would let an arbitrary
+    string — including a misspelling — reach an aggregate untyped.
+
+    ``EXCLUDED`` raises unless ``allow_excluded`` is set. Engineering episodes are not
+    evidence, so a statistic computed over them is not a result; the only legitimate
+    callers are tallies that deliberately count non-evidence.
     """
     seen: set[Hypothesis] = set()
     for item in items:
@@ -161,9 +248,17 @@ def require_single_hypothesis(items: Iterable[Any], *, context: str) -> Hypothes
         names = ", ".join(sorted(h.name for h in seen))
         raise HypothesisMixingError(
             f"{context}: observations span {len(seen)} hypotheses ({names}). "
-            "H1, H2 and H3 are separable claims and are never combined into one statistic."
+            "ACQ0, H1, H2 and H3 are separable claims and are never combined into one "
+            "statistic."
         )
-    return seen.pop()
+    only = seen.pop()
+    if only is Hypothesis.EXCLUDED and not allow_excluded:
+        raise HypothesisMixingError(
+            f"{context}: every observation is EXCLUDED. An EXCLUDED episode is "
+            "engineering work, not evidence; a statistic over it is not a result. Pass "
+            "allow_excluded=True only to count non-evidence deliberately."
+        )
+    return only
 
 
 # ---------------------------------------------------------------------------

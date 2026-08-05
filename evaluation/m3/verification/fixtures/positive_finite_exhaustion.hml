@@ -1,0 +1,7 @@
+# Positive fixture: a genuinely finite domain, decided by exhaustion rather than sampled.
+module FiniteExhaustion
+
+var flag : Bool
+
+require flag = true or flag = false
+prove forall b : Bool . b = true or b = false

@@ -1,0 +1,8 @@
+# Invalid fixture: the arithmetic is simply wrong. Refuted by exact evaluation, with
+# both evaluated sides as the witness.
+module WrongArithmetic
+
+const base : PositiveReal = 12.5
+const half : PositiveReal = 6.25
+
+require base = 3 * half

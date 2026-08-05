@@ -1,0 +1,8 @@
+# Unsupported fixture: quantification over an infinite domain. The claim happens to be
+# false, but nothing implemented here can establish that soundly, so the honest answer
+# is UNSUPPORTED -- and UNSUPPORTED blocks VERIFIED exactly as firmly as a failure.
+module InfiniteQuantifier
+
+require forall x : Real . exists y : Real . y > x
+
+prove exists y : Real . forall x : Real . y > x

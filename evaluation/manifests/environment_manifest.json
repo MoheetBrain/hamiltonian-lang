@@ -1,0 +1,43 @@
+{
+  "branch": "hml-v1-concept-kernel",
+  "bundle": {
+    "bytes": 1497725,
+    "path": "../hamiltonian_lang_m1.bundle",
+    "sha256": "053bd934c1ebb3c5e009d146d66eb5fd59b47a07e3c72476e34c56b532bf224e"
+  },
+  "generation": {
+    "max_output": "recorded per call",
+    "seed_behaviour": "unset at temperature 0; recorded for any stochastic replication",
+    "temperature": 0.0,
+    "top_p": "server default, recorded at call time"
+  },
+  "model": {
+    "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+    "family": "gemma4",
+    "name": "gemma4:31b",
+    "parameter_size": "31.3B",
+    "quantization_level": "Q4_K_M"
+  },
+  "pinned_at_commit": "9afafa8ada6edf54f92d26b56f6620c9558e5cb6",
+  "remote": {
+    "head": "9afafa8ada6edf54f92d26b56f6620c9558e5cb6",
+    "url": "https://github.com/MoheetBrain/hamiltonian-lang.git",
+    "visibility": "PRIVATE (verified 2026-08-05)"
+  },
+  "runtime": {
+    "cpu_count": 18,
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "python": "3.14.6"
+  },
+  "schema_version": "hml-environment-1.0.0",
+  "server": {
+    "client_workers": 4,
+    "context_per_slot": 8192,
+    "context_total": 32768,
+    "evidence": "docs/evaluation/EXECUTION_ENVIRONMENT.md; 4 workers 2.08x, 8 workers 1.43x",
+    "llama_server_flags": "-c 32768 -np 4",
+    "ollama_version": "0.32.5",
+    "parallel_slots": 4
+  },
+  "tree_clean": true
+}

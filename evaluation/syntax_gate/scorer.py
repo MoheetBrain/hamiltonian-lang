@@ -30,22 +30,48 @@ failed answer, and it is never retried. Only a *transport* failure may be retrie
 the harness preserves the original request and every response. Retrying on content would
 bias the sample toward outputs the caller likes, which is the same defect as scoring on
 model judgement.
+
+A parse rate must count parses
+------------------------------
+``first_attempt_parse`` used to be ``ParseOutcome.ok``, which is the verdict of the
+*whole* compiler. Measured on this compiler, ``HML-T426`` (wrong arity), ``HML-T415``
+(wrong role label) and ``HML-T403`` (declared-type mismatch) parse cleanly and resolve
+cleanly, failing only in the type checker; an unknown identifier parses cleanly and
+fails in resolution. Every one of them was being counted as a parse failure. The effect
+is not neutral: it *understates* first-attempt parse rate — ACQ0's single most important
+number — and attributes the compiler's type checking to the candidate surface, so a
+syntax that the model writes perfectly could be rejected for mathematics the model got
+wrong.
+
+``first_attempt_parse`` is now ``stages.parse_status is PASS``. The old quantity is kept
+under its true name, ``first_attempt_compiled``, because "did this compile" is also a
+real question; the fix is to ask each question by its own name.
 """
 
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+from functools import lru_cache
 from typing import Any
 
 from evaluation.corpus.cso import check_answer
 from evaluation.semantic_equiv import compare_semantics
 from evaluation.v1.score_v1 import NotMeasured
 
-from .candidates import CANDIDATES, SE_CONTROL, SyntaxAdapter, extract_fenced
+from .candidates import (
+    CANDIDATES,
+    SE_CONTROL,
+    ParseOutcome,
+    SyntaxAdapter,
+    TerminalOutcome,
+    classify_stages,
+    extract_fenced,
+)
 from .tasks import GateTask
 
 __all__ = [
     "FACETS",
+    "STAGE_FACETS",
     "FAILURE_CATEGORIES",
     "TrialInput",
     "ScoredTrial",
@@ -65,6 +91,16 @@ FACETS: tuple[str, ...] = (
     "completion_tokens_reasoning_inclusive",
     "latency_s",
     "failure_category",
+)
+
+#: Facets derived from the per-stage record. Listed separately from ``FACETS`` because
+#: they are not independently mutated -- each is a projection of ``terminal_outcome``,
+#: and ``test_syntax_gate_scorer`` asserts the projection directly rather than through a
+#: mutation that could only restate it.
+STAGE_FACETS: tuple[str, ...] = (
+    "first_attempt_compiled",
+    "terminal_outcome",
+    "repair_terminal_outcome",
 )
 
 FAILURE_CATEGORIES: tuple[str, ...] = (
@@ -130,6 +166,7 @@ class ScoredTrial:
     domain: str
     condition: str
     curriculum_size: int
+    #: **Did the text parse.** Not "did it compile" -- see the module docstring.
     first_attempt_parse: bool | NotMeasured
     repaired_parse: bool | NotMeasured
     semantic_preservation: float | NotMeasured
@@ -141,6 +178,19 @@ class ScoredTrial:
     latency_s: float
     failure_category: str
     answer_correct: bool | NotMeasured
+    #: Did the whole pipeline accept the first attempt. The quantity
+    #: ``first_attempt_parse`` used to hold, under the name it actually means.
+    first_attempt_compiled: bool | NotMeasured = False
+    #: Where the first attempt stopped, as a ``TerminalOutcome`` value, or ``""`` when
+    #: nothing classified it.
+    terminal_outcome: str = ""
+    #: The same for the repaired attempt; ``""`` when no repair was scored.
+    repair_terminal_outcome: str = ""
+    #: Whether the **exact expected canonical object** was recovered: hash equality over
+    #: the nameless canonical form. Stricter than ``preserved``, which scores the facets
+    #: the answer key happens to declare. ACQ0's semantic-preservation rate is defined on
+    #: this field.
+    exact_canonical_match: bool | NotMeasured = False
     diagnostics: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
@@ -162,6 +212,82 @@ def _category_from_diagnostics(codes: list[str]) -> str:
         if c.startswith(_SEMANTIC_PREFIXES):
             return "semantic_failure"
     return "parse_failure_other"
+
+
+@lru_cache(maxsize=512)
+def _reference_canonical_hash(reference_hml: str) -> str | None:
+    """The alpha-invariant content hash of a task's reference object, or ``None``.
+
+    ``None`` when the reference itself does not compile — a fact about the corpus, not
+    about any model output, so it makes the exact-object comparison unavailable rather
+    than failed.
+    """
+    if not (reference_hml or "").strip():
+        return None
+    stages = classify_stages(reference_hml, file="syntax_gate#reference")
+    return stages.canonical_hash
+
+
+def _exact_canonical_match(
+    task: GateTask, outcome: ParseOutcome | None
+) -> bool | NotMeasured:
+    """Did this attempt recover the **exact expected canonical object**?
+
+    Hash equality over the nameless canonical form, which is the strictest available
+    notion of "the same object" and the one ACQ0's preservation rate is defined on. It
+    is deliberately stricter than the facet comparator: the comparator scores how many
+    declared facets survived, and a candidate can score 1.0 on the declared facets while
+    differing in something the answer key never listed.
+    """
+    reference = _reference_canonical_hash(task.cso.reference_hml)
+    if reference is None:
+        return NotMeasured(
+            reason=(
+                f"task {task.id!r} has no compilable reference encoding, so there is no "
+                "canonical object to recover; the corpus, not the model, is what is "
+                "missing here"
+            ),
+            denominator="0 reference objects",
+            required_field="GateTask.cso.reference_hml",
+        )
+    if outcome is None or outcome.stages is None:
+        return NotMeasured(
+            reason="no per-stage record, so no canonical hash was computed",
+            denominator="0 classified attempts",
+            required_field="ParseOutcome.stages.canonical_hash",
+        )
+    if outcome.stages.canonical_hash is None:
+        # It did not compile, so it has no canonical identity. That is a measured
+        # failure to recover the object, not an absent measurement.
+        return False
+    return outcome.stages.canonical_hash == reference
+
+
+def _parse_facet(outcome: ParseOutcome, condition: str) -> bool | NotMeasured:
+    """The parse verdict, or an explicit absence. **Never** ``ParseOutcome.ok``.
+
+    A front end that reports no ``stages`` has not observed whether the text parsed.
+    Returning ``ok`` in that case would substitute a compile verdict for a parse verdict,
+    which is precisely the defect; returning ``False`` would invent a parse failure
+    nobody measured. Both are refused, and the row is excluded with the reason recorded.
+    """
+    if outcome.stages is None:
+        return NotMeasured(
+            reason=(
+                f"the front end for {condition} reported no per-stage record, so no "
+                "parse verdict exists; CompileResult.ok() is a whole-pipeline verdict "
+                "and must not be substituted for one"
+            ),
+            denominator="0 classified attempts",
+            required_field="ParseOutcome.stages",
+        )
+    if outcome.stages.terminal is TerminalOutcome.INCONCLUSIVE:
+        return NotMeasured(
+            reason=f"the parse stage produced no verdict: {outcome.stages.detail}",
+            denominator="0 classified attempts",
+            required_field="ParseOutcome.stages.parse_status",
+        )
+    return outcome.stages.parsed
 
 
 def _preservation(
@@ -246,6 +372,10 @@ def score_trial(
             latency_s=total_latency,
             failure_category="ok",
             answer_correct=False,
+            first_attempt_compiled=False,
+            terminal_outcome="",
+            repair_terminal_outcome="",
+            exact_canonical_match=False,
             diagnostics=[],
             notes=notes,
         )
@@ -264,6 +394,9 @@ def score_trial(
             first_attempt_parse=nm, repaired_parse=nm, semantic_preservation=nm,
             preserved=nm, answer_correct=nm, failure_category="transport_failure",
             empty_or_truncated=False, visible_output_length=0,
+            first_attempt_compiled=nm,
+            terminal_outcome=TerminalOutcome.INCONCLUSIVE.value,
+            exact_canonical_match=nm,
         )
 
     # 2. Empty visible answer. A MODEL FAILURE, scored as such and never retried.
@@ -281,6 +414,8 @@ def score_trial(
             preserved=(pres if isinstance(pres, NotMeasured) else False),
             answer_correct=False, failure_category="empty_visible_answer",
             empty_or_truncated=True,
+            first_attempt_compiled=False,
+            terminal_outcome=TerminalOutcome.PARSE_FAILED.value,
         )
 
     correct, _ = check_answer(task.cso.answer, trial.content)
@@ -297,6 +432,9 @@ def score_trial(
             first_attempt_parse=nm, repaired_parse=nm, semantic_preservation=nm,
             preserved=nm, answer_correct=correct,
             failure_category="truncated_output" if truncated else "control_arm_no_encoding",
+            first_attempt_compiled=nm,
+            terminal_outcome=TerminalOutcome.UNSUPPORTED.value,
+            exact_canonical_match=nm,
         )
 
     # 4. No front end for this candidate yet. Absence of a measurement is not a failed
@@ -314,6 +452,9 @@ def score_trial(
             first_attempt_parse=nm, repaired_parse=nm, semantic_preservation=nm,
             preserved=nm, answer_correct=correct,
             failure_category="front_end_unavailable",
+            first_attempt_compiled=nm,
+            terminal_outcome=TerminalOutcome.UNSUPPORTED.value,
+            exact_canonical_match=nm,
         )
 
     tags = CANDIDATES[trial.condition].fence_tags
@@ -328,32 +469,52 @@ def score_trial(
             answer_correct=correct,
             failure_category="truncated_output" if truncated else "no_encoding_block",
             diagnostics=["NO_FENCED_BLOCK"],
+            first_attempt_compiled=False,
+            terminal_outcome=TerminalOutcome.PARSE_FAILED.value,
         )
 
     first = adapter.parse(encoding)
     diagnostics = list(first.diagnostics)
-    repaired_ok = first.ok
+    repaired_compiled = first.ok
     final_hml = first.hml_l1
+    #: The attempt the semantic comparison is made against: the repair when one was
+    #: scored, otherwise the first attempt.
+    final_outcome: ParseOutcome | None = first
+
+    # The parse verdict comes from the stage record, never from ``ok``. A front end that
+    # reports no stages has not measured a parse, and NOT MEASURED is not zero.
+    first_parsed = _parse_facet(first, trial.condition)
+    repair_parsed = first_parsed
+    first_terminal = first.terminal
+    repair_terminal: TerminalOutcome | None = None
 
     if not first.ok and trial.repair_attempted:
         repair_encoding = extract_fenced(trial.repair_content or "", tags)
         if repair_encoding is None:
             notes.append("repair produced no fenced block")
+            repair_parsed = False
+            repair_terminal = TerminalOutcome.PARSE_FAILED
         else:
             second = adapter.parse(repair_encoding)
             diagnostics += [f"repair:{c}" for c in second.diagnostics]
-            repaired_ok = second.ok
-            final_hml = second.hml_l1 or final_hml
+            repaired_compiled = second.ok
+            repair_parsed = _parse_facet(second, trial.condition)
+            repair_terminal = second.terminal
+            if second.hml_l1 is not None:
+                final_hml = second.hml_l1
+                final_outcome = second
+            elif second.ok:
+                final_outcome = second
     elif not first.ok:
         notes.append("no repair attempted; repaired_parse equals first_attempt_parse")
 
-    pres, pnotes = _preservation(task, final_hml if repaired_ok else None)
+    pres, pnotes = _preservation(task, final_hml if repaired_compiled else None)
     notes.extend(pnotes)
     preserved: bool | NotMeasured = (
         pres if isinstance(pres, NotMeasured) else pres >= PRESERVATION_THRESHOLD
     )
 
-    if not repaired_ok:
+    if not repaired_compiled:
         category = _category_from_diagnostics(diagnostics)
     elif truncated:
         category = "truncated_output"
@@ -365,13 +526,17 @@ def score_trial(
         category = "semantic_mistranslation"
 
     return base(
-        first_attempt_parse=first.ok,
-        repaired_parse=repaired_ok,
+        first_attempt_parse=first_parsed,
+        repaired_parse=repair_parsed,
         semantic_preservation=pres,
         preserved=preserved,
         answer_correct=correct,
         failure_category=category,
         diagnostics=diagnostics[:12],
+        first_attempt_compiled=first.ok,
+        terminal_outcome=first_terminal.value if first_terminal else "",
+        repair_terminal_outcome=repair_terminal.value if repair_terminal else "",
+        exact_canonical_match=_exact_canonical_match(task, final_outcome),
     )
 
 

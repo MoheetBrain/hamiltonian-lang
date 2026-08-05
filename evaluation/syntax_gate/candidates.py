@@ -32,6 +32,13 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
+from hamiltonian_lang.improvement.episodes import (
+    StageOutcome,
+    StageStatus,
+    TerminalOutcome,
+    classify_stages,
+)
+
 __all__ = [
     "CANDIDATES",
     "CANDIDATE_IDS",
@@ -42,6 +49,10 @@ __all__ = [
     "Candidate",
     "Feature",
     "ParseOutcome",
+    "StageOutcome",
+    "StageStatus",
+    "TerminalOutcome",
+    "unsupported_stages",
     "SyntaxAdapter",
     "V0LinearAdapter",
     "SyntaxAcquisitionAdapter",
@@ -311,6 +322,20 @@ class ParseOutcome:
     (``evaluation.semantic_equiv.compare_semantics``) for all four surfaces. Four
     comparators would make a preservation difference between candidates indistinguishable
     from a difference between comparators.
+
+    ``ok`` is **not** a parse verdict
+    ---------------------------------
+    ``ok`` means *the whole pipeline accepted this text* — parsed, resolved and
+    type-checked. It was being read as "it parsed", and it is not. Measured on this
+    compiler, ``HML-T426`` (wrong arity), ``HML-T415`` (wrong role label) and
+    ``HML-T403`` (declared-type mismatch) all parse cleanly and resolve cleanly, failing
+    only in the type checker; an unknown identifier parses cleanly and fails in
+    resolution. Counting any of them as a parse failure understates ACQ0's first-attempt
+    parse rate and blames the candidate surface for the compiler's type checking.
+
+    Read :attr:`parsed` for the parse verdict and :attr:`stages` for the full per-stage
+    record. ``ok`` is retained because "did this compile" is also a real question, and
+    the fix is to ask each question by its own name rather than to rename one of them.
     """
 
     ok: bool
@@ -323,6 +348,23 @@ class ParseOutcome:
     #: Set when the front end for this candidate does not exist yet. Distinct from a
     #: parse failure: absence of a measurement is not a failed measurement.
     unavailable_reason: str | None = None
+    #: Per-stage verdicts. ``None`` only from a front end that has not been updated to
+    #: report them; consumers must treat that as *not measured*, never as a pass.
+    stages: StageOutcome | None = None
+
+    @property
+    def parsed(self) -> bool | None:
+        """Whether the text was in the language. ``None`` when nothing measured it.
+
+        ``None`` rather than ``False`` on absence: a front end that reports no stage
+        record has not observed a parse failure, and returning ``False`` here would
+        manufacture one.
+        """
+        return None if self.stages is None else self.stages.parsed
+
+    @property
+    def terminal(self) -> TerminalOutcome | None:
+        return None if self.stages is None else self.stages.terminal
 
 
 @runtime_checkable
@@ -381,8 +423,12 @@ SYNTAX_ACQUISITION_INTERFACE = {
             "demonstration curricula and for the F3 round-trip matrix"
         ),
         "method parse(encoding: str) -> ParseOutcome": (
-            "parse this candidate's surface; set ok, fill hml_l1 with the HML-L1 "
-            "normalisation, fill diagnostics with codes, echo surface verbatim"
+            "parse this candidate's surface; set ok (whole pipeline accepted), fill "
+            "hml_l1 with the HML-L1 normalisation, fill diagnostics with codes, echo "
+            "surface verbatim, and fill `stages` with a StageOutcome. `ok` is NOT a "
+            "parse verdict: HML-T426/T415/T403 all parse and fail later, so a front end "
+            "that leaves `stages` empty makes its trials unusable for the first-attempt "
+            "parse rate."
         ),
     },
     "import_path_for_ParseOutcome": "evaluation.syntax_gate.candidates.ParseOutcome",
@@ -423,12 +469,26 @@ def extract_fenced(text: str, tags: tuple[str, ...]) -> str | None:
     return None
 
 
+def unsupported_stages(reason: str) -> StageOutcome:
+    """The stage record for machinery that does not exist. Never a failure."""
+    return StageOutcome(
+        parse_status=StageStatus.NOT_RUN,
+        resolution_status=StageStatus.NOT_RUN,
+        type_status=StageStatus.NOT_RUN,
+        semantic_status=StageStatus.NOT_RUN,
+        verification_status=StageStatus.NOT_RUN,
+        terminal=TerminalOutcome.UNSUPPORTED,
+        detail=reason,
+    )
+
+
 class V0LinearAdapter:
     """Candidate A, implemented against the frozen compiler.
 
     The reference implementation of ``SyntaxAdapter``. Candidate A's surface *is* HML-L1,
     so ``render`` and the HML-L1 normalisation are both the identity; all the work is in
-    reporting the compiler's verdict without embellishing it.
+    reporting the compiler's verdict without embellishing it — and in reporting it
+    **stage by stage**, so that a type error is never counted as a syntax error.
     """
 
     candidate_id = A_V0_LINEAR
@@ -438,27 +498,14 @@ class V0LinearAdapter:
         return hml_l1
 
     def parse(self, encoding: str) -> ParseOutcome:
-        from hamiltonian_lang import compile_source
-
-        if not (encoding or "").strip():
-            return ParseOutcome(
-                ok=False, hml_l1=None, diagnostics=["EMPTY"], surface=encoding or ""
-            )
-        try:
-            result = compile_source(encoding, "syntax_gate#A")
-        except Exception as exc:  # noqa: BLE001 -- parse() must never raise
-            return ParseOutcome(
-                ok=False,
-                hml_l1=None,
-                diagnostics=[f"CRASH:{type(exc).__name__}"],
-                surface=encoding,
-            )
-        codes = [d.code for d in result.diagnostics.errors]
+        stages = classify_stages(encoding or "", file="syntax_gate#A")
+        compiled = stages.compiled
         return ParseOutcome(
-            ok=result.ok(),
-            hml_l1=encoding if result.ok() else None,
-            diagnostics=codes,
-            surface=encoding,
+            ok=compiled,
+            hml_l1=encoding if compiled else None,
+            diagnostics=list(stages.diagnostic_codes),
+            surface=encoding or "",
+            stages=stages,
         )
 
 
@@ -499,33 +546,78 @@ class SyntaxAcquisitionAdapter:
         return self._sc.render(result.module)
 
     def parse(self, encoding: str) -> ParseOutcome:
-        from hamiltonian_lang import compile_source
+        """Parse the surface, then classify the normalised HML-L1 stage by stage.
+
+        Two distinct failures are kept apart. A **surface** parse error — the text is not
+        in candidate B/C/D's grammar — is ``PARSE_FAILED``. A surface that parses and
+        normalises into HML-L1 that the semantic core then rejects is *not* a parse
+        failure: the model wrote the candidate syntax correctly and got the mathematics
+        wrong, and ``classify_stages`` says which stage caught it.
+        """
         from hamiltonian_lang.backends.hml import render_module
 
         if not (encoding or "").strip():
-            return ParseOutcome(False, None, ["EMPTY"], encoding or "")
+            stages = StageOutcome(
+                parse_status=StageStatus.FAIL,
+                resolution_status=StageStatus.NOT_RUN,
+                type_status=StageStatus.NOT_RUN,
+                semantic_status=StageStatus.NOT_RUN,
+                verification_status=StageStatus.NOT_RUN,
+                terminal=TerminalOutcome.PARSE_FAILED,
+                diagnostic_codes=("EMPTY",),
+                detail="the attempt produced no text to parse",
+            )
+            return ParseOutcome(False, None, ["EMPTY"], encoding or "", stages=stages)
         try:
             module = self._sc.parse(encoding)
         except Exception as exc:  # noqa: BLE001 -- parse() must never raise
-            codes = []
+            codes: list[str] = []
             bag = getattr(exc, "diagnostics", None)
             if bag is not None:
                 codes = [d.code for d in getattr(bag, "errors", [])]
-            return ParseOutcome(
-                False, None, codes or [f"SURFACE:{type(exc).__name__}"], encoding
+            codes = codes or [f"SURFACE:{type(exc).__name__}"]
+            stages = StageOutcome(
+                parse_status=StageStatus.FAIL,
+                resolution_status=StageStatus.NOT_RUN,
+                type_status=StageStatus.NOT_RUN,
+                semantic_status=StageStatus.NOT_RUN,
+                verification_status=StageStatus.NOT_RUN,
+                terminal=TerminalOutcome.PARSE_FAILED,
+                diagnostic_codes=tuple(codes),
+                detail=f"the text is not in candidate {self.candidate_id}'s grammar",
             )
+            return ParseOutcome(False, None, codes, encoding, stages=stages)
         try:
             hml = render_module(module)
         except Exception as exc:  # noqa: BLE001
-            return ParseOutcome(False, None, [f"RENDER:{type(exc).__name__}"], encoding)
+            # The surface parsed and the normaliser broke. That is a fact about this
+            # front end, not about the model's text, so it decides nothing.
+            stages = StageOutcome(
+                parse_status=StageStatus.NOT_RUN,
+                resolution_status=StageStatus.NOT_RUN,
+                type_status=StageStatus.NOT_RUN,
+                semantic_status=StageStatus.NOT_RUN,
+                verification_status=StageStatus.NOT_RUN,
+                terminal=TerminalOutcome.INCONCLUSIVE,
+                diagnostic_codes=(f"RENDER:{type(exc).__name__}",),
+                detail=(
+                    "the surface parsed but the HML-L1 normaliser raised; the front end "
+                    "failed, so this trial has no verdict about the model"
+                ),
+            )
+            return ParseOutcome(
+                False, None, [f"RENDER:{type(exc).__name__}"], encoding, stages=stages
+            )
         # The surface parsed; the semantic core still has to accept it. A candidate that
         # reads back into an ill-typed module has not preserved the object.
-        result = compile_source(hml, f"syntax_gate#{self.candidate_id}")
+        stages = classify_stages(hml, file=f"syntax_gate#{self.candidate_id}")
+        compiled = stages.compiled
         return ParseOutcome(
-            ok=result.ok(),
-            hml_l1=hml if result.ok() else None,
-            diagnostics=[d.code for d in result.diagnostics.errors],
+            ok=compiled,
+            hml_l1=hml if compiled else None,
+            diagnostics=list(stages.diagnostic_codes),
             surface=encoding,
+            stages=stages,
         )
 
 

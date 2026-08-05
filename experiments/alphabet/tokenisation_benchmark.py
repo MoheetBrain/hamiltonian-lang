@@ -567,7 +567,7 @@ C_HEADS = (
      "solve", "infer", "check", "prove", "concept", "extends", "given",
      "parameter", "property", "transform", "invariant", "example",
      "counterexample", "dim", "call", "forall", "exists", "exists_unique",
-     "and", "or", "not", "implies", "iff", "index"}
+     "and", "or", "not", "implies", "iff"}
     | {"+", "-", "*", "/", "@", "^", "=", "!=", "<", "<=", ">", ">="}
     | A_TYPES | DIM_BASES | FAMILIES | ROLES
 )

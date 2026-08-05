@@ -363,7 +363,43 @@ def test_parsing_and_checking_are_measured_separately():
     assert result.parsed is True
     assert result.checked is False
     assert result.diagnostic_codes == ("HML-T426",)
-    assert "resolution or type checking" in result.detail
+    # The stage record names the stage exactly, rather than "resolution or type
+    # checking" -- those are two different failures and were being reported as one.
+    assert result.stages is not None
+    assert result.stages.terminal.value == "RESOLVED_TYPE_FAILED"
+    assert result.stages.resolution_status.value == "PASS"
+    assert result.stages.type_status.value == "FAIL"
+    assert "RESOLVED_TYPE_FAILED" in result.detail
+
+
+def test_an_unresolved_name_is_distinguished_from_a_type_error():
+    """Both parse. They are different defects and the arena now says which."""
+    result = CanonicalFormVerifier().verify(
+        weight_task(), "module X\n\ndef y : Real := nosuchname + 1.0\n"
+    )
+    assert result.parsed is True
+    assert result.stages is not None
+    assert result.stages.terminal.value == "PARSE_PASSED_RESOLUTION_FAILED"
+    assert result.stages.resolution_status.value == "FAIL"
+    assert result.stages.type_status.value == "NOT_RUN"
+
+
+def test_a_verification_may_not_disagree_with_its_own_stage_record():
+    from hamiltonian_lang.improvement.episodes import classify_stages
+    from hamiltonian_lang.improvement.runner import ArenaVerification
+
+    stages = classify_stages("module X\n\nconst a : Real =\n")
+    assert stages.parsed is False
+    with pytest.raises(ValueError, match="disagrees with its stage record"):
+        ArenaVerification(
+            verifier="canonical_form",
+            outcome=VerifierOutcome.INCONCLUSIVE,
+            parsed=True,
+            checked=False,
+            canonical_hash=None,
+            detail="",
+            stages=stages,
+        )
 
 
 def test_a_verifier_status_from_the_verification_layer_maps_onto_a_routing_outcome():

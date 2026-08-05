@@ -1,0 +1,11 @@
+# Invalid fixture: the asserted dimension is wrong by one power of length.
+# The type checker rejects this at HML-D504, so the module never reaches the engine --
+# which is itself the correct outcome and is asserted as INVALID rather than DISPROVED.
+module WrongDimension
+
+param m : Quantity[Mass]
+param v : Quantity[Length / Time]
+
+def kinetic_energy := 0.5 * m * v^2
+
+check dimension kinetic_energy = Mass * Length^3 / Time^2

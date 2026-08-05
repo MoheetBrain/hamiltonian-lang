@@ -1,0 +1,10 @@
+# Positive fixture: a dimensional equality, recomputed from declared types and compared
+# against the asserted dimension re-parsed from the source text.
+module DimensionalCheck
+
+param m : Quantity[Mass]
+param v : Quantity[Length / Time]
+
+def kinetic_energy := 0.5 * m * v^2
+
+check dimension kinetic_energy = Mass * Length^2 / Time^2

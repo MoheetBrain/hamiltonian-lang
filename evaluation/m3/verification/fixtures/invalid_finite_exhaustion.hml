@@ -1,0 +1,5 @@
+# Invalid fixture: a universal claim over a finite domain that a member refutes.
+# Exhaustion, not sampling, so the negative answer is a proof.
+module FiniteRefutation
+
+prove forall b : Bool . b = true

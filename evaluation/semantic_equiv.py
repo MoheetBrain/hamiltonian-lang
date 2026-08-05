@@ -22,7 +22,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Literal
 
-from hamiltonian_lang import compile_source
+from hamiltonian_lang import compile_source, parse
 from hamiltonian_lang.ast.nodes import (
     Declaration,
     DefineStmt,
@@ -59,9 +59,21 @@ FailureClass = Literal[
 
 @dataclass
 class SemanticComparison:
-    """Per-facet agreement between ground truth and the recovered object."""
+    """Per-facet agreement between ground truth and the recovered object.
 
+    ``parsed`` and ``compiled`` are different questions and used to be one field.
+    ``parsed`` held ``CompileResult.ok()``, which is the verdict of the *whole* pipeline:
+    measured on this compiler, ``HML-T426`` (wrong arity), ``HML-T415`` (wrong role
+    label) and ``HML-T403`` (declared-type mismatch) all parse cleanly and fail only in
+    the type checker, and an unknown identifier parses cleanly and fails in resolution.
+    Reporting any of them under a field named ``parsed`` attributes a type or scope
+    defect to the surface syntax.
+    """
+
+    #: The text was in the language. **Not** "the compiler accepted it".
     parsed: bool = False
+    #: Every compiler stage passed. The quantity ``parsed`` used to hold.
+    compiled: bool = False
     diagnostics: list[str] = field(default_factory=list)
     entities: tuple[int, int] = (0, 0)          # (matched, expected)
     types: tuple[int, int] = (0, 0)
@@ -101,6 +113,7 @@ class SemanticComparison:
     def to_dict(self) -> dict:
         return {
             "parsed": self.parsed,
+            "compiled": self.compiled,
             "diagnostics": self.diagnostics[:8],
             "score": (round(self.score(), 4) if self.score() is not None else None),
             "exact": self.exact(),
@@ -216,7 +229,11 @@ def compare_semantics(
 
     result = compile_source(hml_text, f"{cso.id}#model")
     cmp.diagnostics = [d.code for d in result.diagnostics.errors]
-    cmp.parsed = result.ok()
+    cmp.compiled = result.ok()
+    # The parse verdict comes from the parser, not from the compile verdict. Only asked
+    # when the pipeline rejected the text: if it compiled, it parsed, and re-parsing to
+    # learn that would double the work on the common path.
+    cmp.parsed = cmp.compiled or parse(hml_text, f"{cso.id}#model")[1].ok()
     module = result.module
     facts = cso.semantics
 
@@ -438,9 +455,12 @@ def classify(
     if any(c.startswith(_SEMANTIC_PREFIXES) for c in codes):
         return "unsupported_construct" if "HML-T412" in codes else "semantic_mistranslation"
 
-    if comparison.parsed and not comparison.exact():
+    # ``compiled``, not ``parsed``: these two branches are about an encoding the
+    # compiler fully accepted. They are reached only when no error code was raised, so
+    # the behaviour is unchanged -- the field now says which question is being asked.
+    if comparison.compiled and not comparison.exact():
         return "semantic_mistranslation"
-    if comparison.parsed and comparison.exact():
+    if comparison.compiled and comparison.exact():
         # Encoded the problem correctly and still got the answer wrong: the failure is in
         # the reasoning over the encoding, not in the encoding.
         return "correct_reasoning_wrong_answer"

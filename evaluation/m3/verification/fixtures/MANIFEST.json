@@ -1,0 +1,115 @@
+{
+  "schema": "hml-m3-verification-fixtures-1.0.0",
+  "note": "The expected verdict is the point of each fixture. A fixture whose verdict drifts is a regression in the engine, not a fixture to be relabelled.",
+  "fixtures": [
+    {
+      "file": "positive_closed_arithmetic.hml",
+      "expected_verdict": "VERIFIED",
+      "expected_substantive": true,
+      "exercises": ["closed_arithmetic_equality", "literal_refinement_bound", "logical_consistency"]
+    },
+    {
+      "file": "positive_closed_inequality.hml",
+      "expected_verdict": "VERIFIED",
+      "expected_substantive": true,
+      "exercises": ["closed_inequality", "literal_refinement_bound"]
+    },
+    {
+      "file": "positive_constraint_set.hml",
+      "expected_verdict": "VERIFIED",
+      "expected_substantive": true,
+      "exercises": ["logical_consistency"]
+    },
+    {
+      "file": "positive_refinement_bound.hml",
+      "expected_verdict": "VERIFIED",
+      "expected_substantive": true,
+      "exercises": ["literal_refinement_bound", "logical_consistency"]
+    },
+    {
+      "file": "positive_finite_exhaustion.hml",
+      "expected_verdict": "VERIFIED",
+      "expected_substantive": true,
+      "exercises": ["finite_set_membership"]
+    },
+    {
+      "file": "positive_symbolic_identity.hml",
+      "expected_verdict": "VERIFIED",
+      "expected_substantive": true,
+      "exercises": ["symbolic_identity"]
+    },
+    {
+      "file": "positive_dimension.hml",
+      "expected_verdict": "VERIFIED",
+      "expected_substantive": true,
+      "exercises": ["dimension_compatibility"]
+    },
+    {
+      "file": "positive_signature.hml",
+      "expected_verdict": "VERIFIED",
+      "expected_substantive": true,
+      "exercises": ["declared_signature_conformance", "closed_arithmetic_equality"]
+    },
+    {
+      "file": "invalid_closed_arithmetic.hml",
+      "expected_verdict": "DISPROVED",
+      "expected_substantive": false,
+      "exercises": ["closed_arithmetic_equality"]
+    },
+    {
+      "file": "invalid_infeasible_constraints.hml",
+      "expected_verdict": "DISPROVED",
+      "expected_substantive": true,
+      "exercises": ["logical_consistency"]
+    },
+    {
+      "file": "invalid_excluded_by_declaration.hml",
+      "expected_verdict": "DISPROVED",
+      "expected_substantive": false,
+      "exercises": ["logical_consistency"]
+    },
+    {
+      "file": "invalid_symbolic_identity.hml",
+      "expected_verdict": "DISPROVED",
+      "expected_substantive": false,
+      "exercises": ["numerical_counterexample"]
+    },
+    {
+      "file": "invalid_finite_exhaustion.hml",
+      "expected_verdict": "DISPROVED",
+      "expected_substantive": false,
+      "exercises": ["finite_set_membership"]
+    },
+    {
+      "file": "invalid_dimension.hml",
+      "expected_verdict": "INVALID",
+      "expected_substantive": false,
+      "exercises": [],
+      "note": "The type checker rejects the asserted dimension at HML-D504 before the engine runs. INVALID, not DISPROVED: the module never denoted anything to disprove."
+    },
+    {
+      "file": "unsupported_infinite_quantifier.hml",
+      "expected_verdict": "UNSUPPORTED",
+      "expected_substantive": false,
+      "exercises": []
+    },
+    {
+      "file": "unsupported_distributional.hml",
+      "expected_verdict": "UNSUPPORTED",
+      "expected_substantive": false,
+      "exercises": []
+    },
+    {
+      "file": "unsupported_vector_index.hml",
+      "expected_verdict": "UNSUPPORTED",
+      "expected_substantive": false,
+      "exercises": []
+    },
+    {
+      "file": "inconclusive_transcendental.hml",
+      "expected_verdict": "INCONCLUSIVE",
+      "expected_substantive": false,
+      "exercises": []
+    }
+  ]
+}

@@ -15,8 +15,9 @@ Everything here is offline. No mutation calls a model.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, replace
-from typing import Any, Callable
+from typing import Any
 
 from evaluation.v1.score_v1 import NotMeasured
 
@@ -46,8 +47,16 @@ _T_FACETED = _task()
 _T_QUANT = _task("quantifier_scope")
 
 _GOOD = _T_FACETED.cso.reference_hml
+#: Not in the language. The ONLY kind of input that is a parse failure.
 _BROKEN_SYNTAX = "module BindingChain\nconst a : Real = ((\n"
+#: A second, different unparseable form, for the "the repair is still not in the
+#: language" case. Distinct from ``_BROKEN_SYNTAX`` so the fixture cannot pass by the
+#: repair being byte-identical to the first attempt.
+_STILL_BROKEN_SYNTAX = "module BindingChain\nconst a : Real = = = 3\n"
+#: **Parses and resolves cleanly**; rejected by the type checker. Counting this as a
+#: parse failure is the defect the stage record removes.
 _BROKEN_TYPE = "module BindingChain\nconst a : Probability = 2\n"
+#: Parses cleanly; fails in *resolution*. A scope defect, not a syntax defect.
 _UNRESOLVED = "module BindingChain\ndef y : Real := zzz + 1\n"
 #: Parses cleanly, mistranslates: every `const` becomes a `var`, which is a different
 #: epistemic status, and the numeric literals are dropped.
@@ -114,6 +123,22 @@ def _approx(field: str, want: float, tol: float = 1e-9):
     return check
 
 
+def _all(*checks: Callable[[ScoredTrial], tuple[bool, str]]):
+    """Every check must hold. Used where one input pins several facets at once —
+    a stage record is only useful if the stages it separates are asserted together."""
+
+    def check(s: ScoredTrial) -> tuple[bool, str]:
+        details = []
+        ok = True
+        for c in checks:
+            good, detail = c(s)
+            ok = ok and good
+            details.append(("OK  " if good else "BAD ") + detail)
+        return ok, "; ".join(details)
+
+    return check
+
+
 def _lt(field: str, bound: float):
     def check(s: ScoredTrial) -> tuple[bool, str]:
         got = getattr(s, field)
@@ -149,12 +174,25 @@ MUTATIONS: tuple[Mutation, ...] = (
         "repaired parse must be able to exceed first-attempt parse",
     ),
     Mutation(
-        "repaired_parse", "a repair that is still broken does not count", "fail",
+        "repaired_parse", "a repair that is still unparseable does not count", "fail",
         _trial(content=_reply(_BROKEN_SYNTAX), repair_attempted=True,
-               repair_content=_reply(_BROKEN_TYPE), repair_completion_tokens=90,
+               repair_content=_reply(_STILL_BROKEN_SYNTAX), repair_completion_tokens=90,
                repair_latency_s=2.1),
         _T_FACETED, _A, _eq("repaired_parse", False),
         "a repair loop that always reports success is not a repair loop",
+    ),
+    Mutation(
+        "repaired_parse", "a repair that fixes the syntax and leaves a type error parses",
+        "pass",
+        _trial(content=_reply(_BROKEN_SYNTAX), repair_attempted=True,
+               repair_content=_reply(_BROKEN_TYPE), repair_completion_tokens=90,
+               repair_latency_s=2.1),
+        _T_FACETED, _A, _eq("repaired_parse", True),
+        "THE defect this facet was carrying: `const a : Probability = 2` is a TYPE "
+        "error (HML-T4xx) and parses cleanly. Counting it as a failed parse understates "
+        "the repaired parse rate and blames the surface syntax for the type checker. It "
+        "must still fail to compile and fail preservation, which the two mutations below "
+        "assert -- the repair is genuinely not a success, it is just not a parse failure.",
     ),
     # -- semantic_preservation ----------------------------------------------
     Mutation(
@@ -242,6 +280,56 @@ MUTATIONS: tuple[Mutation, ...] = (
                repair_latency_s=2.1),
         _T_FACETED, _A, _approx("latency_s", 5.3, 1e-6),
         "the repair loop's wall cost belongs to the arm that used it",
+    ),
+    # -- the stage record: a parse verdict is not a compile verdict ----------
+    #
+    # These four are the whole point. Each input below fails the compiler, and only the
+    # first is a parse failure. A scorer that reads CompileResult.ok() as "parsed"
+    # reports all four identically, understating ACQ0's first-attempt parse rate and
+    # attributing three type/scope defects to the candidate surface.
+    Mutation(
+        "first_attempt_parse", "text that is not in the language fails to parse", "fail",
+        _trial(content=_reply(_BROKEN_SYNTAX)), _T_FACETED, _A,
+        _all(
+            _eq("first_attempt_parse", False),
+            _eq("first_attempt_compiled", False),
+            _eq("terminal_outcome", "PARSE_FAILED"),
+        ),
+        "HML-P231. The only one of these four that is genuinely a parse failure.",
+    ),
+    Mutation(
+        "first_attempt_parse", "a type error parses and does not compile", "pass",
+        _trial(content=_reply(_BROKEN_TYPE)), _T_FACETED, _A,
+        _all(
+            _eq("first_attempt_parse", True),
+            _eq("first_attempt_compiled", False),
+            _eq("terminal_outcome", "RESOLVED_TYPE_FAILED"),
+        ),
+        "HML-T402. The model wrote the syntax correctly and the mathematics wrongly; "
+        "recording it as a syntax failure would blame the candidate for the type checker.",
+    ),
+    Mutation(
+        "first_attempt_parse", "an unresolved name parses and does not compile", "pass",
+        _trial(content=_reply(_UNRESOLVED)), _T_FACETED, _A,
+        _all(
+            _eq("first_attempt_parse", True),
+            _eq("first_attempt_compiled", False),
+            _eq("terminal_outcome", "PARSE_PASSED_RESOLUTION_FAILED"),
+        ),
+        "HML-N301. A scope defect: well-formed text about the wrong thing.",
+    ),
+    Mutation(
+        "semantic_preservation",
+        "a parsed, compiled, mistranslated encoding is not a parse failure", "fail",
+        _trial(content=_reply(_MISTRANSLATED)), _T_FACETED, _A,
+        _all(
+            _eq("first_attempt_parse", True),
+            _eq("first_attempt_compiled", True),
+            _lt("semantic_preservation", 1.0),
+        ),
+        "the surface was written well and the meaning is not the one asked for; the "
+        "parse rate and the preservation rate must move independently or the gate's two "
+        "criteria are one criterion",
     ),
     # -- failure_category ----------------------------------------------------
     Mutation(

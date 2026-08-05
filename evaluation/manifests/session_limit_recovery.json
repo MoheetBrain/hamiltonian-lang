@@ -1,0 +1,776 @@
+{
+  "schema_version": "hml-session-recovery-1.0.0",
+  "parent_commit": "9afafa8ada6edf54f92d26b56f6620c9558e5cb6",
+  "branch": "recovery/session-limit-2026-08-05",
+  "reason": "Three subagents terminated on an API session limit (resets 23:20 Europe/London). The dirty tree is evidence and is preserved verbatim before any integration edit.",
+  "secret_scan": "clean - no credentials, model blobs, venvs, caches or files >1MB",
+  "file_count": 152,
+  "by_completion": {
+    "COMPLETE": 94,
+    "MIXED": 5,
+    "INTERRUPTED": 47,
+    "REVIEW": 6
+  },
+  "files": [
+    {
+      "path": "DECISIONS.md",
+      "attributed_to": "Lead",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "docs/architecture/HML_CHAIN_OF_REPAIR.md",
+      "attributed_to": "Lead / various",
+      "completion": "MIXED"
+    },
+    {
+      "path": "docs/architecture/HML_EQUIVALENCE_SCORING.md",
+      "attributed_to": "Lead / various",
+      "completion": "MIXED"
+    },
+    {
+      "path": "docs/architecture/HML_PROCESS_VERIFICATION.md",
+      "attributed_to": "Lead / various",
+      "completion": "MIXED"
+    },
+    {
+      "path": "docs/evaluation/EXPERIMENT_LINEAGE.md",
+      "attributed_to": "Lead / various",
+      "completion": "MIXED"
+    },
+    {
+      "path": "docs/evaluation/FORMAT_RESTRICTION_AUDIT.md",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "docs/evaluation/M1_FINAL_AUDIT.md",
+      "attributed_to": "Lead / various",
+      "completion": "MIXED"
+    },
+    {
+      "path": "evaluation/acq0/__init__.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/prompts/__init__.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/prompts/field_order.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/prompts/sensitivity.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/prompts/stages.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/protocols/__init__.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/protocols/calibration.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/protocols/core.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/protocols/metrics.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/protocols/oracle.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/protocols/runner.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/acq0/protocols/selection.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/corpus_governance/__init__.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/corpus_governance/back_translation.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/corpus_governance/contamination.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/corpus_governance/gates.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/corpus_governance/human_gate.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/corpus_governance/negation.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/corpus_governance/semantic_checks.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/m3/__init__.py",
+      "attributed_to": "unclassified",
+      "completion": "REVIEW"
+    },
+    {
+      "path": "evaluation/m3/equivalence/__init__.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/equivalence/pairs.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/equivalence/results/benchmark.json",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/equivalence/run.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/lite/__init__.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/m3/lite/calibration.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/m3/lite/guidance.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/m3/lite/items.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/m3/lite/roster.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "evaluation/m3/verification/__init__.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/MANIFEST.json",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/inconclusive_transcendental.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/invalid_closed_arithmetic.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/invalid_dimension.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/invalid_excluded_by_declaration.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/invalid_finite_exhaustion.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/invalid_infeasible_constraints.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/invalid_symbolic_identity.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/positive_closed_arithmetic.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/positive_closed_inequality.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/positive_constraint_set.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/positive_dimension.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/positive_finite_exhaustion.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/positive_refinement_bound.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/positive_signature.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/positive_symbolic_identity.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/unsupported_distributional.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/unsupported_infinite_quantifier.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/fixtures/unsupported_vector_index.hml",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/leakage.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/process_metrics.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/run_offline.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/m3/verification/task_subset.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/manifests/environment_manifest.json",
+      "attributed_to": "unclassified",
+      "completion": "REVIEW"
+    },
+    {
+      "path": "evaluation/semantic_equiv.py",
+      "attributed_to": "unclassified",
+      "completion": "REVIEW"
+    },
+    {
+      "path": "evaluation/syntax_gate/candidates.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/syntax_gate/mutations.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/syntax_gate/partition.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/syntax_gate/scorer.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "evaluation/syntax_gate/stats.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "experiments/alphabet/tokenisation_benchmark.py",
+      "attributed_to": "unclassified",
+      "completion": "REVIEW"
+    },
+    {
+      "path": "scripts/reproducibility/stability_runs.sh",
+      "attributed_to": "Agent: reproducibility",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/__init__.py",
+      "attributed_to": "unclassified",
+      "completion": "REVIEW"
+    },
+    {
+      "path": "src/hamiltonian_lang/backends/canonical.py",
+      "attributed_to": "Lead (D-024)",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/context_broker/__init__.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/context_broker/broker.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/context_broker/index.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/context_broker/taxonomy.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/__init__.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/adjudication.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/display.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/endpoints.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/guards.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/matching.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/scorer.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/search.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/status.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/symbolic.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/equivalence/sympy_bridge.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/improvement/episodes.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/improvement/evidence.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/improvement/memory.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/improvement/runner.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/improvement/state.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/improvement/verification.py",
+      "attributed_to": "Agent: metric integrity",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/repair/__init__.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/repair/arms.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/repair/budget.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/repair/leakage.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/repair/learner.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/repair/plan.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/repair/record.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/repair/teacher.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "src/hamiltonian_lang/verification/__init__.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/verification/obligations/__init__.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/verification/obligations/checkers.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/verification/obligations/domains.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/verification/obligations/engine.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/verification/obligations/evaluate.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/verification/obligations/federation.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "src/hamiltonian_lang/verification/obligations/records.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/concurrency/test_canonical_thread_safety.py",
+      "attributed_to": "Agent: reproducibility / Lead",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/concurrency/test_shared_state_hazards.py",
+      "attributed_to": "Agent: reproducibility / Lead",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_benchmark.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_guards.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_isolation_and_adjudication.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_mutation.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_scorer_endpoints.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_status_contracts.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_tier1_matching.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_tier2_symbolic.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_tier3_search.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/equivalence/test_tier4_endpoints.py",
+      "attributed_to": "Agent: equivalence scorer",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/evaluation/test_acq0_protocols.py",
+      "attributed_to": "Agent: format protocol",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/evaluation/test_corpus_governance.py",
+      "attributed_to": "Agent: benchmark governance",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/evaluation/test_syntax_gate_scorer.py",
+      "attributed_to": "unclassified",
+      "completion": "REVIEW"
+    },
+    {
+      "path": "tests/improvement/test_episode_ledger_integration.py",
+      "attributed_to": "Agent: metric integrity / Lead",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/improvement/test_episodes.py",
+      "attributed_to": "Agent: metric integrity / Lead",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/improvement/test_hypothesis_separation.py",
+      "attributed_to": "Agent: metric integrity / Lead",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/improvement/test_memory_routing.py",
+      "attributed_to": "Agent: metric integrity / Lead",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/improvement/test_repair_arena.py",
+      "attributed_to": "Agent: metric integrity / Lead",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/improvement/test_verification.py",
+      "attributed_to": "Agent: metric integrity / Lead",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/repair/test_repair_arms.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/repair/test_repair_budget.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/repair/test_repair_context_broker.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/repair/test_repair_leakage.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/repair/test_repair_offline_guarantee.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/repair/test_repair_plan_non_leaking.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/repair/test_repair_taxonomy.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/repair/test_repair_teacher_learner.py",
+      "attributed_to": "Agent: chain-of-repair",
+      "completion": "INTERRUPTED"
+    },
+    {
+      "path": "tests/reproducibility/test_recovery_lineage.py",
+      "attributed_to": "Agent: reproducibility",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/__init__.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_checkers.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_engine_verdict.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_evaluate.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_federation_adapter.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_fixture_reachability.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_leakage.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_modes.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_no_sorry_path.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_offline_run.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_partiality.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_process_metrics.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_records.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    },
+    {
+      "path": "tests/verification/test_task_subset.py",
+      "attributed_to": "Agent: verified endpoint",
+      "completion": "COMPLETE"
+    }
+  ]
+}

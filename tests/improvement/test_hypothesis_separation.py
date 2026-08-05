@@ -356,5 +356,20 @@ def test_an_h1_result_states_its_own_scope_too():
 
 def test_the_three_hypotheses_are_distinct_values_and_stay_that_way():
     assert len({H1, H2, H3}) == 3
-    assert [h.value for h in Hypothesis] == ["H1", "H2", "H3"]
     assert H3 is not H1 and H3 != H1
+
+
+def test_the_canonical_identifier_set_is_pinned():
+    """One type, five values. ``ACQ0`` is the syntax-acquisition prerequisite and
+    ``EXCLUDED`` is engineering work; both are named here so that adding a sixth is a
+    deliberate act with a test to update, not a quiet widening."""
+    assert [h.value for h in Hypothesis] == ["ACQ0", "H1", "H2", "H3", "EXCLUDED"]
+    # The short spellings are aliases of the descriptive ones, not extra members.
+    assert Hypothesis.H1 is Hypothesis.H1_REPRESENTATION_AS_INPUT
+    assert Hypothesis.H2 is Hypothesis.H2_REPRESENTATION_AS_WORKSPACE
+    assert Hypothesis.H3 is Hypothesis.H3_VERIFIER_GUIDED_REPAIR
+
+
+def test_only_excluded_is_outside_the_scientific_record():
+    assert {h.value for h in Hypothesis if not h.scientific} == {"EXCLUDED"}
+    assert Hypothesis.ACQ0.scientific is True

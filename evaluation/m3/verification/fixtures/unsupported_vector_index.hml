@@ -1,0 +1,8 @@
+# Unsupported fixture: indexing. No implemented checker evaluates an indexed term, and
+# none pretends to, so the obligation is reported outside the subset.
+module VectorIndexing
+
+var w : Vector[Real, 3]
+index i : Natural
+
+prove w[i] = w[i]

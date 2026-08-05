@@ -28,6 +28,8 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**RECOVERY IN PROGRESS.** Three subagents terminated on an API session limit mid-write. The dirty tree (152 files) is preserved verbatim on `recovery/session-limit-2026-08-05`; see `docs/evaluation/SESSION_LIMIT_RECOVERY_MANIFEST.md`. State at capture: **4721 passed**, `CONFORMANCE: PASS`. Four subsystems returned gate verdicts; three (Chain-of-Repair, format protocol, benchmark governance) are **INTERRUPTED and unaudited** — each stopped while writing its own tests, so their controls are the parts most likely missing.
+
 **HML-CONSTITUTIONAL-CORE-001 — installing recursive improvement as a constitutional
 subsystem.** Phase 0 baseline is recorded in
 `docs/evaluation/CONSTITUTIONAL_CORE_BASELINE.md`. The compiler is the semantic truth

@@ -220,3 +220,220 @@ def test_score_many_is_order_preserving_and_parallel_safe():
     assert [s.trial_id for s in parallel] == [s.trial_id for s in serial]
     assert [s.to_dict() for s in parallel] == [s.to_dict() for s in serial]
     assert all(s.first_attempt_parse for s in serial)
+
+
+# ---------------------------------------------------------------------------
+# A parse rate must count parses, not compiles
+# ---------------------------------------------------------------------------
+
+#: Encodings whose only defect is *after* the parser. Every one fails
+#: ``CompileResult.ok()`` and every one parses. A scorer that reads ``ok()`` as the
+#: parse verdict reports all four as syntax failures, understating ACQ0's first-attempt
+#: parse rate and blaming the candidate surface for the compiler's type checking.
+_POST_PARSE_DEFECTS = {
+    "HML-T426 wrong arity": (
+        "module M\n"
+        "param v : Vector[Real, 3]\n"
+        "def s : Real := sum(v, v)\n",
+        "HML-T426",
+        "RESOLVED_TYPE_FAILED",
+    ),
+    "HML-T415 wrong role label": (
+        "module M\n"
+        "param mu : Real\n"
+        "param v : PositiveReal\n"
+        "var X : RandomVariable[Real]\n"
+        "law X ~ Normal(location := mu, variance := v)\n",
+        "HML-T415",
+        "RESOLVED_TYPE_FAILED",
+    ),
+    "HML-T403 declared-type mismatch": (
+        "module M\n"
+        "param p : Probability = 0.5\n"
+        "def d : PositiveReal := p\n",
+        "HML-T403",
+        "RESOLVED_TYPE_FAILED",
+    ),
+    "unknown identifier": (
+        "module M\ndef d : Real := nosuchthing\n",
+        "HML-N301",
+        "PARSE_PASSED_RESOLUTION_FAILED",
+    ),
+}
+
+_SYNTAX_DEFECT = "module M\nconst a : Real = ((\n"
+
+
+def _trial_with(encoding: str, **kw):
+    from dataclasses import replace
+
+    base = TrialInput(
+        trial_id="stage", run_id="r", task_id=T0.id, condition=A_V0_LINEAR,
+        curriculum_size=0,
+        content=f"```hml\n{encoding}```\n\n<ANSWER>{T0.cso.answer.value}</ANSWER>",
+        completion_tokens=40, finish_reason="stop",
+    )
+    return replace(base, **kw)
+
+
+@pytest.mark.parametrize("case", sorted(_POST_PARSE_DEFECTS), ids=sorted(_POST_PARSE_DEFECTS))
+def test_a_post_parse_defect_is_not_scored_as_a_parse_failure(case):
+    encoding, expected_code, expected_terminal = _POST_PARSE_DEFECTS[case]
+    from hamiltonian_lang import compile_source
+
+    # The premise, restated at the scorer boundary so this test stands alone.
+    assert not compile_source(encoding).ok(), f"{case} unexpectedly compiles clean"
+
+    s = score_trial(_trial_with(encoding), T0, ADAPTER)
+    assert s.first_attempt_parse is True, (case, s.terminal_outcome, s.diagnostics)
+    assert s.first_attempt_compiled is False, case
+    assert s.terminal_outcome == expected_terminal, (case, s.terminal_outcome)
+    assert any(expected_code in d for d in s.diagnostics), (case, s.diagnostics)
+    # It did not recover the reference object either -- but for a reason that is not
+    # "the model could not write the syntax".
+    assert s.exact_canonical_match is False, case
+
+
+def test_a_genuine_syntax_defect_is_still_a_parse_failure():
+    """The other half. If this ever passes, the fix has gone too far and the parse rate
+    has become a constant."""
+    s = score_trial(_trial_with(_SYNTAX_DEFECT), T0, ADAPTER)
+    assert s.first_attempt_parse is False
+    assert s.first_attempt_compiled is False
+    assert s.terminal_outcome == "PARSE_FAILED"
+    assert s.failure_category == "syntax_failure"
+
+
+def test_the_parse_rate_and_the_compile_rate_genuinely_differ():
+    """A differential test, so the two fields cannot both be aliases of one boolean."""
+    rows = [
+        score_trial(_trial_with(enc), T0, ADAPTER)
+        for enc, _, _ in _POST_PARSE_DEFECTS.values()
+    ]
+    rows.append(score_trial(_trial_with(_SYNTAX_DEFECT), T0, ADAPTER))
+
+    parsed = sum(1 for r in rows if r.first_attempt_parse is True)
+    compiled = sum(1 for r in rows if r.first_attempt_compiled is True)
+    assert parsed == len(_POST_PARSE_DEFECTS)
+    assert compiled == 0
+    assert parsed != compiled, (
+        "first_attempt_parse and first_attempt_compiled reported the same number on a "
+        "set constructed so that they must differ; the conflation has returned"
+    )
+
+
+def test_a_repair_that_fixes_syntax_and_leaves_a_type_error_counts_as_a_parse():
+    encoding, _, _ = _POST_PARSE_DEFECTS["HML-T426 wrong arity"]
+    s = score_trial(
+        _trial_with(
+            _SYNTAX_DEFECT,
+            repair_attempted=True,
+            repair_content=f"```hml\n{encoding}```\n<ANSWER>0</ANSWER>",
+            repair_completion_tokens=40,
+        ),
+        T0,
+        ADAPTER,
+    )
+    assert s.first_attempt_parse is False
+    assert s.repaired_parse is True, s.diagnostics
+    assert s.repair_terminal_outcome == "RESOLVED_TYPE_FAILED"
+    # Parsing is not succeeding. The trial still failed to recover the object.
+    assert s.exact_canonical_match is False
+
+
+def test_a_front_end_reporting_no_stage_record_is_not_measured_rather_than_false():
+    """A front end that has not been updated has not observed a parse failure. Falling
+    back to ``ok`` would silently reinstate the defect for that candidate."""
+    from evaluation.syntax_gate.candidates import ParseOutcome
+
+    class StagelessAdapter:
+        candidate_id = A_V0_LINEAR
+        LIVE = False
+
+        def render(self, hml_l1: str) -> str:
+            return hml_l1
+
+        def parse(self, encoding: str) -> ParseOutcome:
+            # ok=False with no stages: the old shape.
+            return ParseOutcome(ok=False, hml_l1=None, diagnostics=["HML-T426"],
+                                surface=encoding)
+
+    s = score_trial(_trial_with(_SYNTAX_DEFECT), T0, StagelessAdapter())
+    assert isinstance(s.first_attempt_parse, NotMeasured)
+    assert "per-stage record" in s.first_attempt_parse.reason
+    assert isinstance(s.exact_canonical_match, NotMeasured)
+
+
+def test_a_reference_encoding_recovers_the_exact_canonical_object():
+    reply = f"```hml\n{T0.cso.reference_hml}```\n\n<ANSWER>{T0.cso.answer.value}</ANSWER>"
+    trial = TrialInput(
+        trial_id="x", run_id="r", task_id=T0.id, condition=A_V0_LINEAR,
+        curriculum_size=0, content=reply, completion_tokens=10, finish_reason="stop",
+    )
+    s = score_trial(trial, T0, ADAPTER)
+    assert s.first_attempt_parse is True
+    assert s.first_attempt_compiled is True
+    assert s.exact_canonical_match is True
+    assert s.terminal_outcome == "SEMANTICALLY_PRESERVED"
+
+
+# ---------------------------------------------------------------------------
+# The ACQ0 metric definitions
+# ---------------------------------------------------------------------------
+
+
+def test_acq0_metrics_count_parses_and_state_their_own_definitions():
+    from evaluation.syntax_gate.stats import acq0_metrics
+
+    rows = [
+        score_trial(_trial_with(enc), T0, ADAPTER)
+        for enc, _, _ in _POST_PARSE_DEFECTS.values()
+    ]
+    rows.append(score_trial(_trial_with(_SYNTAX_DEFECT), T0, ADAPTER))
+
+    m = acq0_metrics(rows, A_V0_LINEAR)
+    first = m["first_attempt_parse_rate"]
+    assert first["numerator"] == len(_POST_PARSE_DEFECTS)
+    assert first["denominator"] == len(rows)
+    assert "parse_status = PASS" in first["definition"]
+
+    # Only the genuine syntax failure was ever eligible for a repair.
+    assert m["repaired_parse_rate"]["repair_eligible_total"] == 1
+
+    # None of these recovered the reference object.
+    assert m["semantic_preservation_rate"]["numerator"] == 0
+    assert m["semantic_preservation_rate"]["denominator"] == len(rows)
+
+    # The gate quantity is reported under a different name from the repair-loop rate,
+    # so a report cannot quote one as the other.
+    assert (
+        m["parse_rate_after_at_most_one_repair"]["definition"]
+        != m["repaired_parse_rate"]["definition"]
+    )
+    assert m["terminal_outcomes"]["PARSE_FAILED"] == 1
+    assert m["terminal_outcomes"]["RESOLVED_TYPE_FAILED"] == 3
+
+
+def test_the_repaired_parse_rate_excludes_trials_that_never_needed_a_repair():
+    from evaluation.syntax_gate.stats import acq0_metrics
+
+    good = f"```hml\n{T0.cso.reference_hml}```\n<ANSWER>{T0.cso.answer.value}</ANSWER>"
+    rows = [
+        score_trial(
+            TrialInput(
+                trial_id="ok", run_id="r", task_id=T0.id, condition=A_V0_LINEAR,
+                curriculum_size=0, content=good, completion_tokens=10,
+                finish_reason="stop",
+            ),
+            T0, ADAPTER,
+        ),
+        score_trial(_trial_with(_SYNTAX_DEFECT), T0, ADAPTER),
+    ]
+    m = acq0_metrics(rows, A_V0_LINEAR)
+    assert m["first_attempt_parse_rate"]["numerator"] == 1
+    assert m["first_attempt_parse_rate"]["denominator"] == 2
+    # One row parsed first time, so exactly one row was repair-eligible.
+    assert m["repaired_parse_rate"]["repair_eligible_total"] == 1
+    assert m["repaired_parse_rate"]["denominator"] == 1
+    # The gate quantity counts both rows.
+    assert m["parse_rate_after_at_most_one_repair"]["denominator"] == 2

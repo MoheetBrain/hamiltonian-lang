@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from contextvars import ContextVar
 from typing import Any
 
 from ..ast.nodes import (
@@ -58,13 +59,22 @@ CANONICAL_VERSION = "hml-canonical-0.1.0"
 #: produces byte-identical output. ``content_hash`` always serialises with names off:
 #: identity is structural, and the spelling of a bound variable is not part of it
 #: (v0 success criterion 6). Human-facing JSON keeps names for readability.
-_INCLUDE_NAMES = True
+#: A ``ContextVar``, not a module global. The save/restore below is reentrancy-safe but
+#: was **not thread-safe**: ``content_hash`` forces this False while serialising, so a
+#: concurrent ``canonical_json(..., include_names=True)`` on another thread silently
+#: returned the *nameless* form -- no exception, no diagnostic, just the wrong document.
+#: Reproduced by the M1 reproducibility audit with 8 hasher threads and a 600-statement
+#: module: 1 corrupted named canonical form. See D-024.
+#:
+#: A ContextVar has independent per-thread values and still restores correctly on the
+#: token, so single-threaded behaviour is byte-identical to the global it replaces.
+_INCLUDE_NAMES: ContextVar[bool] = ContextVar("hml_canonical_include_names", default=True)
 
 
 def _sym(sid: SymbolId | None, *, keep_name: bool = False) -> Any:
     if sid is None:
         return None
-    if keep_name and _INCLUDE_NAMES:
+    if keep_name and _INCLUDE_NAMES.get():
         return {"id": sid.canonical(), "name": sid.name}
     return sid.canonical()
 
@@ -76,7 +86,7 @@ def _params(params: list) -> Any:
     appear in the hashed form or alpha-renaming a definition's parameter would change
     its identity. Positional order carries the meaning. (Red-team finding 1.9.)
     """
-    if _INCLUDE_NAMES:
+    if _INCLUDE_NAMES.get():
         return [{"name": n, "type": _type(t)} for n, t in params]
     return [{"type": _type(t)} for _, t in params]
 
@@ -237,13 +247,11 @@ def _statement(st: Statement) -> dict:
 def to_canonical(
     module: Module, *, obligations: list | None = None, include_names: bool = True
 ) -> dict:
-    global _INCLUDE_NAMES
-    previous = _INCLUDE_NAMES
-    _INCLUDE_NAMES = include_names
+    token = _INCLUDE_NAMES.set(include_names)
     try:
         return _to_canonical(module, obligations)
     finally:
-        _INCLUDE_NAMES = previous
+        _INCLUDE_NAMES.reset(token)
 
 
 def _to_canonical(module: Module, obligations: list | None) -> dict:

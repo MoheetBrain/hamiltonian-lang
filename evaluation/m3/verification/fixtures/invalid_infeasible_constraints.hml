@@ -1,0 +1,8 @@
+# Invalid fixture: each constraint is satisfiable alone; together they have no model.
+# Refuted by interval intersection, which names the conflicting bounds.
+module InfeasibleConstraints
+
+var x : Real
+
+require x > 5
+require x < 3

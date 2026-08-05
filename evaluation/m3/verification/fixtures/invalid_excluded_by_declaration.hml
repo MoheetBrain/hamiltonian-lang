@@ -1,0 +1,7 @@
+# Invalid fixture: the declared type already excludes every value the constraint needs.
+# `Probability` is the closed unit interval, so nothing in it exceeds 1.
+module ExcludedByDeclaration
+
+param theta : Probability
+
+require theta > 1

@@ -25,12 +25,26 @@ from hamiltonian_lang.improvement.episodes import (
     InputRepresentation,
     Measurement,
     Provenance,
+    StageOutcome,
+    StageStatus,
+    TerminalOutcome,
+    TrainingEligibility,
+    TrainingEligibilityOverride,
     Verdict,
     assert_single_hypothesis,
+    classify_stages,
     group_by_contrast,
     instrument_available,
     offline_absence,
     output_hash,
+)
+from hamiltonian_lang.improvement.memory import (
+    MemoryStoreKind,
+    QuarantineEligibilityError,
+    QuarantineReason,
+    RoutingDecision,
+    RoutingFacts,
+    route,
 )
 from hamiltonian_lang.improvement.verification import (
     Counterexample,
@@ -60,11 +74,20 @@ def episode(**kw) -> Episode:
         language_version="hml-0.1.0",
         compiler_version="hamiltonian-lang 0.1.0",
         input_representation=condition.input_representation,
-        training_eligible=False,
         exclusion_reason="offline smoke episode; no model output to learn from",
     )
     base.update(kw)
     return Episode(**base)  # type: ignore[arg-type]
+
+
+def eligible_decision(store: MemoryStoreKind = MemoryStoreKind.POSITIVE) -> RoutingDecision:
+    """A router decision that says yes. Built here rather than hand-written on an
+    episode, because that is now the only way to obtain one."""
+    return RoutingDecision(
+        store=store,
+        training_eligible=True,
+        reasons=("first attempt was faithful and every required verifier passed",),
+    )
 
 
 # --- identity and versioning ----------------------------------------------------------
@@ -127,9 +150,16 @@ def test_every_hypothesis_has_a_recorded_claim():
 
 
 def test_the_h3_claim_states_that_it_does_not_transfer_to_the_representation():
-    """The single sentence a reader in a year most needs to find."""
+    """The single sentence a reader in a year most needs to find.
+
+    Phrased as a prohibition rather than a quotation of the forbidden claim:
+    ``test_hypothesis_separation`` bans the literal string "win for the representation"
+    from every rendered H3 report, and a negated occurrence would still trip a reader
+    skimming for it.
+    """
     claim = HYPOTHESIS_CLAIMS[HypothesisId.H3].lower()
-    assert "never be reported as a win for the representation" in claim
+    assert "does not support any claim about the representation" in claim
+    assert "misattributes the cause" in claim
 
 
 def test_an_h1_episode_cannot_carry_verifier_feedback():
@@ -214,12 +244,38 @@ def test_the_mixing_error_explains_both_claims():
 def test_engineering_episodes_do_not_mix_with_hypothesis_episodes():
     a = episode(hypothesis_id=HypothesisId.H1, condition=H1_CONDITION)
     b = episode(
-        hypothesis_id=HypothesisId.NONE,
+        hypothesis_id=HypothesisId.EXCLUDED,
         condition=Condition(InputRepresentation.ENGLISH, False, False),
         input_representation=InputRepresentation.ENGLISH,
     )
     with pytest.raises(HypothesisMixing):
         assert_single_hypothesis([a, b])
+
+
+def test_excluded_alone_is_still_refused_as_a_scientific_aggregate():
+    """The old ``NONE`` was mixable-with-nothing but aggregatable-alone. ``EXCLUDED`` is
+    not evidence, so a statistic over it is not a result and the guard says so."""
+    pool = [
+        episode(
+            episode_id=i,
+            hypothesis_id=HypothesisId.EXCLUDED,
+            condition=Condition(InputRepresentation.ENGLISH, False, False),
+            input_representation=InputRepresentation.ENGLISH,
+        )
+        for i in ("a", "b")
+    ]
+    with pytest.raises(HypothesisMixing, match="EXCLUDED"):
+        assert_single_hypothesis(pool)
+    # Counting non-evidence deliberately is still possible, and has to be asked for.
+    assert assert_single_hypothesis(pool, allow_excluded=True) is HypothesisId.EXCLUDED
+
+
+def test_the_old_none_member_is_gone_and_did_not_become_a_silent_alias():
+    """``NONE`` read as "not recorded yet". Migrating it to ``EXCLUDED`` is the point of
+    the change, so the old spelling must not still resolve."""
+    assert not hasattr(HypothesisId, "NONE")
+    with pytest.raises(ValueError):
+        HypothesisId("NONE")
 
 
 def test_aggregating_a_single_hypothesis_succeeds():
@@ -390,12 +446,13 @@ def test_offline_absence_names_what_was_not_measured():
 
 def test_exclusion_must_be_explained():
     with pytest.raises(ValueError, match="must say why"):
-        episode(training_eligible=False, exclusion_reason=None)
+        episode(exclusion_reason=None)
 
 
 def test_eligible_and_excluded_cannot_both_hold():
     with pytest.raises(ValueError, match="cannot be training-eligible"):
-        episode(training_eligible=True, exclusion_reason="excluded")
+        episode(eligibility=TrainingEligibility.from_decision(eligible_decision()),
+                exclusion_reason="excluded")
 
 
 def test_a_verified_verdict_requires_a_verifier_that_verified():
@@ -419,3 +476,296 @@ def test_machine_verified_confidence_requires_a_verified_verdict():
 def test_counterexamples_are_carried_on_the_episode():
     e = episode(counterexamples=(Counterexample("false at x = 0", produced_by="sympy"),))
     assert e.to_dict()["counterexamples"][0]["produced_by"] == "sympy"
+
+
+# --- Defect A: a compile verdict is not a parse verdict -------------------------------
+
+
+#: Sources whose *only* defect is after the parser. Every one of these compiles to
+#: ``False`` and parses to ``True``, which is the whole point: a harness reading
+#: ``CompileResult.ok()`` as "parsed" would record all five as syntax failures and
+#: understate ACQ0's first-attempt parse rate.
+PARSES_BUT_DOES_NOT_COMPILE = {
+    "HML-T426 wrong arity": (
+        "module M\n"
+        "param v : Vector[Real, 3]\n"
+        "def s : Real := sum(v, v)\n",
+        "HML-T426",
+        TerminalOutcome.RESOLVED_TYPE_FAILED,
+    ),
+    "HML-T415 wrong role label": (
+        "module M\n"
+        "param mu : Real\n"
+        "param v : PositiveReal\n"
+        "var X : RandomVariable[Real]\n"
+        "law X ~ Normal(location := mu, variance := v)\n",
+        "HML-T415",
+        TerminalOutcome.RESOLVED_TYPE_FAILED,
+    ),
+    "HML-T403 declared-type mismatch": (
+        "module M\n"
+        "param p : Probability = 0.5\n"
+        "def d : PositiveReal := p\n",
+        "HML-T403",
+        TerminalOutcome.RESOLVED_TYPE_FAILED,
+    ),
+    "epistemic-kind mismatch": (
+        "module M\n"
+        "const pv : PValue := 0.05\n"
+        "def post : PosteriorProbability := pv\n",
+        "HML-T403",
+        TerminalOutcome.RESOLVED_TYPE_FAILED,
+    ),
+    "unknown identifier": (
+        "module M\ndef d : Real := nosuchthing\n",
+        "HML-N301",
+        TerminalOutcome.PARSE_PASSED_RESOLUTION_FAILED,
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    "case", sorted(PARSES_BUT_DOES_NOT_COMPILE), ids=sorted(PARSES_BUT_DOES_NOT_COMPILE)
+)
+def test_a_post_parse_defect_is_never_classified_as_a_parse_failure(case):
+    source, expected_code, expected_terminal = PARSES_BUT_DOES_NOT_COMPILE[case]
+    from hamiltonian_lang import compile_source
+
+    # The premise: the compile verdict says "no" for all of these.
+    assert not compile_source(source).ok(), f"{case} unexpectedly compiles clean"
+
+    outcome = classify_stages(source)
+    assert outcome.parse_status is StageStatus.PASS, (case, outcome.to_dict())
+    assert outcome.parsed is True
+    assert outcome.compiled is False
+    assert outcome.terminal is expected_terminal, (case, outcome.to_dict())
+    assert outcome.terminal is not TerminalOutcome.PARSE_FAILED
+    assert expected_code in outcome.diagnostic_codes, (case, outcome.diagnostic_codes)
+
+
+def test_syntax_level_malformed_input_is_a_parse_failure_and_stops_there():
+    outcome = classify_stages("module M\nparam p : = = =\n")
+    assert outcome.parse_status is StageStatus.FAIL
+    assert outcome.terminal is TerminalOutcome.PARSE_FAILED
+    # Later stages were never given the input, so they have no verdict at all.
+    assert outcome.resolution_status is StageStatus.NOT_RUN
+    assert outcome.type_status is StageStatus.NOT_RUN
+
+
+def test_an_empty_attempt_is_a_parse_failure_not_an_absent_measurement():
+    outcome = classify_stages("   \n")
+    assert outcome.terminal is TerminalOutcome.PARSE_FAILED
+    assert outcome.diagnostic_codes == ("EMPTY",)
+
+
+def test_a_clean_encoding_reaches_the_semantic_stage():
+    source = "module M\nparam p : Probability = 0.5\n"
+    outcome = classify_stages(source)
+    assert outcome.compiled is True
+    assert outcome.canonical_hash is not None
+    # No reference supplied: nothing was compared, and that is NOT_APPLICABLE rather
+    # than a pass.
+    assert outcome.semantic_status is StageStatus.NOT_APPLICABLE
+
+    matched = classify_stages(source, expected_canonical_hash=outcome.canonical_hash)
+    assert matched.semantic_status is StageStatus.PASS
+    assert matched.terminal is TerminalOutcome.SEMANTICALLY_PRESERVED
+
+    other = classify_stages(source, expected_canonical_hash="0" * 64)
+    assert other.terminal is TerminalOutcome.TYPED_SEMANTIC_LOSS
+    assert other.parsed is True  # it parsed; the meaning is what differed
+
+
+def test_a_verified_attempt_is_distinguished_from_a_merely_preserved_one():
+    source = "module M\nparam p : Probability = 0.5\n"
+    h = classify_stages(source).canonical_hash
+    assert (
+        classify_stages(source, expected_canonical_hash=h, verifier_passed=True).terminal
+        is TerminalOutcome.VERIFIED
+    )
+    assert (
+        classify_stages(source, expected_canonical_hash=h).terminal
+        is TerminalOutcome.SEMANTICALLY_PRESERVED
+    )
+
+
+def test_the_terminal_outcome_and_the_parse_status_cannot_disagree():
+    """The invariant that keeps the two halves of the type honest."""
+    with pytest.raises(ValueError, match="disagree about whether the text parsed"):
+        StageOutcome(
+            parse_status=StageStatus.FAIL,
+            resolution_status=StageStatus.NOT_RUN,
+            type_status=StageStatus.NOT_RUN,
+            semantic_status=StageStatus.NOT_RUN,
+            verification_status=StageStatus.NOT_RUN,
+            terminal=TerminalOutcome.RESOLVED_TYPE_FAILED,
+        )
+
+
+def test_all_eight_terminal_distinctions_exist():
+    assert {t.value for t in TerminalOutcome} == {
+        "PARSE_FAILED",
+        "PARSE_PASSED_RESOLUTION_FAILED",
+        "RESOLVED_TYPE_FAILED",
+        "TYPED_SEMANTIC_LOSS",
+        "SEMANTICALLY_PRESERVED",
+        "VERIFIED",
+        "INCONCLUSIVE",
+        "UNSUPPORTED",
+    }
+
+
+# --- Defect B: the router is the only authority on training eligibility ---------------
+
+
+def _quarantined_facts(**kw) -> RoutingFacts:
+    base = dict(
+        episode_id="ep-1",
+        hypothesis=HypothesisId.H1,
+        exact_hash="deadbeef",
+        provenance_complete=False,  # fail-closed condition
+    )
+    base.update(kw)
+    return RoutingFacts(**base)  # type: ignore[arg-type]
+
+
+def test_a_caller_cannot_supply_training_eligible_at_all():
+    """The defect in one line: a caller-supplied flag beside a router-derived one."""
+    with pytest.raises(TrainingEligibilityOverride, match="router"):
+        episode(training_eligible=True)
+
+
+def test_a_caller_supplied_true_cannot_override_quarantine():
+    """The requirement stated verbatim: quarantined data never reaches training.
+
+    Every route a caller could take is closed: the decision object refuses to represent
+    it, the eligibility record refuses to be built from it, and an unrouted episode is
+    ineligible by default rather than by omission.
+    """
+    decision = route(_quarantined_facts())
+    assert decision.store is MemoryStoreKind.QUARANTINE
+    assert decision.training_eligible is False
+
+    e = episode(eligibility=TrainingEligibility.from_decision(decision))
+    assert e.training_eligible is False
+
+    # 1. the decision object cannot be built saying otherwise
+    with pytest.raises(QuarantineEligibilityError):
+        RoutingDecision(
+            store=MemoryStoreKind.QUARANTINE,
+            training_eligible=True,
+            reasons=("a caller insisted",),
+        )
+    # 2. nor can the eligibility record
+    with pytest.raises(QuarantineEligibilityError):
+        TrainingEligibility(
+            eligible=True,
+            store=MemoryStoreKind.QUARANTINE.value,
+            reasons=("a caller insisted",),
+            decided_by="a caller",
+        )
+    # 3. nor can the episode be told directly
+    with pytest.raises(TrainingEligibilityOverride):
+        episode(training_eligible=True)
+
+
+def test_an_unrouted_episode_is_not_eligible():
+    """Fail closed: the absence of a decision is not a decision to include."""
+    e = episode()
+    assert e.eligibility is None
+    assert e.training_eligible is False
+
+
+def test_an_excluded_episode_is_never_training_eligible():
+    facts = _quarantined_facts(
+        hypothesis=HypothesisId.EXCLUDED, provenance_complete=True
+    )
+    decision = route(facts)
+    assert decision.store is MemoryStoreKind.QUARANTINE
+    assert QuarantineReason.EXCLUDED_HYPOTHESIS in decision.quarantine_reasons
+    assert decision.training_eligible is False
+
+    with pytest.raises(QuarantineEligibilityError, match="EXCLUDED|engineering"):
+        episode(
+            hypothesis_id=HypothesisId.EXCLUDED,
+            condition=Condition(InputRepresentation.ENGLISH, False, False),
+            input_representation=InputRepresentation.ENGLISH,
+            eligibility=TrainingEligibility.from_decision(eligible_decision()),
+            exclusion_reason=None,
+        )
+
+
+def test_the_eligibility_record_names_the_authority_that_decided():
+    e = episode(eligibility=TrainingEligibility.from_decision(eligible_decision()),
+                exclusion_reason=None)
+    assert e.training_eligible is True
+    assert e.eligibility is not None
+    assert "memory.route" in e.eligibility.decided_by
+    assert e.to_dict()["training_eligibility"]["eligible"] is True
+
+
+def test_an_unattributed_eligibility_decision_is_refused():
+    with pytest.raises(ValueError, match="name the authority"):
+        TrainingEligibility(
+            eligible=False, store="quarantine", reasons=(), decided_by="  "
+        )
+
+
+# --- Defect C: one hypothesis type, ACQ0 separated from H3 ----------------------------
+
+
+def test_there_is_exactly_one_hypothesis_type():
+    from hamiltonian_lang.improvement import state
+
+    assert HypothesisId is state.Hypothesis
+
+
+def test_the_canonical_hypothesis_values():
+    assert {h.value for h in HypothesisId} == {"ACQ0", "H1", "H2", "H3", "EXCLUDED"}
+
+
+def test_an_arbitrary_string_is_not_a_hypothesis():
+    for bad in ("h1", "H4", "NONE", "acq0", "", "H1 "):
+        with pytest.raises(ValueError):
+            HypothesisId(bad)
+
+
+def test_acq0_repair_is_not_h3():
+    """The distinction the register exists to protect. Conflating them would let 'the
+    model learned to write the syntax with compiler help' read as 'verifier feedback
+    improved mathematical reasoning'."""
+    acq0 = episode(
+        hypothesis_id=HypothesisId.ACQ0,
+        condition=Condition(InputRepresentation.HAMILTONIAN, False, True),
+        input_representation=InputRepresentation.HAMILTONIAN,
+    ).with_repair(repair_output="module m\n")
+    h3 = episode(
+        hypothesis_id=HypothesisId.H3, condition=H3_CONDITION
+    ).with_repair(repair_output="module m\n")
+
+    assert acq0.repair_mechanism == "ACQ0_REPAIR"
+    assert h3.repair_mechanism == "H3_VERIFIER_GUIDED_REPAIR"
+    assert acq0.repair_mechanism != h3.repair_mechanism
+    with pytest.raises(HypothesisMixing):
+        assert_single_hypothesis([acq0, h3])
+
+
+def test_an_acq0_episode_may_not_require_a_derivation():
+    """That is H2's manipulation; an episode carrying both is evidence about neither."""
+    with pytest.raises(ConfoundedCondition, match="H2's manipulation"):
+        episode(
+            hypothesis_id=HypothesisId.ACQ0,
+            condition=Condition(InputRepresentation.HAMILTONIAN, True, False),
+            input_representation=InputRepresentation.HAMILTONIAN,
+        )
+
+
+def test_acq0_is_scientific_and_excluded_is_not():
+    assert HypothesisId.ACQ0.scientific is True
+    assert HypothesisId.EXCLUDED.scientific is False
+
+
+def test_the_acq0_claim_states_it_is_a_prerequisite_and_not_h3():
+    text = HYPOTHESIS_CLAIMS[HypothesisId.ACQ0]
+    assert "PREREQUISITE" in text
+    assert "ACQ0_REPAIR" in text

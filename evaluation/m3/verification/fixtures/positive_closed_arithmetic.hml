@@ -1,0 +1,8 @@
+# Positive fixture: a closed rational identity. Decided by exact evaluation.
+module ClosedArithmetic
+
+const base : PositiveReal = 12.5
+const half : PositiveReal = 6.25
+
+require base = 2 * half
+require base - half = 6.25

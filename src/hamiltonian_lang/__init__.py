@@ -50,6 +50,19 @@ class CompileResult:
     source: str = ""
 
     def ok(self) -> bool:
+        """Did **every** stage accept this source: lex, parse, resolve and type-check.
+
+        **This is not a parse verdict.** Wrong arity (``HML-T426``), a wrong role label
+        (``HML-T415``), a declared-type mismatch (``HML-T403``) and an epistemic-kind
+        mismatch all *parse* cleanly and fail later; an unknown identifier parses cleanly
+        and fails in resolution. A harness that reads ``ok()`` as "the output parsed"
+        understates its parse rate and attributes type and scope defects to the surface
+        syntax — which, for a study measuring whether a candidate syntax is writable, is
+        the most damaging direction to be wrong in.
+
+        Use :func:`hamiltonian_lang.improvement.episodes.classify_stages` when the stage
+        matters; it runs each stage in its own right and reports all of them.
+        """
         return self.diagnostics.ok()
 
     def render(self, target: str):

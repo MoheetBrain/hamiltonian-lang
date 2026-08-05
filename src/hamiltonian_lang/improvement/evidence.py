@@ -174,6 +174,12 @@ class TrainingDataProvenance:
     def __post_init__(self) -> None:
         if not isinstance(self.hypothesis, Hypothesis):
             raise TypeError("TrainingDataProvenance.hypothesis must be a Hypothesis member")
+        if not self.hypothesis.scientific:
+            raise ValueError(
+                "training data cannot be drawn under EXCLUDED: an engineering episode is "
+                "never training-eligible, so a provenance record claiming otherwise "
+                "describes data that should not exist"
+            )
         if self.quarantined_records_used < 0:
             raise ValueError("quarantined_records_used cannot be negative")
 
@@ -272,9 +278,15 @@ class EvidencePackage:
     def __post_init__(self) -> None:
         if not isinstance(self.hypothesis, Hypothesis):
             raise TypeError(
-                "EvidencePackage.hypothesis must be an H1/H2/H3 member, not "
+                "EvidencePackage.hypothesis must be an ACQ0/H1/H2/H3 member, not "
                 f"{type(self.hypothesis).__name__}. Free text cannot be separated a year "
                 "later, and separating them is the point."
+            )
+        if not self.hypothesis.scientific:
+            raise EvidenceInconsistencyError(
+                "EXCLUDED is not a hypothesis. An engineering episode asserts nothing, "
+                "so it cannot be the subject of an evidence package or of a promotion "
+                "argument built on one."
             )
         if not isinstance(self.changed_component, StateComponent):
             raise TypeError("EvidencePackage.changed_component must be a StateComponent member")

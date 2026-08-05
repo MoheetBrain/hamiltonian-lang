@@ -1,0 +1,8 @@
+# Inconclusive fixture: the claim is true, the symbolic checker applies, and it cannot
+# settle the sign. `INCONCLUSIVE` says "attempted and undecided", which is different
+# from `UNSUPPORTED` ("no theory for this") -- and the report keeps them apart.
+module Transcendental
+
+var x : Real
+
+prove abs(sin(x)) <= 1

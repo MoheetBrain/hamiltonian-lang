@@ -54,10 +54,12 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Protocol, runtime_checkable
 
+from .episodes import StageOutcome
 from .memory import (
     NearMissKind,
     RoutingDecision,
     RoutingFacts,
+    TrainingPolicy,
     VerifierOutcome,
     exact_hash_of,
     route,
@@ -74,6 +76,7 @@ __all__ = [
     "ScriptError",
     "RepairBudgetExceeded",
     "ArenaVerification",
+    "StageOutcome",
     "Verifier",
     "CanonicalFormVerifier",
     "ArenaDiagnostic",
@@ -260,6 +263,18 @@ class ArenaVerification:
     detail: str
     diagnostic_codes: tuple[str, ...] = ()
     unresolved_obligations: int = 0
+    #: The full per-stage record. ``parsed`` and ``checked`` are projections of it and
+    #: are kept because callers read them, but the stage record is what says *where* an
+    #: attempt stopped -- resolution and type checking are different failures and were
+    #: previously indistinguishable in this type.
+    stages: StageOutcome | None = None
+
+    def __post_init__(self) -> None:
+        if self.stages is not None and self.stages.parsed != self.parsed:
+            raise ValueError(
+                f"ArenaVerification.parsed={self.parsed} disagrees with its stage "
+                f"record's parse_status={self.stages.parse_status}"
+            )
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -271,6 +286,7 @@ class ArenaVerification:
             "detail": self.detail,
             "diagnostic_codes": list(self.diagnostic_codes),
             "unresolved_obligations": self.unresolved_obligations,
+            "stages": self.stages.to_dict() if self.stages else None,
         }
 
 
@@ -291,49 +307,51 @@ class CanonicalFormVerifier:
     ``parsed`` and ``checked`` are separate facets and are measured separately. A
     wrong-arity call **parses** and fails the type check; reporting it as a parse failure
     would understate first-attempt parse rate and misattribute the defect to the surface
-    syntax. The parser is therefore run in its own right rather than inferred from the
-    compile verdict.
+    syntax. Classification is delegated to :func:`episodes.classify_stages`, which runs
+    each stage in its own right — one classifier, so the arena and the ACQ0 harness can
+    never drift into disagreeing about where an attempt stopped.
     """
 
     name = "canonical_form"
 
     def verify(self, task: ArenaTask, source: str) -> ArenaVerification:
-        from .. import compile_source, parse
+        from .episodes import classify_stages
 
         file = f"<candidate:{task.task_id}>"
-        _, parse_bag = parse(source, file)
-        parsed = parse_bag.ok()
-        result = compile_source(source, file)
-        codes = tuple(d.code for d in result.diagnostics.errors)
-        if not result.ok():
-            stage = "parse" if not parsed else "resolution or type checking"
+        stages = classify_stages(
+            source, expected_canonical_hash=task.reference_hash(), file=file
+        )
+        codes = stages.diagnostic_codes
+        if not stages.compiled:
             return ArenaVerification(
                 verifier=self.name,
                 outcome=VerifierOutcome.INCONCLUSIVE,
-                parsed=parsed,
+                parsed=stages.parsed,
                 checked=False,
                 canonical_hash=None,
                 detail=(
-                    f"the candidate fails at {stage}, so it has no canonical form to "
-                    "compare; the semantic question is unanswered rather than answered no"
+                    f"the candidate stops at {stages.terminal.value}, so it has no "
+                    "canonical form to compare; the semantic question is unanswered "
+                    "rather than answered no"
                 ),
                 diagnostic_codes=codes,
+                stages=stages,
             )
-        candidate_hash = result.hash()
-        matched = candidate_hash == task.reference_hash()
+        matched = stages.preserved
         return ArenaVerification(
             verifier=self.name,
             outcome=VerifierOutcome.PASS if matched else VerifierOutcome.FAIL,
             parsed=True,
             checked=True,
-            canonical_hash=candidate_hash,
+            canonical_hash=stages.canonical_hash,
             detail=(
                 "canonical form matches the reference"
                 if matched
                 else "compiles, but its canonical form differs from the reference"
             ),
             diagnostic_codes=codes,
-            unresolved_obligations=len(result.obligations),
+            unresolved_obligations=stages.unresolved_obligations,
+            stages=stages,
         )
 
 
@@ -653,8 +671,18 @@ class ArenaOutcome:
             and self.state.fingerprint()
         )
 
-    def route(self, near_miss: NearMissKind | None = None) -> RoutingDecision:
-        return route(self.routing_facts(near_miss))
+    def route(
+        self,
+        near_miss: NearMissKind | None = None,
+        policy: TrainingPolicy | None = None,
+    ) -> RoutingDecision:
+        """The routing decision, and therefore the training-eligibility decision.
+
+        There is no second opinion anywhere in this class: nothing on ``ArenaOutcome``
+        stores an eligibility flag, and ``to_dict`` reports this decision rather than a
+        copy of it.
+        """
+        return route(self.routing_facts(near_miss), policy)
 
     def replay_projection(self) -> dict[str, Any]:
         """The facts a ledger replay must reproduce. Compared field by field in tests."""

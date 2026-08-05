@@ -405,22 +405,54 @@ def test_default_federation_names_are_unique_and_versioned():
 
 
 def test_the_federation_wraps_only_existing_mechanisms():
+    """`obligation_discharge` joined the set under D-025.
+
+    The rule this pins is unchanged: the federation wraps mechanisms that already exist
+    and does not invent a verifier. The obligation engine is one such mechanism -- it
+    discharges nine explicitly supported classes deterministically and returns
+    UNSUPPORTED outside them. A name appearing here without an implementation behind it
+    is what this test is for.
+    """
     assert set(default_federation().names()) == {
         "parser", "resolver", "type_checker", "dimensional_checker",
         "epistemic_checker", "canonical_comparator", "lean", "stan",
+        "obligation_discharge",
     }
 
 
-def test_a_faithful_candidate_does_not_reach_verified_on_open_obligations():
-    """End to end: GOOD matches the reference exactly and is still not VERIFIED.
+def test_a_faithful_candidate_reaches_verified_once_its_obligations_are_discharged():
+    """MIGRATED by D-025. This test previously pinned the opposite.
 
-    The type checker collected an undischarged constraint, so the honest verdict is
-    INCONCLUSIVE. Reporting VERIFIED here would be the over-claim this module exists to
-    prevent.
+    It asserted that GOOD -- which matches the reference exactly -- could *not* reach
+    VERIFIED, because the type checker collected an undischarged constraint and nothing
+    discharged it. That was honest at the time and it did its job: the change could not
+    land silently.
+
+    It also meant VERIFIED was unreachable for any module containing `require`, and with
+    Lean unusable (Mathlib absent; the backend closes every obligation with `sorry` by
+    design) that made H3's primary endpoint -- kernel-verified completion rate --
+    unmeasurable. `ObligationDischargeVerifier` now discharges the supported classes and
+    `classify` composes across verifiers.
+
+    The over-claim this module exists to prevent is still prevented: see
+    `test_an_undischargeable_obligation_still_blocks_verified` below.
     """
     results = default_federation().run(REF, hml(GOOD))
-    assert classify(results) == "INCONCLUSIVE"
+    assert classify(results) == "VERIFIED"
     assert any(r.verified for r in results)
+
+
+def test_an_undischargeable_obligation_still_blocks_verified():
+    """The guard that keeps D-025 from being a weakening.
+
+    A quantified claim is outside every implemented obligation class, so nothing can
+    discharge it soundly. It must stay INCONCLUSIVE. An earlier draft of the classify
+    change reported VERIFIED here, because the adapter listed UNSUPPORTED records as
+    `obligations_checked` -- checked is not discharged.
+    """
+    src = "module M\nprove forall z : Real . z = z\n"
+    ref = CanonicalObject(object_id="quantified", source=src)
+    assert classify(default_federation().run(ref, hml(src))) == "INCONCLUSIVE"
 
 
 def test_a_wrong_candidate_is_disproved_against_the_reference():

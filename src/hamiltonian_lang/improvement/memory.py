@@ -20,10 +20,31 @@ An episode that matches none of the first three stores goes to quarantine with
 whole design is arranged to prevent.
 
 **Quarantine is never training-eligible.** Not by policy, not by convention, and not by
-a comment: ``MemoryRecord.__post_init__`` rejects a quarantined record marked eligible,
-``MemoryStore.append`` rejects it again on the way in, and ``MemoryBank.training_batch``
-cannot be asked for the quarantine store at all. Three independent guards, because one
-guard is one edit away from being removed.
+a comment: ``RoutingDecision.__post_init__`` refuses to *represent* an eligible
+quarantined outcome at all, ``MemoryRecord.__post_init__`` rejects a quarantined record
+marked eligible, ``MemoryStore.append`` rejects it again on the way in, and
+``MemoryBank.training_batch`` cannot be asked for the quarantine store at all. Four
+independent guards, because one guard is one edit away from being removed.
+
+The router is the only authority on training eligibility
+---------------------------------------------------------
+Eligibility used to be decided twice: :func:`route` derived it from the facts, and the
+episode record carried a caller-supplied ``training_eligible`` flag beside it. Two
+authorities over one bit is a defect regardless of whether they currently agree — the
+moment they disagree, quarantined data reaches training, and nothing in the record says
+which of the two was believed.
+
+There is now one decision. :func:`route` produces it, :class:`RoutingDecision` carries it
+together with the evidence for it, and every consumer reads it from there. A caller
+cannot supply a competing value: ``episodes.Episode`` derives ``training_eligible`` from
+the stored decision and refuses the keyword outright, and :func:`build_record` re-derives
+the decision from the facts and refuses one that disagrees.
+
+**Hard negatives require an explicit policy.** A minimal attributable near-miss is
+*usable* for training, but training on negatives is a decision about a training regime,
+not a fact about the episode. ``route(facts)`` therefore reports a hard negative as
+ineligible unless a :class:`TrainingPolicy` that says otherwise is passed in, so the
+choice appears at the call site rather than as a default nobody chose.
 
 Deduplication is structural, not semantic-by-similarity
 -------------------------------------------------------
@@ -60,12 +81,17 @@ from .state import Hypothesis
 __all__ = [
     "MemoryStoreKind",
     "TRAINABLE_KINDS",
+    "ELIGIBLE_KINDS",
     "QuarantineReason",
     "NearMissKind",
     "VerifierOutcome",
+    "TrainingPolicy",
+    "DEFAULT_TRAINING_POLICY",
+    "ROUTER_ID",
     "RoutableEpisode",
     "RoutingFacts",
     "RoutingDecision",
+    "RoutingDisagreement",
     "route",
     "route_episode",
     "MemoryRecord",
@@ -96,6 +122,16 @@ TRAINABLE_KINDS: frozenset[MemoryStoreKind] = frozenset(
     {MemoryStoreKind.POSITIVE, MemoryStoreKind.REPAIR, MemoryStoreKind.HARD_NEGATIVE}
 )
 
+#: The stores whose rows may *ever* carry ``training_eligible=True``. Identical to
+#: ``TRAINABLE_KINDS`` today and kept separate on purpose: "a store training may draw
+#: from" and "a row that may be marked eligible" are different claims, and collapsing
+#: them is how a future edit to one silently changes the other.
+ELIGIBLE_KINDS: frozenset[MemoryStoreKind] = TRAINABLE_KINDS
+
+#: Identifies the authority that made a routing decision. Stored on every decision so a
+#: record can be checked against the code that produced it.
+ROUTER_ID = "hamiltonian_lang.improvement.memory.route"
+
 
 class QuarantineReason(StrEnum):
     """Why a row cannot be trusted. Recorded individually; several may apply."""
@@ -107,6 +143,33 @@ class QuarantineReason(StrEnum):
     POTENTIAL_EVALUATION_CONTAMINATION = "potential_evaluation_contamination"
     MISSING_PROVENANCE = "missing_provenance"
     UNTRUSTED_SYNTHETIC_TRUTH = "untrusted_synthetic_truth"
+    #: The hypothesis is ``EXCLUDED``: engineering work, not evidence. Never trainable.
+    EXCLUDED_HYPOTHESIS = "excluded_hypothesis"
+
+
+@dataclass(frozen=True)
+class TrainingPolicy:
+    """What a *regime* permits, as opposed to what an episode *is*.
+
+    Only one knob today, and it is the one that needs stating. A hard negative is a
+    minimal attributable near-miss — genuinely useful, and genuinely a decision about
+    how you want to train rather than a property of the row. Defaulting it to eligible
+    would put negative examples into every batch because nobody wrote a line to stop it.
+    """
+
+    #: When false (the default) a hard negative is stored and is **not** eligible.
+    hard_negatives_eligible: bool = False
+    #: Free text, recorded on the decision, naming who chose and why.
+    rationale: str = "default policy: hard negatives are stored but not trained on"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "hard_negatives_eligible": self.hard_negatives_eligible,
+            "rationale": self.rationale,
+        }
+
+
+DEFAULT_TRAINING_POLICY = TrainingPolicy()
 
 
 class NearMissKind(StrEnum):
@@ -140,6 +203,15 @@ class VerifierOutcome(StrEnum):
 
 class QuarantineEligibilityError(ValueError):
     """Raised on any attempt to mark quarantined data as training-eligible."""
+
+
+class RoutingDisagreement(ValueError):
+    """A supplied routing decision does not match the one the facts produce.
+
+    Raised rather than resolved. There is no correct way to pick a winner between two
+    disagreeing authorities over the same bit: whichever is chosen, the record no longer
+    says what was believed at the time.
+    """
 
 
 class UnknownVerifierStatus(ValueError):
@@ -284,11 +356,46 @@ class RoutingFacts:
 
 @dataclass(frozen=True)
 class RoutingDecision:
+    """**The** training-eligibility decision, with the evidence that produced it.
+
+    ``training_eligible`` here is authoritative. Nothing downstream may hold a second
+    opinion; consumers read this field, and the constructors below make the illegal
+    combinations unrepresentable rather than merely discouraged.
+    """
+
     store: MemoryStoreKind
     training_eligible: bool
     reasons: tuple[str, ...]
     quarantine_reasons: tuple[QuarantineReason, ...] = ()
     near_miss: NearMissKind | None = None
+    #: Which code decided. A decision with no author cannot be checked against the rules
+    #: that were in force when it was made.
+    decided_by: str = ROUTER_ID
+    policy: TrainingPolicy = field(default_factory=lambda: DEFAULT_TRAINING_POLICY)
+
+    def __post_init__(self) -> None:
+        if self.training_eligible and self.store not in ELIGIBLE_KINDS:
+            raise QuarantineEligibilityError(
+                f"a {self.store.value} routing decision cannot be training-eligible. "
+                "Quarantined data is never trainable, under any flag, and a decision "
+                "object that says otherwise cannot be constructed."
+            )
+        if self.training_eligible and self.quarantine_reasons:
+            raise QuarantineEligibilityError(
+                "a training-eligible decision cannot carry quarantine reasons "
+                f"{[r.value for r in self.quarantine_reasons]}; the row is either "
+                "trusted or it is not"
+            )
+        if (
+            self.training_eligible
+            and self.store is MemoryStoreKind.HARD_NEGATIVE
+            and not self.policy.hard_negatives_eligible
+        ):
+            raise QuarantineEligibilityError(
+                "a hard negative is training-eligible only under a policy that says so. "
+                "Pass TrainingPolicy(hard_negatives_eligible=True) with a rationale; "
+                "training on negatives is a choice, not a default."
+            )
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -297,11 +404,21 @@ class RoutingDecision:
             "reasons": list(self.reasons),
             "quarantine_reasons": [r.value for r in self.quarantine_reasons],
             "near_miss": self.near_miss.value if self.near_miss else None,
+            "decided_by": self.decided_by,
+            "policy": self.policy.to_dict(),
         }
 
 
 def _quarantine_reasons(facts: RoutingFacts) -> list[tuple[QuarantineReason, str]]:
     found: list[tuple[QuarantineReason, str]] = []
+    if not facts.hypothesis.scientific:
+        found.append(
+            (
+                QuarantineReason.EXCLUDED_HYPOTHESIS,
+                "the hypothesis is EXCLUDED: this is engineering work, not evidence, "
+                "and it is never training-eligible and never aggregated",
+            )
+        )
     if facts.unsupported_backend_dependency:
         found.append(
             (
@@ -412,8 +529,18 @@ def _is_hard_negative(facts: RoutingFacts) -> tuple[bool, list[str]]:
     return (not misses), misses
 
 
-def route(facts: RoutingFacts) -> RoutingDecision:
-    """Decide the store. Quarantine wins over every other outcome."""
+def route(
+    facts: RoutingFacts, policy: TrainingPolicy | None = None
+) -> RoutingDecision:
+    """Decide the store **and** the training eligibility. Quarantine wins over all.
+
+    This is the single authority. It fails closed on every one of: an ``EXCLUDED``
+    hypothesis, missing provenance, an inconclusive or absent required verifier, semantic
+    loss, an unsupported backend dependency, evaluation contamination, an untrusted
+    synthetic reference, and an unclassifiable row. Any of them routes to quarantine with
+    the reason recorded, and quarantine is never eligible.
+    """
+    pol = policy if policy is not None else DEFAULT_TRAINING_POLICY
     quarantine = _quarantine_reasons(facts)
     if quarantine:
         return RoutingDecision(
@@ -421,6 +548,7 @@ def route(facts: RoutingFacts) -> RoutingDecision:
             training_eligible=False,
             reasons=tuple(detail for _, detail in quarantine),
             quarantine_reasons=tuple(dict.fromkeys(code for code, _ in quarantine)),
+            policy=pol,
         )
 
     positive, positive_misses = _is_positive(facts)
@@ -429,6 +557,7 @@ def route(facts: RoutingFacts) -> RoutingDecision:
             store=MemoryStoreKind.POSITIVE,
             training_eligible=True,
             reasons=("first attempt was faithful and every required verifier passed",),
+            policy=pol,
         )
 
     repair, repair_misses = _is_repair(facts)
@@ -440,18 +569,29 @@ def route(facts: RoutingFacts) -> RoutingDecision:
                 "one structured diagnostic, one repair, and the repaired form passed "
                 f"every required check (diagnostics: {', '.join(facts.structured_diagnostic_codes)})",
             ),
+            policy=pol,
         )
 
     hard_negative, hard_negative_misses = _is_hard_negative(facts)
     if hard_negative:
+        why = (
+            f"minimal attributable near-miss: {facts.near_miss_kinds[0].value} "
+            f"attributed to {', '.join(facts.attributed_skill_ids)}"
+        )
         return RoutingDecision(
             store=MemoryStoreKind.HARD_NEGATIVE,
-            training_eligible=True,
+            training_eligible=pol.hard_negatives_eligible,
             reasons=(
-                f"minimal attributable near-miss: {facts.near_miss_kinds[0].value} "
-                f"attributed to {', '.join(facts.attributed_skill_ids)}",
+                why,
+                (
+                    f"training-eligible under the declared policy: {pol.rationale}"
+                    if pol.hard_negatives_eligible
+                    else "stored but NOT training-eligible: no policy permits training "
+                    f"on hard negatives ({pol.rationale})"
+                ),
             ),
             near_miss=facts.near_miss_kinds[0],
+            policy=pol,
         )
 
     return RoutingDecision(
@@ -463,17 +603,26 @@ def route(facts: RoutingFacts) -> RoutingDecision:
             "not a hard negative: " + "; ".join(hard_negative_misses),
         ),
         quarantine_reasons=(QuarantineReason.AMBIGUOUS_LABEL,),
+        policy=pol,
     )
 
 
-def route_episode(episode: RoutableEpisode) -> RoutingDecision:
+def route_episode(
+    episode: RoutableEpisode, policy: TrainingPolicy | None = None
+) -> RoutingDecision:
     """Route an episode object by asking it for its routing facts."""
     facts = episode.routing_facts()
     if facts.episode_id != episode.episode_id:
         raise ValueError(
             f"episode {episode.episode_id!r} produced facts for {facts.episode_id!r}"
         )
-    return route(facts)
+    if facts.hypothesis is not episode.hypothesis:
+        raise RoutingDisagreement(
+            f"episode {episode.episode_id!r} is recorded under "
+            f"{episode.hypothesis.value} but produced facts under "
+            f"{facts.hypothesis.value}; the two cannot both be true of one episode"
+        )
+    return route(facts, policy)
 
 
 # ---------------------------------------------------------------------------
@@ -502,6 +651,12 @@ class MemoryRecord:
             raise QuarantineEligibilityError(
                 f"record {self.record_id!r} is quarantined and marked training-eligible. "
                 "Quarantined data is never training-eligible, under any flag."
+            )
+        if self.training_eligible and not self.hypothesis.scientific:
+            raise QuarantineEligibilityError(
+                f"record {self.record_id!r} carries hypothesis "
+                f"{self.hypothesis.value}, which is not evidence, and is marked "
+                "training-eligible. An EXCLUDED episode is never trainable."
             )
         if self.decision.store is not self.store:
             raise ValueError(
@@ -685,9 +840,30 @@ def build_record(
     *,
     payload: Mapping[str, Any] | None = None,
     decision: RoutingDecision | None = None,
+    policy: TrainingPolicy | None = None,
 ) -> MemoryRecord:
-    """Route ``facts`` and wrap the result in the record the stores accept."""
-    d = decision if decision is not None else route(facts)
+    """Route ``facts`` and wrap the result in the record the stores accept.
+
+    ``decision`` used to be an override: whatever the caller passed was stored, and the
+    facts were never consulted. It is now a **claim to be checked**. The decision is
+    re-derived from the facts and a mismatch raises :class:`RoutingDisagreement`, so the
+    parameter can still carry a decision computed earlier (avoiding a second routing
+    pass) but can no longer smuggle a different verdict past the router.
+    """
+    derived = route(facts, policy)
+    if decision is not None and (
+        decision.store is not derived.store
+        or decision.training_eligible != derived.training_eligible
+        or set(decision.quarantine_reasons) != set(derived.quarantine_reasons)
+    ):
+        raise RoutingDisagreement(
+            f"record {record_id!r}: the supplied decision says store="
+            f"{decision.store.value} eligible={decision.training_eligible} but the facts "
+            f"route to store={derived.store.value} "
+            f"eligible={derived.training_eligible}. The router decides; a caller cannot "
+            "hold a second opinion about the same bit."
+        )
+    d = derived
     return MemoryRecord(
         record_id=record_id,
         episode_id=facts.episode_id,

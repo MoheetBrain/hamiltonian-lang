@@ -987,6 +987,17 @@ def default_federation(*, include_execution: bool = False) -> VerifierFederation
         LeanVerifier(),
         StanVerifier(),
     ]
+    # D-025. Without this, VERIFIED is unreachable: TypeCheckVerifier honestly reports
+    # every collected obligation as open, and nothing else discharges one. The import is
+    # local because `verification.obligations` is a leaf package that adapts to this
+    # protocol from outside; importing it at module scope would invert the dependency.
+    try:
+        from ..verification.obligations.federation import ObligationDischargeVerifier
+    except ImportError:  # pragma: no cover - the package is optional to this module
+        pass
+    else:
+        verifiers.append(ObligationDischargeVerifier())
+
     if include_execution:
         verifiers.append(SympyExecutionVerifier())
     return VerifierFederation(verifiers)
@@ -1032,8 +1043,38 @@ def classify(results: Sequence[VerificationResult]) -> str:
             return "UNSUPPORTED"
         return "INCONCLUSIVE"
 
-    if any(r.obligations_remaining for r in results):
+    # An obligation is *remaining* only when no verifier in the federation discharged it.
+    #
+    # D-025. Before this, any single `require` made VERIFIED unreachable: TypeCheckVerifier
+    # honestly reports every obligation it collected as open, because in isolation it has
+    # no way to discharge one. Combined with Lean being unusable (Mathlib absent; the
+    # backend closes every obligation with `sorry` by design), *nothing* could ever be
+    # VERIFIED -- which made H3's primary endpoint, kernel-verified completion rate,
+    # unmeasurable.
+    #
+    # The composition belongs here rather than inside TypeCheckVerifier. A verifier should
+    # report what it alone established; deciding what the federation as a whole knows is
+    # the federation's job. Teaching TypeCheckVerifier to consult the obligation engine
+    # would make it dishonest in isolation and couple two modules that are better apart.
+    #
+    # This does NOT weaken VERIFIED. An obligation still has to be discharged by *some*
+    # verifier that names it; an undischarged one still yields INCONCLUSIVE.
+    discharged = {o for r in results for o in r.obligations_checked}
+    remaining = {o for r in results for o in r.obligations_remaining} - discharged
+    if remaining:
         return "INCONCLUSIVE"
-    if VerifierStatus.INCONCLUSIVE in statuses:
+
+    # A verifier that reported INCONCLUSIVE *because* obligations were open is resolved
+    # once another verifier discharged exactly those obligations. One that is
+    # INCONCLUSIVE for any other reason -- no remaining obligations named, so nothing to
+    # resolve -- still blocks. Without this second half, TypeCheckVerifier's honest
+    # isolated verdict alone keeps VERIFIED unreachable even when every obligation has
+    # been discharged, which is the same dead end D-025 exists to remove.
+    unresolved = [
+        r for r in results
+        if r.status is VerifierStatus.INCONCLUSIVE
+        and not (r.obligations_remaining and set(r.obligations_remaining) <= discharged)
+    ]
+    if unresolved:
         return "INCONCLUSIVE"
     return "VERIFIED"

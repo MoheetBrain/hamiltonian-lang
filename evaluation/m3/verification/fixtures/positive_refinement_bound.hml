@@ -1,0 +1,9 @@
+# Positive fixture: an entailed refinement bound. `scale : PositiveReal` confines the
+# value to (0, inf), which entails the stated bound for every admissible value.
+module RefinementBound
+
+param scale : PositiveReal
+param shift : Real
+
+require scale > 0
+prove scale >= 0

@@ -46,6 +46,7 @@ __all__ = [
     "GATE_FACETS",
     "Proportion",
     "proportion",
+    "acq0_metrics",
     "gate_verdict",
     "condition_summary",
     "pairwise_contrasts",
@@ -157,8 +158,12 @@ def condition_summary(scored: list[ScoredTrial], condition: str) -> dict[str, An
         "condition": condition,
         "trials": len(rows),
         "first_attempt_parse": proportion(rows, "first_attempt_parse").to_dict(),
+        # The whole-pipeline verdict, under its own name. It is NOT the parse rate; see
+        # scorer.py's module docstring for why the two were conflated and what it cost.
+        "first_attempt_compiled": proportion(rows, "first_attempt_compiled").to_dict(),
         "repaired_parse": proportion(rows, "repaired_parse").to_dict(),
         "semantic_preservation": proportion(rows, "preserved").to_dict(),
+        "exact_canonical_match": proportion(rows, "exact_canonical_match").to_dict(),
         "answer_correct": proportion(rows, "answer_correct").to_dict(),
         "empty_or_truncated": proportion(rows, "empty_or_truncated").to_dict(),
         "completion_tokens_reasoning_inclusive": _interval(tokens),
@@ -283,6 +288,87 @@ def token_cost_ratio(scored: list[ScoredTrial], condition: str) -> dict[str, Any
         },
         "threshold": GATE_THRESHOLDS["max_completion_token_ratio_vs_structured_english"],
         "reasoning_inclusive": True,
+    }
+
+
+def acq0_metrics(scored: list[ScoredTrial], condition: str) -> dict[str, Any]:
+    """ACQ0's three headline rates, each with its exact numerator and denominator.
+
+    Defined here rather than assembled at a report site, because the definitions are the
+    thing that was wrong:
+
+    * ``first_attempt_parse_rate`` = ``count(parse_status = PASS) / total``. **Parse**,
+      not compile. Wrong arity, wrong argument type, wrong role label and an epistemic
+      mismatch all parse; classifying them as parse failures would understate this rate
+      and blame the candidate surface for the type checker.
+    * ``repaired_parse_rate`` = ``count(repair_parse_status = PASS) /
+      repair_eligible_total``, where a trial is repair-eligible exactly when its first
+      attempt did **not** parse. A trial that parsed first time was never a candidate for
+      repair, and including it would dilute the repair loop's measured effect toward the
+      first-attempt rate.
+    * ``semantic_preservation_rate`` = ``count(exact expected canonical object recovered)
+      / total`` — hash equality over the nameless canonical form.
+
+    ``parse_rate_after_at_most_one_repair`` is reported alongside because it, not
+    ``repaired_parse_rate``, is what the Gate 2 threshold is written against. The two are
+    different quantities and are named differently so a report cannot quote one as the
+    other.
+    """
+    rows = [s for s in scored if s.condition == condition]
+    first = proportion(rows, "first_attempt_parse")
+    combined = proportion(rows, "repaired_parse")
+    preserved_exact = proportion(rows, "exact_canonical_match")
+
+    # Repair-eligible: the first attempt was measured and did not parse.
+    eligible = [
+        s
+        for s in rows
+        if not isinstance(s.first_attempt_parse, NotMeasured)
+        and s.first_attempt_parse is False
+    ]
+    repaired = proportion(eligible, "repaired_parse")
+
+    terminals: dict[str, int] = defaultdict(int)
+    for r in rows:
+        terminals[r.terminal_outcome or "UNCLASSIFIED"] += 1
+
+    return {
+        "version": SYNTAX_GATE_VERSION,
+        "condition": condition,
+        "total_trials": len(rows),
+        "first_attempt_parse_rate": {
+            **first.to_dict(),
+            "definition": "count(parse_status = PASS) / total",
+        },
+        "repaired_parse_rate": {
+            **repaired.to_dict(),
+            "definition": (
+                "count(repair_parse_status = PASS) / repair_eligible_total, where "
+                "repair-eligible means the first attempt was measured and did not parse"
+            ),
+            "repair_eligible_total": len(eligible),
+        },
+        "semantic_preservation_rate": {
+            **preserved_exact.to_dict(),
+            "definition": (
+                "count(exact expected canonical object recovered) / total, by hash "
+                "equality over the nameless canonical form"
+            ),
+        },
+        "parse_rate_after_at_most_one_repair": {
+            **combined.to_dict(),
+            "definition": (
+                "count(parse PASS after at most one repair) / total. This is the "
+                "quantity GATE_THRESHOLDS['repaired_parse_min'] is written against, and "
+                "it is NOT repaired_parse_rate above."
+            ),
+        },
+        "terminal_outcomes": dict(sorted(terminals.items())),
+        "interpretation": (
+            "A parse rate counts parses. CompileResult.ok() is a whole-pipeline verdict "
+            "and is reported separately as first_attempt_compiled; substituting it here "
+            "would attribute type and scope defects to the candidate syntax."
+        ),
     }
 
 

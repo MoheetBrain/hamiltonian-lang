@@ -1,0 +1,11 @@
+# Unsupported fixture: a claim about a random variable. No implemented checker can
+# express a distributional obligation, and none pretends to.
+module Distributional
+
+var X : RandomVariable[Real]
+param mu : Real
+param sigma : PositiveReal
+
+law X ~ Normal(location := mu, scale := sigma)
+
+prove exists t : Real . forall u : Real . u <= t

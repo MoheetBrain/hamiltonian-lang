@@ -1,0 +1,7 @@
+# Invalid fixture: a plausible-looking but false polynomial identity. Refuted by a
+# concrete counterexample drawn from the declared domain.
+module FalseIdentity
+
+var x : Real
+
+prove (x + 1)^2 = x^2 + 1

@@ -1,0 +1,7 @@
+# Positive fixture: a polynomial identity, decided symbolically over the reals.
+module SymbolicIdentity
+
+var x : Real
+
+prove (x + 1)^2 = x^2 + 2 * x + 1
+prove (x - 1) * (x + 1) = x^2 - 1

@@ -86,7 +86,9 @@ def test_a_repair_episode_leaves_a_complete_and_verifiable_trail(tmp_path):
         diagnostics=tuple(structured),
         verifier_results=first,
         final_verdict=Verdict.INVALID,
-        training_eligible=False,
+        # No `training_eligible=`: the router owns that bit and the constructor refuses
+        # the keyword outright. An unrouted episode is ineligible, which is the
+        # fail-closed default this episode wants anyway.
         exclusion_reason="initial attempt did not compile; kept as the repair antecedent",
     )
 
@@ -114,9 +116,15 @@ def test_a_repair_episode_leaves_a_complete_and_verifiable_trail(tmp_path):
     assert repaired.initial_output == BROKEN
     assert repaired.initial_output_hash == output_hash(BROKEN)
     assert repaired.repair_count == 1
-    assert repaired.final_verdict is Verdict.INCONCLUSIVE, (
-        "the repaired module matches the reference, but the type checker's constraint "
-        "obligation is still open, so VERIFIED would over-claim"
+    # MIGRATED by D-025. This previously asserted INCONCLUSIVE, on the grounds that the
+    # type checker's constraint obligation was still open and VERIFIED would over-claim.
+    # That was true until the obligation engine was registered: the constraint is now
+    # discharged by a checker that names it, so VERIFIED is the honest verdict here.
+    # An obligation nothing can discharge still yields INCONCLUSIVE -- see
+    # tests/improvement/test_verification.py::test_an_undischargeable_obligation_still_blocks_verified.
+    assert repaired.final_verdict is Verdict.VERIFIED, (
+        "the repaired module matches the reference and every obligation it raises is in "
+        "a supported class, so the federation should discharge them"
     )
 
     verification = ledger.verify()
@@ -136,7 +144,7 @@ def test_a_repair_episode_leaves_a_complete_and_verifiable_trail(tmp_path):
         condition=Condition(InputRepresentation.HAMILTONIAN, False, False),
         language_version="hml-0.1.0", compiler_version=f"hamiltonian-lang {__version__}",
         input_representation=InputRepresentation.HAMILTONIAN,
-        training_eligible=False, exclusion_reason="control arm fixture",
+        exclusion_reason="control arm fixture",
     )
     with pytest.raises(HypothesisMixing):
         assert_single_hypothesis([repaired, h1])

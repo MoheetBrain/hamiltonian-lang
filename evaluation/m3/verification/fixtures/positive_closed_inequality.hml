@@ -1,0 +1,9 @@
+# Positive fixture: a closed ordering on exactly-represented rationals. The constants
+# are pinned by their declarations, so the comparison is decided, not sampled.
+module ClosedInequality
+
+const gravity : PositiveReal = 9.81
+const floor_value : PositiveReal = 9.0
+
+require gravity > floor_value
+prove gravity >= 9.81

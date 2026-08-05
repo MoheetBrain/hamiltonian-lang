@@ -1364,3 +1364,61 @@ actionable arity and argument-type diagnostics that leak no values, which is a p
 for any honest future H3 measurement.
 
 **Next intended step.** Push, tag `hml-m1-constitutional-core`, then M2 calibration.
+
+---
+
+## 2026-08-05 — session-limit recovery: interrupted state preserved verbatim
+
+**Branch.** `recovery/session-limit-2026-08-05` (from `hml-v1-concept-kernel` @ `9afafa8`)
+
+**Project stage.** HML-RESUME-RECOVER-FREEZE-ACQ0-006, step 2.
+
+**Objective.** Preserve every interrupted change before any integration edit. The dirty
+tree is evidence.
+
+**What was completed.**
+
+Three subagents — Chain-of-Repair, format protocol, benchmark governance — terminated on an
+API session limit (resets 23:20 Europe/London). Their partial work was on disk. A secret and
+artefact scan over all 152 changed/untracked files found **nothing** to exclude: no
+credentials, model blobs, virtualenvs, caches, or files over 1 MB. The tree was **green** at
+capture: 4721 passed, `CONFORMANCE: PASS`, 8/8, no override.
+
+`evaluation/manifests/session_limit_recovery.json` classifies every file by subsystem,
+attributed agent and completion status: **94 COMPLETE, 47 INTERRUPTED, 5 MIXED, 6 REVIEW**.
+
+**Decisions made and why.**
+
+- **No replacement agents were spawned.** All three failed on the same shared session
+  limit; new ones would fail identically and consume effort for nothing.
+- The recovery commit is explicitly **not** a scientific freeze, and the document says so.
+  Preserving and validating are different acts and must not share a commit.
+- The three interrupted agents each stopped **while writing tests**, not implementation.
+  Their implementation is present and the suite is green, but their leakage, verification
+  and governance controls are the most likely omissions — the category whose absence is
+  least visible. Nothing from those subsystems is treated as validated.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---------|--------|
+| secret/artefact scan over 152 files | clean on all four checks |
+| `pytest -n 18` | **4721 passed, 4 skipped, 1 xfailed** |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, 8/8, no override |
+| `gh repo view` | `"isPrivate": true` |
+
+**Failures and unresolved uncertainty.**
+
+- Chain-of-Repair, format protocol and benchmark governance are **INTERRUPTED, unaudited
+  and unintegrated**. Their gate verdicts do not exist.
+- **ACQ0 = UNTESTED. H1 = H2 = H3 = UNTESTED.** No model call beyond host-tuning probes:
+  no context-budget probe, no 16-call calibration, no 48-call screen.
+- The directive's later steps (M1.5 freeze, budget probe, calibration, Round 1) all require
+  model calls or further agent work and are **not** reached in this entry.
+
+**Effect on the overall project.** Roughly 152 files of multi-agent work — including two
+completed M3 blockers — are now recoverable from a commit rather than only from a working
+tree.
+
+**Next intended step.** Audit on `integration/m1.5-paper-derived-closeout`; finish or
+quarantine the three interrupted subsystems; then freeze M1.5.

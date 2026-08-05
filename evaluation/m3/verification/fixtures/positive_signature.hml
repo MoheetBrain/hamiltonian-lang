@@ -1,0 +1,6 @@
+# Positive fixture: a call that matches its declared signature, plus the closed value.
+module SignatureConformance
+
+def add(a : Real, b : Real) : Real := a + b
+
+require add(1.0, 2.0) = 3.0
