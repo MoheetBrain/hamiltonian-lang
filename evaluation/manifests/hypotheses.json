@@ -1,0 +1,100 @@
+{
+  "hypotheses": {
+    "ACQ0": {
+      "causal_question": "Can the frozen model express frozen canonical semantic objects through a candidate surface such that they parse and recover the same canonical object?",
+      "comparator": "the other candidates; matched structured English for token cost only",
+      "first_eligible_markov_stage": "M2_FROZEN_SYNTAX_ACQUISITION",
+      "fixed_variables": [
+        "model_digest",
+        "server_settings",
+        "canonical_task_content",
+        "demonstration_count",
+        "temperature_0",
+        "one_repair_maximum",
+        "scoring_code"
+      ],
+      "legitimate_negative_threshold": "failing these thresholds means the PREREQUISITE failed; it does not refute H1, H2 or H3",
+      "primary_endpoint": "repaired parse rate AND exact semantic-preservation rate, reported separately",
+      "status": "BLOCKED",
+      "status_reason": "no model call made; blocked by REMOTE_SAFETY_BLOCKED and incomplete M1 integration, not by a scientific obstacle",
+      "success_threshold": {
+        "completion_tokens_vs_structured_english": "<=2.0x",
+        "min_domain_repaired_parse": ">=0.70",
+        "repaired_parse": ">=0.95",
+        "semantic_preservation": ">=0.90"
+      },
+      "supporting_experiment_ids": [],
+      "treatment": "one of four candidate syntaxes (A v0 labelled-linear, B simplified v1 labelled-linear, C prefix/S-expression, D constrained JSON/graph)"
+    },
+    "H1": {
+      "causal_question": "Does receiving the problem IN the representation improve answer accuracy relative to English?",
+      "comparator": "matched structured English; LaTeX; existing formal notation",
+      "first_eligible_markov_stage": "M3",
+      "fixed_variables": [
+        "model",
+        "output_format",
+        "compute_budget",
+        "mathematical_information_content",
+        "demonstration_count"
+      ],
+      "legitimate_negative_threshold": "no improvement once tokens and information are matched",
+      "primary_endpoint": "paired answer accuracy",
+      "status": "UNTESTED",
+      "status_reason": "HML-EVAL-001 did not isolate H1",
+      "success_threshold": ">=+5 percentage points paired, CI excluding zero",
+      "supporting_experiment_ids": [],
+      "treatment": "Hamiltonian encoding as model input"
+    },
+    "H2": {
+      "causal_question": "Does REASONING IN the representation improve the answer, independently of presentation?",
+      "comparator": "English input, free-form reasoning",
+      "first_eligible_markov_stage": "M3",
+      "fixed_variables": [
+        "model",
+        "input_representation_english_both_arms",
+        "compute",
+        "recorded_inference_limits"
+      ],
+      "legitimate_negative_threshold": "forcing a formal derivation degrades performance (cf. Tam et al., EMNLP 2024)",
+      "primary_endpoint": "paired answer accuracy; secondarily structural-error rate",
+      "status": "UNTESTED",
+      "success_threshold": ">=+5 points answer accuracy OR >=30% structural-error reduction",
+      "supporting_experiment_ids": [],
+      "treatment": "English input, Hamiltonian derivation required"
+    },
+    "H3": {
+      "causal_question": "Does verifier feedback change the reasoning trajectory enough to improve the verified answer?",
+      "comparator": "identical condition with feedback withheld",
+      "first_eligible_markov_stage": "M3",
+      "fixed_variables": [
+        "input_representation",
+        "reasoning_representation",
+        "model",
+        "task_set",
+        "repair_budget"
+      ],
+      "legitimate_negative_threshold": "feedback changes only the surface, not the trajectory",
+      "primary_endpoint": "kernel-verified completion rate",
+      "reporting_rule": "A win on H3 ALONE is a win for verifier-guided reasoning, NOT for the representation.",
+      "status": "UNTESTED",
+      "structural_threats": [
+        "answer leakage: a diagnostic carrying the target program, final answer or unrestricted patch makes H3 a tautology",
+        "no diagnostic at all: where the compiler accepts wrong code the repair loop has nothing to act on (confirmed 2026-08-05: user def calls check neither arity nor argument type)"
+      ],
+      "success_threshold": ">=+10 points verified success",
+      "supporting_experiment_ids": [],
+      "treatment": "same input and derivation, plus diagnostic feedback and one repair"
+    }
+  },
+  "rules": [
+    "ACQ0 is a prerequisite experiment, not evidence for H1, H2 or H3.",
+    "Compiler-assisted syntax repair during ACQ0 is ACQ0_REPAIR, not H3.",
+    "H3 requires a mathematical reasoning endpoint and holds the reasoning representation constant.",
+    "No aggregate Hamiltonian score may combine H1, H2 and H3.",
+    "Every episode, result row, evidence package and report carries exactly one hypothesis_id.",
+    "A controller gate may consume evidence only from the hypothesis or prerequisite it names.",
+    "Null, positive and negative results are preserved separately.",
+    "No earlier conclusion is rewritten silently; corrections are appended and dated."
+  ],
+  "schema_version": "hml-hypotheses-1.0.0"
+}

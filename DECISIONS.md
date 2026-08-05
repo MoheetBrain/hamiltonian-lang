@@ -497,6 +497,108 @@ the model already wrote V0 unparseably 27–50% of the time.
 
 ---
 
+## D-022 — The unit interval carries three incomparable epistemic kinds
+
+**Status.** Accepted 2026-08-05. **This is a semantic-contract change to `types.py`** and
+is recorded here because `CLAUDE.md` requires it.
+
+**Decision.** `PValue` and `PosteriorProbability` join `Probability` in the scalar
+lattice. All three have `NonNegativeReal` as their **only** parent, so they are pairwise
+incomparable and meet at `NonNegativeReal`. There is no subtyping path between any pair
+in either direction. All three admit exactly the literals in `[0, 1]`.
+
+**Why the language needed this and not only the library.**
+`spec/v1/semantic_objects.yaml::kill_criteria.L4` recorded the p-value-as-posterior
+conflation as "Now closed". It was closed in `src/hamiltonian_lang/v1/epistemic.py`, a
+Python API, and open in Hamiltonian Lang: `param q : PValue` was `HML-T440: unknown type`,
+so no HML program could state the distinction and `hml check` could not enforce it. A
+kill criterion about the language met by a library is not met. The claim is corrected in
+the spec rather than deleted.
+
+**Why incomparable rather than a refinement of `Probability`.** Making
+`PosteriorProbability <: Probability` reads plausible — a posterior *is* a probability —
+and would immediately admit `def q : Probability := posterior`, which discards the prior
+the posterior was computed against. `epistemic.py::probability_coercion_allowed` already
+refuses every non-identity pair, including that one. The lattice now says the same thing.
+This is the `Probability` / `PositiveReal` shape (design freeze §4) applied again: the
+scalar order is a poset, and linearising it is the error.
+
+**What this does not do.** A p-value *declared* as `Probability` and read as a posterior
+still type-checks, because both sides genuinely are `Probability`. That is a modelling
+error, not a type error. Inferring the epistemic kind from a symbol's spelling was
+considered and rejected: this project does not decide semantics by spelling, and
+`p_value`, `pval`, `p` and `sig` would all have to be guessed at. The residual is pinned
+by `tests/freeze/test_quarantine.py::test_pin_a_mis_declared_p_value_is_still_admitted`
+so it cannot be forgotten and reported as closed.
+
+**Backends.** No target can express the distinction. Each now says so rather than erasing
+it silently: SymPy, Stan and Lean `weaken()` with a named reason; LaTeX keeps
+`\mathrm{PValue}` rather than collapsing to `[0, 1]`; English glosses the referent, not
+the range. A backend that mapped `PValue` to the same text as `Probability` with no report
+would be the failure mode `backends/base.py` exists to prevent.
+
+**Cost of the addition** (`CLAUDE.md` rule 7 puts the burden on the addition): two scalar
+names, two predicate entries, six conflation messages, five backend entries. No keyword,
+no statement kind, no AST field, no grammar change. The L4 *layer* — `EpistemicStatus`,
+`Justification`, `EpistemicClaim` — is untouched and remains `EXPERIMENTAL` and
+unreachable from HML source.
+
+**Confidence.** High that the lattice shape is right; it is the existing poset argument.
+Medium on `PosteriorProbability`, which is required by the stated invariant
+`PValue != PosteriorProbability` but has no probe of its own in the directive.
+**Reversal cost.** Low-moderate. Removing the two scalars is a deletion from one table;
+any program that used them stops compiling, and the freeze manifest and `frozen_subset.py`
+must move back together.
+
+---
+
+## D-023 — A callable has a signature, and a definition body is checked, not compared
+
+**Status.** Accepted 2026-08-05. Behavioural change to the checker; no contract file
+altered.
+
+**Decision, two parts.**
+
+1. Every user-supplied callable — a parameterised `def`, and a concept `transform` —
+   carries a `CallableSignature`: ordered parameter names, ordered parameter types,
+   declared return type, and the defining `SymbolId`. A call is checked for callee
+   existence, callability, **exact** arity, every argument contextually, and the declared
+   return type. New codes: `HML-T470` (not callable), `HML-T471` (arity), `HML-T472`
+   (argument).
+2. `DefineStmt` routes through `TypeChecker.check` instead of a bare `is_subtype`, so
+   `const p : Probability = 0.5` and `def p : Probability := 0.5` agree. `HML-T403` and
+   its headline wording are retained.
+
+**Why signatures are collected before checking begins.** Module scope is order-independent
+(D-008), so a call may textually precede its definition. Resolving the signature lazily at
+the call site would make enforcement depend on statement order — the bug D-008 exists to
+prevent, reintroduced one level down.
+
+**Why a codomain was not enough.** The old path returned `sym.declared_type.codomain` and
+never looked at the arguments. A codomain answers "what does this produce"; enforcement
+needs "what does this consume", which only the ordered parameters give.
+
+**The diagnostic constraint, and why it is a measurement constraint.** These messages are
+H3 machinery. H3 is verifier-guided repair; H1 and H2 are about the representation. A
+diagnostic that contains the corrected program turns an H3 measurement into a
+transcription test while telling us nothing new about H1 or H2 — and the three hypotheses
+must stay separable, or a win on the verifier gets reported as a win for the language.
+Every hint here is therefore a repair *class*: a parameter name, a type, a count, a
+direction of edit. Never a value, never a corrected line. Asserted by
+`tests/type_system/test_call_signatures.py::test_no_signature_diagnostic_leaks_a_repair`.
+
+**One diagnostic-quality defect this change introduced and then fixed.** Routing
+`DefineStmt` through `check` made the generic hint fire on a prohibited conflation,
+emitting `declare 'pv : Probability'` — instructing a repair loop to commit the
+prosecutor's fallacy on the compiler's own advice. `_repair_hint` now handles the
+conflation case first and refuses the re-declaration shortcut.
+
+**Confidence.** High. **Reversal cost.** Low for part 1 (delete the call-site branch);
+part 2 is a two-line revert but would restore a measured inconsistency and should not be
+reverted without one.
+
+---
+
 ## Open questions
 
 | id | question | blocked on |

@@ -16,6 +16,11 @@ Design commitments (see ``docs/design/V0_DESIGN_FREEZE.md``, decisions D-004..D-
 * ``RandomVariable[T]`` and ``Distribution[T]`` are *distinct* constructors. A
   distribution is never a value of its own support; conflating them is prohibited by
   ``CLAUDE.md`` rule 9 and is enforced here.
+* The three **epistemic kinds of a number in [0, 1]** — ``Probability``, ``PValue``,
+  ``PosteriorProbability`` — are mutually incomparable scalars meeting at
+  ``NonNegativeReal`` (D-022). They are numerically identical subsets of the unit
+  interval, which is precisely why they are confused; the distinction is epistemic and
+  can only live in the type.
 """
 
 from __future__ import annotations
@@ -49,6 +54,7 @@ __all__ = [
     "meet",
     "parse_scalar_name",
     "is_dimension_variable",
+    "UNIT_INTERVAL_KINDS",
 ]
 
 
@@ -84,9 +90,29 @@ _SCALAR_PARENTS: dict[str, tuple[str, ...]] = {
     # *not* positive (0 is a probability) and it is bounded above (2.0 is a positive
     # real but not a probability). Hence Probability and PositiveReal are incomparable.
     "Probability": ("NonNegativeReal",),
+    # PValue and PosteriorProbability are the other two epistemic kinds of a number in
+    # [0, 1] (D-022). Each has NonNegativeReal as its only parent, so the three are
+    # pairwise INCOMPARABLE: there is deliberately no subtyping path between any pair in
+    # either direction. This mirrors, in the source language, the refusal already
+    # encoded by ``v1/epistemic.py::PROHIBITED_PROBABILITY_COERCIONS``, which admits no
+    # non-identity coercion among the three.
+    #
+    # A p-value is P(data at least this extreme | H0); a posterior is P(H0 | data);
+    # a model probability is neither. Reading the first as the second is the
+    # prosecutor's fallacy. The values are indistinguishable, so only the type can
+    # separate them.
+    "PValue": ("NonNegativeReal",),
+    "PosteriorProbability": ("NonNegativeReal",),
 }
 
 SCALARS: tuple[str, ...] = tuple(_SCALAR_PARENTS)
+
+#: The three scalars whose values all lie in [0, 1] and whose difference is epistemic
+#: rather than numeric. Exported so that a backend can detect, in one place, that it is
+#: about to erase the distinction — every current target erases it, and each must say so.
+UNIT_INTERVAL_KINDS: frozenset[str] = frozenset(
+    {"Probability", "PValue", "PosteriorProbability"}
+)
 
 
 @dataclass(frozen=True, order=True)
@@ -523,6 +549,11 @@ _SCALAR_PREDICATES = {
     "NonNegativeReal": lambda v: isinstance(v, (int, float)) and v >= 0,
     "PositiveReal": lambda v: isinstance(v, (int, float)) and v > 0,
     "Probability": lambda v: isinstance(v, (int, float)) and 0 <= v <= 1,
+    # A bare numeric literal carries no epistemic provenance, so it inhabits all three
+    # unit-interval kinds. What is refused is the *coercion of a typed symbol* from one
+    # kind to another, which is where the conflation actually happens.
+    "PValue": lambda v: isinstance(v, (int, float)) and 0 <= v <= 1,
+    "PosteriorProbability": lambda v: isinstance(v, (int, float)) and 0 <= v <= 1,
 }
 
 

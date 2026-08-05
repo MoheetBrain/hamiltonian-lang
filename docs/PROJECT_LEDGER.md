@@ -1095,3 +1095,188 @@ now a command that fails rather than a sentence in a document.
 
 **Next intended step.** Integrate the three agents' F1/F2/F3 output, then tag
 `hml-v1-eval-freeze` and begin Phase G2 screening.
+
+---
+
+## 2026-08-05 — Phase F agent integration; constitutional Phase 0 baseline
+
+**Branch.** `hml-v1-concept-kernel`
+
+**Project stage.** HML-CONSTITUTIONAL-CORE-001 Phase 0, integrating the three Phase F
+agents.
+
+**Objective.** Establish the real baseline before building the improvement control plane,
+and resolve the suspected F2/F3 duplication centrally.
+
+**Files and systems changed.**
+
+- `docs/evaluation/CONSTITUTIONAL_CORE_BASELINE.md` — new; Phase 0 deliverable
+- `docs/evaluation/PHASE1_LEAD_AUDIT.md` — new; the Lead's independent implementation audit
+- `docs/evaluation/V1_FREEZE_MANIFEST.md`, `tests/freeze/{frozen_subset,test_quarantine}.py` — F1 agent
+- `evaluation/syntax_acquisition/` (8 modules), `docs/design/syntax/` — F3 agent
+- `evaluation/syntax_gate/` (9 modules), `tests/evaluation/test_syntax_gate_*.py` — F2 agent
+- `src/hamiltonian_lang/backends/hml.py`, `tests/roundtrip/test_roundtrip.py` — F3 agent
+- `tests/syntax_gate/test_information_equality.py` — new, Lead
+- `tests/freeze/test_syntax_gate_freeze.py` — stale unconditional skip made conditional
+
+**What was completed.**
+
+*Baseline.* Commit `967e95d`; **3459 passed, 4 skipped, 1 xfailed**; conformance PASS on
+all 8 stages without override. The suite grew from 1531 because the agents' uncommitted
+work added ~1900 tests, all passing.
+
+*F2/F3 — the suspected conflict did not exist.* I had flagged possible duplication because
+both packages shipped candidate modules. That was wrong.
+`evaluation/syntax_gate/candidates.py` is a binding layer: it defines the `SyntaxAdapter`
+protocol, a decidable feature vocabulary that makes Track A membership a fact rather than a
+judgement, and `SyntaxAcquisitionAdapter`, which converts F3's `SyntaxCandidate`
+(`render(Module) -> str`, `parse(str) -> Module`) into the text-in/verdict-out form the
+harness needs. Deleting either side would have destroyed working code.
+
+*The fairness property is measured, not assumed.* All four candidate surfaces round-trip to
+**hash-identical** canonical objects across `bayesian_coin`, `linear_regression`,
+`kinetic_energy` and `quantifier_scope`. A new test pins this and fails loudly rather than
+passing vacuously when an adapter is missing.
+
+*A real round-trip defect was found and fixed by the F3 agent* in
+`backends/hml.py`: the renderer parenthesised only the right operand, so `(a ^ b) ^ c`
+printed as `a ^ b ^ c`, which reads back as `a ^ (b ^ c)` — a different object with a
+different content hash. The same held for `(p => q) => r`. An associativity table now
+drives bracketing.
+
+**Decisions made and why.**
+
+- Agent work is **preserved, not reverted**, because conformance passes on it and it
+  contains a genuine compiler fix.
+- The hypothesis register is written into the Phase 0 baseline as a first-class section,
+  and H1/H2/H3 separation is enforced in the episode and evidence schemas rather than by
+  prose. The user's requirement is to be able to look back in a year and know what went
+  right versus wrong; a comment cannot carry that.
+- Character counts per surface (A 237, B 256, C 289, **D 1907**) are recorded as an early
+  cost signal and explicitly **not** as a token measurement or a verdict.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---------|--------|
+| `pytest -n 18` | **3459 passed, 4 skipped, 1 xfailed** |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, 8/8 stages |
+| four-surface hash round-trip, 4 examples | **MATCH in all 16 cells** |
+| `pytest tests/freeze` | 75 passed |
+| `pytest tests/syntax_gate/test_information_equality.py` | 5 passed |
+| minting disguise probes | byte-identical caught 4/4; **2 of 4 respellings admitted** |
+| `hml check` probes for arity / `def` literal / PValue | all three defects reproduced |
+
+**Failures and unresolved uncertainty.**
+
+- **Three repair-loop blockers remain open** and are Subagent A's Phase 1 work: user-`def`
+  calls check neither arity nor argument type; `const` and `def` disagree on the same
+  literal; `PValue` is not an HML type.
+- Concept minting is defeated by **definition respelling**, not by renaming. This corrects
+  `GOAL.md` §3 and `semantic_objects.yaml`, which name rename/vacuous-constraint/alias —
+  all three of those are now caught. The remedy is to canonicalise parsed definitions, not
+  to harden the name check.
+- The Lean backend closes every obligation with `sorry` **by design**, so `lean_verify`
+  rejects its own backend's output before Lean runs. Lean is a sound gate with nothing able
+  to pass through it, and must not be described as an available verification path.
+- Two Phase F agents (F2, F3) terminated early on a session limit. Their work is complete
+  enough to pass conformance but neither delivered its final report, so **their own
+  accounts of what remains are unavailable**.
+- **H1, H2 and H3 are all UNTESTED.** No model call has been made beyond tuning probes.
+
+**Effect on the overall project.** The baseline is real rather than assumed, the suspected
+duplication is disproven, and the tournament's central fairness property is now a passing
+test instead of a design intention.
+
+**Next intended step.** Subagents A, B and C deliver the Phase 1 repairs and the
+improvement control plane; the Lead integrates and decides freeze eligibility.
+
+---
+
+## 2026-08-05 — M1 constitutional core: repair blockers closed, control plane landed
+
+**Branch.** `hml-v1-concept-kernel`
+
+**Project stage.** HML-MARKOV-TRANSITION-002, M1 integration.
+
+**Objective.** Close the three repair-loop blockers, land the improvement control plane,
+and establish the four-identifier hypothesis register before any model call.
+
+**Files and systems changed.**
+
+- `src/hamiltonian_lang/improvement/` — new package, 11 modules (Subagents B and C)
+- `src/hamiltonian_lang/type_system/`, `types.py` — Phase 1 repairs (Subagent A)
+- `tests/{improvement,constitutional,freeze,evaluation,roundtrip}/` — new suites
+- `docs/evaluation/HYPOTHESIS_REGISTER.md`, `evaluation/manifests/hypotheses.json` — new
+- `docs/evaluation/CONSTITUTIONAL_INTEGRATION_DECISIONS.md` — new, six conflict records
+- `docs/evaluation/CONSTITUTIONAL_CORE_BASELINE.md` — Phase 0 deliverable
+- `DECISIONS.md`, `spec/skills/`, `spec/v1/` — updated
+
+**What was completed.**
+
+*The three repair blockers are closed and independently verified by the Lead:*
+
+| probe | result |
+|---|---|
+| `f(1.0)` on a 2-parameter `def` | `HML-T471: f takes 2 argument(s), 1 given` |
+| `f(1.0, 2.0, 3.0)` | `HML-T471: ... 3 given` |
+| `f(1.0, -2.0)` | `HML-T472: parameter 'y' (argument 2) requires PositiveReal` |
+| `nosuch(1.0)` | `HML-N306: 'nosuch' is not a known function` |
+| `const p : Probability = 0.5` vs `def p : Probability := 0.5` | **both ok** |
+| `const pv : PValue = 0.05` | ok |
+| `def posterior_h0 : Probability := pv` | `HML-T403` |
+| `def observed_pvalue : PValue := p` | `HML-T403` |
+
+*Ledger tamper detection reproduced by the Lead*, not accepted on report: forging a
+payload **and** recomputing that line's own hash is still caught by the chain.
+
+*The hypothesis register now carries four identifiers.* ACQ0 was separated from H1/H2/H3
+because syntax acquisition is a **prerequisite**, and its compiler-assisted repair
+(`ACQ0_REPAIR`) is not H3. Conflating them would let "the model learned to write the
+syntax with compiler help" be misread as "verifier feedback improved reasoning".
+
+**Decisions made and why.** Six conflicts recorded in
+`CONSTITUTIONAL_INTEGRATION_DECISIONS.md`. The two that constrain future work:
+
+- **CONF-003.** The canonical comparator treats hash inequality as wrongness. That is
+  *correct for ACQ0*, where exact match is the definition of semantic preservation, and
+  *forbidden for H1/H2*, where an equivalent-but-differently-shaped encoding is not a wrong
+  answer. No H1/H2 number may be computed from it. A separate equivalence comparator is a
+  prerequisite for M3.
+- **CONF-004.** No module containing `require` can reach `VERIFIED`, because the checker
+  collects an undischarged constraint obligation. Accepted as correct — auto-discharging to
+  obtain `VERIFIED` would make the verdict meaningless. Consequence: with Lean also
+  unusable, **`VERIFIED` is effectively unreachable**, so H3's stated primary endpoint
+  (kernel-verified completion rate) is currently unmeasurable and must be resolved before
+  M3.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---------|--------|
+| `pytest -n 18` | **3862 passed, 4 skipped, 1 xfailed** |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, 8/8 stages, no override |
+| 10 `hml check` probes for 1A/1B/1C | all as specified, table above |
+| ledger forge-and-rehash probe | detected |
+| `gh repo view` | **PUBLIC** — see blockers |
+
+**Failures and unresolved uncertainty.**
+
+- **`REMOTE_SAFETY_BLOCKED`.** The remote `MoheetBrain/hamiltonian-lang` is **PUBLIC**. The
+  directive requires it be private before any push. `gh repo edit --visibility private`
+  was **denied at the permission layer**, so nothing was pushed. The remote holds only
+  `965a7c7 Initial commit`; 15+ local commits of research are unpushed, so nothing has
+  leaked. Zero stars and zero forks, so making it private costs nothing.
+- Subagents A and C had not returned final reports when this commit was prepared;
+  conformance passed and no file had changed for several minutes. Their own accounts of
+  remaining limitations are therefore not yet in this entry.
+- Conformance flipped FAIL then PASS during preparation as agents wrote; the failing run
+  was transient and the passing run is the one recorded.
+- **ACQ0 = BLOCKED. H1 = H2 = H3 = UNTESTED.** No model call has been made beyond tuning
+  probes.
+
+**Effect on the overall project.** The repair loop can now produce actionable diagnostics
+for arity and argument-type errors, which were previously unrepairable by construction and
+would have depressed any future H3 measurement for reasons unrelated to the hypothesis.
+
+**Next intended step.** Unblock remote privacy, then M1 freeze manifests and tag.

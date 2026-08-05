@@ -81,6 +81,7 @@ from ..ast.nodes import (
     UnaryOp,
 )
 from ..types import (
+    UNIT_INTERVAL_KINDS,
     ConceptType,
     DistributionType,
     FunctionType,
@@ -116,6 +117,11 @@ SCALAR_ASSUMPTIONS: dict[str, tuple[dict[str, bool], str | None]] = {
     # SymPy assumptions have no upper bound predicate, so [0, 1] splits into an
     # assumption for the lower half and an explicit relational for the upper half.
     "Probability": ({"real": True, "nonnegative": True}, "sympy.Le({name}, 1)"),
+    # SymPy has one notion of "a real in [0, 1]" and no way to say which epistemic kind
+    # it is, so all three collapse to the same Symbol. The numeric bound survives; the
+    # distinction does not, and `_epistemic_kind_lost` declares that.
+    "PValue": ({"real": True, "nonnegative": True}, "sympy.Le({name}, 1)"),
+    "PosteriorProbability": ({"real": True, "nonnegative": True}, "sympy.Le({name}, 1)"),
     "Bool": ({}, None),
 }
 
@@ -527,6 +533,15 @@ class SympyBackend(Backend):
 
     def _assumption_suffix(self, hml_name: str, t: ScalarType, line: int) -> str:
         assumptions, extra = SCALAR_ASSUMPTIONS.get(t.name, ({}, None))
+        if t.name in UNIT_INTERVAL_KINDS and t.name != "Probability":
+            self.weaken(
+                hml_name,
+                f"{t.name} becomes the same real-in-[0,1] Symbol as Probability; SymPy "
+                "cannot carry the epistemic kind, so the separation HML enforces "
+                "between p-values, posteriors and model probabilities does not survive "
+                "translation and nothing downstream re-imposes it.",
+                line,
+            )
         if t.name == "Bool":
             self.approximate(
                 hml_name,

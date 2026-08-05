@@ -116,6 +116,7 @@ def test_module_runs_as_a_script():
 @pytest.mark.parametrize("rel", F.FROZEN_FILES)
 def test_frozen_file_list_is_not_stale(rel: str):
     """A path that silently stopped existing would be frozen as '<MISSING>' forever."""
-    if rel == "docs/evaluation/V1_FREEZE_MANIFEST.md":
+    path = REPO / rel
+    if rel == "docs/evaluation/V1_FREEZE_MANIFEST.md" and not path.is_file():
         pytest.skip("produced by the Phase F1 audit; absent until that lands")
-    assert (REPO / rel).is_file(), f"frozen path {rel} no longer exists"
+    assert path.is_file(), f"frozen path {rel} no longer exists"

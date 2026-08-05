@@ -1,0 +1,180 @@
+# Hamiltonian Lang — skill taxonomy for the improvement subsystem (Phase 11).
+#
+# This file is DATA, and it is loaded by
+# src/hamiltonian_lang/improvement/skills.py. It is not documentation with a copy in
+# code; the code has no copy.
+#
+# Three rules govern every entry, and tests enforce all three:
+#
+#   1. Every code named in a `diagnostics` list must exist in src/hamiltonian_lang.
+#      A taxonomy that attributes failures to codes the compiler never emits describes
+#      a compiler that does not exist.
+#   2. The `diagnostics` lists are pairwise disjoint, so attribution from a diagnostic
+#      to a skill is a function and not a guess.
+#   3. `diagnostics` is empty if and only if `status` is `no_dedicated_diagnostic`.
+#      A skill with no code behind it is recorded as unobservable-by-diagnostic rather
+#      than quietly given someone else's code.
+#
+# `status` values:
+#   enforced                 the compiler rejects violations of this skill by these codes
+#   partial                  rejected in some positions and not others; see `limitation`
+#   no_dedicated_diagnostic  no code attributes here; `limitation` says how it is observed
+#
+# Restricted YAML subset only: nested mappings at two-space indentation, double-quoted
+# scalars, inline lists of bare scalars, full-line comments. No sequences of mappings,
+# no anchors, no block scalars. The loader rejects anything else rather than guessing.
+
+version: "hml-skill-taxonomy-1.0.0"
+schema: "skill-taxonomy/1"
+status: "proposed"
+basis: "docs/evaluation/PHASE1_LEAD_AUDIT.md, commit 967e95d"
+
+families:
+
+  syntax:
+    description: "Producing surface forms the grammar accepts."
+    skills:
+      declaration:
+        description: "Writing a declaration with its keyword, name, type and value in the order the grammar fixes."
+        evidence: "The declaration parses and binds the intended name."
+        status: "enforced"
+        diagnostics: [HML-P202, HML-P204]
+      binding:
+        description: "Writing a binder that introduces at least one symbol over a body."
+        evidence: "The binder parses and its symbol list is non-empty."
+        status: "enforced"
+        diagnostics: [HML-P212]
+      role_label:
+        description: "Naming a distribution argument by the role the family defines rather than by position."
+        evidence: "Every argument carries a role the family declares."
+        status: "enforced"
+        diagnostics: [HML-T415, HML-T416]
+      delimiter:
+        description: "Balancing the delimiters the grammar requires at the position it requires them."
+        evidence: "No token is missing where the parser expects a specific one."
+        status: "enforced"
+        diagnostics: [HML-P201]
+
+  typing:
+    description: "Giving each expression a type the checker can confirm."
+    skills:
+      scalar:
+        description: "Supplying a value that inhabits the declared scalar type of its position."
+        evidence: "A declared value and a definition body both inhabit their declared types."
+        status: "partial"
+        limitation: "The two checking sites disagree about the same literal. PHASE1_LEAD_AUDIT.md section 2a defect B reproduces const p : Probability = 0.5 passing while def p : Probability := 0.5 is rejected."
+        diagnostics: [HML-T402, HML-T403]
+      function_arity:
+        description: "Calling a function with the number of arguments its signature declares."
+        evidence: "The call site argument count equals the declared arity."
+        status: "partial"
+        limitation: "Only the builtin signatures are checked. PHASE1_LEAD_AUDIT.md section 2a defect A reproduces a user def called with one or four arguments compiling clean."
+        diagnostics: [HML-T471, HML-T426, HML-T424]
+      function_argument:
+        description: "Calling something callable, with arguments of the types the signature demands."
+        evidence: "The callee resolves to a signature and the arguments inhabit it."
+        status: "partial"
+        limitation: "Argument types are checked for builtin signatures only; see defect A."
+        diagnostics: [HML-T470, HML-T472]
+      distribution:
+        description: "Treating a law as a law and a draw as a draw, and giving a family the roles it defines."
+        evidence: "No arithmetic on a law, no second law for one target, every required role present."
+        status: "enforced"
+        diagnostics: [HML-T410, HML-T411, HML-T412, HML-T414, HML-T417, HML-T428, HML-T430]
+      epistemic:
+        description: "Keeping epistemic kinds apart, so a p-value is not usable where a posterior is demanded."
+        evidence: "An epistemic type name is either a type the checker knows or is rejected."
+        status: "partial"
+        limitation: "PValue and PosteriorProbability are Python types in v1/epistemic.py and are not HML types. PHASE1_LEAD_AUDIT.md section 5a reproduces param q : PValue failing as an unknown type, so the distinction is unstatable in the language rather than enforced by it."
+        diagnostics: [HML-T440]
+
+  binding:
+    description: "Getting scope, capture and indices right."
+    skills:
+      quantifier_scope:
+        description: "Placing a quantifier so that its body is a proposition and every name in it is bound."
+        evidence: "No unbound reference, and the quantified body types as a proposition."
+        status: "enforced"
+        diagnostics: [HML-N301, HML-T422]
+      variable_capture:
+        description: "Choosing binder names that do not capture or shadow an outer binding."
+        evidence: "No shadowing of an outer binding, no redeclaration in one scope."
+        status: "enforced"
+        diagnostics: [HML-N302, HML-N303]
+      index_tracking:
+        description: "Indexing only indexable things, with integer indices, of the right count."
+        evidence: "Every index is an integer and every indexed base admits indexing."
+        status: "enforced"
+        diagnostics: [HML-T423, HML-T425]
+
+  dimension:
+    description: "Keeping physical dimension sound through arithmetic and comparison."
+    skills:
+      base:
+        description: "Using declared base dimensions, and comparing only dimensionally equal quantities."
+        evidence: "Comparisons are dimensionally equal and asserted dimensions match computed ones."
+        status: "enforced"
+        diagnostics: [HML-D501, HML-D502, HML-D503, HML-D504]
+      rational_exponent:
+        description: "Raising a dimensional quantity only to a literal rational power."
+        evidence: "Every dimensional exponent is a rational literal with an integer denominator."
+        status: "enforced"
+        diagnostics: [HML-D505, HML-P226]
+      variable:
+        description: "Using a dimension variable so that it can be unified rather than assumed dimensionless."
+        evidence: "A dimension carrying a variable is never silently treated as concrete."
+        status: "no_dedicated_diagnostic"
+        limitation: "No code attributes here. A variable-dimension mismatch surfaces as HML-D504, which is attributed to dimension.base, and unification handles the single-variable case only. PHASE1_LEAD_AUDIT.md section 4."
+        diagnostics: []
+
+  reasoning:
+    description: "Stating logical relations as the relations they are."
+    skills:
+      implication:
+        description: "Writing implication between propositions, and not between values."
+        evidence: "Both operands of a connective type as propositions."
+        status: "enforced"
+        diagnostics: [HML-T421]
+      equivalence:
+        description: "Distinguishing equivalence from implication and from equality."
+        evidence: "The canonical form of the written statement matches the intended relation."
+        status: "no_dedicated_diagnostic"
+        limitation: "No code separates these. A non-propositional operand is caught as HML-T421 and attributed to reasoning.implication; a well-typed but wrong connective is observed only by comparing canonical hashes against a reference."
+        diagnostics: []
+      assumption:
+        description: "Stating an assumption as a proposition in the statement position that carries it."
+        evidence: "The assume, require or prove statement carries a proposition."
+        status: "enforced"
+        diagnostics: [HML-T404]
+      obligation:
+        description: "Leaving side conditions as recorded obligations rather than discharging them silently."
+        evidence: "The obligation set produced by the checker matches the reference for the task."
+        status: "no_dedicated_diagnostic"
+        limitation: "Obligations are values on CheckResult.obligations, not diagnostics. This skill is observed by comparing the obligation set, and an unresolved obligation is a routing fact rather than an error code."
+        diagnostics: []
+
+  statistics:
+    description: "Keeping statistical objects and their roles distinct."
+    skills:
+      likelihood:
+        description: "Supplying each distribution argument in the role the family demands."
+        evidence: "Every distribution argument inhabits the type its role demands."
+        status: "enforced"
+        diagnostics: [HML-T413]
+      posterior:
+        description: "Giving a target one probability law, and not re-describing it as another kind of object."
+        evidence: "No target carries two laws and no target is redeclared as a different kind."
+        status: "enforced"
+        diagnostics: [HML-S601, HML-S607]
+      pvalue:
+        description: "Refusing to read a tail probability as a probability that a hypothesis is true."
+        evidence: "A p-value typed quantity is not accepted where a posterior probability is demanded."
+        status: "no_dedicated_diagnostic"
+        limitation: "The distinction does not exist in the language. PHASE1_LEAD_AUDIT.md section 5a reproduces def posterior_h0 : Probability := p_value compiling clean, while param q : PValue fails as HML-T440, attributed to typing.epistemic. Classification KNOWN_FAILED."
+        diagnostics: []
+      estimator_estimand:
+        description: "Keeping an estimator distinct from the quantity it estimates."
+        evidence: "The canonical form distinguishes the estimator symbol from the estimand symbol."
+        status: "no_dedicated_diagnostic"
+        limitation: "No code attributes here. The distinction is observed by comparing canonical forms against a reference, since both are well typed."
+        diagnostics: []

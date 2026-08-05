@@ -28,7 +28,28 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**HML-PHASE-FG-001 — freezing the supported V1 subset and preparing the Gemma syntax
+**HML-CONSTITUTIONAL-CORE-001 — installing recursive improvement as a constitutional
+subsystem.** Phase 0 baseline is recorded in
+`docs/evaluation/CONSTITUTIONAL_CORE_BASELINE.md`. The compiler is the semantic truth
+kernel; the new subsystem is an improvement control plane. Governing law: *models and
+agents may propose changes; only external verification and controlled evidence may change
+the official system.* After the constitutional baseline is frozen, every experimental
+transition must change exactly one major state component (`|ΔS|₀ = 1`).
+
+**Four identifiers are now maintained separately: ACQ0 (prerequisite), H1, H2, H3.** ACQ0 asks only whether the model can *write* the language; it is not evidence for any hypothesis, and its repair mechanism is `ACQ0_REPAIR`, not H3. See `docs/evaluation/HYPOTHESIS_REGISTER.md` and `evaluation/manifests/hypotheses.json`.
+
+**H1, H2 and H3 are held apart mechanically, not by convention.** `Episode.hypothesis_id`
+and `EvidencePackage.hypothesis` are typed values; episodes from different hypotheses may
+not be aggregated; the controller may not advance a stage on evidence from a hypothesis its
+gate does not name. **A win on H3 alone is a win for verifier-guided reasoning and must
+never be reported as a win for the representation.** All three remain **UNTESTED**.
+
+**F2/F3 ownership: resolved, no conflict existed.** `evaluation/syntax_gate/candidates.py`
+is a binding layer over `evaluation/syntax_acquisition/`, not a second renderer. All four
+candidate surfaces round-trip to **hash-identical** canonical objects on four examples, so
+no candidate receives additional mathematical information.
+
+Previously: **HML-PHASE-FG-001 — freezing the supported V1 subset and preparing the Gemma syntax
 tournament.** Phases F1 (freeze-eligibility audit), F2 (fair benchmark partition) and F3
 (offline equivalence gate) are in progress. No model call is legitimate until the offline
 gate passes and the Lead tags `hml-v1-eval-freeze`.
@@ -176,7 +197,7 @@ Commands executed and their real results:
 
 | command | result |
 |---------|--------|
-| `.venv/bin/python -m pytest -q` | **1531 passed, 4 skipped, 1 xfailed** |
+| `.venv/bin/python -m pytest -n 18` | **3862 passed, 4 skipped, 1 xfailed** (was 1531) |
 | `./scripts/conformance.sh` | **PASS without override** (all four V1 agents integrated) |
 | `evaluation.analyse --generation 0` | 105/105 cells; all arms 93.3% except C 86.7% |
 | `.venv/bin/hml check examples/*/*.hml` | **8/8 check cleanly** |
@@ -186,6 +207,8 @@ Commands executed and their real results:
 | curriculum probe, `prompt_eval_count` | 0/5/10/25/50 demos = 66/643/1286/2967/**5893** tokens; all fit the 8192 slot |
 | `pytest tests/freeze/test_syntax_gate_freeze.py` | **22 passed, 1 skipped** |
 | `python -m evaluation.syntax_gate_freeze --verify` | correctly reports nothing frozen yet, exit 1 |
+| four-surface hash round-trip | **MATCH on all 4 candidates x 4 examples** |
+| `pytest tests/freeze` | 75 passed (52 quarantine + 23 freeze tooling) |
 | `.venv/bin/ruff check src tests` | **All checks passed** |
 | `.venv/bin/mypy src/hamiltonian_lang` | **Success: no issues found in 22 source files** |
 | `experiments/alphabet/tokenisation_benchmark.py` | ran; 8 tokenisers real, Llama-3 gated and excluded |

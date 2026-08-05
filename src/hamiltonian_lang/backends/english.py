@@ -51,6 +51,17 @@ _TYPE_PHRASE = {
     "PositiveReal": "a strictly positive real number",
     "NonNegativeReal": "a non-negative real number",
     "Probability": "a real number in the closed interval from 0 to 1",
+    # The three unit-interval kinds share a range and differ in what they are ABOUT, so
+    # each gloss has to state the referent. Glossing all three as "a number between 0
+    # and 1" would erase in prose exactly the distinction the type carries.
+    "PValue": (
+        "a p-value: the probability, computed under the null hypothesis, of data at "
+        "least as extreme as those observed"
+    ),
+    "PosteriorProbability": (
+        "a posterior probability: the probability of a hypothesis given the data and a "
+        "stated prior"
+    ),
     "Bool": "a truth value",
     "Proposition": "a proposition",
 }

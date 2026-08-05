@@ -86,6 +86,7 @@ from ..ast.nodes import (
     UnaryOp,
 )
 from ..types import (
+    UNIT_INTERVAL_KINDS,
     ConceptType,
     DistributionType,
     FunctionType,
@@ -117,6 +118,11 @@ LEAN_SCALARS: dict[str, str] = {
     "NonNegativeReal": "ℝ",
     "PositiveReal": "ℝ",
     "Probability": "ℝ",
+    # All three unit-interval kinds carry to the same ℝ. The bounds come back as
+    # hypotheses via SCALAR_REFINEMENTS; the epistemic kind does not come back at all,
+    # and `lean_type` weakens to say so.
+    "PValue": "ℝ",
+    "PosteriorProbability": "ℝ",
 }
 
 #: HML scalar -> hypotheses that recover the refinement the carrier type dropped.
@@ -125,6 +131,8 @@ SCALAR_REFINEMENTS: dict[str, tuple[tuple[str, str], ...]] = {
     "PositiveReal": (("pos", "0 < {x}"),),
     "NonNegativeReal": (("nonneg", "0 ≤ {x}"),),
     "Probability": (("nonneg", "0 ≤ {x}"), ("le_one", "{x} ≤ 1")),
+    "PValue": (("nonneg", "0 ≤ {x}"), ("le_one", "{x} ≤ 1")),
+    "PosteriorProbability": (("nonneg", "0 ≤ {x}"), ("le_one", "{x} ≤ 1")),
     # ℕ already excludes negatives, so Natural needs no hypothesis; PositiveNatural
     # still needs one because ℕ contains 0.
     "PositiveNatural": (("pos", "0 < {x}"),),
@@ -607,6 +615,15 @@ class LeanBackend(Backend):
             return "ℝ"
 
         if isinstance(t, ScalarType):
+            if t.name in UNIT_INTERVAL_KINDS and t.name != "Probability":
+                self.weaken(
+                    who,
+                    f"{t.name} becomes the same ℝ with 0 ≤ x ≤ 1 hypotheses as "
+                    "Probability; Lean carries the bounds and not the epistemic kind, "
+                    "so a p-value and a posterior are indistinguishable in the emitted "
+                    "statement.",
+                    line,
+                )
             carrier = LEAN_SCALARS.get(t.name)
             if carrier is None:
                 self.approximate(who, f"unmapped scalar {t.name}; ℝ assumed", line)

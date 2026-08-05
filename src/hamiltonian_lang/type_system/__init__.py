@@ -13,6 +13,40 @@ Three enforcement points carry most of the design's weight:
    diagnostics for known misparameterisations (scale vs variance, rate vs mean).
 3. Dimensions are checked exactly with rational exponents; adding a Mass to a Length is
    an error with both dimensions printed.
+
+How much of this checker is bidirectional
+-----------------------------------------
+**It is not fully bidirectional, and this docstring previously implied that it was.**
+The audit in ``docs/evaluation/PHASE1_LEAD_AUDIT.md`` §2 measured two of roughly a dozen
+expression-bearing positions routing through :meth:`TypeChecker.check`. The table below
+is the current, verified state; it is asserted mechanically by
+``tests/type_system/test_contextual_positions.py`` so it cannot drift from the code.
+
+===================================  =========  ==================  ==================
+statement position                   synthesis  contextual check    code
+===================================  =========  ==================  ==================
+declaration initialiser              yes        **yes**             ``HML-T402``
+definition body                      yes        **yes**             ``HML-T403``
+user-function argument               yes        **yes**             ``HML-T472``
+distribution role argument           yes        **yes**             ``HML-T413``
+concept member body (typed)          yes        **yes**             ``HML-T473``
+builtin-function argument            yes        no (inline test)    ``HML-T427``
+proof proposition                    yes        no (kind test)      ``HML-T404``
+objective expression                 yes        no (dimension)      ``HML-T405``
+check-statement subject              yes        no (kind test)      ``HML-T404``/``D503``
+concept transform body (untyped)     yes        no expectation      --
+index base and indices               yes        no (kind test)      ``HML-T423``
+binary-operator operands             yes        no (relation test)  ``HML-D502`` etc.
+===================================  =========  ==================  ==================
+
+Five of twelve positions check contextually. The remaining seven impose a *predicate*
+(is it a proposition? does it have a dimension? is it indexable?) rather than a type
+expectation, so there is no ``expected`` type for checking mode to carry; converting
+them would require a disjunctive expectation the checker does not have. They are listed
+so that no reader infers coverage from silence.
+
+  synthesise(expr)                 -> Type            intrinsic type, bottom-up
+  check(expr, expected, role)      -> CheckedExpr     type-directed, top-down
 """
 
 from __future__ import annotations
@@ -53,6 +87,7 @@ from ..ast.nodes import (
 from ..diagnostics import DiagnosticBag
 from ..semantics import SymbolTable
 from ..types import (
+    UNIT_INTERVAL_KINDS,
     ConceptType,
     DistributionType,
     FunctionType,
@@ -72,7 +107,14 @@ from ..types import (
 )
 from .distributions import DISTRIBUTIONS, MISPARAMETERISATIONS, lookup
 
-__all__ = ["ProofObligation", "CheckResult", "CheckedExpr", "TypeChecker", "check"]
+__all__ = [
+    "ProofObligation",
+    "CheckResult",
+    "CheckedExpr",
+    "CallableSignature",
+    "TypeChecker",
+    "check",
+]
 
 REAL = ScalarType("Real")
 BOOL = ScalarType("Bool")
@@ -125,6 +167,45 @@ class CheckedExpr:
     ok: bool
 
 
+@dataclass(frozen=True)
+class CallableSignature:
+    """The full call contract of one user-supplied callable.
+
+    Before this existed, a call to a user ``def`` was resolved to a *symbol* and its
+    declared type was returned; the arguments were never looked at. Neither arity nor
+    argument type was checked, so ``f(1.0)`` and ``f(1.0, 2.0, 3.0, 4.0)`` on a
+    two-parameter definition both compiled clean (audit §2a, defect A). A codomain is
+    not a signature: enforcement needs the *ordered parameters* as well.
+
+    ``origin`` is the ``SymbolId`` of the defining statement, so a diagnostic can point
+    at the definition by identity rather than by matching a spelling.
+    """
+
+    name: str
+    param_names: tuple[str, ...]
+    param_types: tuple[Type, ...]
+    #: ``None`` when the definition declared no return type; the type is then whatever
+    #: its body synthesises, which is not known until the definition is checked.
+    return_type: Type | None
+    origin: SymbolId | None
+    span: Span
+    #: ``definition`` | ``concept transform`` -- named in diagnostics so a repair knows
+    #: which declaration to go and edit.
+    source: str = "definition"
+
+    @property
+    def arity(self) -> int:
+        return len(self.param_types)
+
+    def render(self) -> str:
+        params = ", ".join(
+            f"{n} : {t.render()}"
+            for n, t in zip(self.param_names, self.param_types, strict=True)
+        )
+        ret = "" if self.return_type is None else f" : {self.return_type.render()}"
+        return f"{self.name}({params}){ret}"
+
+
 @dataclass
 class CheckResult:
     module: Module
@@ -146,6 +227,61 @@ class TypeChecker:
         self.concepts: dict[str, ConceptDecl] = {
             s.name: s for s in module.statements if isinstance(s, ConceptDecl)
         }
+        #: Every user-supplied callable, by name. Collected up front because module
+        #: scope is order-independent (D-008): a call may textually precede the
+        #: definition that supplies its signature.
+        self.signatures: dict[str, CallableSignature] = {}
+        #: Definitions that bind a *value*, not a function. Calling one is a category
+        #: error and needs its own diagnostic; without this set it fell through to the
+        #: "unknown function" path, which is a different and misleading complaint.
+        self.value_definitions: dict[str, DefineStmt] = {}
+        self._collect_signatures()
+
+    def _collect_signatures(self) -> None:
+        """Record one signature per parameterised definition and concept transform.
+
+        A ``def`` with no parameter list -- and a ``def`` written ``f()``, which the
+        grammar cannot distinguish from it -- binds a value. It is recorded separately
+        so that ``f(x)`` on such a name is rejected as non-callable rather than being
+        silently accepted.
+        """
+        for st in self.module.statements:
+            if isinstance(st, DefineStmt):
+                if st.params:
+                    self.signatures[st.name] = CallableSignature(
+                        name=st.name,
+                        param_names=tuple(n for n, _ in st.params),
+                        param_types=tuple(
+                            t if t is not None else UnknownType(
+                                f"parameter {n!r} of {st.name!r} has no declared type"
+                            )
+                            for n, t in st.params
+                        ),
+                        return_type=st.declared_type,
+                        origin=st.symbol_id,
+                        span=st.span,
+                        source="definition",
+                    )
+                else:
+                    self.value_definitions[st.name] = st
+            elif isinstance(st, ConceptDecl):
+                for m in st.members_of("transform"):
+                    if not m.params:
+                        continue
+                    self.signatures[m.name] = CallableSignature(
+                        name=m.name,
+                        param_names=tuple(n for n, _ in m.params),
+                        param_types=tuple(
+                            t if t is not None else UnknownType(
+                                f"parameter {n!r} of {m.name!r} has no declared type"
+                            )
+                            for n, t in m.params
+                        ),
+                        return_type=m.declared_type,
+                        origin=None,
+                        span=m.span,
+                        source="concept transform",
+                    )
 
     # -- helpers ----------------------------------------------------------
     def _sym_type(self, sid: SymbolId | None) -> Type:
@@ -207,7 +343,7 @@ class TypeChecker:
                     self._obligate(
                         "parameter_positivity", f"{sym.name} > 0", sym.span
                     )
-                elif t.name == "Probability":
+                elif t.name in UNIT_INTERVAL_KINDS:
                     self._obligate(
                         "parameter_positivity",
                         f"0 <= {sym.name} <= 1",
@@ -245,24 +381,32 @@ class TypeChecker:
         role: str,
         code: str = "HML-T460",
         note: str | None = None,
+        message: str | None = None,
     ) -> CheckedExpr:
         """Check ``e`` against ``expected``, reporting the role that imposed it.
 
         A literal is checked by value, so `scale := 1` is accepted where `PositiveReal`
         is required even though the nominal type of `1` is `PositiveNatural` (D-009).
+
+        ``message`` overrides the generated headline for sites whose wording is already
+        cited in the freeze manifest; the structured fields are unaffected.
         """
         actual = self.synthesise(e)
         if self._inhabits(e, actual, expected):
             return CheckedExpr(e, actual, expected, role, True)
 
+        notes = [note] if note else []
+        conflation = _conflation_note(actual, expected)
+        if conflation is not None:
+            notes.insert(0, conflation)
         self.diags.error(
             code,
-            f"the {role} requires {expected.render()}",
+            message or f"the {role} requires {expected.render()}",
             e.span,
             expected=expected.render(),
             found=actual.render(),
             correction=self._repair_hint(e, actual, expected, role),
-            notes=[note] if note else [],
+            notes=notes,
         )
         return CheckedExpr(e, actual, expected, role, False)
 
@@ -274,6 +418,16 @@ class TypeChecker:
         """
         from ..types import QuantityType, ScalarType, dimension_of
 
+        # A prohibited conflation must never be repaired by re-declaring the source.
+        # The generic Ref hint below would emit "declare 'pv : Probability'", i.e. it
+        # would instruct a repair loop to commit the prosecutor's fallacy on the
+        # compiler's own advice. This case is therefore handled first.
+        if _conflation_note(actual, expected) is not None:
+            return (
+                f"there is no conversion from {actual.render()} to "
+                f"{expected.render()}; supply a quantity that already is a "
+                f"{expected.render()}, or correct the declared type of the target"
+            )
         if isinstance(e, Ref):
             return f"declare '{e.name} : {expected.render()}'"
         lit = _as_literal(e)
@@ -393,16 +547,27 @@ class TypeChecker:
             self._validate_type(st.declared_type, st.span, f"definition {st.name!r}")
             for pname, ptype in st.params:
                 self._validate_type(ptype, st.span, f"parameter {pname!r}")
-            bt = self.expr_type(st.body)
-            st.type_ = st.declared_type or bt
-            if st.declared_type is not None and not is_subtype(bt, st.declared_type):
-                self.diags.error(
-                    "HML-T403",
-                    f"the body of {st.name!r} does not inhabit its declared type",
-                    st.body.span,
-                    expected=st.declared_type.render(),
-                    found=bt.render(),
+            if st.declared_type is not None:
+                # Checking mode, not a bare `is_subtype`. The two forms
+                #     const p : Probability  = 0.5
+                #     def   p : Probability := 0.5
+                # state the same mathematics and used to receive opposite verdicts:
+                # `Declaration` routed through `check`, which applies the D-009 literal
+                # refinement, while this site compared the *nominal* type of the literal
+                # (PositiveReal) and rejected. The verdict was decided by which keyword
+                # was used, which is a defect in any language and a confound in a syntax
+                # tournament. (Audit §2b, defect B.)
+                checked = self.check(
+                    st.body,
+                    st.declared_type,
+                    role=f"declared type of {st.name!r}",
+                    code="HML-T403",
+                    message=f"the body of {st.name!r} does not inhabit its declared type",
                 )
+                bt = checked.actual
+            else:
+                bt = self.expr_type(st.body)
+            st.type_ = st.declared_type or bt
             sym = self.symbols.get(st.symbol_id) if st.symbol_id else None
             if sym is not None and sym.declared_type is None:
                 sym.declared_type = st.type_
@@ -805,8 +970,22 @@ class TypeChecker:
                 sym.declared_type = FunctionType(domain, body_type)
 
         for m in st.members:
-            if m.body is not None and m.kind != "transform":
+            if m.body is None or m.kind == "transform":
+                continue
+            self._validate_type(m.declared_type, m.span, f"{m.kind} {m.name!r}")
+            if m.declared_type is None:
                 self.expr_type(m.body)
+                continue
+            # A member that declares a type gets its body CHECKED against it. This
+            # position previously synthesised and discarded the result, so
+            # `property p : Probability := 2.0` inside a concept was admitted while the
+            # identical `const p : Probability = 2.0` outside it was rejected.
+            self.check(
+                m.body,
+                m.declared_type,
+                role=f"declared type of {st.name}.{m.name}",
+                code="HML-T473",
+            )
         transforms = st.members_of("transform")
         for tr in transforms:
             if not tr.params:
@@ -881,7 +1060,12 @@ class TypeChecker:
                     "Natural": ScalarType("Integer"),
                     "PositiveReal": REAL,
                     "NonNegativeReal": REAL,
+                    # Negating any unit-interval kind leaves the interval. Omitting
+                    # these would let `-pv : PValue` through, which is the same bug
+                    # this table exists to prevent for Natural.
                     "Probability": REAL,
+                    "PValue": REAL,
+                    "PosteriorProbability": REAL,
                 }.get(ot.name, ot)
             return ot
 
@@ -1088,11 +1272,133 @@ class TypeChecker:
             if candidate.name == e.callee:
                 sym = candidate
                 break
+
+        user_sig = self.signatures.get(e.callee)
+        if user_sig is not None:
+            return self._check_user_call(e, user_sig, sym)
+
+        if e.callee in self.value_definitions:
+            self._report_not_callable(e, sym)
+            return UnknownType(f"{e.callee} is not callable")
+
         if sym is not None and isinstance(sym.declared_type, FunctionType):
             return sym.declared_type.codomain
         if sym is not None and sym.kind == "def":
             return sym.declared_type or UnknownType("definition without inferred type")
+        if sym is not None:
+            self._report_not_callable(e, sym)
+            return UnknownType(f"{e.callee} is not callable")
         return UnknownType(f"unknown function {e.callee}")
+
+    # -- user-defined calls -----------------------------------------------
+    #
+    # Everything below is *diagnostic* machinery as much as type machinery, so one
+    # constraint governs it: a diagnostic states what was expected, what was found and
+    # what CLASS of edit would repair it. It never states the repaired program.
+    #
+    # That is not a style preference. Verifier-guided repair (H3) is measured by whether
+    # a model can act on a diagnostic; a diagnostic that contains the answer makes the
+    # measurement a transcription test and destroys the H3 result, while leaving H1 and
+    # H2 -- which are about the representation, not the verifier -- untouched. The three
+    # hypotheses have to stay separable, so the hints here are deliberately local: a
+    # parameter name, a type, a count, a direction of edit.
+
+    def _report_not_callable(self, e: Call, sym) -> None:
+        kind = sym.kind if sym is not None else "symbol"
+        what = self.value_definitions.get(e.callee)
+        self.diags.error(
+            "HML-T470",
+            f"{e.callee!r} is not callable",
+            e.span,
+            expected="a definition taking parameters",
+            found=(
+                f"{kind} {e.callee}"
+                + (f" : {sym.declared_type.render()}" if sym is not None
+                   and sym.declared_type is not None else "")
+            ),
+            correction=(
+                f"give {e.callee!r} a parameter list where it is defined, or drop the "
+                f"argument list and refer to it as {e.callee}"
+            ),
+            notes=[
+                (
+                    f"{e.callee!r} binds a value, not a function"
+                    + (f" (defined at line {what.span.line})" if what is not None else "")
+                ),
+                "a definition with no parameter list is a value; applying it is a "
+                "category error, not a missing argument",
+            ],
+        )
+
+    def _check_user_call(self, e: Call, sig: CallableSignature, sym) -> Type:
+        """Arity, then every argument, then the declared return type."""
+        if len(e.args) != sig.arity:
+            self.diags.error(
+                "HML-T471",
+                f"{sig.name} takes {sig.arity} argument(s), {len(e.args)} given",
+                e.span,
+                expected=sig.render(),
+                found=f"{len(e.args)} argument(s)",
+                correction=self._arity_hint(sig, len(e.args)),
+                notes=[
+                    f"{sig.source} {sig.name!r} is declared at line {sig.span.line}",
+                    "arity is part of the signature; a call with the wrong number of "
+                    "arguments denotes nothing",
+                ],
+            )
+            return self._call_result_type(e, sig, sym)
+
+        for position, (arg, want, pname) in enumerate(
+            zip(e.args, sig.param_types, sig.param_names, strict=True), start=1
+        ):
+            if isinstance(want, UnknownType):
+                # An unannotated parameter constrains nothing. Saying so is honest;
+                # inventing an expectation for it would not be.
+                continue
+            self.check(
+                arg,
+                want,
+                role=f"parameter {pname!r} (argument {position}) of {sig.name}",
+                code="HML-T472",
+                note=f"the signature is {sig.render()}",
+            )
+        return self._call_result_type(e, sig, sym)
+
+    def _arity_hint(self, sig: CallableSignature, given: int) -> str:
+        """A repair *class*, never a repaired call.
+
+        Too few: name the parameters still owed, with their types. Too many: say how
+        many to remove. Neither supplies a value, so the repair remains the model's.
+        """
+        if given < sig.arity:
+            missing = ", ".join(
+                f"{n} : {t.render()}"
+                for n, t in zip(sig.param_names, sig.param_types, strict=True)
+            )
+            return (
+                f"supply {sig.arity - given} more argument(s); the parameters are "
+                f"({missing})"
+            )
+        return (
+            f"remove {given - sig.arity} argument(s); {sig.name} has "
+            f"{sig.arity} parameter(s)"
+        )
+
+    def _call_result_type(self, e: Call, sig: CallableSignature, sym) -> Type:
+        """The declared return type, or the definition's synthesised type if it has none.
+
+        Module scope is order-independent, so a call may be checked before the
+        definition that supplies its body type. When that happens there is genuinely no
+        type yet, and returning Unknown is the honest answer -- ``HML-T450`` catches any
+        Unknown that survives a clean check.
+        """
+        if sig.return_type is not None:
+            return sig.return_type
+        if sym is not None and isinstance(sym.declared_type, FunctionType):
+            return sym.declared_type.codomain
+        if sym is not None and sym.declared_type is not None:
+            return sym.declared_type
+        return UnknownType(f"{sig.name} has no declared return type yet")
 
     def _require_comparable(self, e: Comparison, lt: Type, rt: Type) -> None:
         ld, rd = dimension_of(lt), dimension_of(rt)
@@ -1313,6 +1619,48 @@ class TypeChecker:
             if isinstance(v, int) and v % 2 == 0 and v > 0:
                 return ScalarType("NonNegativeReal")
         return REAL
+
+
+#: Why one epistemic kind of a [0, 1] number may not stand for another. The wording
+#: mirrors ``v1/epistemic.py::PROHIBITED_PROBABILITY_COERCIONS``, which states the same
+#: refusals for the Python API; this table is what states them *in the language*.
+#:
+#: Every unordered pair is present, because the refusal is symmetric: neither direction
+#: is a widening.
+_UNIT_INTERVAL_CONFLATIONS: dict[tuple[str, str], str] = {
+    ("PValue", "PosteriorProbability"): (
+        "a p-value is P(data at least this extreme | H0); a posterior is P(H0 | data). "
+        "Reading a p-value as a posterior is the prosecutor's fallacy"
+    ),
+    ("PosteriorProbability", "PValue"): (
+        "a posterior is not a tail probability under the null and cannot be compared "
+        "to a significance level"
+    ),
+    ("PValue", "Probability"): (
+        "a p-value is a property of a test procedure, not a probability within the model"
+    ),
+    ("Probability", "PValue"): (
+        "a model probability is not the output of a hypothesis test"
+    ),
+    ("PosteriorProbability", "Probability"): (
+        "a posterior is stated relative to the prior it was computed against; dropping "
+        "that dependency loses what makes it a posterior"
+    ),
+    ("Probability", "PosteriorProbability"): (
+        "a probability within the model is not a posterior over hypotheses; a posterior "
+        "requires the prior it was computed against"
+    ),
+}
+
+
+def _conflation_note(actual: Type, expected: Type) -> str | None:
+    """The reason two unit-interval kinds may not be interchanged, or None.
+
+    Returns None for every other pair, so an ordinary subtype failure is unaffected.
+    """
+    if not (isinstance(actual, ScalarType) and isinstance(expected, ScalarType)):
+        return None
+    return _UNIT_INTERVAL_CONFLATIONS.get((actual.name, expected.name))
 
 
 def _as_literal(e: Expr):

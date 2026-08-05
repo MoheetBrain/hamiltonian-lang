@@ -195,8 +195,27 @@ kill_criteria:
   L4: >
     any prohibited conflation type-checks.
     MEASURED 2026-08-04: the p-value-as-posterior conflation type-checked, because PValue
-    was specified in the contract and never implemented. Now closed -- PValue and
-    PosteriorProbability are distinct types with no coercion in either direction, and a
-    posterior without its prior is rejected.
+    was specified in the contract and never implemented.
+    CORRECTION 2026-08-05: the 2026-08-04 entry read "Now closed -- PValue and
+    PosteriorProbability are distinct types with no coercion in either direction". That
+    was TRUE OF src/hamiltonian_lang/v1/epistemic.py, a Python API, AND FALSE OF THE
+    LANGUAGE. It was written without naming the layer, so it read as a claim about
+    Hamiltonian Lang. It was not one: `param q : PValue` was HML-T440 unknown type, so no
+    HML program could state the distinction and `hml check` could not enforce it. The
+    claim is withdrawn as written. Recorded per CLAUDE.md: a correction to an earlier
+    factual claim is documented, not silently overwritten.
+    MEASURED 2026-08-05: closed AT THE LANGUAGE LEVEL, not only in Python. D-022 adds
+    PValue and PosteriorProbability to types.SCALARS as pairwise incomparable refinements
+    of NonNegativeReal. `const pv : PValue := 0.05` checks;
+    `def posterior_h0 : Probability := pv` is HML-T403 in both directions. Evidence:
+    docs/evaluation/V1_FREEZE_MANIFEST.md section 4.
+    RESIDUAL, stated so the criterion is not read as stronger than it is: a p-value
+    DECLARED as Probability and then read as a posterior still type-checks, because both
+    sides genuinely are Probability. That is a modelling error, not a type error, and no
+    type system detects it; inferring the kind from a symbol's spelling is rejected as a
+    name heuristic. Pinned by
+    tests/freeze/test_quarantine.py::test_pin_a_mis_declared_p_value_is_still_admitted.
+    The L4 LAYER (EpistemicStatus, Justification, EpistemicClaim) remains EXPERIMENTAL
+    and unreachable from HML source; two scalar types moved, not the layer.
   L5: adds no diagnostic V0 does not already produce
   families: the estimator/estimate confusion still type-checks

@@ -69,6 +69,7 @@ from ..ast.nodes import (
 )
 from ..type_system.distributions import DISTRIBUTIONS
 from ..types import (
+    UNIT_INTERVAL_KINDS,
     ConceptType,
     DistributionType,
     FunctionType,
@@ -709,6 +710,18 @@ class StanBackend(Backend):
         if name == "NonNegativeReal":
             return "real<lower=0>"
         if name == "Probability":
+            return "real<lower=0,upper=1>"
+        if name in UNIT_INTERVAL_KINDS:
+            # PValue / PosteriorProbability. Stan has one unit-interval declaration and
+            # no way to record which kind it is, so the numeric bound survives and the
+            # epistemic kind does not.
+            self.weaken(
+                who,
+                f"{name} becomes the same real<lower=0,upper=1> as Probability; Stan "
+                "cannot carry the epistemic kind, so the p-value / posterior / model "
+                "probability separation is lost in the emitted program.",
+                line,
+            )
             return "real<lower=0,upper=1>"
         if name == "Natural":
             return "int<lower=0>"

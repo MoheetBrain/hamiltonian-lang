@@ -270,3 +270,76 @@ def test_inconsistent_renaming_is_caught(name):
     r = compile_source(src)
     assert not r.ok()
     assert "HML-N301" in [d.code for d in r.diagnostics.errors]
+
+
+# -- regression: the HML view must not drop a formal's declared type ------
+
+
+_TYPED_FORMAL_CASES = [
+    "module TypedFormal\n\nconst c : Real = 8\ndef f(x : Real) : Real := x * 2 + c\n"
+    "def g : Real := f(c)\nsolve g\n",
+    "module TypedFormalMulti\n\ndef h(u : Real, w : Real) : Real := u * w + 1\n"
+    "const a : Real = 2\nconst b : Real = 3\ndef k : Real := h(a, b)\nsolve k\n",
+    "module TypedFormalQuantity\n\nparam m : Quantity[Mass]\n"
+    "def e(v : Quantity[Length / Time]) : Quantity[Mass * Length^2 / Time^2]"
+    " := 0.5 * m * v^2\n",
+]
+
+
+@pytest.mark.parametrize("src", _TYPED_FORMAL_CASES, ids=["scalar", "two_formals", "quantity"])
+def test_parametric_definition_keeps_its_formal_types_through_the_hml_view(src):
+    """`def f(x : Real) : Real := ...` rendered as `def f(x) : Real := ...` re-parses
+    with an untyped formal and then fails to type-check (HML-T431).
+
+    A view that silently drops meaning is the failure mode this project treats as the
+    worst one, and the defect survived because no file under `examples/` used a typed
+    formal in a parametric definition -- so `test_examples_round_trip` never reached it.
+    These cases exercise it directly.
+    """
+    first = compiled(src)
+    rendered = render_module(first.module)
+    assert " : Real)" in rendered or " : Quantity[" in rendered, rendered
+    second = compile_source(rendered, "#rendered")
+    assert second.ok(), "\n" + second.diagnostics.render() + "\n--- rendered ---\n" + rendered
+    assert first.hash() == second.hash()
+
+
+# -- printer associativity (found by the HML-PHASE-FG-001 F3 round-trip gate) ---
+
+#: Each pair is (source, the sub-expression the printer must parenthesise). Before the
+#: fix, `backends/hml.py` parenthesised only the *right* operand of `+ - * /`, so every
+#: LEFT-nested occurrence of a RIGHT-associative operator lost its grouping and read back
+#: as a different object with a different canonical hash. The examples corpus happened to
+#: contain none of these shapes, so the suite was green while the round-trip guarantee
+#: was false for `^`, `=>` and `<=>`.
+_ASSOCIATIVITY_CASES = [
+    ("param a : PositiveReal\nparam b : PositiveReal\nparam c : PositiveReal\n"
+     "def z := (a ^ b) ^ c", "(a ^ b) ^ c"),
+    ("param a : PositiveReal\nparam b : PositiveReal\nparam c : PositiveReal\n"
+     "def z := a ^ (b ^ c)", "a ^ b ^ c"),
+    ("param a : Real\nparam b : Real\nparam c : Real\n"
+     "require (a > 0.0 => b > 0.0) => c > 0.0", "(a > 0.0 => b > 0.0) => c > 0.0"),
+    ("param a : Real\nparam b : Real\nparam c : Real\n"
+     "require (a > 0.0 <=> b > 0.0) <=> c > 0.0", "(a > 0.0 <=> b > 0.0) <=> c > 0.0"),
+    ("param a : Real\nparam b : Real\nparam c : Real\n"
+     "def z := (a - b) - c", "a - b - c"),
+    ("param a : Real\nparam b : Real\nparam c : Real\n"
+     "def z := a - (b - c)", "a - (b - c)"),
+    ("param a : PositiveReal\nparam b : PositiveReal\nparam c : PositiveReal\n"
+     "def z := a / (b / c)", "a / (b / c)"),
+    ("param v : Vector[Real, 4]\nindex i : Natural\ndef z := v[i]", "v[i]"),
+]
+
+
+@pytest.mark.parametrize(
+    "source,expected_fragment", _ASSOCIATIVITY_CASES, ids=range(len(_ASSOCIATIVITY_CASES))
+)
+def test_printer_preserves_associativity(source, expected_fragment):
+    first = compiled(source)
+    rendered = render_module(first.module)
+    assert expected_fragment in rendered, rendered
+    second = compile_source(rendered)
+    assert second.ok(), "\n" + second.diagnostics.render() + "\n" + rendered
+    assert content_hash(first.module) == content_hash(second.module), (
+        f"round trip changed the object\n--- rendered ---\n{rendered}"
+    )
