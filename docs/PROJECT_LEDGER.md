@@ -402,3 +402,65 @@ thesis would have been rejected for an artefact of my own measurement code.
 **Next intended step.** Let the pilot accumulate, then write
 `docs/evaluation/HML_EVAL_001_REPORT.md` with the go/redesign/stop decision.
 
+---
+
+## 2026-08-04 — EVAL_SPEC_v1.0: freeze and evaluator validation
+
+**Branch.** `main` · **Stage.** HML-EVAL-001 pilot, generation 0 complete.
+
+**Objective.** Freeze the evaluation specification and validate the evaluator *before*
+looking at any arm-level comparative result.
+
+**Files changed.** `evaluation/freeze.py` (new), `evaluation/blind_audit.py` (new),
+`tests/evaluation/test_evaluator_validation.py` (new), `evaluation/analyse.py`
+(generation filter and secondary outcomes).
+
+**What was completed.** Generation 0 of the pilot finished before the time budget
+expired: **105/105 cells, 15 problems x 7 arms, every cell present.** Generation 1 also
+completed (105 further trials) at temperature 0.7, so those are independent samples rather
+than temperature-zero duplicates. `EVAL_SPEC_v1.0` records language commit and tag, corpus
+hash, per-arm prompt-template hashes, scorer hash, model digest and sampling, and a
+per-cell raw-output manifest.
+
+**Evaluator validation.** 22 synthetic-mutation tests demonstrate that all nine scored
+facets can both pass and fail, with a meta-test that fails if a facet is added without a
+mutation test. Binder-renaming invariance, role-swap detection, quantifier-order
+detection, dimension comparison and omitted-structure detection are each pinned.
+
+**Blinded audit.** 20 randomly sampled generation-0 outputs, arm labels hidden, seed
+recorded. Result: **20/20 answer agreement, 6/6 semantic agreement, all seven arms
+represented, no disagreements.**
+
+**Failures and unresolved uncertainty.**
+
+- The audit found the blind-audit tool itself was reading **stale scores** written during
+  the run rather than re-scoring with the current comparator. Case02 showed 0.0 where the
+  current comparator gives 1.0. Fixed before any verdict was recorded; auditing a scorer
+  version that no longer exists would have audited nothing.
+- Two comparator limitations were found and **documented rather than fixed**, both biasing
+  against the Hamiltonian arms: (1) an encoding that folds a constraint into a refinement
+  type (`param x : NonNegativeReal`) is scored as a type and kind mismatch against a
+  ground truth using `var` + `require`, though the two are arguably equivalent; (2) an
+  encoding that fails to parse zeroes every structural facet, so the semantic score
+  conflates syntax failure with mistranslation. The report presents encoding score both
+  over all encodings and over parsing encodings only.
+- **6 of 105 generation-0 cells produced zero characters of output**, spread roughly one
+  per arm (D had none). Cause is generation-budget exhaustion in the model's reasoning
+  channel, not a representation effect. Recorded as a data-quality fact with its
+  per-arm distribution rather than dropped.
+
+**Tests and verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `.venv/bin/python -m pytest` | 967 passed |
+| `./scripts/conformance.sh` | CONFORMANCE: PASS, all 8 stages |
+| `.venv/bin/python -m evaluation.freeze --version 1.0` | spec written, 105 raw outputs manifested |
+| `.venv/bin/python -m evaluation.blind_audit unblind` | 20/20 answer, 6/6 semantic, no disagreements |
+
+**Effect on the overall project.** The scorer is frozen and validated. Any change from
+here requires a new EVAL_SPEC version with the v1.0 result preserved.
+
+**Next intended step.** Primary analysis on generation 0 and
+`docs/evaluation/HML_EVAL_001_PILOT_REPORT.md` with a single decision.
+

@@ -121,7 +121,7 @@ Commands executed and their real results:
 
 | command | result |
 |---------|--------|
-| `.venv/bin/python -m pytest -q` | **945 passed, 0 failed, 0 xfailed** |
+| `.venv/bin/python -m pytest -q` | **967 passed, 0 failed, 0 xfailed** |
 | `.venv/bin/hml check examples/*/*.hml` | **8/8 check cleanly** |
 | `.venv/bin/ruff check src tests` | **All checks passed** |
 | `.venv/bin/mypy src/hamiltonian_lang` | **Success: no issues found in 22 source files** |

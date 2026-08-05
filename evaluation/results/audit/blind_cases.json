@@ -1,0 +1,937 @@
+[
+  {
+    "case": "case01",
+    "problem": "Consider the statement: for every real number x, it is not the case that x squared is negative.",
+    "question": "Is the statement true over the real numbers? Answer TRUE or FALSE.",
+    "verified_answer": true,
+    "answer_kind": "boolean",
+    "answer_justification": "no real square is negative, so the inner negation holds for every x",
+    "ground_truth_facts": {
+      "quantifier_order": [
+        "forall x",
+        "not"
+      ]
+    },
+    "model_output": "To determine whether the statement \"for every real number $x$, it is not the case that $x$ squared is negative\" is true over the real numbers, we can analyze it mathematically.\n\n1.  **Translate the statement**: The statement asserts that for all $x \\in \\mathbb{R}$, $\\neg(x^2 < 0)$.\n2.  **Simplify the negation**: Saying \"it is not the case that $x^2$ is negative\" is equivalent to saying $x^2 \\geq 0$.\n3.  **Evaluate for real numbers**: For any real number $x$:\n    *   If $x > 0$, then $x \\cdot x = x^2 > 0$.\n    *   If $x < 0$, then $x \\cdot x = x^2 > 0$ (since the product of two negative numbers is positive).\n    *   If $x = 0$, then $x \\cdot x = 0^2 = 0$.\n4.  **Conclusion**: In all cases for any real number $x$, $x^2$ is either positive or zero, meaning it can never be negative ($x^2 \\geq 0$).\n\nThus, the statement \"for every real number $x$, it is not the case that $x$ squared is negative\" is true.\n\n<ANSWER>TRUE</ANSWER>",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "TRUE",
+      "answer_correct": true,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case02",
+    "problem": "Consider the physical quantity defined as power, energy divided by time. The dimensions of the inputs are: E: energy, t: Time.",
+    "question": "What is the physical dimension of the resulting quantity?",
+    "verified_answer": "Mass * Length^2 / Time^3",
+    "answer_kind": "dimension",
+    "answer_justification": "dimension of power, energy divided by time",
+    "ground_truth_facts": {
+      "dimensions": {
+        "result": "Mass * Length^2 / Time^3"
+      }
+    },
+    "model_output": "```hml\nmodule PowerDim\n\nparam E : Quantity[Mass * Length^2 / Time^2]\nparam t : Quantity[Time]\n\ndef P := E / t\n\ncheck dimension P = Mass * Length^2 / Time^3\n```\n\n<ANSWER>Mass * Length^2 / Time^3</ANSWER>",
+    "model_encoding": "module PowerDim\n\nparam E : Quantity[Mass * Length^2 / Time^2]\nparam t : Quantity[Time]\n\ndef P := E / t\n\ncheck dimension P = Mass * Length^2 / Time^3",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "[('Length', 2.0), ('Mass', 1.0), ('Time', -3.0)]",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": true,
+      "diagnostics": [],
+      "semantic_score": 1.0,
+      "semantic_detail": {
+        "parsed": true,
+        "diagnostics": [],
+        "score": 1.0,
+        "exact": true,
+        "entities": [
+          0,
+          0
+        ],
+        "types": [
+          0,
+          0
+        ],
+        "declaration_kinds": [
+          0,
+          0
+        ],
+        "law_families": [
+          0,
+          0
+        ],
+        "roles": [
+          0,
+          0
+        ],
+        "conditioning": [
+          0,
+          0
+        ],
+        "quantifier_order": [
+          0,
+          0
+        ],
+        "objective": [
+          0,
+          0
+        ],
+        "dimensions": [
+          1,
+          1
+        ],
+        "notes": []
+      },
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case03",
+    "problem": "Two real numbers x and y are both non-negative, and their sum is at least 24.",
+    "question": "What is the minimum possible numerical value of x squared plus y squared?",
+    "verified_answer": 288.0,
+    "answer_kind": "numeric",
+    "answer_justification": "minimum on x+y=24 at x=y=12.0, giving 2*(12.0)^2 = 288.0",
+    "ground_truth_facts": {
+      "entities": {
+        "x": "Real",
+        "y": "Real"
+      },
+      "declaration_kinds": {
+        "x": "var",
+        "y": "var"
+      },
+      "constraints": [
+        "x + y >= 24",
+        "x >= 0",
+        "y >= 0"
+      ],
+      "objective": "minimise x^2 + y^2"
+    },
+    "model_output": "```hml\nmodule MinValue\nparam x : NonNegativeReal\nparam y : NonNegativeReal\nassume x + y >= 24\nminimise x^2 + y^2\nend\n```\n\nTo find the minimum value of $x^2 + y^2$ subject to the constraints $x \\ge 0$, $y \\ge 0$, and $x+y \\ge 24$, we recognize that the objective function $f(x, y) = x^2 + y^2$ represents the square of the distance from the origin $(0,0)$ to the point $(x, y)$. The region defined by the constraints is the area in the first quadrant on or above the line $x+y=24$.\n\nThe minimum distance from the origin to this region occurs at the point on the boundary line $x+y=24$ that is closest to the origin. For a line given by $Ax + By = C$, the coordinates of the point closest to the origin are:\n$$x = \\frac{AC}{A^2+B^2}, \\quad y = \\frac{BC}{A^2+B^2}$$\nSubstituting $A=1, B=1, C=24$:\n$$x = \\frac{1 \\cdot 24}{1^2 + 1^2} = \\frac{24}{2} = 12$$\n$$y = \\frac{1 \\cdot 24}{1^2 + 1^2} = \\frac{24}{2} = 12$$\n\nThese values satisfy the non-negativity constraints ($x, y \\ge 0$). The minimum value of $x^2 + y^2$ is:\n$$12^2 + 12^2 = 144 + 144 = 288$$\n\n<ANSWER>288</ANSWER>",
+    "model_encoding": "module MinValue\nparam x : NonNegativeReal\nparam y : NonNegativeReal\nassume x + y >= 24\nminimise x^2 + y^2\nend",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "288.0",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": false,
+      "diagnostics": [
+        "HML-P205"
+      ],
+      "semantic_score": 0.42857142857142855,
+      "semantic_detail": {
+        "parsed": false,
+        "diagnostics": [
+          "HML-P205"
+        ],
+        "score": 0.4286,
+        "exact": false,
+        "entities": [
+          2,
+          2
+        ],
+        "types": [
+          0,
+          2
+        ],
+        "declaration_kinds": [
+          0,
+          2
+        ],
+        "law_families": [
+          0,
+          0
+        ],
+        "roles": [
+          0,
+          0
+        ],
+        "conditioning": [
+          0,
+          0
+        ],
+        "quantifier_order": [
+          0,
+          0
+        ],
+        "objective": [
+          1,
+          1
+        ],
+        "dimensions": [
+          0,
+          0
+        ],
+        "notes": [
+          "name agreement (unscored): 2/2"
+        ]
+      },
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case04",
+    "problem": "Consider the physical quantity defined as power, energy divided by time. The dimensions of the inputs are: E: energy, t: Time.",
+    "question": "What is the physical dimension of the resulting quantity?",
+    "verified_answer": "Mass * Length^2 / Time^3",
+    "answer_kind": "dimension",
+    "answer_justification": "dimension of power, energy divided by time",
+    "ground_truth_facts": {
+      "dimensions": {
+        "result": "Mass * Length^2 / Time^3"
+      }
+    },
+    "model_output": "```triples\nE -> has_type Quantity[Mass * Length^2 / Time^2]\nt -> has_type Quantity[Time]\nP -> depends_on E\nP -> depends_on t\n```\n\n<ANSWER>Mass * Length^2 / Time^3</ANSWER>",
+    "model_encoding": "E -> has_type Quantity[Mass * Length^2 / Time^2]\nt -> has_type Quantity[Time]\nP -> depends_on E\nP -> depends_on t",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "[('Length', 2.0), ('Mass', 1.0), ('Time', -3.0)]",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case05",
+    "problem": "Two real numbers x and y are both non-negative, and their sum is at least 24.",
+    "question": "What is the minimum possible numerical value of x squared plus y squared?",
+    "verified_answer": 288.0,
+    "answer_kind": "numeric",
+    "answer_justification": "minimum on x+y=24 at x=y=12.0, giving 2*(12.0)^2 = 288.0",
+    "ground_truth_facts": {
+      "entities": {
+        "x": "Real",
+        "y": "Real"
+      },
+      "declaration_kinds": {
+        "x": "var",
+        "y": "var"
+      },
+      "constraints": [
+        "x + y >= 24",
+        "x >= 0",
+        "y >= 0"
+      ],
+      "objective": "minimise x^2 + y^2"
+    },
+    "model_output": "```lean\nimport Mathlib.Tactic\n\ntheorem min_x_squared_plus_y_squared :\n  \u2200 (x y : \u211d), (x \u2265 0 \u2227 y \u2265 0 \u2227 x + y \u2265 24) \u2192 x^2 + y^2 \u2265 288 := by\n  intro h\n  cases' h with hx hy hs\n  -- Use the identity: x^2 + y^2 = (1/2)((x+y)^2 + (x-y)^2)\n  have h_id : x^2 + y^2 = ((x + y)^2 + (x - y)^2) / 2 := by ring\n  rw [h_id]\n  -- Since (x-y)^2 \u2265 0 and x+y \u2265 24, then (x+y)^2 \u2265 24^2\n  have h_sum_sq : (x + y)^2 \u2265 576 := by\n    apply pow_le_pow_of_le_right\n    \u00b7 apply LT.lt -- not quite correct but x+y >= 24 > 0\n      linarith\n    \u00b7 linarith\n  -- Therefore, ((x+y)^2 + (x-y)^2) / 2 \u2265 (576 + 0) / 2 = 288\n  calc ((x + y)^2 + (x - y)^2) / 2 \n    \u2265 ((x + y)^2 + 0) / 2 := by apply add_le_add_le; { apply div_le_div_of_nonneg; apply h_sum_sq }; { apply div_nonneg }\n    _ \u2265 576 / 2 := by apply div_le_div_of_nonneg; apply h_sum_sq\n    _ = 288 := rfl\n```\n\n<ANSWER>288</ANSWER>",
+    "model_encoding": "import Mathlib.Tactic\n\ntheorem min_x_squared_plus_y_squared :\n  \u2200 (x y : \u211d), (x \u2265 0 \u2227 y \u2265 0 \u2227 x + y \u2265 24) \u2192 x^2 + y^2 \u2265 288 := by\n  intro h\n  cases' h with hx hy hs\n  -- Use the identity: x^2 + y^2 = (1/2)((x+y)^2 + (x-y)^2)\n  have h_id : x^2 + y^2 = ((x + y)^2 + (x - y)^2) / 2 := by ring\n  rw [h_id]\n  -- Since (x-y)^2 \u2265 0 and x+y \u2265 24, then (x+y)^2 \u2265 24^2\n  have h_sum_sq : (x + y)^2 \u2265 576 := by\n    apply pow_le_pow_of_le_right\n    \u00b7 apply LT.lt -- not quite correct but x+y >= 24 > 0\n      linarith\n    \u00b7 linarith\n  -- Therefore, ((x+y)^2 + (x-y)^2) / 2 \u2265 (576 + 0) / 2 = 288\n  calc ((x + y)^2 + (x - y)^2) / 2 \n    \u2265 ((x + y)^2 + 0) / 2 := by apply add_le_add_le; { apply div_le_div_of_nonneg; apply h_sum_sq }; { apply div_nonneg }\n    _ \u2265 576 / 2 := by apply div_le_div_of_nonneg; apply h_sum_sq\n    _ = 288 := rfl",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "288.0",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case06",
+    "problem": "Model 1 states that a quantity is normally distributed with location nu_ and scale kappa. Model 2 states that the same quantity is normally distributed with location kappa and scale nu_.",
+    "question": "Do Model 1 and Model 2 describe the same distribution for every choice of nu_ and kappa? Answer TRUE or FALSE.",
+    "verified_answer": false,
+    "answer_kind": "boolean",
+    "answer_justification": "swapping which symbol fills which ROLE is not a renaming; location and scale are different roles with different meanings",
+    "ground_truth_facts": {
+      "entities": {
+        "Q": "RandomVariable[Real]",
+        "nu_": "Real",
+        "kappa": "PositiveReal"
+      },
+      "declaration_kinds": {
+        "Q": "rv",
+        "nu_": "param",
+        "kappa": "param"
+      },
+      "laws": {
+        "Q": {
+          "location": "nu_",
+          "scale": "kappa"
+        }
+      },
+      "law_families": {
+        "Q": "Normal"
+      },
+      "prohibited_assumptions": [
+        "that swapping role fillers is a mere renaming"
+      ]
+    },
+    "model_output": "```hml\nmodule NormalComparison\n\nrv X : RandomVariable[Real]\nparam nu : Real\nparam kappa : PositiveReal\n\n# Model 1: X ~ Normal(location := nu, scale := kappa)\n# Model 2: X ~ Normal(location := kappa, scale := nu)\n# For Model 2 to be well-defined for all choices of nu, nu must also be a PositiveReal.\n```\n\nThe question asks whether Model 1 and Model 2 describe the same distribution for every choice of $\\nu$ and $\\kappa$. \n\nModel 1 defines a normal distribution with mean $\\mu_1 = \\nu$ and standard deviation $\\sigma_1 = \\kappa$. \nModel 2 defines a normal distribution with mean $\\mu_2 = \\kappa$ and standard deviation $\\sigma_2 = \\nu$.\n\nTwo normal distributions are identical if and only if their means are equal ($\\mu_1 = \\mu_2$) and their standard deviations are equal ($\\sigma_1 = \\sigma_2$). This requires:\n$\\nu = \\kappa$ and $\\kappa = \\nu$.\n\nThis condition is only satisfied when $\\nu = \\kappa$. It is not satisfied for every choice of $\\nu$ and $\\kappa$ (for example, if $\\nu=1$ and $\\kappa=2$, Model 1 has mean 1 and SD 2, while Model 2 has mean 2 and SD 1).\n\n<ANSWER>FALSE</ANSWER>",
+    "model_encoding": "module NormalComparison\n\nrv X : RandomVariable[Real]\nparam nu : Real\nparam kappa : PositiveReal\n\n# Model 1: X ~ Normal(location := nu, scale := kappa)\n# Model 2: X ~ Normal(location := kappa, scale := nu)\n# For Model 2 to be well-defined for all choices of nu, nu must also be a PositiveReal.",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "FALSE",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": true,
+      "diagnostics": [],
+      "semantic_score": 0.75,
+      "semantic_detail": {
+        "parsed": true,
+        "diagnostics": [],
+        "score": 0.75,
+        "exact": false,
+        "entities": [
+          3,
+          3
+        ],
+        "types": [
+          3,
+          3
+        ],
+        "declaration_kinds": [
+          3,
+          3
+        ],
+        "law_families": [
+          0,
+          1
+        ],
+        "roles": [
+          0,
+          2
+        ],
+        "conditioning": [
+          0,
+          0
+        ],
+        "quantifier_order": [
+          0,
+          0
+        ],
+        "objective": [
+          0,
+          0
+        ],
+        "dimensions": [
+          0,
+          0
+        ],
+        "notes": [
+          "name agreement (unscored): 1/3"
+        ]
+      },
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case07",
+    "problem": "A trial is repeated 18 times independently. Each repetition succeeds with probability 0.25. Let S be the total number of successes.",
+    "question": "What is the numerical variance of S?",
+    "verified_answer": 3.375,
+    "answer_kind": "numeric",
+    "answer_justification": "n p (1-p) = 3.375",
+    "ground_truth_facts": {
+      "entities": {
+        "S": "RandomVariable[Natural]",
+        "trials": "Natural",
+        "prob": "Probability"
+      },
+      "declaration_kinds": {
+        "S": "rv",
+        "trials": "const",
+        "prob": "const"
+      },
+      "laws": {
+        "S": {
+          "trials": "trials",
+          "prob": "prob"
+        }
+      },
+      "law_families": {
+        "S": "Binomial"
+      }
+    },
+    "model_output": "To find the numerical variance of $S$, we first identify the distribution of $S$. Since a trial is repeated $n=18$ times independently, and each repetition succeeds with a constant probability $p=0.25$, the random variable $S$ follows a binomial distribution:\n$$S \\sim \\text{Binomial}(n, p)$$\nwhere $n = 18$ and $p = 0.25$.\n\nThe variance of a binomially distributed random variable is given by the formula:\n$$\\operatorname{Var}(S) = n \\cdot p \\cdot (1 - p)$$\n\nSubstituting the given values into the formula:\n$$\\operatorname{Var}(S) = 18 \\cdot 0.25 \\cdot (1 - 0.25)$$\n$$\\operatorname{Var}(S) = 18 \\cdot 0.25 \\cdot 0.75$$\n\nCalculating the product:\n$$18 \\cdot 0.25 = 4.5$$\n$$4.5 \\cdot 0.75 = 3.375$$\n\nAlternatively, using fractions:\n$$\\operatorname{Var}(S) = 18 \\cdot \\frac{1}{4} \\cdot \\frac{3}{4} = \\frac{18 \\cdot 3}{16} = \\frac{54}{16} = \\frac{27}{8} = 3.375$$\n\n<ANSWER>3.375</ANSWER>",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "3.375",
+      "answer_correct": true,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case08",
+    "problem": "Consider the statement: there exists exactly one real number x such that x cubed equals 10.",
+    "question": "Is the statement true over the real numbers? Answer TRUE or FALSE.",
+    "verified_answer": true,
+    "answer_kind": "boolean",
+    "answer_justification": "cubing is a bijection on the reals, so the real cube root is unique (the other two roots are non-real)",
+    "ground_truth_facts": {
+      "quantifier_order": [
+        "exists_unique x"
+      ]
+    },
+    "model_output": "To determine whether the statement \"there exists exactly one real number $x$ such that $x^3 = 10$\" is true, we analyze the equation:\n$$x^3 = 10$$\nWe are looking for solutions in the set of real numbers $\\mathbb{R}$. The function $f(x) = x^3$ is a continuous and strictly increasing function on $\\mathbb{R}$, as its derivative $f'(x) = 3x^2$ is non-negative for all $x \\in \\mathbb{R}$ and zero only at $x=0$. Because it is strictly increasing, the function $f: \\mathbb{R} \\to \\mathbb{R}$ is a bijection.\n\nTherefore, for every real number $y$, there exists exactly one real number $x$ such that $f(x) = y$. In this case, $y=10$:\n$$x = \\sqrt[3]{10}$$\nThe cube root of 10 is a unique real number (approximately $2.1544$). While there are two other complex roots to the equation $x^3 - 10 = 0$, they are not real numbers.\n\nThus, there exists exactly one real number $x$ such that $x^3 = 10$.\n\n<ANSWER>TRUE</ANSWER>",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "TRUE",
+      "answer_correct": true,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case09",
+    "problem": "An expression adds a length to a duration, and then multiplies the result by a dimensionless constant.",
+    "question": "Is this expression dimensionally valid? Answer TRUE or FALSE.",
+    "verified_answer": false,
+    "answer_kind": "boolean",
+    "answer_justification": "Length and Time are different dimensions and cannot be added",
+    "ground_truth_facts": {
+      "dimensions": {
+        "x": "Length",
+        "y": "Time"
+      }
+    },
+    "model_output": "1. Objects: $L$ (a length), $T$ (a duration), and $C$ (a dimensionless constant).\n2. Observations: $L$ has dimension $[L]$, $T$ has dimension $[T]$, and $C$ is dimensionless ($[1]$). No unknowns or constraints are given other than their dimensionality.\n3. Quantifiers: None present.\n4. Transformation 1: Evaluate the addition operation $(L + T)$. According to the principle of dimensional homogeneity, two quantities can be added if and only if they have the same dimension.\n5. Justification 1: The rule of dimensional homogeneity states that adding terms with different dimensions (e.g., $[L] + [T]$) is mathematically undefined in physical contexts.\n6. Transformation 2: Evaluate the multiplication by $C$, i.e., $C \\cdot (L + T)$. Since $(L + T)$ is dimensionally invalid, any further operation on this result remains dimensionally invalid.\n7. Check dimensions: Length $[L] \\neq$ Time $[T]$. The addition is prohibited.\n8. Assumptions: We assume standard dimensional analysis rules where length and time are distinct fundamental dimensions.\n9. Verification: The expression adds a length to a duration, which violates the rule of dimensional homogeneity. Therefore, the expression is not dimensionally valid.\n\n<ANSWER>FALSE</ANSWER>",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "FALSE",
+      "answer_correct": true,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case10",
+    "problem": "A coin has an unknown probability theta of landing heads. Before observing any data, theta is given a Beta prior with first shape parameter 1 and second shape parameter 3. The coin is then tossed 10 times, independently, and 7 heads are observed.",
+    "question": "What is the numerical value of the posterior mean of theta?",
+    "verified_answer": 0.5714285714285714,
+    "answer_kind": "numeric",
+    "answer_justification": "(1+7)/(1+3+10) = 0.5714285714285714",
+    "ground_truth_facts": {
+      "entities": {
+        "theta": "Probability",
+        "trials": "Natural",
+        "successes": "Natural"
+      },
+      "declaration_kinds": {
+        "theta": "param",
+        "trials": "obs",
+        "successes": "obs"
+      },
+      "laws": {
+        "theta": {
+          "alpha": "1",
+          "beta": "3"
+        },
+        "successes": {
+          "trials": "trials",
+          "prob": "theta"
+        }
+      },
+      "law_families": {
+        "theta": "Beta",
+        "successes": "Binomial"
+      },
+      "conditioning": {
+        "successes": [
+          "theta"
+        ]
+      },
+      "prohibited_assumptions": [
+        "that the prior is uniform when it is not"
+      ]
+    },
+    "model_output": "",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "",
+      "answer_correct": false,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "no_encoding_produced"
+    }
+  },
+  {
+    "case": "case11",
+    "problem": "Let N be a random variable whose probability law is a Binomial distribution with number of trials equal to 16. Let L denote that probability law itself.",
+    "question": "Is the expression L + 1 a well-defined real number? Answer TRUE or FALSE.",
+    "verified_answer": false,
+    "answer_kind": "boolean",
+    "answer_justification": "L is a probability law, not a value; adding 1 to a law is undefined. Only N, or a summary of N, is numeric.",
+    "ground_truth_facts": {
+      "entities": {
+        "N": "RandomVariable[Natural]",
+        "L": "Distribution[Natural]"
+      },
+      "declaration_kinds": {
+        "N": "rv",
+        "L": "var"
+      },
+      "prohibited_assumptions": [
+        "that a distribution can be treated as a value"
+      ]
+    },
+    "model_output": "To determine whether the expression $L + 1$ is a well-defined real number, we analyze the definitions provided:\n\n1.  **Random Variable $N$**: The problem states that $N$ is a random variable following a Binomial distribution with $n = 16$.\n2.  **Probability Law $L$**: $L$ is defined as the probability law of $N$. In probability theory, the \"probability law\" (or distribution) of a random variable is typically represented as a function (the probability mass function for discrete variables), a cumulative distribution function (CDF), or a probability measure. \n3.  **The Expression $L + 1$**: This expression attempts to add a scalar constant ($1$) to a probability law ($L$). \n\nIn mathematical notation:\n- If $L$ is viewed as a function $f(k) = P(N=k)$, then $L+1$ would be another function $g(k) = f(k) + 1$. A function is not a real number.\n- If $L$ is viewed as a probability measure, adding a constant to it is not a standard operation that results in a real number.\n\nSince $L$ represents a distribution (a mapping or a measure) and not a specific numerical value, the sum of this distribution and the integer 1 cannot result in a single real number. Therefore, the expression $L + 1$ is not a well-defined real number.\n\n<ANSWER>FALSE</ANSWER>",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "FALSE",
+      "answer_correct": true,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case12",
+    "problem": "Consider the physical quantity defined as power, energy divided by time. The dimensions of the inputs are: E: energy, t: Time.",
+    "question": "What is the physical dimension of the resulting quantity?",
+    "verified_answer": "Mass * Length^2 / Time^3",
+    "answer_kind": "dimension",
+    "answer_justification": "dimension of power, energy divided by time",
+    "ground_truth_facts": {
+      "dimensions": {
+        "result": "Mass * Length^2 / Time^3"
+      }
+    },
+    "model_output": "```hml\nmodule PowerDim\n\nparam E : Quantity[Mass * Length^2 / Time^2]\nparam t : Quantity[Time]\n\ndef P := E / t\n\ncheck dimension P = Mass * Length^2 / Time^3\n```\n\n<ANSWER>Mass * Length^2 / Time^3</ANSWER>",
+    "model_encoding": "module PowerDim\n\nparam E : Quantity[Mass * Length^2 / Time^2]\nparam t : Quantity[Time]\n\ndef P := E / t\n\ncheck dimension P = Mass * Length^2 / Time^3",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "[('Length', 2.0), ('Mass', 1.0), ('Time', -3.0)]",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": true,
+      "diagnostics": [],
+      "semantic_score": 1.0,
+      "semantic_detail": {
+        "parsed": true,
+        "diagnostics": [],
+        "score": 1.0,
+        "exact": true,
+        "entities": [
+          0,
+          0
+        ],
+        "types": [
+          0,
+          0
+        ],
+        "declaration_kinds": [
+          0,
+          0
+        ],
+        "law_families": [
+          0,
+          0
+        ],
+        "roles": [
+          0,
+          0
+        ],
+        "conditioning": [
+          0,
+          0
+        ],
+        "quantifier_order": [
+          0,
+          0
+        ],
+        "objective": [
+          0,
+          0
+        ],
+        "dimensions": [
+          1,
+          1
+        ],
+        "notes": []
+      },
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case13",
+    "problem": "An expression adds a length to a duration, and then multiplies the result by a dimensionless constant.",
+    "question": "Is this expression dimensionally valid? Answer TRUE or FALSE.",
+    "verified_answer": false,
+    "answer_kind": "boolean",
+    "answer_justification": "Length and Time are different dimensions and cannot be added",
+    "ground_truth_facts": {
+      "dimensions": {
+        "x": "Length",
+        "y": "Time"
+      }
+    },
+    "model_output": "```triples\nl -> has_type Quantity[Length]\nt -> has_type Quantity[Time]\nc -> has_type Real\nexpr -> depends_on l\nexpr -> depends_on t\nexpr -> depends_on c\n```\n\nThe expression involves adding a length (dimension `Length`) to a duration (dimension `Time`). In dimensional analysis, addition is only defined for quantities of the same dimension. Since `Length` and `Time` are distinct dimensions, the operation `length + duration` is invalid. Consequently, the entire expression is dimensionally invalid.\n\n<ANSWER>FALSE</ANSWER>",
+    "model_encoding": "l -> has_type Quantity[Length]\nt -> has_type Quantity[Time]\nc -> has_type Real\nexpr -> depends_on l\nexpr -> depends_on t\nexpr -> depends_on c",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "FALSE",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case14",
+    "problem": "A vector v of length 3 has entries, in order, 3, 3, 9. Consider the sum of v[i] taken over every index i from 1 to 3 for which i is not equal to 3.",
+    "question": "What is the numerical value of that sum?",
+    "verified_answer": 6,
+    "answer_kind": "numeric",
+    "answer_justification": "total 15 minus the excluded entry v[3]=9",
+    "ground_truth_facts": {
+      "entities": {
+        "v": "Vector[Real, N]",
+        "N": "Natural"
+      },
+      "declaration_kinds": {
+        "v": "const",
+        "N": "index"
+      },
+      "constraints": [
+        "i != 3"
+      ]
+    },
+    "model_output": "1. Declare all mathematical objects and their types:\n   - $v$: a vector of length 3 (a sequence of real numbers).\n   - $i$: an index variable (an integer).\n   - $S$: the sum to be calculated (a real number).\n\n2. Identify which are observations, unknowns, assumptions, and constraints:\n   - Observations: The entries of $v$ are $v[1] = 3$, $v[2] = 3$, and $v[3] = 9$.\n   - Unknowns: The numerical value of the sum $S$.\n   - Assumptions: None.\n   - Constraints: $i \\in \\{1, 2, 3\\}$ and $i \\neq 3$.\n\n3. Preserve variable and quantifier scope; state which variable is bound by which quantifier, and in what order:\n   - The index variable $i$ is bound by the summation operator $\\sum_{i=1}^3$ subjected to the condition $i \\neq 3$.\n\n4. Perform one explicit transformation per step:\n   - Step A: Identify the set of indices that satisfy the conditions. The indices are $\\{i \\in \\mathbb{Z} \\mid 1 \\le i \\le 3, i \\neq 3\\}$. This set is $\\{1, 2\\}$.\n\n5. State the justification for each transformation:\n   - Justification A: Based on the problem statement \"every index $i$ from 1 to 3 for which $i$ is not equal to 3\".\n\n6. Check dimensions, domains, and parameter restrictions:\n   - The vector length is 3, indices are integers within $[1, 3]$, and entries are real numbers. These are consistent.\n\n7. State any assumption you have relied on that the problem did not give you:\n   - I assumed standard 1-based indexing since the range was explicitly given as \"from 1 to 3\".\n\n8. Verify the final conclusion against the original statement:\n   - The sum is $v[1] + v[2]$. Using the values provided, $v[1] = 3$ and $v[2] = 3$. Thus, $S = 3 + 3 = 6$.\n\n<ANSWER>6</ANSWER>",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "6.0",
+      "answer_correct": true,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case15",
+    "problem": "Model 1 states that a quantity is normally distributed with location nu_ and scale kappa. Model 2 states that the same quantity is normally distributed with location kappa and scale nu_.",
+    "question": "Do Model 1 and Model 2 describe the same distribution for every choice of nu_ and kappa? Answer TRUE or FALSE.",
+    "verified_answer": false,
+    "answer_kind": "boolean",
+    "answer_justification": "swapping which symbol fills which ROLE is not a renaming; location and scale are different roles with different meanings",
+    "ground_truth_facts": {
+      "entities": {
+        "Q": "RandomVariable[Real]",
+        "nu_": "Real",
+        "kappa": "PositiveReal"
+      },
+      "declaration_kinds": {
+        "Q": "rv",
+        "nu_": "param",
+        "kappa": "param"
+      },
+      "laws": {
+        "Q": {
+          "location": "nu_",
+          "scale": "kappa"
+        }
+      },
+      "law_families": {
+        "Q": "Normal"
+      },
+      "prohibited_assumptions": [
+        "that swapping role fillers is a mere renaming"
+      ]
+    },
+    "model_output": "To determine if Model 1 and Model 2 describe the same distribution for every choice of $\\nu$ and $\\kappa$, we define the distributions mathematically.\n\nLet $X$ be the quantity in question. According to the problem:\n- Model 1 states that $X$ is normally distributed with location $\\nu$ and scale $\\kappa$:\n  $$X \\sim \\mathcal{N}(\\nu, \\kappa)$$\n- Model 2 states that $X$ is normally distributed with location $\\kappa$ and scale $\\nu$:\n  $$X \\sim \\mathcal{N}(\\kappa, \\nu)$$\n\nTwo normal distributions are identical if and only if their means (location parameters) are equal and their standard deviations (scale parameters) are equal. For Model 1 and Model 2 to describe the same distribution, we must have:\n$$\\nu = \\kappa \\quad \\text{and} \\quad \\kappa = \\nu$$\n\nThis condition is satisfied only when $\\nu = \\kappa$. However, the question asks if they describe the same distribution for *every* choice of $\\nu$ and $\\kappa$. \n\nIf we choose values such that $\\nu \\neq \\kappa$ (for example, $\\nu = 1$ and $\\kappa = 2$), then:\n- Model 1: $X \\sim \\mathcal{N}(1, 2)$\n- Model 2: $X \\sim \\mathcal{N}(2, 1)$\n\nThese are different distributions because their means ($1 \\neq 2$) and standard deviations ($2 \\neq 1$) differ. Therefore, it is not true that the models describe the same distribution for every choice of $\\nu$ and $\\kappa$.\n\n<ANSWER>FALSE</ANSWER>",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "FALSE",
+      "answer_correct": true,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case16",
+    "problem": "Function F is defined as: F of w equals w times 9. Function G is defined as: G of s equals s times 9.",
+    "question": "Do F and G denote the same function? Answer TRUE or FALSE.",
+    "verified_answer": true,
+    "answer_kind": "boolean",
+    "answer_justification": "the two definitions differ only by the name of a bound variable, which is not part of a function's identity",
+    "ground_truth_facts": {
+      "entities": {
+        "F": "Function[Real -> Real]",
+        "G": "Function[Real -> Real]"
+      },
+      "declaration_kinds": {
+        "F": "def",
+        "G": "def"
+      }
+    },
+    "model_output": "```hml\nmodule FunctionComparison\n\ndef F(w : Real) : Real := w * 9\ndef G(s : Real) : Real := s * 9\n\n# The functions F and G both map an input to its product with 9.\n# For any x : Real, F(x) = 9*x and G(x) = 9*x.\n# Thus, forall x : Real . F(x) = G(x).\n```\n\n<ANSWER>TRUE</ANSWER>",
+    "model_encoding": "module FunctionComparison\n\ndef F(w : Real) : Real := w * 9\ndef G(s : Real) : Real := s * 9\n\n# The functions F and G both map an input to its product with 9.\n# For any x : Real, F(x) = 9*x and G(x) = 9*x.\n# Thus, forall x : Real . F(x) = G(x).",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "TRUE",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": true,
+      "diagnostics": [],
+      "semantic_score": 1.0,
+      "semantic_detail": {
+        "parsed": true,
+        "diagnostics": [],
+        "score": 1.0,
+        "exact": true,
+        "entities": [
+          2,
+          2
+        ],
+        "types": [
+          2,
+          2
+        ],
+        "declaration_kinds": [
+          2,
+          2
+        ],
+        "law_families": [
+          0,
+          0
+        ],
+        "roles": [
+          0,
+          0
+        ],
+        "conditioning": [
+          0,
+          0
+        ],
+        "quantifier_order": [
+          0,
+          0
+        ],
+        "objective": [
+          0,
+          0
+        ],
+        "dimensions": [
+          0,
+          0
+        ],
+        "notes": [
+          "name agreement (unscored): 2/2"
+        ]
+      },
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case17",
+    "problem": "Consider the statement: there exists exactly one real number x such that x cubed equals 10.",
+    "question": "Is the statement true over the real numbers? Answer TRUE or FALSE.",
+    "verified_answer": true,
+    "answer_kind": "boolean",
+    "answer_justification": "cubing is a bijection on the reals, so the real cube root is unique (the other two roots are non-real)",
+    "ground_truth_facts": {
+      "quantifier_order": [
+        "exists_unique x"
+      ]
+    },
+    "model_output": "To determine if the statement \"there exists exactly one real number $x$ such that $x$ cubed equals 10\" is true, we examine the equation:\n$$x^3 = 10$$\n\nWe are looking for solutions in the set of real numbers ($\\mathbb{R}$). The function $f(x) = x^3$ is a strictly increasing function on the entire domain of real numbers. This can be verified by its derivative, $f'(x) = 3x^2$, which is non-negative for all $x$ and zero only at $x=0$. A strictly increasing function is injective (one-to-one), meaning that for any value $y$ in the range of $f$, there is exactly one $x$ such that $f(x) = y$.\n\nSince the range of $f(x) = x^3$ is all real numbers $(-\\infty, \\infty)$, and 10 is a real number, there must be exactly one real value for $x$ that satisfies the equation. This unique solution is:\n$$x = \\sqrt[3]{10}$$\n\nThus, the statement \"there exists exactly one real number x such that x cubed equals 10\" is true.\n\n<ANSWER>TRUE</ANSWER>",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "TRUE",
+      "answer_correct": true,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case18",
+    "problem": "Two real numbers x and y are both non-negative, and their sum is at least 24.",
+    "question": "What is the minimum possible numerical value of x squared plus y squared?",
+    "verified_answer": 288.0,
+    "answer_kind": "numeric",
+    "answer_justification": "minimum on x+y=24 at x=y=12.0, giving 2*(12.0)^2 = 288.0",
+    "ground_truth_facts": {
+      "entities": {
+        "x": "Real",
+        "y": "Real"
+      },
+      "declaration_kinds": {
+        "x": "var",
+        "y": "var"
+      },
+      "constraints": [
+        "x + y >= 24",
+        "x >= 0",
+        "y >= 0"
+      ],
+      "objective": "minimise x^2 + y^2"
+    },
+    "model_output": "```triples\nx -> has_type NonNegativeReal\ny -> has_type NonNegativeReal\nsum_constraint -> constrains x\nsum_constraint -> constrains y\nsum_constraint -> value (x + y >= 24)\nobjective -> objective_of minimise\nobjective -> expression (x^2 + y^2)\n```\n\nTo find the minimum possible numerical value of $x^2 + y^2$ given that $x \\ge 0$, $y \\ge 0$, and $x + y \\ge 24$:\n\nThe function $f(x, y) = x^2 + y^2$ represents the squared distance from the origin $(0, 0)$ to the point $(x, y)$. We want to find the minimum of this function subject to the constraints. The region defined by the constraints is a half-plane in the first quadrant bounded by the line $x + y = 24$.\n\nThe minimum must occur on the boundary line $x + y = 24$ because the distance from the origin increases as we move further into the region where $x + y > 24$. On this line, we can express $y$ as $y = 24 - x$. Substituting this into the objective function:\n$g(x) = x^2 + (24 - x)^2$\n$g(x) = x^2 + 576 - 48x + x^2$\n$g(x) = 2x^2 - 48x + 576$\n\nTo find the minimum, we take the derivative of $g(x)$ with respect to $x$ and set it to zero:\n$g'(x) = 4x - 48 = 0$\n$4x = 48 \\implies x = 12$\n\nSince $x = 12$, we have $y = 24 - 12 = 12$. Both $x$ and $y$ are non-negative, satisfying the constraints. The minimum value is:\n$f(12, 12) = 12^2 + 12^2 = 144 + 144 = 288$.\n\n<ANSWER>288</ANSWER>",
+    "model_encoding": "x -> has_type NonNegativeReal\ny -> has_type NonNegativeReal\nsum_constraint -> constrains x\nsum_constraint -> constrains y\nsum_constraint -> value (x + y >= 24)\nobjective -> objective_of minimise\nobjective -> expression (x^2 + y^2)",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "288.0",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case19",
+    "problem": "A function f on the reals is said to have property P when: for every positive tolerance, there exists a positive delta, possibly depending on both the tolerance and on the point, such that the usual closeness condition holds at that point.",
+    "question": "Is property P pointwise continuity or uniform continuity? Answer with exactly one of: POINTWISE or UNIFORM.",
+    "verified_answer": "POINTWISE",
+    "answer_kind": "choice",
+    "answer_justification": "the distinction is solely whether delta may depend on the point, i.e. the order of the point and delta quantifiers",
+    "ground_truth_facts": {
+      "quantifier_order": [
+        "forall eps",
+        "forall x",
+        "exists delta"
+      ],
+      "prohibited_assumptions": [
+        "that quantifier order is a stylistic choice"
+      ]
+    },
+    "model_output": "```hml\nmodule Continuity\n\nvar f : Function[Real -> Real]\nvar x : Real\nvar eps : PositiveReal\nvar delta : PositiveReal\n\ndef closeness_condition(f : Function[Real -> Real], x : Real, eps : PositiveReal, delta : PositiveReal) :=\n  forall y : Real . (abs(x - y) < delta => abs(f(x) - f(y)) < eps)\n\ndef propertyP(f : Function[Real -> Real]) :=\n  forall x : Real . forall eps : PositiveReal . exists delta : PositiveReal . closeness_condition(f, x, eps, delta)\n```\n\nThe definition specifies that the positive delta ($\\delta$) may depend on both the tolerance ($\\epsilon$) and the point ($x$). This is the defining characteristic of pointwise continuity. In contrast, uniform continuity requires $\\delta$ to depend only on $\\epsilon$, remaining independent of $x$.\n\n<ANSWER>POINTWISE</ANSWER>",
+    "model_encoding": "module Continuity\n\nvar f : Function[Real -> Real]\nvar x : Real\nvar eps : PositiveReal\nvar delta : PositiveReal\n\ndef closeness_condition(f : Function[Real -> Real], x : Real, eps : PositiveReal, delta : PositiveReal) :=\n  forall y : Real . (abs(x - y) < delta => abs(f(x) - f(y)) < eps)\n\ndef propertyP(f : Function[Real -> Real]) :=\n  forall x : Real . forall eps : PositiveReal . exists delta : PositiveReal . closeness_condition(f, x, eps, delta)",
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "POINTWISE",
+      "answer_correct": true,
+      "encoding_present": true,
+      "parse_success": false,
+      "diagnostics": [
+        "HML-P231",
+        "HML-P205",
+        "HML-P231",
+        "HML-P205"
+      ],
+      "semantic_score": 0.0,
+      "semantic_detail": {
+        "parsed": false,
+        "diagnostics": [
+          "HML-P231",
+          "HML-P205",
+          "HML-P231",
+          "HML-P205"
+        ],
+        "score": 0.0,
+        "exact": false,
+        "entities": [
+          0,
+          0
+        ],
+        "types": [
+          0,
+          0
+        ],
+        "declaration_kinds": [
+          0,
+          0
+        ],
+        "law_families": [
+          0,
+          0
+        ],
+        "roles": [
+          0,
+          0
+        ],
+        "conditioning": [
+          0,
+          0
+        ],
+        "quantifier_order": [
+          0,
+          3
+        ],
+        "objective": [
+          0,
+          0
+        ],
+        "dimensions": [
+          0,
+          0
+        ],
+        "notes": [
+          "quantifier depth 0 vs expected 3"
+        ]
+      },
+      "failure_class": "correct_solution"
+    }
+  },
+  {
+    "case": "case20",
+    "problem": "A trial is repeated 18 times independently. Each repetition succeeds with probability 0.25. Let S be the total number of successes.",
+    "question": "What is the numerical variance of S?",
+    "verified_answer": 3.375,
+    "answer_kind": "numeric",
+    "answer_justification": "n p (1-p) = 3.375",
+    "ground_truth_facts": {
+      "entities": {
+        "S": "RandomVariable[Natural]",
+        "trials": "Natural",
+        "prob": "Probability"
+      },
+      "declaration_kinds": {
+        "S": "rv",
+        "trials": "const",
+        "prob": "const"
+      },
+      "laws": {
+        "S": {
+          "trials": "trials",
+          "prob": "prob"
+        }
+      },
+      "law_families": {
+        "S": "Binomial"
+      }
+    },
+    "model_output": "To find the numerical variance of the total number of successes $S$ in a binomial distribution, we use the formula for variance $\\text{Var}(S) = np(1-p)$, where:\n*   $n$ is the number of trials (in this case, $n = 18$).\n*   $p$ is the probability of success per trial (in this case, $p = 0.25$).\n\nSubstitute the values into the formula:\n$\\text{Var}(S) = 18 \\cdot 0.25 \\cdot (1 - 0.25)$\n$\\text{Var}(S) = 18 \\cdot 0.25 \\cdot 0.75$\n\nCalculate the product:\n$18 \\cdot 0.25 = 4.5$\n$4.5 \\cdot 0.75 = 3.375$\n\nAlternatively, using fractions:\n$\\text{Var}(S) = 18 \\cdot \\frac{1}{4} \\cdot \\frac{3}{4}$\n$\\text{Var}(S) = \\frac{18 \\cdot 3}{16}$\n$\\text{Var}(S) = \\frac{54}{16}$\n$\\text{Var}(S) = \\frac{27}{8} = 3.375$\n\n<ANSWER>3.375</ANSWER>",
+    "model_encoding": null,
+    "AUTOMATED_VERDICT": {
+      "extracted_answer": "3.375",
+      "answer_correct": true,
+      "encoding_present": false,
+      "parse_success": null,
+      "diagnostics": [],
+      "semantic_score": null,
+      "semantic_detail": {},
+      "failure_class": "correct_solution"
+    }
+  }
+]

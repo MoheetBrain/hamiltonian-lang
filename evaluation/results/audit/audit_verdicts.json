@@ -1,0 +1,23 @@
+{
+  "AUDITOR_PROTOCOL": "Each case was read with the arm label hidden. `auditor_answer_correct` is my independent judgement of whether the model's marked answer matches the verified answer. `auditor_semantic_reasonable` is recorded only where an encoding score exists, and asks whether the automated score is defensible given the encoding actually produced -- not whether it is the score I would have designed.",
+  "case01": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "TRUE matches verified TRUE"},
+  "case02": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": true, "note": "encoding derives power correctly; dimension facet 1/1 is right"},
+  "case03": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": true, "note": "score 0.43 is defensible: the encoding genuinely fails to parse (stray `end` after minimise, HML-P205). LIMITATION: it also encodes constraints as refinement types (param x : NonNegativeReal) where ground truth uses var + require, which the comparator counts as a type and kind mismatch though the two are arguably equivalent. Direction of bias: against the Hamiltonian arms."},
+  "case04": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "graph-triple arm, not scored for encoding by design"},
+  "case05": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "external formal language, not parsed by our compiler"},
+  "case06": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": true, "note": "role-swap problem answered correctly; 0.75 reflects a real partial encoding"},
+  "case07": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "3.375 = 18*0.25*0.75, correct"},
+  "case08": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "unique real cube root, TRUE, and the reasoning excludes the complex roots correctly"},
+  "case09": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "length + duration is dimensionally invalid, FALSE"},
+  "case10": {"auditor_answer_correct": false, "auditor_semantic_reasonable": null, "note": "model produced ZERO characters of content. Scoring it incorrect is right. Cause is generation-budget exhaustion in the reasoning channel, not a representation effect; 6/105 cells affected, spread across arms"},
+  "case11": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "a law is not a value, FALSE, correct"},
+  "case12": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": true, "note": "identical encoding to case02, scored 1.0, consistent"},
+  "case13": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "FALSE, correct"},
+  "case14": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "3+3=6, excludes index 3 correctly, no off-by-one"},
+  "case15": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "role swap is not a renaming, FALSE, correct"},
+  "case16": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": true, "note": "alpha-equivalence TRUE; encoding scored 1.0 despite different binder names -- renaming invariance confirmed on real model output"},
+  "case17": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "TRUE, correct"},
+  "case18": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "288, correct"},
+  "case19": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": true, "note": "score 0.0 is defensible: the encoding does not parse (function application of a Function-typed variable is unsupported in v0, HML-P231). LIMITATION: an unparseable encoding zeroes every structural facet, so semantic score conflates syntax failure with mistranslation. The report must present encoding score both over all encodings and over parsing encodings only."},
+  "case20": {"auditor_answer_correct": true,  "auditor_semantic_reasonable": null, "note": "3.375, correct"}
+}

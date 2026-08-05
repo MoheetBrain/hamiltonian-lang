@@ -248,8 +248,57 @@ def arm_summary(rows: list[dict], arms: list[str]) -> dict:
             ),
             "mean_latency_s": round(sum(r["latency_s"] for r in rs) / len(rs), 1),
             "total_repair_calls": sum(r["repair_calls"] for r in rs),
+            "trials_with_repair": sum(1 for r in rs if r["repair_calls"] > 0),
+            "empty_output_rate": round(
+                sum(1 for r in rs if not (r["raw_output"] or "").strip()) / len(rs), 4
+            ),
+            "semantic_encoding_score_parsing_only": (
+                bootstrap_mean(
+                    [r["semantic_score"] for r in rs
+                     if r.get("semantic_score") is not None and r.get("parse_success")]
+                ).__dict__
+                if any(r.get("parse_success") for r in rs) else None
+            ),
+            "binding_error_rate": round(
+                sum(1 for r in rs
+                    if any(d.startswith("HML-N") for d in (r.get("diagnostics") or [])))
+                / len(rs), 4
+            ),
+            "scope_error_rate": round(
+                sum(1 for r in rs if (r.get("semantic_detail") or {}).get(
+                    "quantifier_order", [0, 0])[1] and
+                    (r["semantic_detail"]["quantifier_order"][0]
+                     < r["semantic_detail"]["quantifier_order"][1]))
+                / len(rs), 4
+            ),
+            "type_error_rate": round(
+                sum(1 for r in rs
+                    if any(d.startswith(("HML-T", "HML-D"))
+                           for d in (r.get("diagnostics") or []))) / len(rs), 4
+            ),
             "failure_taxonomy": dict(sorted(tax.items(), key=lambda kv: -kv[1])),
         }
+    return out
+
+
+def semantic_contrasts(rows: list[dict]) -> list[dict]:
+    """Paired encoding-score contrasts, defined only between arms that produce one."""
+    out = []
+    for treat, ctrl in [("E", "D")]:
+        va, vb, _ = _paired_vectors(rows, treat, ctrl, "semantic_score")
+        if not va:
+            out.append({"treatment": treat, "control": ctrl, "n_pairs": 0,
+                        "status": "NOT ESTIMABLE"})
+            continue
+        d = paired_diff(va, vb)
+        out.append({
+            "treatment": treat, "control": ctrl, "n_pairs": len(va),
+            "treatment_mean": round(sum(va) / len(va), 4),
+            "control_mean": round(sum(vb) / len(vb), 4),
+            "paired_difference": {"point": round(d.point, 4),
+                                  "ci95": [round(d.lo, 4), round(d.hi, 4)]},
+            "ci_excludes_zero": (d.lo > 0) or (d.hi < 0),
+        })
     return out
 
 
@@ -307,9 +356,22 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", default="eval001-pilot")
     ap.add_argument("--out", default=None)
+    ap.add_argument(
+        "--generation", type=int, default=None,
+        help="restrict to one generation; the pilot's primary analysis is generation 0",
+    )
     args = ap.parse_args(argv)
 
     rows, meta = load(args.run)
+    if args.generation is not None:
+        rows = [r for r in rows if r["generation"] == args.generation]
+        meta = dict(meta)
+        meta["generations"] = 1
+        meta["planned_calls"] = len(meta.get("problems", [])) * len(meta.get("arms", []))
+        meta["analysed_generation"] = args.generation
+        # Coverage counts cells at generation 0 after the filter, so re-key them.
+        for r in rows:
+            r["generation"] = 0
     arms = meta.get("arms", ARM_ORDER)
     cov = coverage(rows, meta)
 
@@ -342,6 +404,7 @@ def main(argv: list[str] | None = None) -> int:
         "coverage": cov,
         "arm_summary": arm_summary(rows, arms),
         "contrasts": contrasts(rows),
+        "semantic_contrasts": semantic_contrasts(rows),
         "by_domain": by_domain(rows, arms),
     }
 

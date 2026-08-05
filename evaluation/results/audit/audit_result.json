@@ -1,0 +1,280 @@
+{
+  "n_audited": 20,
+  "answer_agreement": "20/20",
+  "answer_agreement_rate": 1.0,
+  "semantic_agreement": "6/6",
+  "semantic_agreement_rate": 1.0,
+  "by_arm": {
+    "A": {
+      "n": 3,
+      "answer_agree": 3
+    },
+    "D": {
+      "n": 4,
+      "answer_agree": 4
+    },
+    "F": {
+      "n": 4,
+      "answer_agree": 4
+    },
+    "C": {
+      "n": 1,
+      "answer_agree": 1
+    },
+    "E": {
+      "n": 2,
+      "answer_agree": 2
+    },
+    "B": {
+      "n": 4,
+      "answer_agree": 4
+    },
+    "A_prime": {
+      "n": 2,
+      "answer_agree": 2
+    }
+  },
+  "disagreements": [],
+  "cases": [
+    {
+      "case": "case01",
+      "arm": "A",
+      "problem_id": "q17_negation",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "TRUE matches verified TRUE"
+    },
+    {
+      "case": "case02",
+      "arm": "D",
+      "problem_id": "d13_derive",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": 1.0,
+      "auditor_semantic_reasonable": true,
+      "semantic_agreement": true,
+      "auditor_note": "encoding derives power correctly; dimension facet 1/1 is right"
+    },
+    {
+      "case": "case03",
+      "arm": "D",
+      "problem_id": "a13_constrained_min",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": 0.42857142857142855,
+      "auditor_semantic_reasonable": true,
+      "semantic_agreement": true,
+      "auditor_note": "score 0.43 is defensible: the encoding genuinely fails to parse (stray `end` after minimise, HML-P205). LIMITATION: it also encodes constraints as refinement types (param x : NonNegativeReal) where ground truth uses var + require, which the comparator counts as a type and kind mismatch though the two are arguably equivalent. Direction of bias: against the Hamiltonian arms."
+    },
+    {
+      "case": "case04",
+      "arm": "F",
+      "problem_id": "d13_derive",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "graph-triple arm, not scored for encoding by design"
+    },
+    {
+      "case": "case05",
+      "arm": "C",
+      "problem_id": "a13_constrained_min",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "external formal language, not parsed by our compiler"
+    },
+    {
+      "case": "case06",
+      "arm": "E",
+      "problem_id": "b24_interface_rename",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": 0.75,
+      "auditor_semantic_reasonable": true,
+      "semantic_agreement": true,
+      "auditor_note": "role-swap problem answered correctly; 0.75 reflects a real partial encoding"
+    },
+    {
+      "case": "case07",
+      "arm": "B",
+      "problem_id": "p22_binomial_moments",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "3.375 = 18*0.25*0.75, correct"
+    },
+    {
+      "case": "case08",
+      "arm": "B",
+      "problem_id": "q14_unique",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "unique real cube root, TRUE, and the reasoning excludes the complex roots correctly"
+    },
+    {
+      "case": "case09",
+      "arm": "A_prime",
+      "problem_id": "d22_invalid_addition",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "length + duration is dimensionally invalid, FALSE"
+    },
+    {
+      "case": "case10",
+      "arm": "F",
+      "problem_id": "p19_beta_binomial_posterior",
+      "auto_answer_correct": false,
+      "auditor_answer_correct": false,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "model produced ZERO characters of content. Scoring it incorrect is right. Cause is generation-budget exhaustion in the reasoning channel, not a representation effect; 6/105 cells affected, spread across arms"
+    },
+    {
+      "case": "case11",
+      "arm": "B",
+      "problem_id": "p21_rv_vs_distribution",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "a law is not a value, FALSE, correct"
+    },
+    {
+      "case": "case12",
+      "arm": "E",
+      "problem_id": "d13_derive",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": 1.0,
+      "auditor_semantic_reasonable": true,
+      "semantic_agreement": true,
+      "auditor_note": "identical encoding to case02, scored 1.0, consistent"
+    },
+    {
+      "case": "case13",
+      "arm": "F",
+      "problem_id": "d22_invalid_addition",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "FALSE, correct"
+    },
+    {
+      "case": "case14",
+      "arm": "A_prime",
+      "problem_id": "b02_index_substitution",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "3+3=6, excludes index 3 correctly, no off-by-one"
+    },
+    {
+      "case": "case15",
+      "arm": "B",
+      "problem_id": "b24_interface_rename",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "role swap is not a renaming, FALSE, correct"
+    },
+    {
+      "case": "case16",
+      "arm": "D",
+      "problem_id": "b08_alpha_equivalence",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": 1.0,
+      "auditor_semantic_reasonable": true,
+      "semantic_agreement": true,
+      "auditor_note": "alpha-equivalence TRUE; encoding scored 1.0 despite different binder names -- renaming invariance confirmed on real model output"
+    },
+    {
+      "case": "case17",
+      "arm": "A",
+      "problem_id": "q14_unique",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "TRUE, correct"
+    },
+    {
+      "case": "case18",
+      "arm": "F",
+      "problem_id": "a13_constrained_min",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "288, correct"
+    },
+    {
+      "case": "case19",
+      "arm": "D",
+      "problem_id": "q05_scope_swap",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": 0.0,
+      "auditor_semantic_reasonable": true,
+      "semantic_agreement": true,
+      "auditor_note": "score 0.0 is defensible: the encoding does not parse (function application of a Function-typed variable is unsupported in v0, HML-P231). LIMITATION: an unparseable encoding zeroes every structural facet, so semantic score conflates syntax failure with mistranslation. The report must present encoding score both over all encodings and over parsing encodings only."
+    },
+    {
+      "case": "case20",
+      "arm": "A",
+      "problem_id": "p22_binomial_moments",
+      "auto_answer_correct": true,
+      "auditor_answer_correct": true,
+      "answer_agreement": true,
+      "auto_semantic_score": null,
+      "auditor_semantic_reasonable": null,
+      "semantic_agreement": null,
+      "auditor_note": "3.375, correct"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "generation": 0,
+  "key": {
+    "case01": {
+      "arm": "A",
+      "generation": 0,
+      "problem_id": "q17_negation"
+    },
+    "case02": {
+      "arm": "D",
+      "generation": 0,
+      "problem_id": "d13_derive"
+    },
+    "case03": {
+      "arm": "D",
+      "generation": 0,
+      "problem_id": "a13_constrained_min"
+    },
+    "case04": {
+      "arm": "F",
+      "generation": 0,
+      "problem_id": "d13_derive"
+    },
+    "case05": {
+      "arm": "C",
+      "generation": 0,
+      "problem_id": "a13_constrained_min"
+    },
+    "case06": {
+      "arm": "E",
+      "generation": 0,
+      "problem_id": "b24_interface_rename"
+    },
+    "case07": {
+      "arm": "B",
+      "generation": 0,
+      "problem_id": "p22_binomial_moments"
+    },
+    "case08": {
+      "arm": "B",
+      "generation": 0,
+      "problem_id": "q14_unique"
+    },
+    "case09": {
+      "arm": "A_prime",
+      "generation": 0,
+      "problem_id": "d22_invalid_addition"
+    },
+    "case10": {
+      "arm": "F",
+      "generation": 0,
+      "problem_id": "p19_beta_binomial_posterior"
+    },
+    "case11": {
+      "arm": "B",
+      "generation": 0,
+      "problem_id": "p21_rv_vs_distribution"
+    },
+    "case12": {
+      "arm": "E",
+      "generation": 0,
+      "problem_id": "d13_derive"
+    },
+    "case13": {
+      "arm": "F",
+      "generation": 0,
+      "problem_id": "d22_invalid_addition"
+    },
+    "case14": {
+      "arm": "A_prime",
+      "generation": 0,
+      "problem_id": "b02_index_substitution"
+    },
+    "case15": {
+      "arm": "B",
+      "generation": 0,
+      "problem_id": "b24_interface_rename"
+    },
+    "case16": {
+      "arm": "D",
+      "generation": 0,
+      "problem_id": "b08_alpha_equivalence"
+    },
+    "case17": {
+      "arm": "A",
+      "generation": 0,
+      "problem_id": "q14_unique"
+    },
+    "case18": {
+      "arm": "F",
+      "generation": 0,
+      "problem_id": "a13_constrained_min"
+    },
+    "case19": {
+      "arm": "D",
+      "generation": 0,
+      "problem_id": "q05_scope_swap"
+    },
+    "case20": {
+      "arm": "A",
+      "generation": 0,
+      "problem_id": "p22_binomial_moments"
+    }
+  },
+  "run": "eval001-pilot",
+  "seed": 424242
+}
