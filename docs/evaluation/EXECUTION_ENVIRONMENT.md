@@ -55,9 +55,29 @@ requests to queue while still competing for bandwidth, and throughput falls back
 
 `-np 4` divides the 32768-token context into four 8192-token slots. The 50-demonstration
 curriculum is the longest prompt in the tournament and **must be measured against the
-8192 per-slot budget, not the 32768 total**. If it does not fit, the correct response is
-to lower `OLLAMA_NUM_PARALLEL` to 2 (16384 per slot, still 1.54x), not to silently
-truncate a curriculum — a truncated curriculum is a different experimental condition.
+8192 per-slot budget, not the 32768 total**.
+
+Measured with Ollama's own `prompt_eval_count` (not a chars-per-token estimate), building
+curricula from the 24 paired English/HML demonstrations in `benchmarks/representations/`:
+
+| demos | chars | prompt tokens | vs 8192 slot |
+|------:|------:|--------------:|---|
+| 0 | 250 | 66 | fits |
+| 5 | 2,504 | 643 | fits |
+| 10 | 5,308 | 1,286 | fits |
+| 25 | 12,319 | 2,967 | fits |
+| **50** | **24,592** | **5,893** | **fits — ~2,300 tokens left for completion** |
+
+**`-np 4` is therefore safe for every curriculum size**, and the 2.08x speedup applies to
+the whole tournament. Growth is close to linear at ~117 prompt tokens per demonstration.
+
+Two caveats. The completion headroom at 50 demonstrations is ~2,300 tokens; an HML encoding
+is well under that, but a verbose reasoning channel could approach it, so G2 must record
+truncation as a distinct failure category rather than as a parse failure. And these figures
+come from the existing V0 demonstration material — **if the frozen curricula are
+materially longer, re-measure before Phase G2.** If a curriculum ever fails to fit, drop to
+`OLLAMA_NUM_PARALLEL=2` (16384 per slot, still 1.54x). Never truncate a curriculum: a
+truncated curriculum is a different experimental condition.
 
 ## Required server configuration
 

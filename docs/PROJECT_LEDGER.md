@@ -1022,3 +1022,76 @@ and the project's own rule 10 is enforced rather than merely stated.
 
 **Next intended step.** Integrate the three agents' Phase F output, then freeze and tag
 `hml-v1-eval-freeze`.
+
+---
+
+## 2026-08-05 — Phase F4 freeze tooling; 50-demo curriculum measured against the slot
+
+**Branch.** `hml-v1-concept-kernel`
+
+**Project stage.** HML-PHASE-FG-001, Lead-owned Phase F4 preparation while three agents run
+F1/F2/F3.
+
+**Objective.** Make the Phase F4 freeze enforceable rather than declarative, and resolve the
+context-budget risk recorded in the previous entry.
+
+**Files and systems changed.**
+
+- `evaluation/syntax_gate_freeze.py` — new; writes and **verifies** the F4 manifest
+- `tests/freeze/test_syntax_gate_freeze.py` — new; 22 tests
+- `docs/evaluation/EXECUTION_ENVIRONMENT.md` — curriculum token measurements added
+
+**What was completed.**
+
+*The context risk is resolved.* Measured with Ollama's `prompt_eval_count`, building
+curricula from the 24 paired demonstrations in `benchmarks/representations/`: 0/5/10/25/50
+demonstrations cost 66 / 643 / 1,286 / 2,967 / **5,893** prompt tokens. The largest
+curriculum fits the 8192-token slot with ~2,300 tokens of completion headroom, so
+`OLLAMA_NUM_PARALLEL=4` is safe for the whole tournament and the 2.08x speedup stands.
+Growth is ~117 prompt tokens per demonstration.
+
+*The freeze can now be checked.* `evaluation/freeze.py` only ever wrote a manifest. The new
+module adds `--verify`, which recomputes every hash and exits non-zero on drift. It hashes
+`FROZEN_TREES` wholesale, so an **added** file is drift too — a fifth renderer appearing in
+a frozen tree changes the experiment as surely as an edited one. `--write` refuses to
+overwrite an existing version.
+
+**Decisions made and why.**
+
+- The model is pinned by **digest** (`6316f0629137b426`, Q4_K_M, 31.3B), not by the tag
+  `gemma4:31b`, because a tag can be reassigned to different weights.
+- Policies (empty output, transport retry, repair, truncation, raw-output immutability) are
+  data in the module and asserted by tests, not prose in a document. Truncation is a
+  distinct failure category: folding it into parse failure would understate a syntax's
+  token cost.
+- A test asserts `client_max_workers == ollama_num_parallel`, so the measured 4-worker
+  optimum cannot drift apart from the server configuration.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---------|--------|
+| curriculum probe via `prompt_eval_count` | 66 / 643 / 1,286 / 2,967 / 5,893 tokens; all fit 8192 |
+| `pytest tests/freeze/test_syntax_gate_freeze.py -q` | **22 passed, 1 skipped** |
+| `python -m evaluation.syntax_gate_freeze --verify` | correctly reports nothing frozen yet, exit 1 |
+| `mypy src/hamiltonian_lang` | Success, 33 source files |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, all 8 stages |
+
+**Failures and unresolved uncertainty.**
+
+- A defect was found and fixed in the new module during testing: `Path.relative_to(REPO)`
+  raised for any output path outside the repo, so every reporting call crashed under test.
+  A reporting helper that can crash is worse than a long path; `_show()` now falls back to
+  the absolute path.
+- The skipped test is `V1_FREEZE_MANIFEST.md`, which the Phase F1 agent has not yet
+  produced. The freeze deliberately treats it as `<MISSING>` rather than skipping it.
+- The 5,893-token figure uses **existing V0 demonstration material**. If the frozen
+  curricula are materially longer, this must be re-measured before Phase G2.
+- The tournament has **not** been run and no model call beyond the tuning probes has been
+  made. Nothing about syntax acquisition is known yet.
+
+**Effect on the overall project.** "After the tag, no silent modifications are allowed" is
+now a command that fails rather than a sentence in a document.
+
+**Next intended step.** Integrate the three agents' F1/F2/F3 output, then tag
+`hml-v1-eval-freeze` and begin Phase G2 screening.

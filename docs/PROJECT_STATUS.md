@@ -37,7 +37,14 @@ Host tuning is measured and recorded in `docs/evaluation/EXECUTION_ENVIRONMENT.m
 Ollama serialises every request at one slot (~23 tok/s regardless of client concurrency);
 four batching slots with exactly four client workers give **2.08x**, and eight workers
 *degrade* to 1.43x. The 18 CPU cores do not accelerate a GPU-resident 31B model — they
-accelerate the offline round-trip matrix and the test suite (13.3s to 6.5s).
+accelerate the offline round-trip matrix and the test suite (13.3s to 6.5s). The largest
+curriculum (50 demonstrations, 5,893 prompt tokens) fits the 8192-token slot, so that
+configuration is safe for the whole tournament.
+
+The F4 freeze is **enforceable, not declarative**: `evaluation/syntax_gate_freeze.py
+--verify` recomputes every hash and exits non-zero on drift, hashes frozen trees wholesale
+so an added file also counts, and pins the model by digest rather than by its reassignable
+tag. **The tournament has not been run. Nothing about syntax acquisition is yet known.**
 
 **HML-EVAL-002 preregistered; V1 implementation in progress.**
 
@@ -176,6 +183,9 @@ Commands executed and their real results:
 | `pytest tests/golden/test_examples_compile.py` | **23 passed** — recursive example gate |
 | Ollama concurrency probe, stock `-np 1` | 23 tok/s at 1, 2, 4 and 6 workers — fully serialised |
 | Ollama concurrency probe, `-np 4` | 22.8 / 35.1 / **47.4** / 32.7 tok/s at 1 / 2 / **4** / 8 workers |
+| curriculum probe, `prompt_eval_count` | 0/5/10/25/50 demos = 66/643/1286/2967/**5893** tokens; all fit the 8192 slot |
+| `pytest tests/freeze/test_syntax_gate_freeze.py` | **22 passed, 1 skipped** |
+| `python -m evaluation.syntax_gate_freeze --verify` | correctly reports nothing frozen yet, exit 1 |
 | `.venv/bin/ruff check src tests` | **All checks passed** |
 | `.venv/bin/mypy src/hamiltonian_lang` | **Success: no issues found in 22 source files** |
 | `experiments/alphabet/tokenisation_benchmark.py` | ran; 8 tokenisers real, Llama-3 gated and excluded |
