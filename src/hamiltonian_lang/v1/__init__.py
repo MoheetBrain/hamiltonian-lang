@@ -14,8 +14,11 @@ The gate that licensed this work (`docs/evaluation/V1_GATE_DECISION.md`) passed 
 criteria only: compiler feedback improves encoding reliability, and the pilot exposed a
 specific weakness worth testing. It did **not** pass on any reasoning improvement.
 
-**V1 may therefore claim to make errors catchable. It may not claim to make reasoning
-better** — that was tested in the V0 pilot and refuted with zero discordant pairs.
+**V1 may therefore claim to make errors catchable. It may not YET claim to make reasoning
+better** — that claim is unproven, not refuted. The V0 pilot was underpowered with a severe
+ceiling effect (14 of 15 problems solved by nearly every arm), so it could not have
+detected an effect of any realistic size. HML-EVAL-002 is the first adequately powered
+test.
 """
 
 from __future__ import annotations

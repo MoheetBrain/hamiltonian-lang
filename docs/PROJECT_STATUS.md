@@ -17,9 +17,16 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**HML-V1-CONCEPT-001 in progress.** Gate passed on two criteria only — compiler-feedback
-reliability and an identified weakness — **not** on reasoning improvement. V1 may claim to
-make errors catchable; it may not claim to make reasoning better.
+**HML-EVAL-002 preregistered; V1 implementation in progress.**
+
+**Status of the central thesis: UNPROVEN, NOT REFUTED.** The precise conclusion from the
+pilot is: *zero-shot Hamiltonian did not improve answer accuracy on this small,
+low-discrimination pilot; the experiment was underpowered and had a severe ceiling effect.*
+A correction is recorded in `V1_GATE_DECISION.md` — an earlier version of that document
+said "refuted", contradicting this project's own pilot report §9. The report was right.
+
+The checker is a **component of a verifier-guided reasoning system (H3)**, not the
+objective. The earlier drift toward treating it as the product is withdrawn.
 
 Previously: **V0 closed and preserved; V1 in design.** V0 is tagged `hml-v0-baseline` — the language,
 the frozen spec, and 221 stored model trials. `src/` does not change under that tag.
@@ -158,9 +165,18 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Known Failures and Limitations
 
-- **The pilot found no representation advantage.** Every paired contrast against ordinary
-  English, structured English and LaTeX was exactly zero with **zero discordant pairs**.
-  Hamiltonian encoding fidelity was 0.648 and 27–50% of encodings did not compile.
+- **The pilot found no representation advantage *on a saturated benchmark*.** Every paired
+  contrast was exactly zero with zero discordant pairs — but 14 of 15 problems were solved
+  by nearly every arm, so the design could not have detected an effect of realistic size.
+  This is not evidence of absence. Encoding fidelity was 0.648 and 27–50% of encodings did
+  not compile.
+- **Two blocking gates precede any HML-EVAL-002 reasoning result:** parse success ≥95%
+  after at most one repair with ≥90% semantic preservation, and a benchmark of ≥200
+  problems at 40–70% baseline accuracy.
+- **Phase 5 is partly blocked:** only `gemma4:31b` is installed; the 7–14B non-reasoning
+  arm needs a model download.
+- **Phase 6 is blocked:** no training stack exists (torch, transformers, peft, datasets,
+  trl, accelerate all absent). Recorded as blocked, not dropped.
 - **The pilot was underpowered.** 14 of 15 problems were answered correctly by every arm;
   the design could only detect an effect of roughly 33 percentage points. The zero
   differences are not evidence that no difference exists.

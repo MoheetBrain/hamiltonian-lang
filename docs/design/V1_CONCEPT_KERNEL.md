@@ -16,8 +16,12 @@ narrative design rationale.
 It did **not** pass on answer accuracy, semantic preservation, or measured failure
 reduction. So:
 
-> **V1 may claim to make errors catchable. It may not claim to make reasoning better.**
-> Criterion 1 was tested and refuted, with zero discordant pairs against three controls.
+> **V1 may claim to make errors catchable. It may not *yet* claim to make reasoning
+> better** — that claim is **unproven, not refuted**.
+
+Zero-shot Hamiltonian did not improve answer accuracy on this small, low-discrimination pilot. The experiment was underpowered and had a severe ceiling effect. A design whose minimum
+detectable effect was ~33 percentage points cannot refute anything. HML-EVAL-002 is the
+first adequately powered test.
 
 The objective is not to expand Hamiltonian into a universal language. It is to determine
 whether typed concept creation, morphology, transformation tracking, epistemic calibration

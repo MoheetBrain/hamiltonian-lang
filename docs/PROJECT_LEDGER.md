@@ -651,3 +651,77 @@ and enforces its central prohibition before any dependent code was written.
 **Next intended step.** Integrate the four agents' output, run conformance, and produce
 `docs/evaluation/HML_V1_CONCEPT_ABLATION_REPORT.md`.
 
+---
+
+## 2026-08-04 — HML-EVAL-002 preregistration; correction of a refutation overclaim
+
+**Branch.** `hml-v1-concept-kernel` · **Stage.** HML-EVAL-002 preregistered.
+
+**Objective.** Give the original reasoning thesis its first adequately powered and
+technically fair test, and correct an overclaim in previously committed files.
+
+**The correction, which is the substance of this entry.** `V1_GATE_DECISION.md`,
+`V1_CONCEPT_KERNEL.md` and `v1/__init__.py` stated that criterion 1 "was tested and
+**refuted**". That was wrong, and it **contradicted this project's own pilot report**,
+which states in §9 that the zero differences "are not evidence that no difference exists."
+The report was right and the later documents were wrong. All three are corrected, and
+`V1_GATE_DECISION.md` carries a visible CORRECTION section rather than a silent edit.
+
+The canonical conclusion is now recorded verbatim in every affected file:
+
+> Zero-shot Hamiltonian did not improve answer accuracy on this small, low-discrimination
+> pilot. The experiment was underpowered and had a severe ceiling effect.
+
+The status of the thesis is **UNPROVEN, NOT REFUTED**. The drift this error encouraged —
+treating the checker as the product rather than as the mechanism tested by H3 — is
+withdrawn.
+
+**What was completed.** `docs/evaluation/HML_EVAL_002_PREREGISTRATION.md`: three
+independently tested hypotheses (H1 input representation, H2 reasoning representation,
+H3 verifier-guided reasoning), eight matched conditions, two blocking gates, fixed success
+thresholds, and an eight-part failure condition specifying when a negative conclusion
+becomes legitimate. §8 guards the opposite error: thresholds fixed in advance, benchmark
+frozen and hashed, syntax chosen on measured parse rate, and H1/H2/H3 reported separately
+so a win on H3 alone is never reported as a win for the representation.
+
+**Verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `grep -rn refut docs/ src/` | three overclaims located and corrected |
+| `curl localhost:11434/api/tags` | only `gemma4:31b` installed |
+| import probe for torch/peft/transformers/datasets/trl/accelerate | **all ABSENT** |
+| `.venv/bin/python -m pytest` | 967 passed |
+
+**Failures, blockers and unresolved uncertainty.**
+
+- **Phase 5 partly blocked:** the 7–14B non-reasoning arm requires a model download that
+  has not been performed. That arm tests the most plausible version of the thesis — that
+  Hamiltonian helps most where the model does not already decompose internally — so its
+  absence is material, not cosmetic.
+- **Phase 6 blocked:** no training stack is installed. On Apple silicon the realistic path
+  is `mlx-lm` LoRA. Recorded as blocked pending an install decision rather than dropped.
+- Condition 5 (English input, Hamiltonian derivation required) is the condition the pilot
+  lacked and the one that most cleanly isolates H2. Its absence is why H1 and H2 were
+  conflated in HML-EVAL-001.
+- Four V1 agents are still running; `registry.py`, `minting.py`, `epistemic_checks.py`,
+  `transformation.py` and `evaluation/v1/corpus.py` exist but are unintegrated and
+  unverified by me. No claim is made about them here.
+
+**Effect on the overall project.** The thesis is restored to its correct status and the
+experiment that could actually settle it is specified with its gates and its failure
+condition fixed in advance.
+
+**Conformance note for this commit.** The full pre-commit gate FAILED on ruff and mypy
+errors inside `src/hamiltonian_lang/v1/minting.py`, an agent-owned file still being
+written. That is the gate working as designed. This commit therefore stages **only
+Lead-Architect-owned files** — the correction and the preregistration — and leaves the
+four agents' in-flight modules uncommitted. Stages verified for the staged set: pytest 967
+passed, examples check passed, IR schema validation passed, no-superiority-claim check
+passed, private-docs check passed, placeholder check passed. The ruff and mypy failures
+belong to unstaged agent work and will be resolved at integration.
+
+**Next intended step.** Integrate the V1 agents, then build and run Phase 2 — the syntax
+acquisition comparison. Nothing about reasoning can be measured until a surface form
+reaches 95% parse.
+
