@@ -182,6 +182,15 @@ class SympyBackend(Backend):
         #: HML name -> emitted Python name (used for concept-scope flattening)
         self._alias: dict[str, str] = {}
         self._declared: list[str] = []
+        #: HML names whose emission was DROPPED. A reference to one of these must also be
+        #: dropped, or the generated module raises NameError on import.
+        #:
+        #: Measured defect: `def p := forall y : Real . y > x` followed by `prove p` emitted
+        #: `claims.append(p)` for a `p` that was never assigned, because SymPy has no
+        #: quantifiers so the definition was silently skipped. Rendering the file looked
+        #: fine; only EXECUTING it revealed the failure. Found by the interoperability
+        #: agent running the output rather than inspecting it.
+        self._dropped_names: set[str] = set()
 
     # -- entry point ------------------------------------------------------
 
@@ -557,7 +566,11 @@ class SympyBackend(Backend):
             pre = [f"{a} = sympy.Symbol({a!r})" for a in args]
             body = self.expr(st.body)
             if body is None:
-                return []
+                self._dropped_names.add(st.name)
+                return [
+                    f"# DROPPED definition {st.name}: no SymPy encoding for its body; "
+                    f"references to it are dropped too"
+                ]
             self.approximate(
                 f"def {st.name}",
                 "the parameter types are not carried onto the Lambda's bound symbols; "
@@ -572,7 +585,11 @@ class SympyBackend(Backend):
             ]
         body = self.expr(st.body)
         if body is None:
-            return []
+            self._dropped_names.add(st.name)
+            return [
+                f"# DROPPED definition {st.name}: no SymPy encoding for its body; "
+                f"references to it are dropped too"
+            ]
         self._declared.append(py)
         return [f"{py} = {body}", f"definitions[{st.name!r}] = {py}"]
 
@@ -705,6 +722,18 @@ class SympyBackend(Backend):
             return f"sympy.Rational({raw!r})", _ATOM
 
         if isinstance(e, Ref):
+            if e.name in self._dropped_names:
+                # Propagate the drop instead of emitting a name that was never bound.
+                self.drop(
+                    f"reference to {e.name}",
+                    f"{e.name!r} has no SymPy encoding, so every expression mentioning "
+                    f"it is dropped as well; emitting the bare name would produce a "
+                    f"module that raises NameError on import.",
+                    e.span.line,
+                )
+                # `None` is this function's established "no encoding" signal; callers
+                # already propagate it, which is what drops the enclosing expression.
+                return None
             return self._ref_name(e.name), _ATOM
 
         if isinstance(e, UnaryOp):

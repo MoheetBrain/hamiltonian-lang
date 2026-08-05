@@ -804,3 +804,74 @@ and left alone where it did not, and conformance passes cleanly with all V1 work
 **Next intended step.** Freeze the compiler, freeze four syntax candidates, and run the
 syntax-acquisition gate on `gemma4:31b`.
 
+---
+
+## 2026-08-04 — HML-COMPILER-CORE-003: defect remediation complete
+
+**Branch.** `hml-v1-concept-kernel` · **Stage.** Compiler hardening finished; conformance
+clean without override.
+
+**Objective.** Finish the measured defect-remediation sequence before any further
+architecture, and adopt nothing whose stated condition is unmet.
+
+**Seven measured defects fixed, each with a regression test.** Full table in
+`docs/evaluation/COMPILER_CORE_REMEDIATION.md`.
+
+1. Parser crash on 400 nested parens. `MAX_EXPR_DEPTH = 50`, derived from a measurement
+   (~12.2 frames per level, ceiling at depth 82), plus a `RecursionError` backstop.
+2. Unknown and truncated type names accepted in silence — `HML-T440` with a nearest-name
+   correction in every position a type can appear.
+3. Synthesis-only checking — explicit `synthesise` / `check` with `CheckedExpr`, so a
+   failure names the role that imposed the expectation.
+4. Rational dimension exponents (`Quantity[Length^1/2]`) and constrained dimension
+   variables (`Quantity[D]`).
+5. Generated SymPy raising `NameError` — a dropped definition left a live reference.
+6. Lean `sorry` compiling and exiting 0 — `lean_verify.verify()` with forbidden-tactic
+   pre-check, `autoImplicit false`, compilation, statement comparison and `#print axioms`.
+7. `PValue` specified and never implemented, so L4 failed its own kill criterion.
+
+**Decisions made and why.** Six proposals were **declined**, each because its own stated
+adoption condition is unmet by measurement: Pratt parsing (precedence correct on 5/5
+probes), locally nameless binders (no binding defect), red-green trees, e-graphs,
+cryptographic canonicalisation and probability monads.
+
+**Two lessons worth recording beyond the fixes themselves.**
+
+The dimension-variable syntax is constrained to a **single capital letter**, and that
+constraint is load-bearing rather than cosmetic: if any unrecognised identifier could be a
+variable, `Quantity[Lenght]` would silently become one, reintroducing the very hole
+`HML-T440` closes. Five typo cases pin it.
+
+The SymPy defect survived every existing test because those tests check emitted *text*.
+Rendering succeeded; only executing the file revealed it. The new tests execute every
+generated module.
+
+**Tests and verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, all 8 stages, no override |
+| `.venv/bin/python -m pytest` | **1531 passed**, 4 skipped, 1 xfailed |
+| front-end fuzz battery | 800 inputs, 0 hangs, 0 crashes |
+| generated SymPy execution | every example module runs, 0 failures |
+| `lean_verify` against Lean 4.32.2 | false theorem rejected; true theorem verified, `axioms: []` |
+| `hml check examples/*/*.hml` | 8/8; golden hashes unmoved |
+
+**Failures and unresolved uncertainty.**
+
+- **Mathlib is absent**, so almost nothing HML emits is expressible in Lean: every scalar
+  but `Bool`/`Natural`/`Integer` maps to `ℝ`. V0's Lean backend closes every obligation
+  with `sorry`, so **no V0-emitted theorem can ever be verified** regardless of this work.
+- Only two sites are routed through `check`; function arguments, proof claims and concept
+  members still synthesise-and-compare.
+- Dimension unification solves the single-variable case only.
+- The **minting protocol remains gameable** and fails its own criterion.
+- The benchmark case deleted for the half-integer-exponent gap has **not** been restored.
+
+**Effect on the overall project.** The compiler is hardened exactly where measurement
+justified it, and conformance passes cleanly with all V1 work integrated.
+
+**Next intended step.** Freeze the supported V1 compiler and run the four-syntax Gemma
+acquisition tournament. The report must state whether at least one syntax clears 95%
+repaired parse success and 90% semantic preservation.
+

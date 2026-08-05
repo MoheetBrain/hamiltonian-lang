@@ -72,7 +72,7 @@ from ..types import (
 )
 from .distributions import DISTRIBUTIONS, MISPARAMETERISATIONS, lookup
 
-__all__ = ["ProofObligation", "CheckResult", "TypeChecker", "check"]
+__all__ = ["ProofObligation", "CheckResult", "CheckedExpr", "TypeChecker", "check"]
 
 REAL = ScalarType("Real")
 BOOL = ScalarType("Bool")
@@ -107,6 +107,22 @@ class ProofObligation:
             "line": self.span.line,
             "discharged_by": self.discharged_by,
         }
+
+
+@dataclass(frozen=True)
+class CheckedExpr:
+    """An expression that has been checked *against an expectation*.
+
+    Carries both types and the role that imposed the expectation, so a downstream
+    consumer -- or a repair loop -- can see what was wanted and why, not merely that
+    something failed.
+    """
+
+    expr: Expr
+    actual: Type
+    expected: Type
+    role: str
+    ok: bool
 
 
 @dataclass
@@ -202,6 +218,78 @@ class TypeChecker:
                         "parameter_positivity", f"{sym.name} >= 0", sym.span
                     )
 
+    # -- bidirectional checking -------------------------------------------
+    #
+    # The checker was synthesis-only: every site computed a type bottom-up and compared
+    # it. That works, but it loses the *expectation* -- so a failure could say what a
+    # thing was, not what it was being asked to be, and could not name the role that
+    # wanted it. For AI-generated code the expectation is the useful half of the message,
+    # because it is what a repair loop acts on.
+    #
+    #   synthesise(expr)                 -> Type            intrinsic type, bottom-up
+    #   check(expr, expected, role)      -> CheckedExpr     type-directed, top-down
+    #
+    # Synthesis is used where a type is intrinsic (literals, references, arithmetic).
+    # Checking is used wherever context supplies an expectation: distribution roles,
+    # function arguments, declaration values, definition bodies, proof claims.
+
+    def synthesise(self, e: Expr) -> Type:
+        """Compute a type bottom-up. The intrinsic type of ``e``, independent of context."""
+        return self.expr_type(e)
+
+    def check(
+        self,
+        e: Expr,
+        expected: Type,
+        *,
+        role: str,
+        code: str = "HML-T460",
+        note: str | None = None,
+    ) -> CheckedExpr:
+        """Check ``e`` against ``expected``, reporting the role that imposed it.
+
+        A literal is checked by value, so `scale := 1` is accepted where `PositiveReal`
+        is required even though the nominal type of `1` is `PositiveNatural` (D-009).
+        """
+        actual = self.synthesise(e)
+        if self._inhabits(e, actual, expected):
+            return CheckedExpr(e, actual, expected, role, True)
+
+        self.diags.error(
+            code,
+            f"the {role} requires {expected.render()}",
+            e.span,
+            expected=expected.render(),
+            found=actual.render(),
+            correction=self._repair_hint(e, actual, expected, role),
+            notes=[note] if note else [],
+        )
+        return CheckedExpr(e, actual, expected, role, False)
+
+    def _repair_hint(self, e: Expr, actual: Type, expected: Type, role: str) -> str:
+        """The most specific actionable correction available, never a restatement.
+
+        One-repair success is a gate metric, so a hint that only repeats the mismatch is
+        worse than useless -- it consumes the single permitted repair.
+        """
+        from ..types import QuantityType, ScalarType, dimension_of
+
+        if isinstance(e, Ref):
+            return f"declare '{e.name} : {expected.render()}'"
+        lit = _as_literal(e)
+        if lit is not None and isinstance(expected, ScalarType):
+            return (
+                f"supply a value in {expected.render()}; {lit} is not one"
+            )
+        ad, ed = dimension_of(actual), dimension_of(expected)
+        if ad is not None and ed is not None and ad != ed:
+            return (
+                f"the dimensions differ: {ad.render()} vs {ed.render()}; convert one side"
+            )
+        if isinstance(expected, QuantityType) and not isinstance(actual, QuantityType):
+            return f"annotate the operand as Quantity[{expected.dimension.render()}]"
+        return f"supply an expression of type {expected.render()} for the {role}"
+
     # -- unknown-type detection -------------------------------------------
     def _known_type_names(self) -> list[str]:
         from ..types import SCALARS
@@ -293,17 +381,12 @@ class TypeChecker:
             self._validate_type(st.declared_type, st.span, f"{st.kind} {st.name!r}")
             st.type_ = st.declared_type
             if st.value is not None:
-                vt = self.expr_type(st.value)
-                if not self._inhabits(st.value, vt, st.declared_type):
-                    self.diags.error(
-                        "HML-T402",
-                        f"the value assigned to {st.name!r} does not inhabit its "
-                        f"declared type",
-                        st.value.span,
-                        expected=st.declared_type.render(),
-                        found=vt.render(),
-                        correction=self._retype_hint(st.name, st.kind, vt),
-                    )
+                self.check(
+                    st.value,
+                    st.declared_type,
+                    role=f"declared type of {st.name!r}",
+                    code="HML-T402",
+                )
             return
 
         if isinstance(st, DefineStmt):
@@ -546,15 +629,15 @@ class TypeChecker:
                 continue
             want = spec.roles[a.role]
             if not self._role_compatible(at, want, a.value):
-                self.diags.error(
-                    "HML-T413",
-                    f"the {a.role!r} role of {d.family} requires "
-                    f"{want.render()}",
-                    a.value.span,
-                    expected=want.render(),
-                    found=at.render(),
-                    correction=self._role_correction(a, want),
-                    notes=[spec.note] if spec.note else [],
+                # Checking mode: the ROLE supplies the expectation, so the diagnostic can
+                # name it. This is the single most repair-actionable message the checker
+                # emits, because the role is what a model got wrong.
+                self.check(
+                    a.value,
+                    want,
+                    role=f"{a.role!r} role of {d.family}",
+                    code="HML-T413",
+                    note=spec.note or None,
                 )
 
         self._check_cross_role_constraints(d, spec)

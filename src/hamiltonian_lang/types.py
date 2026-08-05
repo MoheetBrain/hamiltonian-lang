@@ -20,6 +20,7 @@ Design commitments (see ``docs/design/V0_DESIGN_FREEZE.md``, decisions D-004..D-
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from fractions import Fraction
@@ -47,6 +48,7 @@ __all__ = [
     "join",
     "meet",
     "parse_scalar_name",
+    "is_dimension_variable",
 ]
 
 
@@ -130,22 +132,61 @@ BASE_DIMENSIONS: tuple[str, ...] = (
 )
 
 
+#: A dimension VARIABLE is constrained to a single capital letter.
+#:
+#: This constraint is load-bearing, not cosmetic. If any unrecognised identifier could
+#: stand for a dimension variable, then `Quantity[Lenght]` -- a typo -- would silently
+#: become a variable instead of an error, reintroducing exactly the unknown-name hole
+#: that HML-T440 closes for ordinary types. A single capital cannot be a plausible typo
+#: for `Length`, so the two cases stay separable.
+_DIM_VARIABLE = re.compile(r"^[A-Z]$")
+
+
+def is_dimension_variable(name: str) -> bool:
+    return bool(_DIM_VARIABLE.match(name)) and name not in BASE_DIMENSIONS
+
+
 @dataclass(frozen=True)
 class Dimension:
-    """A rational-exponent vector over :data:`BASE_DIMENSIONS`.
+    """A rational-exponent vector over :data:`BASE_DIMENSIONS`, plus optional variables.
 
     Stored as a canonical mapping with zero exponents elided, so structural equality
     is the correct notion of dimensional equality.
+
+    ``variables`` carries unknown dimensions such as `Quantity[D]`. A dimension with any
+    variable is *not* concrete: it can be unified, but it cannot be compared for equality
+    against a concrete dimension, and it can never be silently treated as dimensionless.
     """
 
     exponents: tuple[tuple[str, Fraction], ...] = ()
+    variables: tuple[tuple[str, Fraction], ...] = ()
 
     @staticmethod
     def of(**kwargs: int | Fraction) -> Dimension:
         return Dimension.from_mapping(kwargs)
 
     @staticmethod
-    def from_mapping(m: Mapping[str, int | Fraction]) -> Dimension:
+    def variable(name: str, exponent: int | Fraction = 1) -> Dimension:
+        if not is_dimension_variable(name):
+            raise ValueError(
+                f"{name!r} is not a valid dimension variable; use a single capital letter"
+            )
+        f = Fraction(exponent)
+        return Dimension(variables=((name, f),) if f else ())
+
+    def is_concrete(self) -> bool:
+        """True when no dimension variable remains. Only concrete dimensions may be
+        compared for equality in a dimensional-consistency check."""
+        return not self.variables
+
+    def free_variables(self) -> set[str]:
+        return {k for k, _ in self.variables}
+
+    @staticmethod
+    def from_mapping(
+        m: Mapping[str, int | Fraction],
+        variables: Mapping[str, int | Fraction] | None = None,
+    ) -> Dimension:
         items: list[tuple[str, Fraction]] = []
         for k, v in m.items():
             if k not in BASE_DIMENSIONS:
@@ -154,35 +195,84 @@ class Dimension:
             if f != 0:
                 items.append((k, f))
         items.sort()
-        return Dimension(tuple(items))
+        vitems: list[tuple[str, Fraction]] = []
+        for k, v in (variables or {}).items():
+            if not is_dimension_variable(k):
+                raise ValueError(f"invalid dimension variable {k!r}")
+            f = Fraction(v)
+            if f != 0:
+                vitems.append((k, f))
+        vitems.sort()
+        return Dimension(tuple(items), tuple(vitems))
 
     def as_dict(self) -> dict[str, Fraction]:
         return dict(self.exponents)
 
+    def variables_dict(self) -> dict[str, Fraction]:
+        return dict(self.variables)
+
     def is_dimensionless(self) -> bool:
-        return not self.exponents
+        """Dimensionless means no base exponents AND no variables.
+
+        A dimension carrying an unresolved variable is not dimensionless -- it is unknown,
+        which is a different thing and must not be silently treated as scalar.
+        """
+        return not self.exponents and not self.variables
 
     def __mul__(self, other: Dimension) -> Dimension:
         acc = self.as_dict()
         for k, v in other.exponents:
             acc[k] = acc.get(k, Fraction(0)) + v
-        return Dimension.from_mapping(acc)
+        vacc = self.variables_dict()
+        for k, v in other.variables:
+            vacc[k] = vacc.get(k, Fraction(0)) + v
+        return Dimension.from_mapping(acc, vacc)
 
     def __truediv__(self, other: Dimension) -> Dimension:
         return self * other.inverse()
 
     def inverse(self) -> Dimension:
-        return Dimension.from_mapping({k: -v for k, v in self.exponents})
+        return Dimension.from_mapping(
+            {k: -v for k, v in self.exponents}, {k: -v for k, v in self.variables}
+        )
 
     def power(self, n: int | Fraction) -> Dimension:
         f = Fraction(n)
-        return Dimension.from_mapping({k: v * f for k, v in self.exponents})
+        return Dimension.from_mapping(
+            {k: v * f for k, v in self.exponents},
+            {k: v * f for k, v in self.variables},
+        )
+
+    def unify(self, other: Dimension) -> dict[str, Dimension] | None:
+        """Solve for the variables that make ``self`` equal ``other``, or None.
+
+        Deliberately narrow: only the single-variable case is solved, which covers
+        `Quantity[D]` against a concrete dimension. Anything richer would be a
+        constraint solver, which no measured requirement justifies.
+        """
+        if self == other:
+            return {}
+        if self.is_concrete() and other.is_concrete():
+            return None
+        free = self.free_variables() | other.free_variables()
+        if len(free) != 1:
+            return None
+        name = next(iter(free))
+        a_exp = self.variables_dict().get(name, Fraction(0))
+        b_exp = other.variables_dict().get(name, Fraction(0))
+        net = a_exp - b_exp
+        if net == 0:
+            return None
+        # base(other) / base(self), distributed over the net variable exponent
+        residual = Dimension(other.exponents) / Dimension(self.exponents)
+        return {name: residual.power(Fraction(1, 1) / net)}
 
     def render(self) -> str:
-        if not self.exponents:
+        if not self.exponents and not self.variables:
             return "Dimensionless"
-        num = [(k, v) for k, v in self.exponents if v > 0]
-        den = [(k, -v) for k, v in self.exponents if v < 0]
+        allx = list(self.exponents) + list(self.variables)
+        num = [(k, v) for k, v in allx if v > 0]
+        den = [(k, -v) for k, v in allx if v < 0]
 
         def term(k: str, v: Fraction) -> str:
             return k if v == 1 else f"{k}^{v}"

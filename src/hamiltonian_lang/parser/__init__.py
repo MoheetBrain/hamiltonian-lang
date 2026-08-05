@@ -60,6 +60,7 @@ from ..types import (
     TensorType,
     Type,
     VectorType,
+    is_dimension_variable,
     parse_scalar_name,
 )
 
@@ -665,24 +666,67 @@ class Parser:
         if tok.value == "Dimensionless":
             return self._dim_power(Dimension())
         if tok.value not in BASE_DIMENSIONS:
+            # A single capital letter is a dimension VARIABLE. Anything longer is a typo
+            # and must stay an error -- otherwise `Quantity[Lenght]` would silently become
+            # a variable, reintroducing the unknown-name hole HML-T440 closes elsewhere.
+            if is_dimension_variable(tok.value):
+                return self._dim_power(Dimension.variable(tok.value))
             self._err(
                 "HML-D501",
                 f"{tok.value!r} is not a base dimension",
                 tok.span,
                 expected=", ".join(BASE_DIMENSIONS),
                 found=tok.value,
+                correction=(
+                    "use a base dimension, or a single capital letter for an unknown "
+                    "dimension variable"
+                ),
             )
             raise ParseAbort
         return self._dim_power(Dimension.of(**{tok.value: 1}))
 
     def _dim_power(self, base: Dimension) -> Dimension:
+        """Parse an optional `^ exponent`, where the exponent may be a rational.
+
+        The disambiguation that makes `Mass^1/2 * Length` work: after reading the
+        numerator, a `/` followed by a NUMBER is a fractional exponent, whereas a `/`
+        followed by an identifier is dimension division. Splitting on `/` first -- which
+        is what the previous implementation did -- tore `1/2` apart and made every
+        half-integer exponent a parse error, even though `Dimension` has always stored
+        `Fraction` exponents. One benchmark case had to be deleted because of it.
+        """
         if self.accept_op("^"):
             neg = bool(self.accept_op("-"))
             if self.cur.kind is not TokenKind.NUMBER:
-                self._err("HML-P226", "dimension exponents must be rational literals")
+                self._err(
+                    "HML-P226",
+                    "dimension exponents must be rational literals",
+                    found=self._describe(self.cur),
+                    correction="e.g. Length^2, Length^-1, Length^1/2",
+                )
                 raise ParseAbort
             raw = self.next().value
-            exp = Fraction(raw) if "." not in raw and "e" not in raw.lower() else Fraction(float(raw))
+            exp = (
+                Fraction(raw)
+                if "." not in raw and "e" not in raw.lower()
+                else Fraction(str(float(raw)))
+            )
+            if self.cur.is_op("/") and self.peek().kind is TokenKind.NUMBER:
+                self.next()
+                denom_raw = self.next().value
+                try:
+                    denom = Fraction(denom_raw)
+                except ValueError:
+                    self._err("HML-P226", "a fractional exponent needs an integer denominator")
+                    raise ParseAbort from None
+                if denom == 0:
+                    self._err(
+                        "HML-P227",
+                        "a dimension exponent may not have a zero denominator",
+                        correction="e.g. Length^1/2",
+                    )
+                    raise ParseAbort
+                exp = exp / denom
             return base.power(-exp if neg else exp)
         return base
 
