@@ -1,334 +1,271 @@
 # GOAL — Hamiltonian Lang
 
-**A mathematical language designed for machine cognition, not human conversation.**
+**A cross-domain, typed mathematical intermediate representation and verifier-guided
+reasoning protocol, whose syntax, semantic organisation and concept system are treated as
+experimentally optimisable variables.**
 
 ---
 
-## 1. The Crux
+## 0. The correction that must come first
 
-Natural language was optimised for human communication. Mathematical notation was optimised
-for human blackboards and printed pages. Programming languages were optimised for human
-authorship of deterministic instructions. **None of them were designed as the internal
-substrate in which a machine reasons about mathematics.**
+An earlier version of this document implied a novelty claim that is **no longer
+defensible**:
 
-Each of them leaves critical structure implicit — variable roles, assumptions, domains,
-units, constraints, dependencies, uncertainty, equivalence classes, and proof obligations.
-An AI system operating through these media must *re-infer* that structure, probabilistically,
-every single time it reads a problem. Every re-inference is an opportunity for error.
+> ~~"Nobody has built a ground-up mathematical language for AI, taught it to an AI, and
+> used it to solve mathematics."~~
 
-Hamiltonian Lang is an investigation into a single hypothesis:
+That slogan is occupied.
 
-> **If mathematical structure is represented explicitly, compositionally, and machine-natively,
-> then the same AI system — given the same problem and comparable compute — will reason more
-> accurately and more verifiably than it does through prose, LaTeX, or conventional code.**
+**Verified prior art.** *AoA: Theorem Proving Agent over Abstract Syntax Tree of Redesigned
+Language* (Xu, Ong Jun Leang, Wang, Li, Li, Ong, Watt; arXiv 2607.16372, 17 July 2026).
+Retrieved and checked, not cited from memory. It describes **Minilang** as "a recent proof
+language that reaches SOTA on LLM-based proving but is too new for LLMs' training corpora",
+and states that "the model supplies proofs as JSON representations of Minilang's AST —
+native to tool-calling LLMs", reducing API cost and token consumption relative to a
+source-editing agent.
 
-That is the entire project. Everything below is engineering in service of testing it.
+**Therefore Hamiltonian may not claim novelty from any of these:**
 
----
+- designing a new formal language aimed at LLMs
+- exposing an AST as JSON for a model to edit
+- teaching a language through demonstrations rather than corpus exposure
+- using compiler or prover feedback in the loop
+- reducing token cost relative to editing source text
 
-## 2. The Worked Example
+**AoA has already demonstrated that package for theorem proving.**
 
-Consider the ordinary sentence:
+*(One point in the source material — that Minilang and its tree-edit interface are too
+tightly coupled to ablate cleanly — is **UNVERIFIED**: it does not appear in the abstract
+retrieved. It is not relied upon below.)*
 
-> "$X$ follows a normal distribution with mean $\mu$ and standard deviation $\sigma$."
+## 1. What is left, stated precisely
 
-To a human this is one fact. To a machine it is at least six distinct semantic commitments,
-none of which are written down:
+The remaining gap is a **conjunction**, and it is the whole claim:
 
-| # | Implicit commitment |
-|---|---------------------|
-| 1 | $X$ is a **random variable**, not a constant or a free symbol |
-| 2 | Its outcome domain is **real-valued** ($\mathbb{R}$) |
-| 3 | Its probability law belongs to the **normal family** |
-| 4 | $\mu$ occupies the **location / mean** role |
-| 5 | $\sigma$ occupies the **scale / standard-deviation** role (not variance) |
-| 6 | $\sigma > 0$ is a **required constraint**, silently assumed |
+> Has anyone built and rigorously tested a cross-domain, AI-optimised mathematical
+> reasoning substrate that:
+>
+> 1. represents mathematical content canonically;
+> 2. represents transformation and reasoning **state** explicitly;
+> 3. types **epistemic strength** and statistical claims;
+> 4. permits **formally governed concept creation**;
+> 5. lowers into proof, probabilistic **and** computational engines;
+> 6. lets the model **reason in** that representation, not merely emit it;
+> 7. uses compiler feedback to change the reasoning **trajectory**;
+> 8. and empirically **optimises the language itself** under matched-model,
+>    matched-information and matched-compute controls?
 
-The AI must recover all six from surface text. Hamiltonian Lang's claim is that these should
-be *stated*, once, in a form that is persistent, searchable, executable, and checkable — and
-that the cost of stating them is repaid many times over in reasoning reliability.
+No published system combining all eight was found. That is a **search-based negative**, not
+a proof of absence, and it is recorded as such.
 
-**The unit of value is not shorter notation. It is eliminated inference.**
+Each near neighbour occupies part of the space:
 
----
+| system | occupies | does **not** occupy |
+|--------|----------|---------------------|
+| **Lean · Isabelle · Rocq** | exact definitions, kernel-checked proofs | a representation *empirically selected* for LLM cognition |
+| **OpenMath** | unambiguous semantic exchange of mathematical objects | LLM reasoning performance; verifier-guided thought |
+| **MMT / OMDoc** | foundation-independent knowledge and interoperability | a compact model-facing language chosen by controlled experiment |
+| **DeepSeek-Prover · Seed-Prover · HunyuanProver** | training and search to generate Lean proofs | redesigning the cross-domain representation itself |
+| **Harmonic · Axiom · OpenAI workflows** | discovery plus Lean-certified proof | one semantic layer spanning proof, probability, units, computation, epistemics |
+| **Minilang / AoA** | an LLM-oriented proof language and AST interaction model | a general IR spanning statistics, probabilistic models, computation, concept creation, multiple backends |
 
-## 3. What Must Be Representable
+"One semantic representation feeding multiple systems" is **not novel** — OpenMath and MMT
+have done it for two decades. The novelty candidate is item **8**: treating the
+representation as an *optimisable variable* and measuring it.
 
-A representation earns the name only if it can carry the whole problem. Hamiltonian Lang must
-encode:
-
-- mathematical objects and their **types**
-- variables, constants, parameters, and observations
-- domains, ranges, dimensions, and **units**
-- assumptions and boundary conditions
-- constraints and optimisation objectives
-- functions, relations, transformations, and invariants
-- probability distributions and uncertainty
-- dependencies and conditional relationships
-- equations, models, conjectures, and theorems
-- intermediate deductions and **proof obligations**
-- symbolic, numerical, probabilistic, and logical operations
-- the formal definition of **new** mathematical concepts
-
----
-
-## 4. The Four Governing Principles
-
-$$
-\boxed{
-\begin{aligned}
-&\textbf{1.}\ \ \text{Every object has a type.}\\
-&\textbf{2.}\ \ \text{Every relation has defined semantics.}\\
-&\textbf{3.}\ \ \text{Every inference has traceable dependencies.}\\
-&\textbf{4.}\ \ \text{Every new concept has a formal definition.}
-\end{aligned}
-}
-$$
-
-These are not stylistic preferences. They are the invariants the implementation must enforce.
-A construct that violates one of them does not belong in the language.
-
-**Corollary on new terminology:** new mathematical terms may be introduced, but a term cannot
-survive because it *sounds* plausible. Every new concept must carry a precise mathematical
-identity — type, domain, definition, constraints, relationships, invariants, and **testable
-consequences**. Plausibility is not admissible evidence.
-
----
-
-## 5. The Three-Layer Architecture
-
-Hamiltonian Lang is deliberately stratified. Conflating these layers is the failure mode of
-most notation projects.
+## 2. Where the world routes mathematics today
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│  LAYER 1 — SURFACE                                           │
-│  Compact linear syntax. Cheap for an AI to emit and parse.   │
-│  Token-efficient. Not intended to be beautiful on paper.     │
-└──────────────────────────────────────────────────────────────┘
-                              ↕  (bijective, meaning-preserving)
-┌──────────────────────────────────────────────────────────────┐
-│  LAYER 2 — SEMANTIC CORE                    ◄── the apparatus │
-│  Typed structured representation: objects, roles, constraints,│
-│  dependencies, transformations. The single source of          │
-│  mathematical truth. Everything else is a projection.         │
-└──────────────────────────────────────────────────────────────┘
-                              ↕  (lowering / compilation)
-┌──────────────────────────────────────────────────────────────┐
-│  LAYER 3 — BACKENDS                                          │
-│  formal verification · symbolic computation · probabilistic  │
-│  inference · numerical execution · constraint solving ·      │
-│  dimensional analysis                                        │
-└──────────────────────────────────────────────────────────────┘
+WORLD TODAY                              HAMILTONIAN TARGET
+===========                              ==================
+  natural-language problem                 natural-language problem
+            |                                        |
+   informal argument / plan                          v
+            |                          HAMILTONIAN SURFACE  (Σ)
+  formalisation or tool routing         empirically selected, not chosen by taste
+            |                                        |
+   ┌────────┼────────┐                               v
+   v        v        v                   TYPED CANONICAL OBJECT  (S)
+ LEAN     STAN    SYMPY                              |
+   |        |        |                   ┌───────────┼───────────┐
+   v        v        v                   v           v           v
+theorem  posterior expression      transformations epistemic  obligations
+                                    dependencies    state      goals  (R, E)
+representations stay separate;             └───────────┼───────────┘
+the AI learns each destination                         v
+                                        VERIFIER-GUIDED LOOP  (O)
+                                     generate → check → diagnose → repair
+                                                       |
+                                        ┌──────┬───────┼───────┐
+                                        v      v       v       v
+                                      LEAN   STAN   SYMPY  NUMERICAL   (B)
 ```
 
-The pipeline:
+## 3. The system, specified as eight components
 
-$$
-\text{Mathematical problem}
-\;\rightarrow\;
-\text{Hamiltonian representation}
-\;\rightarrow\;
-\begin{cases}
-\text{formal verification}\\
-\text{symbolic computation}\\
-\text{probabilistic inference}\\
-\text{numerical execution}\\
-\text{constraint solving}
-\end{cases}
-$$
+$$\mathrm{HML} = (\Sigma,\; \mathcal{G},\; \mathcal{S},\; \mathcal{R},\; \mathcal{E},\; \mathcal{C},\; \mathcal{B},\; \mathcal{O})$$
 
-**One object, many equivalent views.** A single Hamiltonian object may be rendered as compact
-linear syntax, as conventional mathematical notation, as a semantic graph, as an executable
-statistical model, as a numerical program, or as a formal statement submitted to a proof
-assistant — *without changing what it means*.
+### Σ — model-facing surface language
+Compact linear, prefix, JSON or graph syntax. **Not chosen by taste.** Candidates compete
+on *parseability · semantic fidelity · token cost · repairability*.
+→ status: four candidates built; the Gemma tournament is the current bottleneck.
 
-> **Amendment (post prior-art review, `DECISIONS.md` D-011, D-012).** This section
-> originally called Layer 2 "the actual contribution" and listed provenance among the
-> things it records. Both claims were wrong and are corrected above.
->
-> **Provenance is not implemented.** The IR carries source spans and types. The semantic
-> graph carries dependency edges, which is not a derivation record.
->
-> **The three-layer architecture is not novel.** Rocq's documentation describes
-> surface-to-kernel translation as *the de Bruijn criterion*, a named principle; Lean 4's
-> elaborator is the same architecture; OpenMath Content Dictionaries already mandate
-> formal-property and example fields; Content MathML has carried `domainofapplication`
-> and `condition` since 1998; MMT/OAF has already exported Isabelle, the AFP and the Coq
-> library as theory graphs. See `docs/research/PRIOR_ART.md`.
->
-> The defensible contribution is **§8, the experiment** — not the representation.
+### 𝒢 — grammar and compiler front end
+Rejects invented and truncated types · preserves binding and quantifier scope · checks
+parameter roles · recovers from malformed output · emits **actionable repair diagnostics**.
+→ status: implemented; `HML-T440` closes the invented-type hole with nearest-name repair
+hints; 800 fuzz inputs produce 0 hangs and 0 crashes.
 
-### Positioning
+### 𝒮 — typed semantic core
+Object identity · type · domain and codomain · variable role · parameter role · constraints
+· units and dimensions · dependencies · probability law · assumptions · definitions ·
+equivalence conditions.
+**Different surface strings must map to one object when they genuinely mean the same thing.**
+→ status: implemented; content hashing is invariant under renaming and sensitive to
+quantifier order and role assignment.
 
-Hamiltonian Lang sits **above** proof assistants, probabilistic programming languages,
-computer algebra systems, and numerical environments. It does not attempt to reimplement
-their solvers or libraries, and it does not claim one printed syntax should replace every
-existing tool. It asks a narrower, harder question: **can one shared semantic representation
-address all of these systems coherently, without losing meaning in translation?**
+### ℛ — reasoning-state representation
+Encodes the *movement* of reasoning, not only final propositions: goal · subgoal ·
+assumption · pending obligation · case split · transformation · derivation · implication ·
+equivalence · counterexample · dependency.
 
----
+The distinctions that justify the layer:
 
-## 6. Semantic Compositionality
+```
+yields             ≠  implies
+implies            ≠  equivalent
+evidence           ≠  proof
+failure to reject  ≠  proof of the null
+```
 
-The central design principle:
+→ status: implemented with no coercion between edge kinds.
 
-> **The structure of a mathematical expression should reflect the structure of the concept it
-> represents.**
+### ℰ — epistemic type system
+`definitionally_true · proved · disproved · conjectured · model_conditional · estimated ·
+approximately_equal · almost_sure · with_high_probability(regime=…) ·
+fail_to_reject(alpha, p_value) · unsupported`
 
-Related concepts belong to explicit **concept families**. Objects, properties, predicates,
-transformations, inverse transformations, estimators, distributions, proofs, and
-counterexamples must not exist as isolated vocabulary items with arbitrary names. Their formal
-relationships are encoded *in the language itself*, the way morphology encodes relationships
-in human languages — but with mathematical rather than phonological regularity.
+Purpose: block the silent upgrade
 
-If knowing one member of a family does not help you derive its siblings, the design has failed.
+```
+compatible with evidence  →  apparently true  →  mathematically proved
+```
 
----
+→ status: implemented. `fail_to_reject` yields `Evidence`; `prove` demands `Proof`; no
+coercion exists. `PValue` and `PosteriorProbability` are distinct types.
 
-## 7. The Language as an Optimisation Problem
+### 𝒞 — concept registry and controlled invention
+A new term is admitted only with name · type · formal definition · domain · constraints ·
+invariants · equivalences · counterexamples · proof obligations · computation method ·
+relationship to existing concepts — **and it must compress recurring structure and survive
+duplicate detection.**
+→ status: **NOT TRUSTWORTHY.** Red-teaming admitted three disguised duplicates of one
+concept. This subsystem currently fails its own kill criterion.
 
-Hamiltonian Lang does not assume a human-designed grammar is optimal. Multiple candidate
-representations can be generated and evaluated empirically:
+### ℬ — backend lowering
+Lean statements and proofs · Stan programs · SymPy calculations · numerical execution ·
+graphs, LaTeX, controlled English. **Each lowering reports its semantic loss** rather than
+implying equivalence.
+→ status: implemented and measured. Stan cannot express strict positivity, so most
+distribution families cannot round-trip. Lean silently loses probability laws. Mathlib is
+absent locally, so nearly nothing HML emits is Lean-expressible today.
 
-$$
-L^{*} = \arg\max_{L}\Big[
-\underbrace{\text{accuracy} + \text{generalisation} + \text{verification} + \text{semantic compression}}_{\text{maximise}}
-\;-\;
-\underbrace{\text{ambiguity} + \text{computational cost}}_{\text{minimise}}
-\Big]
-$$
+### 𝒪 — empirical language optimisation *(the novelty candidate)*
 
-Measured criteria:
+$$L^{*} = \arg\max_{L}\ \mathbb{E}\Big[A_L + \alpha V_L + \beta G_L + \gamma F_L - \lambda T_L - \mu C_L - \nu P_L\Big]$$
 
-- mathematical-answer accuracy
-- formally verified completion rate
-- variable-binding reliability
-- quantifier and scope accuracy
-- generalisation to unfamiliar problems
-- semantic-equivalence preservation
-- error visibility (do mistakes become *loud* rather than silent?)
-- token efficiency
-- inference cost
-- cross-domain structure transfer
+| term | meaning |
+|------|---------|
+| $A_L$ | answer accuracy |
+| $V_L$ | verified-solution rate |
+| $G_L$ | generalisation |
+| $F_L$ | semantic fidelity |
+| $T_L$ | token use |
+| $C_L$ | compute and latency |
+| $P_L$ | parse or generation failure |
 
-**AI systems do not merely *use* Hamiltonian Lang — they participate in refining it**, by
-proposing candidate representations, testing them on controlled tasks, and retaining the
-structures that measurably improve reasoning and verification.
+**The language is not sacred.** Its syntax, and potentially its semantic organisation,
+survive only where they improve measured performance.
 
----
+## 4. The one-sentence claim
 
-## 8. Falsifiability — How This Project Can Fail
+**Do not say:** *"We invented the first mathematical language for AI."* That is false.
 
-This is the section that matters most. A representation project without a falsification
-condition is aesthetics.
+**Say:**
 
-**The central experiment.** Take the same AI system, the same mathematical problems, and
-comparable compute. Run it through:
+> Hamiltonian Lang is a cross-domain, typed mathematical intermediate representation and
+> verifier-guided reasoning protocol whose syntax, semantic organisation and concept system
+> are treated as experimentally optimisable variables, tested under matched conditions
+> against natural language, conventional notation and existing formal systems.
 
-| Arm | Representation |
-|-----|----------------|
-| A | Ordinary mathematical prose |
-| B | LaTeX |
-| C | Conventional code (Python / etc.) |
-| D | Direct interaction with an existing formal language |
-| E | **Hamiltonian Lang** |
+## 5. The three hypotheses, kept apart
 
-Compare using deterministic compilers, solvers, and verification systems wherever possible —
-so that scoring does not itself depend on a language model's judgement.
+The pilot conflated these. They can come apart — a representation might be a poor *input*
+format and a good *reasoning* format, or worthless without a verifier and valuable with one.
 
-**Success condition:** arm E measurably beats arms A–D on the criteria in §7.
+| id | hypothesis | isolated by |
+|----|-----------|-------------|
+| **H1** | representation as **input** improves the answer | vary the input, fix the output format |
+| **H2** | representation as **reasoning workspace** improves the answer | English input, Hamiltonian derivation *required* |
+| **H3** | **verifier-guided repair** improves the verified answer | same input and derivation, feedback added |
 
-**Failure conditions — any of these falsifies the thesis:**
+A win on H3 alone is a win for verifier-guided reasoning and **must not** be reported as a
+win for the representation.
 
-1. No measurable improvement over the baselines on matched problems.
-2. Improvement that disappears once token/compute budgets are equalised.
-3. Improvement attributable to the *scaffolding* (structured prompting, explicit checklists)
-   rather than to the representation — i.e. a plain-prose arm given the same structural
-   prompting closes the gap.
-4. Translation loss: round-tripping through the semantic core changes the meaning.
-5. The representation is accurate but so expensive to produce that it is unusable in practice.
-6. **Distribution, not representation.** Arms A–D are saturated in model pretraining; arm E
-   has effectively zero tokens in it. If arm E loses, the cause may be unfamiliarity rather
-   than any property of the representation — and if arm E *wins*, the result must survive
-   the objection that a purpose-built format merely constrains the output space. This is
-   the hardest confound in the design and it was missing from the first draft of this list.
-7. **Format restriction may hurt reasoning outright.** Tam et al. (EMNLP 2024) report
-   measurable degradation in LLM reasoning under format constraints. That is published
-   evidence pointing against the thesis, and it belongs here as a preregistered alternative
-   hypothesis rather than as a surprise.
+## 6. The result that would matter
 
-**These outcomes will be reported, not buried.** A negative result on a well-posed question is
-a real contribution; a positive result obtained by moving the goalposts is not.
+> Using the same base model, mathematical information and compute budget, Hamiltonian
+> reasoning increased paired answer accuracy by **X** points, increased kernel-verified
+> completion by **Y** points, reduced structural errors by **Z%**, and transferred better to
+> unseen formally defined concepts than structured English, LaTeX and direct formal-language
+> interaction.
 
----
+That is materially different from "we also trained an AI to write Lean." It would show that
+**representation design is itself a controllable capability lever.**
 
-## 9. Initial Scope
+**No such result exists.** X, Y and Z are unmeasured.
 
-Deliberately narrow and structurally demanding. Early work targets domains where implicit
-structure is known to cause failures:
+## 7. Honest status
 
-- probability and statistical models
-- variable binding
-- nested assumptions
-- conditional dependence
-- dimensional consistency
-- algebraic transformations
-- formally checkable conclusions
+| | |
+|---|---|
+| compiler, semantic core, epistemics, reasoning state | built, tested, conformance-clean |
+| preregistration, benchmark harness, blinded audit, freeze protocol | built |
+| concept registry | built but **gameable**; fails its own criterion |
+| **H1 / H2 / H3** | **untested** |
+| **𝒪, the novelty candidate** | **untested** |
 
-Breadth is earned by results, not asserted at the start.
+The HML-EVAL-001 pilot found no advantage, and that finding is **not a refutation**: 14 of
+15 problems were solved by nearly every arm and the minimum detectable effect was ~33
+percentage points. The precise conclusion is:
 
----
+> Zero-shot Hamiltonian did not improve answer accuracy on this small, low-discrimination
+> pilot. The experiment was underpowered and had a severe ceiling effect.
 
-## 10. Long-Term Vision
+**Status of the thesis: UNPROVEN, NOT REFUTED.**
 
-An extensible mathematical operating layer, with specialised modules for pure mathematics,
-statistics, physics, optimisation, scientific computing, engineering, quantitative finance,
-chemistry, and other disciplines that depend on precise formal models. Each field keeps its
-native concepts and execution engines while sharing one semantic foundation.
+## 8. The immediate bottleneck
 
-The goal is mathematical reasoning that is **less ambiguous, more structurally explicit, more
-compositional, more computationally efficient, more interoperable, more auditable, more
-reliably verifiable, and more capable of supporting artificial mathematical discovery.**
+**Can `gemma4:31b` acquire one Hamiltonian surface at ≥95% repaired parse success and ≥90%
+semantic fidelity?**
 
----
+V0 achieved 50–73%. Until a surface clears the gate, every null result is uninterpretable —
+a language the model cannot reliably write is not being tested. **Only after that does the
+novelty experiment begin.**
 
-## 11. Intellectual Lineage
+## 9. How this project can fail
 
-Hamiltonian Lang draws on — without being reducible to — formal mathematical logic, dependent
-type systems, proof assistants, controlled natural languages, symbolic computation,
-probabilistic programming, semantic knowledge representation, compiler intermediate
-representations, graph-based knowledge systems, and the morphological organisation found in
-human languages.
+1. No improvement over matched baselines on adequately powered comparisons.
+2. Improvement that vanishes once tokens and compute are equalised.
+3. Improvement attributable to **scaffolding** — structured English closes the gap.
+4. Translation loss: round-tripping through the core changes meaning.
+5. Accurate but too expensive to produce.
+6. **Distribution, not representation.** Baselines are saturated in pretraining; Hamiltonian
+   has effectively zero tokens. A win must survive the objection that a purpose-built format
+   merely constrains the output space.
+7. **Format restriction may hurt.** Tam et al. (EMNLP 2024) report reasoning degradation
+   under format constraints — published evidence pointing the other way.
+8. The model cannot reliably write the language at all — currently the live risk.
 
-What differs is the **optimisation target**. Those traditions largely optimise for human
-rigour, human ergonomics, or machine execution of already-formalised content. Hamiltonian Lang
-optimises for one thing: *increasing the mathematical capability of artificial intelligence by
-improving the representation in which its reasoning occurs.*
-
----
-
-## 12. Governing Thesis
-
-> **Natural language should not be assumed to be the optimal internal substrate for machine
-> mathematics. Mathematical structure should be represented in a language designed
-> specifically for mathematical cognition.**
-
-Hamiltonian Lang is neither merely a new notation nor merely a compiler. It is an attempt to
-engineer the representational substrate through which AI systems understand, manipulate,
-verify, and advance mathematics.
-
----
-
-## 13. What "Done" Looks Like for v0
-
-The first milestone is not a language. It is an **experiment that can return a verdict.**
-
-1. A semantic core (Layer 2) capable of representing the §9 domains.
-2. A surface syntax (Layer 1) with a parser and a printer that round-trip losslessly.
-3. At least two backends (Layer 3) — one verification, one probabilistic or numerical.
-4. A benchmark set of problems from §9, authored in all five arms of §8.
-5. Deterministic scoring harness.
-6. A results document reporting the outcome **honestly**, including negative results.
-
-Until item 6 exists, the thesis is untested and should be described as such.
+Failure on well-posed questions will be reported, not buried. A negative result obtained
+honestly is a contribution; a positive one obtained by moving goalposts is not.

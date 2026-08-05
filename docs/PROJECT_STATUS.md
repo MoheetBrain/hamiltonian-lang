@@ -4,10 +4,21 @@ Snapshot date: 2026-08-04. Maintained per the commit continuity protocol.
 
 ## Project Objective
 
-Determine whether an AI-native mathematical representation — compact, typed, semantically
-explicit, compositional — measurably improves machine mathematical reasoning,
-verification and generalisation relative to ordinary mathematical English, LaTeX,
-conventional code, and direct use of existing formal languages.
+Hamiltonian Lang is a **cross-domain, typed mathematical intermediate representation and
+verifier-guided reasoning protocol whose syntax, semantic organisation and concept system
+are treated as experimentally optimisable variables**, tested under matched conditions
+against natural language, conventional notation and existing formal systems.
+
+Specified as eight components in `GOAL.md`: Σ surface · 𝒢 front end · 𝒮 semantic core ·
+ℛ reasoning state · ℰ epistemics · 𝒞 concept registry · ℬ backends · **𝒪 empirical language
+optimisation — the novelty candidate**.
+
+**The broad novelty claim is withdrawn.** Minilang/AoA (arXiv 2607.16372, 17 July 2026,
+retrieved and verified) already demonstrated an LLM-oriented proof language, a JSON AST
+interface, demonstration-based teaching, prover feedback and reduced token cost. Hamiltonian
+may not claim novelty from any of those. What remains is the **conjunction** of eight
+properties in `GOAL.md` §1, of which item 8 — optimising the representation itself under
+matched controls — is the defensible candidate.
 
 The project succeeds only if a reproducible advantage is demonstrated on at least one
 important mathematical task. **A pilot measurement has now been taken and found no

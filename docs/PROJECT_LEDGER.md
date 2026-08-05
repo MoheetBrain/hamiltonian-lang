@@ -875,3 +875,66 @@ justified it, and conformance passes cleanly with all V1 work integrated.
 acquisition tournament. The report must state whether at least one syntax clears 95%
 repaired parse success and 90% semantic preservation.
 
+---
+
+## 2026-08-04 — GOAL.md respecified; broad novelty claim withdrawn
+
+**Branch.** `hml-v1-concept-kernel` · **Stage.** Objective sharpened before the syntax gate.
+
+**Objective.** Replace a slogan-level goal with a hyperspecific, falsifiable specification,
+and withdraw a novelty claim that prior art has occupied.
+
+**The withdrawal, verified rather than assumed.** `WebFetch` on arXiv 2607.16372 confirmed
+*AoA: Theorem Proving Agent over Abstract Syntax Tree of Redesigned Language* (Xu, Ong Jun
+Leang, Wang, Li, Li, Ong, Watt; 17 July 2026). The abstract describes **Minilang** as "a
+recent proof language that reaches SOTA on LLM-based proving but is too new for LLMs'
+training corpora", and states "the model supplies proofs as JSON representations of
+Minilang's AST — native to tool-calling LLMs".
+
+Hamiltonian therefore **may not** claim novelty from: designing a formal language for LLMs ·
+exposing an AST as JSON · demonstration-based teaching · compiler/prover feedback · reduced
+token cost. All five are now explicitly listed as unavailable in `GOAL.md` §0.
+
+One claim in the source material — that Minilang and its tree-edit interface cannot be
+cleanly ablated — is **not in the retrieved abstract** and is marked **UNVERIFIED** and not
+relied upon.
+
+**What was completed.** `GOAL.md` rewritten as an eight-component specification
+(Σ 𝒢 𝒮 ℛ ℰ 𝒞 ℬ 𝒪) with the optimisation objective stated formally, a per-component status
+line, the remaining gap expressed as an eight-part conjunction, a prior-art table naming
+what each near neighbour does *not* occupy, the H1/H2/H3 separation, the defensible
+one-sentence claim, and eight failure modes.
+
+**Decisions made and why.** The defensible claim is narrowed to the **conjunction**, with
+𝒪 — empirical optimisation of the representation under matched-model, matched-information,
+matched-compute controls — as the novelty candidate. "One semantic representation feeding
+multiple systems" is explicitly recorded as **not novel**: OpenMath and MMT have done it for
+two decades.
+
+Per-component status is stated honestly, including that 𝒞 (concept registry) is **not
+trustworthy** — red-teaming admitted three disguised duplicates — and that 𝒪 and
+H1/H2/H3 are **untested**.
+
+**Verification actually executed.**
+
+| command | actual result |
+|---------|---------------|
+| `WebFetch arxiv.org/abs/2607.16372` | title, authors, date and both load-bearing quotes confirmed |
+| `pytest tests/golden` | 84 passed — the no-superiority-claim gate accepts the new text |
+| `./scripts/conformance.sh` | CONFORMANCE: PASS, all 8 stages |
+
+**Failures and unresolved uncertainty.**
+
+- The eight-part conjunction was not found in any published system, but that is a
+  **search-based negative**, not proof of absence, and `GOAL.md` says so.
+- X, Y and Z in the target result are **unmeasured**, and the document states it.
+- The immediate bottleneck is unchanged and now stated as §8 of the goal: can `gemma4:31b`
+  acquire one surface at ≥95% repaired parse and ≥90% fidelity? V0 managed 50–73%. Until a
+  surface clears it, **every null result is uninterpretable.**
+
+**Effect on the overall project.** The objective is now specific enough to be wrong in a
+particular way, which is the property it previously lacked.
+
+**Next intended step.** Freeze the V1 compiler and run the four-syntax Gemma acquisition
+tournament.
+
