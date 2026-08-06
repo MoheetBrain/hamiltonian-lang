@@ -40,6 +40,7 @@ from evaluation.corpus_governance.v2_firewall import (
     acq0_semantic_diff,
     in_mode,
 )
+from evaluation.corpus_governance.v2_view import encoding_view
 
 P = Provenance(author="test", created_utc="2026-01-01T00:00:00+00:00")
 
@@ -55,7 +56,7 @@ def test_state_in_prose_does_not_alter_task_identity():
         for f in task.derived_facts))
     assert task.semantic_identity() == flipped.semantic_identity()
     assert task.canonical_hash() == flipped.canonical_hash()
-    assert task.structured_target() == flipped.structured_target()
+    assert encoding_view(task) == encoding_view(flipped)
 
 
 def test_the_derived_fact_itself_is_semantic():
@@ -79,16 +80,21 @@ def test_prose_coverage_is_exact(task):
 def test_every_required_fact_class_is_covered(task):
     """Initialisers and binder order are separate facts: prose can drop either while
     keeping the name, which is what v1 did."""
-    facts = required_public_facts(task)
-    st = task.structured_target()
-    for i, d in enumerate(st["declarations"]):
-        if "value" in d:
-            assert any(f.fact_id == f"decl{i}.value" for f in facts)
-    for i, f in enumerate(st["definitions"]):
-        assert any(x.fact_id == f"def{i}.body" for x in facts)
-        for j in range(len(f["binders"])):
-            assert any(x.fact_id == f"def{i}.binder{j}" for x in facts)
-    assert any(f.fact_id == "objective" for f in facts), "absence of a goal is itself a fact"
+    ids = {f.fact_id for f in required_public_facts(task)}
+    for r in encoding_view(task)["encoding_statements"]:
+        sid = r["statement_id"]
+        assert f"{sid}.kind" in ids and f"{sid}.position" in ids
+        if "value" in r:
+            assert f"{sid}.value" in ids
+        if r["kind"] == "def":
+            assert f"{sid}.body" in ids
+            for j in range(len(r["binders"])):
+                assert f"{sid}.binder{j}" in ids
+        if r["kind"].startswith("check_"):
+            # The class the bucketed fact layer had no branch for at all.
+            assert f"{sid}.subject" in ids and f"{sid}.expected" in ids
+    assert "module" in ids, "the module name is part of the content hash"
+    assert "objective" in ids, "absence of a goal is itself a fact"
 
 
 def test_an_unmapped_clause_fails_coverage():
@@ -104,28 +110,37 @@ def test_an_unmapped_clause_fails_coverage():
 
 @pytest.mark.parametrize("task", PROOF_CORPUS, ids=lambda t: t.task_id)
 def test_the_structured_target_reconstructs_the_semantic_payload(task):
-    assert reconstruct_semantic_payload(task.structured_target()) == semantic_payload(task)
+    """Weak by construction — both sides derive from the view, so this detects a missing
+    KEY and never a missing statement. `view_reconstructs_exactly` is the real gate."""
+    assert reconstruct_semantic_payload(encoding_view(task)) == semantic_payload(task)
 
 
 @pytest.mark.parametrize(
     "field",
-    ["declarations", "definitions", "assumptions", "objective", "derived_facts",
-     "prohibited_assumptions", "probability_laws", "domain_constraints"],
+    ["module", "family", "encoding_statements", "objective", "derived_facts",
+     "prohibited_assumptions"],
 )
 def test_removing_any_semantic_field_breaks_reconstruction(field: str):
-    target = dict(PROOF_CORPUS[1].structured_target())
+    target = dict(encoding_view(PROOF_CORPUS[1]))
     target.pop(field)
     with pytest.raises(ReversibilityFailure):
         reconstruct_semantic_payload(target)
 
 
 def test_a_const_without_a_visible_value_breaks_reconstruction():
-    """The v1 `eta` defect, caught at the reconstruction boundary."""
-    target = dict(PROOF_CORPUS[1].structured_target())
-    target["declarations"] = [
-        {k: v for k, v in d.items() if k != "value"} for d in target["declarations"]]
-    with pytest.raises(ReversibilityFailure, match="invent"):
-        reconstruct_semantic_payload(target)
+    """The v1 `eta` defect, caught at the reconstruction boundary that can see it.
+
+    `reconstruct_semantic_payload` cannot: it copies keys. `reconstruct_source` refuses,
+    because it must produce a compilable module and an initialiser cannot be invented.
+    """
+    from evaluation.corpus_governance.v2_view import ViewIncomplete, reconstruct_source
+
+    target = dict(encoding_view(PROOF_CORPUS[1]))
+    target["encoding_statements"] = [
+        {k: v for k, v in r.items() if k != "value"}
+        for r in target["encoding_statements"]]
+    with pytest.raises(ViewIncomplete, match="invent"):
+        reconstruct_source(target)
 
 
 def test_a_definition_without_a_codomain_is_rejected_at_construction():

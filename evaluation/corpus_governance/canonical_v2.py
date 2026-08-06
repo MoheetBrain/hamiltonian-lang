@@ -50,6 +50,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
+from .partiality import scan_module
+
 __all__ = [
     "SCHEMA_VERSION",
     "EpistemicCategory",
@@ -159,6 +161,7 @@ class CanonicalAcq0TaskV2:
         from hamiltonian_lang import compile_source
         from hamiltonian_lang.ast.nodes import (
             AssumeStmt,
+            CheckStmt,
             Declaration,
             DefineStmt,
             InferStmt,
@@ -206,7 +209,18 @@ class CanonicalAcq0TaskV2:
                         f"An omitted codomain is not reconstructable from the model-visible "
                         f"target and produces a different canonical form from an annotated "
                         f"one.")
-                _reject_unguarded_partiality(self.task_id, st, result)
+
+        # Partiality, over the WHOLE module rather than one definition at a time. The
+        # per-definition predecessor saw bare binders only, and so admitted a division by
+        # a module-level `Quantity[Length^2]` -- the case that actually cost a task.
+        report = scan_module(result.module, self.task_id)
+        if not report.admissible:
+            raise SchemaViolation(
+                f"{self.task_id}: unestablished partial operation(s). Narrow a type or "
+                f"reformulate the task; the corpus must not assume safety on the model's "
+                f"behalf, and for a dimensioned operand no guard is even expressible.\n\n"
+                f"{report.render()}"
+            )
 
         # objective=None means no goal may exist, anywhere.
         if self.objective is None and goals:
@@ -216,9 +230,35 @@ class CanonicalAcq0TaskV2:
                 f"cannot be rendered consistently -- this is the v1 defect that let a "
                 f"model add a `prove` the reference lacked."
             )
-        if self.objective is not None and not goals:
-            raise SchemaViolation(
-                f"{self.task_id}: an objective is declared but the source states no goal")
+        if self.objective is not None:
+            # The objective must name the KIND of goal the source actually states. A
+            # `decide` objective is discharged by a `check`: a check is a property the
+            # system decides, and it is the only goal form a dimensional task has. A
+            # `check` without an objective stays legal -- it is then a property of the
+            # object rather than the point of the task, which is what task 7 is.
+            wanted = {"prove": ProveStmt, "solve": SolveStmt, "infer": InferStmt,
+                      "decide": CheckStmt}[self.objective.kind]
+            matching = [s for s in result.module.statements if isinstance(s, wanted)]
+            if not matching:
+                raise SchemaViolation(
+                    f"{self.task_id}: the objective is {self.objective.kind!r} but the "
+                    f"source states no {wanted.__name__}. An objective with no matching "
+                    f"goal statement cannot be rendered consistently."
+                )
+
+        # A derived fact's provenance is rendered verbatim into model-visible prose, so
+        # it must be a PROSE reference. `("param lambda : PositiveReal",)` handed the model
+        # a complete line of the surface-A answer, and the bundle leak scan -- which
+        # matches whole sources and whole renderings -- could not see one line.
+        source_lines = {line.strip() for line in self.source.splitlines() if line.strip()}
+        for fact in self.derived_facts:
+            for origin in fact.derived_from:
+                if origin.strip() in source_lines:
+                    raise SchemaViolation(
+                        f"{self.task_id}: derived fact {fact.statement!r} names its "
+                        f"provenance as {origin!r}, which is a verbatim line of the "
+                        f"answer. Provenance reaches prose; state it in words."
+                    )
 
         # A derived fact must not also be asserted as a premise.
         premises = {
@@ -248,60 +288,19 @@ class CanonicalAcq0TaskV2:
         return self.source
 
     def structured_target(self) -> dict[str, Any]:
-        """The model-visible target, derived. Schema-validatable, never a repr string."""
-        from hamiltonian_lang.ast.nodes import (
-            AssumeStmt,
-            Declaration,
-            DefineStmt,
-            LawStmt,
-            RequireStmt,
+        """REMOVED. Use `v2_view.encoding_view(task)`.
+
+        This returned unordered kind-buckets while `content_hash` is order-sensitive, and
+        it had no `CheckStmt` branch. Everything derived from it inherited both defects:
+        the fact layer certified full prose coverage for a task whose defining statement it
+        could not see, and the semantic diff scored a dropped `check` as unequal with an
+        empty difference list. It is raised rather than deleted so that a stale caller
+        fails loudly instead of silently receiving a lossy target (D-030).
+        """
+        raise NotImplementedError(
+            "structured_target() is superseded by v2_view.encoding_view(): it was "
+            "order-free and dropped `check` statements. See D-030."
         )
-        decls, defs, laws, assumptions, constraints = [], [], [], [], []
-        for st in self.module.statements:
-            if isinstance(st, Declaration):
-                entry = {"name": st.name, "kind": st.kind,
-                         "type": st.declared_type.render() if st.declared_type else None}
-                if st.value is not None:
-                    entry["value"] = _render_expr(st.value)
-                decls.append(entry)
-            elif isinstance(st, DefineStmt):
-                defs.append({
-                    "name": st.name,
-                    "binders": [{"name": n, "type": t.render() if t else None}
-                                for n, t in st.params],
-                    "codomain": st.declared_type.render() if st.declared_type else None,
-                    "body": _render_expr(st.body),
-                })
-            elif isinstance(st, LawStmt):
-                laws.append({
-                    "role": st.role,
-                    "target": st.target_symbol.name if st.target_symbol else None,
-                    "given": [g.symbol_id.name for g in st.given if g.symbol_id],
-                    "distribution": _render_expr(st.distribution),
-                })
-            elif isinstance(st, AssumeStmt):
-                assumptions.append(_render_expr(st.proposition))
-            elif isinstance(st, RequireStmt):
-                constraints.append(_render_expr(st.proposition))
-        return {
-            "schema_version": self.schema_version,
-            "task_id": self.task_id,
-            "family": str(self.family),
-            "module": self.module.name,
-            "declarations": decls,
-            "definitions": defs,
-            "probability_laws": laws,
-            "assumptions": assumptions,
-            "domain_constraints": constraints,
-            "derived_facts": [
-                {"statement": f.statement, "derived_from": list(f.derived_from)}
-                for f in self.derived_facts
-            ],
-            "objective": (None if self.objective is None
-                          else {"kind": self.objective.kind,
-                                "statement": self.objective.statement}),
-            "prohibited_assumptions": list(self.prohibited_assumptions),
-        }
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -394,54 +393,6 @@ class CanonicalAcq0TaskV2:
             sort_keys=True,
         )
         return hashlib.sha256(payload.encode()).hexdigest()
-
-
-def _reject_unguarded_partiality(task_id: str, define: Any, compiled: Any) -> None:
-    """A function declared total over a domain where its body is not total is rejected.
-
-    Found by the hardening audit in this project's own proof corpus:
-    `def varrho(mu : Real) : Real := eta / mu` declares totality over Real while being
-    undefined at zero, and the obligation engine returns VERIFIED for it -- it generates no
-    definedness obligation over a binder's declared domain at all.
-
-    A task carrying that is not a valid instrument: a model could encode it faithfully, or
-    could add a guard, and neither reading is wrong. The remedy is to narrow the binder
-    type (`PositiveReal`) or state an explicit precondition -- **never** to have the
-    corpus silently assume non-zeroness on the model's behalf.
-    """
-    from hamiltonian_lang.ast.nodes import BinOp
-
-    binder_types = {n: t for n, t in define.params}
-
-    def totality_gap(expr: Any, depth: int = 0) -> str | None:
-        if expr is None or depth > 24:
-            return None
-        if isinstance(expr, BinOp) and expr.op == "/":
-            name = getattr(expr.right, "name", None)
-            if name in binder_types:
-                declared = binder_types[name]
-                kind = getattr(declared, "name", None) or (
-                    declared.render() if declared is not None else None)
-                if kind not in {"PositiveReal", "PositiveNatural"}:
-                    return (f"divides by binder {name!r} declared {kind or declared}, "
-                            f"which admits zero")
-        for attr in ("left", "right", "operand", "body", "base"):
-            gap = totality_gap(getattr(expr, attr, None), depth + 1)
-            if gap:
-                return gap
-        for arg in getattr(expr, "args", ()) or ():
-            gap = totality_gap(arg, depth + 1)
-            if gap:
-                return gap
-        return None
-
-    gap = totality_gap(define.body)
-    if gap:
-        raise SchemaViolation(
-            f"{task_id}: definition {define.name!r} is declared total over its binder "
-            f"domain but {gap}. Narrow the binder type or state an explicit precondition; "
-            f"the corpus must not assume non-zeroness on the model's behalf."
-        )
 
 
 def _render_expr(expr: Any) -> str:

@@ -1850,3 +1850,100 @@ reasons. Model testing remains blocked on human review — correctly.
 **Next.** Human review of `ACQ0_V2_HUMAN_REVIEW_PACKET_R2.md`. If it passes, locate or
 freeze the development taxonomy before authoring four continuation tasks and two sealed
 spares.
+
+---
+
+## 2026-08-06 — admit the ACQ0 v2 development corpus: 12 tasks + 2 sealed spares
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** ACQ0 corpus admission,
+before any model call.
+
+**Objective.** Close the three remaining corpus gates — independent semantic review, a real
+partiality scanner, a frozen taxonomy — and freeze the minimum valid development corpus.
+
+**Files and systems changed.** `evaluation/corpus_governance/`: new `partiality.py` and
+`taxonomy.py`; `canonical_v2.py`, `v2_view.py`, `v2_facts.py`, `v2_render.py`,
+`v2_bundle.py`, `v2_firewall.py`, `task_admission.py`, `v2_corpus/tasks.py` all modified.
+`evaluation/acq0/v2/`: `prompt.py` rewritten, new `budget.py` and `run.py`. New tests
+`test_partiality_scanner.py` and `test_taxonomy_coverage.py`; four existing test modules
+updated. New docs `ACQ0_V2_TAXONOMY.md`, `ACQ0_V2_INDEPENDENT_SEMANTIC_REVIEW.md`,
+`model_files/SHARED_HML_SEMANTICS.md`. D-031 and D-032 in `DECISIONS.md`.
+
+**What was completed.**
+
+*Independent semantic review, two rounds, four read-only reviewers.* Round 1 on the original
+eight; round 2 on the six authored after. Round 2 was not a formality: all four
+objective-bearing tasks are in it, so round 1 could not have seen the defect class they
+carry.
+
+*Thirteen findings, every one repaired at the generator.* Five were governance-layer defects
+rather than task defects: `build_bundle` still served the retired bucketed target; the
+bundle pointed at a shared-semantics document that **does not exist in this repository**;
+`structured_target()` dropped `CheckStmt` everywhere downstream, so the coverage check
+certified a task whose defining statement it could not see and the semantic diff scored a
+dropped `check` as unequal with an **empty difference list**; the objective was stated twice
+in prose in a form that compiles to a different hash; and a derived fact's provenance
+`("param lambda : PositiveReal",)` reached prose verbatim — one line of the surface-A answer,
+which the whole-rendering leak scan could not see.
+
+*Two tasks rejected on their mathematics and replaced under fresh ids.*
+`v2_quantifier_scope_002`'s premise `exists b : Real . forall x : Real . x < b` is **false**
+— instantiate at `x := b` and it says `b < b` — so the hypothesis set was inconsistent and
+entailed the very converse the task prohibited, while its goal was a theorem and the
+assumption inert. `v2_dimensional_algebra_003` named a definition `kinetic_energy` while
+omitting the ½; `0.5 * mass * speed ^ 2` compiles *and* passes the same dimension check, so
+a model that knows physics would be scored FAIL on a hash difference. Both preserved with
+reasons in `SUPERSEDED.md`.
+
+*A real partiality scanner* replaces the binder-only guard: every expression position,
+definition dependencies followed, module variables, compound denominators, negative and
+fractional powers, variable exponents, `sqrt`/`log`/`tan`, indexing, concept bodies. It
+prints a named risk path, marks a dimensioned denominator UNGUARDABLE (HML-D502), and fails
+closed on an unwired statement kind. The review found it failing **open** on `concept`
+blocks and unable to distinguish "clean" from "never looked"; both are closed and pinned.
+
+*The taxonomy is frozen* at twelve cells, generated from `taxonomy.py` and enforced by
+tests. All twelve covered, all six coverage rules met.
+
+**Decisions made and why.** D-031: an objective must name the kind of goal the source
+states, with `decide` discharged by a `CheckStmt` — the previous bare existence test made
+the objective-bearing check cell inexpressible, and widening the goal set unconditionally
+would have retroactively invalidated a task whose `check` is a property of the object rather
+than the point of the task. D-032: demonstrations are authored and never drawn from the
+scored corpus, because `PROOF_CORPUS[:5]` showed one task's answer while the model encoded
+another and gave demo tasks one fewer demonstration than non-demo tasks; and they now show
+the view→encoding mapping, because rendering the encoding alone measures guessability rather
+than expressiveness.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---|---|
+| `.venv/bin/python -m pytest` | **5557 passed**, 4 skipped, 7 xfailed, 7 xpassed |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS** |
+| `ruff check evaluation tests src` · `mypy src` | All checks passed · 84 files clean |
+| view-only reconstruction | **14/14 exact** |
+| A/B/C/D round-trips | **56/56 exact** |
+| reference self-score · prose coverage · partiality · admission | 14/14 each |
+| scorer self-check (offline, no model) | **48/48**; a dropped statement scores not-exact |
+| semantic diff on a dropped `check` | names `position 4, missing statement, check_dimension` |
+| contamination vs every previously-shown split | **0 collisions**, max overlap 0.021 / 0.60 |
+| leak scan negative control | fires on a planted reference line |
+
+**Failures and unresolved uncertainty.**
+
+- **No automated gate can catch what rejected the two tasks.** There is no satisfiability,
+  entailment or truth check anywhere in the admission path — `assume 1 > 2` compiles and
+  scans ACCEPT — and no name/body coherence check. Both rejections came from review.
+- **The contamination gate would not have caught the kinetic-energy case**: structural
+  reproduction with one term deleted scores ~0.04 against a 0.60 threshold.
+- **This is not human review.** Two agent reviewers, labelled as such. It clears a
+  developmental screen, not a promotion benchmark.
+- Cells 4 and 8 have a single carrier each and no spare. Stated, not hidden.
+- **No model has seen any v2 task.** Every number above is a property of the instrument.
+
+**Effect on the overall project.** The corpus is admissible on all fourteen gates and the
+instrument is ready for a developmental acquisition run.
+
+**Next intended step.** Re-measure the prompt budget against the frozen runtime, then
+Tranche A.

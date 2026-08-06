@@ -22,7 +22,7 @@ from evaluation.corpus_governance.canonical_v2 import (
     SchemaViolation,
     TaskFamily,
 )
-from evaluation.corpus_governance.v2_corpus import PROOF_CORPUS
+from evaluation.corpus_governance.v2_corpus import PROOF_CORPUS, SEALED_SPARES
 from evaluation.corpus_governance.v2_render import (
     SUPPORTED_SURFACES,
     ViewConfusion,
@@ -67,8 +67,24 @@ def test_a_goal_without_an_objective_is_rejected():
 
 
 def test_an_objective_without_a_goal_is_rejected():
-    with pytest.raises(SchemaViolation, match="states no goal"):
+    with pytest.raises(SchemaViolation, match="states no ProveStmt"):
         _task("module M\nvar d : Real\n", objective=Objective("prove", "d equals d"))
+
+
+def test_an_objective_must_match_the_kind_of_goal_the_source_states():
+    """A `decide` objective is discharged by a `check`, not by a `prove` (D-031)."""
+    with pytest.raises(SchemaViolation, match="states no CheckStmt"):
+        _task("module M\nvar d : Real\nprove d = d\n",
+              objective=Objective("decide", "whether d equals d"))
+    with pytest.raises(SchemaViolation, match="states no ProveStmt"):
+        _task("module M\nvar l : Quantity[Length]\ncheck dimension l = Length\n",
+              objective=Objective("prove", "that l is a length"))
+
+
+def test_a_check_without_an_objective_stays_legal():
+    """A check is a property OF the object; only sometimes is it the POINT of the task."""
+    assert _task("module M\nvar l : Quantity[Length]\n"
+                 "check dimension l = Length\n").canonical_hash()
 
 
 def test_a_derived_fact_may_not_also_be_a_premise():
@@ -99,25 +115,32 @@ def test_the_reference_encoding_is_the_authority_itself(task):
 @pytest.mark.parametrize("task", PROOF_CORPUS, ids=lambda t: t.task_id)
 def test_the_structured_target_carries_every_value_and_body(task):
     """v1's target omitted const values and function bodies, so the task was
-    unreconstructable from model-visible material."""
-    st = task.structured_target()
-    for d in st["declarations"]:
-        if d["kind"] == "const":
-            assert d.get("value"), f"{d['name']} is const with no visible value"
-    for f in st["definitions"]:
-        assert f["body"], f"{f['name']} has no visible body"
-        for b in f["binders"]:
-            assert b["type"], f"binder {b['name']} is untyped"
+    unreconstructable from model-visible material.
+
+    Reads the ordered view: `structured_target()` was retired for dropping `check`
+    statements and for being order-free (D-030).
+    """
+    from evaluation.corpus_governance.v2_view import encoding_view
+
+    for r in encoding_view(task)["encoding_statements"]:
+        if r["kind"] == "const":
+            assert r.get("value"), f"{r['name']} is const with no visible value"
+        if r["kind"] == "def":
+            assert r["body"], f"{r['name']} has no visible body"
+            for b in r["binders"]:
+                assert b["type"], f"binder {b['name']} is untyped"
 
 
 @pytest.mark.parametrize("task", PROOF_CORPUS, ids=lambda t: t.task_id)
 def test_the_prose_names_every_declared_entity(task):
     """No hidden entity: v1 named `eta` in the target and never in the prose."""
+    from evaluation.corpus_governance.v2_view import encoding_view
+
     prose = render_prose(task)
-    for d in task.structured_target()["declarations"]:
-        assert d["name"] in prose, f"{d['name']} is absent from the generated prose"
-    for f in task.structured_target()["definitions"]:
-        assert f["name"] in prose
+    for r in encoding_view(task)["encoding_statements"]:
+        if "name" in r:
+            assert r["name"] in prose, f"{r['name']} is absent from the generated prose"
+    assert task.module.name in prose, "the module name is absent from the generated prose"
 
 
 @pytest.mark.parametrize("task", PROOF_CORPUS, ids=lambda t: t.task_id)
@@ -213,7 +236,9 @@ def test_the_h2_view_leaks_neither_target_nor_encoding(task):
 def test_an_h2_view_carrying_a_target_is_refused():
     """The guard must fire, not merely be documented."""
     task = PROOF_CORPUS[0]
-    poisoned = dict(h2_view(task), structured_target=task.structured_target())
+    from evaluation.corpus_governance.v2_view import encoding_view
+
+    poisoned = dict(h2_view(task), structured_target=encoding_view(task))
     with pytest.raises(ViewConfusion, match="answer-key exposure"):
         assert_views_distinct(acq0_view(task), poisoned)
 
@@ -235,9 +260,17 @@ def test_the_reference_self_scores_pass(task):
 
 
 def test_the_proof_corpus_has_one_task_per_family():
+    """Twelve development tasks covering all eight families, several twice.
+
+    A family with a single carrier is a fragile one: reject that task and the feature
+    leaves the corpus. The continuation tasks give quantifier scope, dimensional algebra,
+    probability roles and assumption boundary a second carrier each.
+    """
     families = [t.family for t in PROOF_CORPUS]
-    assert len(PROOF_CORPUS) == 8
-    assert len(set(families)) == 8
+    assert len(PROOF_CORPUS) == 12
+    assert len(set(families)) == 8, "every family must still be represented"
+    assert len(SEALED_SPARES) == 2
+    assert not {t.task_id for t in PROOF_CORPUS} & {t.task_id for t in SEALED_SPARES}
 
 
 def test_v2_ids_do_not_collide_with_the_quarantined_v1_corpus():

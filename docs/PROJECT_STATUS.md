@@ -28,7 +28,27 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**ACQ0 v2 MODEL-VISIBLE VIEW REPAIRED; AWAITING A SECOND HUMAN REVIEW.** A line-by-line
+**ACQ0 v2 DEVELOPMENT CORPUS ADMITTED — 12 TASKS + 2 SEALED SPARES.** The taxonomy is
+frozen at twelve feature cells (`docs/evaluation/ACQ0_V2_TAXONOMY.md`), all twelve covered,
+every coverage rule met. Two independent read-only reviewers examined the corpus in two
+rounds and returned **0 WRONG and 0 REJECT**; all eight of their findings were repaired at
+the **generator**, never at an individual answer, and each has a regression test.
+
+The binder-only partiality guard is replaced by an **AST scanner** that walks every
+expression position and follows definition dependencies — module variables, compound
+denominators, negative and fractional powers, variable exponents, `sqrt`/`log`/`tan`,
+indexing, and partiality one or two `def`s deep — reporting a named risk path and failing
+closed. It marks a dimensioned denominator **UNGUARDABLE**, because `require area != 0`
+does not compile (HML-D502).
+
+Three defects the reviewers found were in the governance layer rather than in any task:
+`build_bundle` still served the retired bucketed target; `structured_target()` dropped
+`CheckStmt` everywhere downstream, so the semantic diff scored a dropped `check` as unequal
+with an **empty difference list**; and the objective was stated twice in prose in a form
+that compiles to a different hash. `structured_target()` now raises — the fact layer, the
+prose generator and the semantic diff all read one traversal.
+
+Previously: **ACQ0 v2 MODEL-VISIBLE VIEW REPAIRED.** A line-by-line
 English-versus-formal review of all eight tasks found that the artefact handed to a model
 was insufficient to produce the reference. `structured_target()` partitioned each module
 into unordered kind-buckets while `content_hash` is order-sensitive, so three tasks were
@@ -174,7 +194,12 @@ against isolated file ownership.
 | `GOAL.md` | project thesis |
 | `docs/design/V0_DESIGN_FREEZE.md` | the frozen v0 contract |
 | `SPEC.md` | normative language reference |
-| `DECISIONS.md` | D-001..D-030 with reversal costs |
+| `DECISIONS.md` | D-001..D-032 with reversal costs |
+| `docs/evaluation/ACQ0_V2_TAXONOMY.md` | **the frozen 12-cell taxonomy and feature matrix** |
+| `docs/evaluation/ACQ0_V2_INDEPENDENT_SEMANTIC_REVIEW.md` | both review rounds, compact |
+| `evaluation/corpus_governance/partiality.py` | **the AST partiality scanner** |
+| `evaluation/acq0/v2/prompt.py` | the one frozen prompt builder |
+| `evaluation/acq0/v2/run.py` | the Tranche A driver and preregistered gates |
 | `evaluation/corpus_governance/canonical_v2.py` | **the single ACQ0 authority** |
 | `evaluation/corpus_governance/v2_view.py` | **the ordered view and the admission gate** |
 | `evaluation/corpus_governance/v2_render.py` | every model-visible artefact, all derived |
@@ -374,19 +399,15 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Current Blockers
 
-- **A second human review of the eight-task v2 corpus blocks every model call.** The packet
-  is `docs/evaluation/ACQ0_V2_HUMAN_REVIEW_PACKET_R2.md`. No task is marked human-approved;
-  the automated gates establish that a task *can* be encoded, not that its English says what
-  its formal version says. Only a person can close that gap.
-- **The 12-task development taxonomy is not located.** Four continuation tasks and two
-  sealed spares cannot be authored against a taxonomy that is not frozen.
+- **No official human review has happened.** `INDEPENDENT_SEMANTIC_REVIEW` is two
+  read-only agent reviews, and is labelled as such. It clears the developmental screen; it
+  does not clear a promotion benchmark.
 - Q-03 (OpenMath licensing) blocks a reuse decision, not the build.
 
 ## Exact Next Actions
 
-0. **Human review of the R2 packet**, task by task, against the five review questions. Then
-   either mark the corpus approved or return specific tasks for repair. Nothing downstream
-   is legitimate before this.
+0. Re-measure the prompt budget against the frozen runtime (`-c 32768 -np 2`), then run
+   Tranche A: 8 development tasks x 4 surfaces, `DIRECT_FORMAL`, one safe repair maximum.
 
 1. Decide the D-003 cost/benefit question now that the token cost is measured at ~5.9%
    (D-014): is the explicitness worth it? This is H5 and is still open.

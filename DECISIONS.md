@@ -857,3 +857,48 @@ check that cannot fail is not a check.
 **Reversal.** Serve `structured_target()` to models again and delete
 `view_reconstructs_exactly` from admission. Reversal restores an instrument that scores
 models against information they were never given.
+
+## D-031 — an objective must name the kind of goal the source states
+
+**Date.** 2026-08-06 · **Status.** Accepted
+
+**Decision.** `objective.kind` selects the statement class that discharges it:
+`prove`→`ProveStmt`, `solve`→`SolveStmt`, `infer`→`InferStmt`, **`decide`→`CheckStmt`**.
+A task whose objective names a kind the source does not state is rejected at construction.
+A `check` with **no** objective stays legal.
+
+**Reason.** The previous rule was a bare existence test — "an objective implies some goal
+statement" — over `(ProveStmt, SolveStmt, InferStmt)`. Under it, `objective=Objective(
+"decide", …)` could not be discharged at all, so the taxonomy's objective-bearing *check*
+cell had no expressible task. Widening the goal set to include `CheckStmt` unconditionally
+would have been worse: it would retroactively invalidate `v2_dimensional_algebra_002`,
+whose `check dimension` is a property **of** the object rather than the point of the task.
+
+The distinction is the content: a `check` states something true of the object; an
+objective declares that establishing it is what the task is *for*.
+
+**Reversal.** Restore the existence test and delete the `decide`→`CheckStmt` mapping.
+Reversal removes taxonomy cell 10 and leaves the `decide` objective kind unusable.
+
+## D-032 — demonstrations are authored, never drawn from the scored corpus
+
+**Date.** 2026-08-06 · **Status.** Accepted
+
+**Decision.** The four ACQ0 demonstrations live in `evaluation/acq0/v2/prompt.py`, are
+authored HML modules, are never scored, and duplicate no scored task's mathematics. Each is
+shown as an **ordered view paired with its encoding**, not as an encoding alone.
+
+**Reason.** Two separate defects in the predecessor, which used `PROOF_CORPUS[:5]`.
+
+*Contamination and asymmetry.* A demonstration task's answer was visible while a model
+encoded a different task, and a demo task received one fewer demonstration than a non-demo
+task, because a task never demonstrates itself. Per-task difficulty was therefore not
+comparable, and five of twelve tasks were scored after their answers had been shown.
+
+*The demonstrations taught the wrong thing.* Rendering only the encoding exhibits the
+notation and leaves the model to infer how a view becomes one. That measures inference, not
+translation, and it penalises whichever surface is hardest to *guess* rather than hardest to
+*express* — which would have been read as a property of the surface.
+
+**Reversal.** Point `DEMONSTRATIONS` back at `PROOF_CORPUS[:k]` and drop the `GIVEN:` block.
+Reversal reintroduces answer exposure across tasks and measures guessability.

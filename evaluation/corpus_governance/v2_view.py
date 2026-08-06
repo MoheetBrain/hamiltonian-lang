@@ -40,8 +40,8 @@ from typing import Any
 
 from .canonical_v2 import CanonicalAcq0TaskV2
 
-__all__ = ["encoding_view", "reconstruct_source", "view_reconstructs_exactly",
-           "ViewIncomplete", "UnsupportedStatement"]
+__all__ = ["encoding_view", "statement_records", "reconstruct_source",
+           "view_reconstructs_exactly", "ViewIncomplete", "UnsupportedStatement"]
 
 
 class ViewIncomplete(RuntimeError):
@@ -57,11 +57,17 @@ def _expr(node: Any) -> str:
     return "" if node is None else render_expr(node)
 
 
-def encoding_view(task: CanonicalAcq0TaskV2) -> dict[str, Any]:
-    """One ordered list. Every emitted source statement appears exactly once.
+def statement_records(module: Any, task_id: str = "<module>") -> list[dict[str, Any]]:
+    """The ordered positional records of ONE module. The single statement derivation.
 
-    A statement kind without a branch here raises rather than being silently dropped —
-    the dimension-check defect was a silent drop.
+    Exposed separately from :func:`encoding_view` so that every consumer — the view, the
+    fact layer, the prose generator, the semantic diff — reads the *same* traversal. The
+    defect this closes is a second derivation drifting from the first: a parallel
+    kind-bucket walk had no `CheckStmt` branch, so the fact layer certified full prose
+    coverage for a task whose defining statement it could not see, and the semantic diff
+    reported `equal: False` with an empty difference list.
+
+    It also runs over a *submitted* module, which is what makes a positional diff possible.
     """
     from hamiltonian_lang.ast.nodes import (
         AssumeStmt,
@@ -79,7 +85,7 @@ def encoding_view(task: CanonicalAcq0TaskV2) -> dict[str, Any]:
 
     statements: list[dict[str, Any]] = []
     position = 0
-    for st in task.module.statements:
+    for st in module.statements:
         if isinstance(st, ModuleDecl):
             continue  # carried as `module`, not as a positional statement
         position += 1
@@ -121,18 +127,23 @@ def encoding_view(task: CanonicalAcq0TaskV2) -> dict[str, Any]:
                                "epistemic_role": "checked_property"})
         elif isinstance(st, (SolveStmt, InferStmt, ObjectiveStmt)):
             raise UnsupportedStatement(
-                f"{task.task_id}: {type(st).__name__} has no model-visible representation "
+                f"{task_id}: {type(st).__name__} has no model-visible representation "
                 f"yet; failing closed rather than dropping it silently")
         else:
             raise UnsupportedStatement(
-                f"{task.task_id}: {type(st).__name__} is not representable in the view")
+                f"{task_id}: {type(st).__name__} is not representable in the view")
 
+    return statements
+
+
+def encoding_view(task: CanonicalAcq0TaskV2) -> dict[str, Any]:
+    """The complete model-visible artefact: ordered statements plus emit=false metadata."""
     return {
         "schema_version": task.schema_version,
         "task_id": task.task_id,
         "family": str(task.family),
         "module": task.module.name,
-        "encoding_statements": statements,
+        "encoding_statements": statement_records(task.module, task.task_id),
         # emit=false records are explanatory. They must not reach the encoding, and the
         # rule is stated in the view rather than left to the reader -- v1's `digamma != 0`
         # sat beside the assumptions with nothing saying which to encode.
@@ -143,12 +154,21 @@ def encoding_view(task: CanonicalAcq0TaskV2) -> dict[str, Any]:
         "prohibited_assumptions": [
             {"statement": p, "emit": False} for p in task.prohibited_assumptions
         ],
+        # `emit: False` like every other metadata record. Without it the objective was
+        # the one model-visible field with no disposition, and the emission rule -- which
+        # excluded only "records with emit=false" -- did not reach it. An encoder could
+        # read it as a further statement, and for all four objective-bearing tasks that
+        # reading compiled and hashed differently.
         "objective": (None if task.objective is None
                       else {"kind": task.objective.kind,
-                            "statement": task.objective.statement}),
+                            "statement": task.objective.statement,
+                            "emit": False}),
         "emission_rule": (
-            "Emit exactly the records in encoding_statements, in position order. Records "
-            "with emit=false are explanatory metadata and must never appear in the output."
+            "Emit the module header named by `module` first, then exactly the records in "
+            "encoding_statements, in position order — no more and no fewer. Anything "
+            "carrying emit=false — derived facts, prohibited assumptions, and the "
+            "objective — is explanatory metadata describing statements already listed, "
+            "and must never appear in the output as a statement of its own."
         ),
     }
 

@@ -74,28 +74,28 @@ def acq0_semantic_diff(task: Any, submitted: str) -> dict[str, Any]:
     if got == expected:
         return {"comparable": True, "equal": True, "differences": []}
 
-    target = task.structured_target()
-    from evaluation.corpus_governance.canonical_v2 import CanonicalAcq0TaskV2
-    mirror = CanonicalAcq0TaskV2.structured_target
-    submitted_view = mirror.__get__(  # reuse the same derivation on the submission
-        _Shim(result.module), CanonicalAcq0TaskV2)()
-    differences = [
-        {"field": key, "expected": target[key], "submitted": submitted_view.get(key)}
-        for key in ("declarations", "definitions", "probability_laws",
-                    "assumptions", "domain_constraints")
-        if target[key] != submitted_view.get(key)
-    ]
+    # POSITIONAL diff over the same traversal the model was shown. The predecessor diffed
+    # five kind-buckets and had no `check` bucket at all, so a submission that dropped a
+    # `check dimension` statement returned `equal: False` with an EMPTY difference list --
+    # scored wrong, with no reason nameable.
+    from evaluation.corpus_governance.v2_view import statement_records
+
+    expected_records = statement_records(task.module, task.task_id)
+    submitted_records = statement_records(result.module, "<submitted>")
+
+    differences: list[dict[str, Any]] = []
+    if task.module.name != result.module.name:
+        differences.append({"field": "module", "position": 0,
+                            "expected": task.module.name, "submitted": result.module.name})
+    for position in range(max(len(expected_records), len(submitted_records))):
+        want = expected_records[position] if position < len(expected_records) else None
+        got = submitted_records[position] if position < len(submitted_records) else None
+        if want != got:
+            differences.append({
+                "field": "statement", "position": position + 1,
+                "expected": want, "submitted": got,
+                "why": ("missing statement" if got is None else
+                        "unrequested statement" if want is None else
+                        "statement differs at this position"),
+            })
     return {"comparable": True, "equal": False, "differences": differences}
-
-
-class _Shim:
-    """Minimal stand-in so the target derivation can run over a submitted module."""
-
-    def __init__(self, module: Any) -> None:
-        self.module = module
-        self.derived_facts: tuple[Any, ...] = ()
-        self.objective = None
-        self.prohibited_assumptions: tuple[str, ...] = ()
-        self.schema_version = "submitted"
-        self.task_id = "<submitted>"
-        self.family = "submitted"

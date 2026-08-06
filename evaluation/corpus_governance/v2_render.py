@@ -18,6 +18,7 @@ from typing import Any
 from .canonical_v2 import CanonicalAcq0TaskV2
 
 __all__ = ["ExperimentView", "render_prose", "render_question", "acq0_view",
+           "render_surface_source",
            "h2_view", "render_surface", "SUPPORTED_SURFACES", "ViewConfusion"]
 
 SUPPORTED_SURFACES = (
@@ -51,52 +52,16 @@ def render_prose(task: CanonicalAcq0TaskV2) -> str:
     `encoding_view()["encoding_statements"]` by position, so the reader sees the order the
     answer requires.
     """
-    from .v2_view import encoding_view
+    from .v2_facts import prose_clauses
 
-    view = encoding_view(task)
-    lines: list[str] = []
-    for r in sorted(view["encoding_statements"], key=lambda x: x["position"]):
-        kind = r["kind"]
-        if kind == "const":
-            lines.append(f"The constant {r['name']} has type {r['type']} and the value "
-                         f"{r.get('value')}.")
-        elif kind == "obs":
-            lines.append(f"The observed quantity {r['name']} has type {r['type']} and the "
-                         f"value {r.get('value')}.")
-        elif kind in {"var", "param", "index", "rv"}:
-            lines.append(f"The quantity {r['name']} is declared as {kind} with type "
-                         f"{r['type']}.")
-        elif kind == "def":
-            binders = ", ".join(f"{b['name']} of type {b['type']}" for b in r["binders"])
-            lines.append(
-                f"The function {r['name']} takes {binders}, returns {r['codomain']}, and "
-                f"is defined by {r['body']}." if binders else
-                f"The value {r['name']} has type {r['codomain']} and is defined by "
-                f"{r['body']}.")
-        elif kind == "assume":
-            lines.append(f"It is assumed that {r['expression']}.")
-        elif kind == "require":
-            lines.append(f"It is required that {r['expression']}.")
-        elif kind == "prove":
-            lines.append(f"The goal is to prove that {r['expression']}.")
-        elif kind in {"prior", "likelihood", "law", "posterior"}:
-            given = f" given {', '.join(r['given'])}" if r.get("given") else ""
-            lines.append(f"The {kind} of {r['target']}{given} is {r['distribution']}.")
-        elif kind.startswith("check_"):
-            lines.append(f"It is checked that the {kind[len('check_'):]} of "
-                         f"{r['subject']} is {r['expression']}.")
-        else:
-            raise ValueError(f"no prose form for statement kind {kind!r}")
-
-    for fact in task.derived_facts:
-        if fact.state_in_prose:
-            lines.append(
-                f"It follows from {' and '.join(fact.derived_from)} that {fact.statement}; "
-                f"this is a consequence, not a further restriction, and must not be "
-                f"encoded.")
-    for p_ in task.prohibited_assumptions:
-        lines.append(f"Do not assume {p_}. This is guidance and must not be encoded.")
-    return "\n".join(lines)
+    # ONE generator. `prose_clauses` walks the ordered view and tags each sentence with the
+    # facts it carries; this joins them. A second, independent renderer is how the
+    # kind-bucket clause generator came to omit a `check` statement this one emitted --
+    # two prose paths that agreed by luck until they did not.
+    # EVERY clause, unconditionally. Filtering the objective clause when `objective is
+    # None` made `check_prose_coverage` certify an `objective` fact the prose never
+    # stated -- the coverage gate walked `prose_clauses` while the model read this.
+    return "\n".join(clause.text for clause in prose_clauses(task))
 
 
 def _ordered_view(task: CanonicalAcq0TaskV2) -> dict[str, Any]:
@@ -115,20 +80,32 @@ def render_question(task: CanonicalAcq0TaskV2) -> str | None:
     """A question exists only when an objective does. `None` means no question at all."""
     if task.objective is None:
         return None
+    # "Decide whether" + a statement that already begins "whether"/"that" produced
+    # "Decide whether whether ...". The verb carries no conjunction; the statement does.
     verb = {"prove": "Prove", "solve": "Solve for", "infer": "Infer",
-            "decide": "Decide whether"}[task.objective.kind]
+            "decide": "Establish"}[task.objective.kind]
     return f"{verb} {task.objective.statement}."
 
 
-def render_surface(task: CanonicalAcq0TaskV2, surface: str) -> str:
-    """Render the authoritative source into one candidate surface."""
+def render_surface_source(source: str, surface: str) -> str:
+    """Render arbitrary HML-L1 into one candidate surface.
+
+    Separate from :func:`render_surface` because demonstrations are authored modules, not
+    canonical tasks -- drawing them from the scored corpus would show a model the answer to
+    one task while it encodes another.
+    """
     if surface not in SUPPORTED_SURFACES:
         raise ValueError(f"unsupported surface {surface!r}")
     from evaluation.syntax_gate.candidates import resolve_adapters
     adapter = resolve_adapters()[surface]
     if adapter is None:
         raise RuntimeError(f"{surface} has no adapter; NOT MEASURED, never assumed empty")
-    return adapter.render(task.source)
+    return adapter.render(source)
+
+
+def render_surface(task: CanonicalAcq0TaskV2, surface: str) -> str:
+    """Render the authoritative source into one candidate surface."""
+    return render_surface_source(task.source, surface)
 
 
 def acq0_view(task: CanonicalAcq0TaskV2) -> dict[str, Any]:

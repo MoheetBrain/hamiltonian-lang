@@ -11,13 +11,23 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from .canonical_v2 import CanonicalAcq0TaskV2
-from .v2_render import render_surface
+from .v2_render import render_prose, render_surface
+from .v2_view import encoding_view
 
 __all__ = ["ALLOWED_PARTS", "FORBIDDEN_CONTENT", "SafeBundle", "build_bundle",
-           "BundleLeak"]
+           "BundleLeak", "SHARED_SEMANTICS_PATH"]
+
+#: The surface-independent semantics every candidate must express. Carried by VALUE, not
+#: as a path: the previous pointer named `MODEL_FILES/SHARED_HML_SEMANTICS.md`, which does
+#: not exist in this repository, so the bundle promised a glossary it could not deliver.
+SHARED_SEMANTICS_PATH = (
+    Path(__file__).resolve().parents[2] / "docs" / "evaluation" /
+    "model_files" / "SHARED_HML_SEMANTICS.md"
+)
 
 
 class BundleLeak(RuntimeError):
@@ -75,14 +85,22 @@ def build_bundle(
             "Encode the supplied mathematical object faithfully in the assigned surface "
             "syntax. Do not solve, add, remove or change anything. Output only the "
             "encoding."),
-        "shared_semantics": "see MODEL_FILES/SHARED_HML_SEMANTICS.md",
+        "shared_semantics": SHARED_SEMANTICS_PATH.read_text(),
         "surface_specification": surface,
+        # A demonstration must show the MAPPING, not just the output notation. Rendering
+        # only the encoding exhibits the syntax and leaves the model to guess how a view
+        # becomes one -- that measures guessing, not translation.
         "demonstrations": [
-            {"task_id": d.task_id, "rendering": render_surface(d, surface)}
+            {"task_id": d.task_id, "view": encoding_view(d),
+             "rendering": render_surface(d, surface)}
             for d in demonstrations
         ],
-        "structured_target": task.structured_target(),
-        "prose": None,
+        # The ORDERED view (D-030). `structured_target()` is the superseded bucketed form:
+        # it is order-free while `content_hash` is order-sensitive, and it drops
+        # `check` statements outright. Serving it here would have rebuilt, inside the
+        # "model-safe" bundle, the exact defect that invalidated the previous tranche.
+        "structured_target": encoding_view(task),
+        "prose": render_prose(task),
         "output_contract": "one fenced encoding, nothing before or after",
     }
 
@@ -106,6 +124,24 @@ def build_bundle(
         rendering = _normalise(render_surface(task, name))
         if rendering and rendering in blob:
             raise BundleLeak(f"the task's own {name} reference rendering appears in the bundle")
+
+    # Whole-rendering containment misses a SINGLE leaked line, and one line of surface A
+    # is one statement of the answer. `derived_from` reached prose verbatim and did
+    # exactly that. Short lines are skipped: a bare `var p : Bool` is generic enough that
+    # matching it would fire on unrelated demonstration text.
+    #
+    # Surface D is excluded, and not as a convenience: its notation IS the JSON the
+    # ordered view is written in, so `"module": "X",` occurs in both by construction. A
+    # per-line check there reports a leak on every task and would be switched off, taking
+    # the A/B/C check -- which does work -- with it.
+    for name in ("A_v0_labelled_linear", "B_v1_labelled_linear_simplified",
+                 "C_prefix_sexpr"):
+        for line in render_surface(task, name).splitlines():
+            stripped = _normalise(line)
+            if len(stripped) >= 12 and stripped in blob:
+                raise BundleLeak(
+                    f"a line of the task's own {name} reference appears in the bundle: "
+                    f"{stripped!r}")
 
     for token in (task.canonical_hash(), task.semantic_identity()):
         if token in blob:

@@ -52,3 +52,68 @@ Defect 1 above was a *view* defect and is now caught by the reconstruction gate.
 one-sided bound and the unguarded `var` division were **not** — the first is a semantics
 question no hash comparison can pose, and the second sits outside the guard's reach.
 Human review remains load-bearing.
+
+---
+
+## Round 2 — withdrawn during INDEPENDENT_SEMANTIC_REVIEW, before any model call
+
+Both were authored on 2026-08-06 to fill taxonomy cells 9 and 10, and both were rejected by
+the independent partiality/well-posedness reviewer in the same session. Neither was ever
+shown to a model. Both are recorded here because the reasons generalise.
+
+### `v2_quantifier_scope_002` — the premise is false
+
+```hml
+module QuantifierProof
+def some_bound_beats_all : Proposition := exists b : Real . forall x : Real . x < b
+def each_x_has_a_bound : Proposition := forall x : Real . exists b : Real . x < b
+assume some_bound_beats_all
+prove each_x_has_a_bound
+```
+
+`exists b : Real . forall x : Real . x < b` asserts a real number greater than every real
+number. Instantiate the inner binder at `x := b` and it says `b < b`. The premise is
+unsatisfiable, so the hypothesis set is inconsistent and **everything is entailed —
+including the converse the task explicitly prohibited.** The one discrimination the task
+existed to make was therefore vacuous.
+
+Independently: the goal `forall x . exists b . x < b` is a theorem of the reals (take
+`b = x + 1`), so it holds with no premise at all and the `assume` is inert. A `prove` that
+cannot separate a model which used the premise from one which ignored it measures nothing.
+
+Nothing in the construction gate catches this. `assume 1 > 2` compiles and scans ACCEPT.
+There is no satisfiability, entailment or truth check anywhere in the corpus admission
+path, and adding one is out of scope for a corpus gate.
+
+Superseded by `v2_quantifier_scope_003`, which quantifies over `Probability` — a **bounded**
+domain — so the premise is satisfiable, the goal is not a theorem, and the entailment holds
+only because the domain is non-empty.
+
+### `v2_dimensional_algebra_003` — the identifier and the body disagree
+
+```hml
+module KineticEnergyCheck
+var mass : Quantity[Mass]
+var speed : Quantity[Length / Time]
+def kinetic_energy : Quantity[Mass * Length^2 / Time^2] := mass * speed ^ 2
+check dimension kinetic_energy = Mass * Length^2 / Time^2
+```
+
+The dimensional arithmetic is correct and the operation is total. The defect is that
+kinetic energy is **½mv²**, and `0.5 * mass * speed ^ 2` compiles *and* passes the same
+dimension check while hashing differently. Every other occurrence of that identifier in
+this repository — the AST docstring, `examples/physics/kinetic_energy.hml`, all five
+candidate-syntax examples, the language guide, the syntax-acquisition generator — writes
+the coefficient. The prior ACQ0 track_a items on this shape are this task **with the `0.5`
+deleted**, and they were run against this model.
+
+A model that knows physics, or that had seen that material, emits the coefficient and is
+scored FAIL on a hash difference. Failures would correlate with prior exposure and with
+physical competence, in the direction that inflates the apparent difficulty of dimensional
+encoding — and that is precisely the v1 defect this corpus exists to retire.
+
+The contamination gate does not catch it: measured shingle overlap 0.04 against a 0.60
+threshold. Structural reproduction with one term deleted is not textual near-duplication.
+
+Superseded by `v2_dimensional_algebra_004`, the second moment of a point mass `m * r^2`,
+which has no coefficient, so the identifier and the body agree.

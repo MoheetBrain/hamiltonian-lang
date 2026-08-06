@@ -107,7 +107,10 @@ def test_state_in_prose_changes_prose_but_never_the_structured_target():
     flipped = dataclasses.replace(task, derived_facts=tuple(
         dataclasses.replace(f, state_in_prose=not f.state_in_prose)
         for f in task.derived_facts))
-    assert task.structured_target() == flipped.structured_target()
+    from evaluation.corpus_governance.v2_view import encoding_view
+
+    assert (encoding_view(task)["encoding_statements"]
+            == encoding_view(flipped)["encoding_statements"])
     assert render_prose(task) != render_prose(flipped)
     assert task.canonical_hash() == flipped.canonical_hash()
     assert task.semantic_identity() == flipped.semantic_identity()
@@ -129,8 +132,13 @@ def test_an_unguarded_partial_definition_is_rejected():
 
     The obligation engine returns VERIFIED for this -- it generates no definedness
     obligation over a binder's declared domain -- so admission must reject it.
+
+    The expected message changed when the binder-only guard was replaced by the AST
+    scanner: rejection now names a risk path rather than asserting "admits zero". The
+    property under test is unchanged, and the scanner's own suite pins the wider cases the
+    old guard could not see.
     """
-    with pytest.raises(SchemaViolation, match="admits zero"):
+    with pytest.raises(SchemaViolation, match="nonzero condition not established"):
         _task(source="module M\nconst e : Real = 5\ndef f(mu : Real) : Real := e / mu\n")
 
 
@@ -147,8 +155,18 @@ def test_a_definition_with_no_partial_operation_is_untouched():
 
 
 def test_the_corpus_contains_no_unguarded_partial_definition():
-    """Every proof task is re-validated at import; this states the property directly."""
-    assert len(PROOF_CORPUS) == 8
+    """Every task is re-validated at import; this states the property directly.
+
+    The scanner now runs over the whole module rather than one definition at a time, so
+    this covers module variables, compound denominators and definition chains too --
+    `tests/evaluation/test_partiality_scanner.py` pins each class individually.
+    """
+    from evaluation.corpus_governance.partiality import scan_module
+    from evaluation.corpus_governance.v2_corpus import SEALED_SPARES
+
+    assert len(PROOF_CORPUS) == 12
+    for task in (*PROOF_CORPUS, *SEALED_SPARES):
+        assert scan_module(task.module, task.task_id).admissible
 
 
 def test_a_definedness_fact_is_not_silently_promoted_to_a_premise():

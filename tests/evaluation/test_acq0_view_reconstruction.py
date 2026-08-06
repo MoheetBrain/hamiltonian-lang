@@ -55,12 +55,18 @@ def test_every_emitted_source_statement_appears_exactly_once(task):
 
 @pytest.mark.parametrize("task", PROOF_CORPUS, ids=lambda t: t.task_id)
 def test_prose_order_equals_encoding_order(task):
-    """Prose walked kind-buckets, so its order diverged from the answer's order."""
+    """Prose walked kind-buckets, so its order diverged from the answer's order.
+
+    Line 0 declares the module, which is part of the content hash and appeared in no prose
+    sentence at all until the independent review found it; statement sentences follow from
+    line 1.
+    """
     prose_lines = render_prose(task).splitlines()
     emitted = [r for r in encoding_view(task)["encoding_statements"] if r["emit"]]
-    assert len(prose_lines) >= len(emitted)
+    assert task.module.name in prose_lines[0], "line 0 must name the module"
+    assert len(prose_lines) >= len(emitted) + 1
     for i, record in enumerate(emitted):
-        line = prose_lines[i]
+        line = prose_lines[i + 1]
         subject = record.get("name") or record.get("target") or record.get("expression") \
             or record.get("subject") or ""
         token = str(subject).split()[0] if subject else ""

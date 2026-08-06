@@ -81,42 +81,104 @@ class ProseCoverage:
                 f"unmapped={list(self.unmapped)}")
 
 
+def _facts_of(record: dict[str, Any]) -> list[Fact]:
+    """Every load-bearing element of ONE positional statement.
+
+    Keyed by position, not by kind-bucket index, so a statement can neither be dropped nor
+    silently renumbered. `check_*` has a branch here because it had none in the bucketed
+    predecessor -- and its absence let the coverage check certify a task whose defining
+    statement it could not see.
+    """
+    sid = record["statement_id"]
+    kind = record["kind"]
+    out = [Fact(f"{sid}.kind", "statement_kind", kind),
+           Fact(f"{sid}.position", "position", str(record["position"]))]
+
+    if kind in {"var", "const", "param", "obs", "index", "rv"}:
+        out.append(Fact(f"{sid}.name", "declaration_name", record["name"]))
+        out.append(Fact(f"{sid}.type", "type", str(record["type"])))
+        if "value" in record:
+            out.append(Fact(f"{sid}.value", "initializer", str(record["value"])))
+    elif kind == "def":
+        out.append(Fact(f"{sid}.name", "definition_name", record["name"]))
+        out.append(Fact(f"{sid}.codomain", "codomain", str(record["codomain"])))
+        out.append(Fact(f"{sid}.body", "function_body", record["body"]))
+        # binder ORDER is content: a swap changes the function.
+        for j, b in enumerate(record["binders"]):
+            out.append(Fact(f"{sid}.binder{j}", "binder", f"{j}:{b['name']}:{b['type']}"))
+    elif kind in {"assume", "require", "prove"}:
+        out.append(Fact(f"{sid}.expression", f"{kind}_expression", record["expression"]))
+    elif kind in {"prior", "likelihood", "law", "posterior"}:
+        out.append(Fact(f"{sid}.target", "law_target", str(record["target"])))
+        out.append(Fact(f"{sid}.family", "probability_family", record["distribution"]))
+        if record.get("given"):
+            out.append(Fact(f"{sid}.given", "conditioning", ",".join(record["given"])))
+    elif kind.startswith("check_"):
+        out.append(Fact(f"{sid}.subject", "checked_subject", record["subject"]))
+        out.append(Fact(f"{sid}.expected", "checked_value", record["expression"]))
+    else:
+        raise ReversibilityFailure(f"no fact derivation for statement kind {kind!r}")
+    return out
+
+
+def _clause_text(record: dict[str, Any]) -> str:
+    """The prose sentence for one positional statement. THE prose generator.
+
+    `render_prose` joins these. Two independent renderers is how the bucketed clause
+    generator came to omit a statement the ordered one emitted.
+    """
+    kind = record["kind"]
+    if kind == "const":
+        return (f"The constant `{record['name']}` has type `{record['type']}` and the "
+                f"value `{record.get('value')}`.")
+    if kind == "obs":
+        return (f"The observed quantity `{record['name']}` has type `{record['type']}` "
+                f"and the value `{record.get('value')}`.")
+    if kind in {"var", "param", "index", "rv"}:
+        return (f"The quantity `{record['name']}` is declared as {kind} with type "
+                f"`{record['type']}`.")
+    if kind == "def":
+        binders = ", ".join(f"`{b['name']}` of type `{b['type']}`"
+                            for b in record["binders"])
+        # "The value X ... is defined by B" also reads as `const X : T = B` and as
+        # `var X : T = B`, and all three hash differently. Naming the statement kind is
+        # the fix; every other kind already names its own keyword.
+        if binders:
+            return (f"The definition `{record['name']}` takes {binders}, has codomain "
+                    f"`{record['codomain']}` and body `{record['body']}`.")
+        return (f"The definition `{record['name']}` takes no arguments, has codomain "
+                f"`{record['codomain']}` and body `{record['body']}`.")
+    if kind == "assume":
+        return f"It is assumed that `{record['expression']}`."
+    if kind == "require":
+        return f"It is required that `{record['expression']}`."
+    if kind == "prove":
+        return f"The goal is to prove that `{record['expression']}`."
+    if kind in {"prior", "likelihood", "law", "posterior"}:
+        given = (" given " + ", ".join(f"`{g}`" for g in record["given"])
+                 if record.get("given") else "")
+        return (f"The {kind} of `{record['target']}`{given} is "
+                f"`{record['distribution']}`.")
+    if kind.startswith("check_"):
+        return (f"It is checked that the {kind[len('check_'):]} of "
+                f"`{record['subject']}` is `{record['expression']}`.")
+    raise ReversibilityFailure(f"no prose form for statement kind {kind!r}")
+
+
 def required_public_facts(task: CanonicalAcq0TaskV2) -> tuple[Fact, ...]:
-    """Every fact the ACQ0 view must expose, derived from the canonical object.
+    """Every fact the ACQ0 view must expose, derived from the ORDERED view.
 
     One fact per semantically load-bearing element: a declaration's kind, type and
     initialiser are separate facts, because prose can drop the initialiser while keeping
-    the name -- which is exactly what v1 did.
+    the name -- which is exactly what v1 did. The module name is a fact for the same
+    reason: it is part of the content hash and was in no prose sentence at all.
     """
-    st = task.structured_target()
-    out: list[Fact] = []
+    from .v2_view import encoding_view
 
-    for i, d in enumerate(st["declarations"]):
-        out.append(Fact(f"decl{i}.name", "declaration_name", d["name"]))
-        out.append(Fact(f"decl{i}.kind", "declaration_kind", d["kind"]))
-        out.append(Fact(f"decl{i}.type", "type", str(d["type"])))
-        if "value" in d:
-            out.append(Fact(f"decl{i}.value", "initializer", str(d["value"])))
-
-    for i, f in enumerate(st["definitions"]):
-        out.append(Fact(f"def{i}.name", "definition_name", f["name"]))
-        out.append(Fact(f"def{i}.codomain", "codomain", str(f["codomain"])))
-        out.append(Fact(f"def{i}.body", "function_body", f["body"]))
-        # binder ORDER is content: a swap changes the function.
-        for j, b in enumerate(f["binders"]):
-            out.append(Fact(f"def{i}.binder{j}", "binder", f"{j}:{b['name']}:{b['type']}"))
-
-    for i, law in enumerate(st["probability_laws"]):
-        out.append(Fact(f"law{i}.role", "law_role", law["role"]))
-        out.append(Fact(f"law{i}.family", "probability_family", law["distribution"]))
-        out.append(Fact(f"law{i}.target", "law_target", str(law["target"])))
-        if law["given"]:
-            out.append(Fact(f"law{i}.given", "conditioning", ",".join(law["given"])))
-
-    for i, a in enumerate(st["assumptions"]):
-        out.append(Fact(f"assume{i}", "assumption", a))
-    for i, c in enumerate(st["domain_constraints"]):
-        out.append(Fact(f"require{i}", "requirement", c))
+    view = encoding_view(task)
+    out: list[Fact] = [Fact("module", "module_name", view["module"])]
+    for record in sorted(view["encoding_statements"], key=lambda r: r["position"]):
+        out.extend(_facts_of(record))
     for i, p in enumerate(task.prohibited_assumptions):
         out.append(Fact(f"prohibit{i}", "prohibited_assumption", p))
 
@@ -128,63 +190,23 @@ def required_public_facts(task: CanonicalAcq0TaskV2) -> tuple[Fact, ...]:
 
 
 def prose_clauses(task: CanonicalAcq0TaskV2, view: str = "ACQ0_TRANSLATION") -> tuple[Clause, ...]:
-    """Regenerate the prose clause by clause, each tagged with the facts it carries.
+    """The prose, clause by clause, each tagged with the facts it carries.
 
-    Built from the same structured target the prose renderer uses, so the mapping is
-    constructed rather than inferred. Inferring it from finished text would be the
-    heuristic matching this module exists to avoid.
+    Built from the ordered view — the same traversal `encoding_view` uses — so the mapping
+    is constructed rather than inferred, and cannot drift from the statements it describes.
     """
-    st = task.structured_target()
-    out: list[Clause] = []
+    from .v2_view import encoding_view
 
-    for i, d in enumerate(st["declarations"]):
-        ids = [f"decl{i}.name", f"decl{i}.kind", f"decl{i}.type"]
-        if "value" in d:
-            ids.append(f"decl{i}.value")
-            text = (f"The constant {d['name']} has type {d['type']} and the value "
-                    f"{d['value']}." if d["kind"] == "const" else
-                    f"The observed quantity {d['name']} has type {d['type']} and the "
-                    f"value {d['value']}.")
-        else:
-            text = (f"The quantity {d['name']} is declared as {d['kind']} "
-                    f"with type {d['type']}.")
-        out.append(Clause(f"c.decl{i}", text, tuple(ids), view))
+    v = encoding_view(task)
+    out: list[Clause] = [Clause(
+        "c.module",
+        f"The module is named `{v['module']}`; every statement below belongs to it, "
+        f"in the order given.",
+        ("module",), view)]
 
-    for i, f in enumerate(st["definitions"]):
-        ids = [f"def{i}.name", f"def{i}.codomain", f"def{i}.body"]
-        ids += [f"def{i}.binder{j}" for j in range(len(f["binders"]))]
-        binders = ", ".join(f"{b['name']} of type {b['type']}" for b in f["binders"])
-        text = (f"The function {f['name']} takes {binders}, returns {f['codomain']}, "
-                f"and is defined by {f['body']}." if binders else
-                f"The value {f['name']} has type {f['codomain']} and is defined by "
-                f"{f['body']}.")
-        out.append(Clause(f"c.def{i}", text, tuple(ids), view))
-
-    for i, law in enumerate(st["probability_laws"]):
-        ids = [f"law{i}.role", f"law{i}.family", f"law{i}.target"]
-        given = ""
-        if law["given"]:
-            ids.append(f"law{i}.given")
-            given = f" given {', '.join(law['given'])}"
-        out.append(Clause(f"c.law{i}",
-                          f"The {law['role']} of {law['target']}{given} is "
-                          f"{law['distribution']}.", tuple(ids), view))
-
-    for i, a in enumerate(st["assumptions"]):
-        out.append(Clause(f"c.assume{i}", f"It is assumed that {a}.", (f"assume{i}",), view))
-    for i, c in enumerate(st["domain_constraints"]):
-        out.append(Clause(f"c.require{i}", f"It is required that {c}.",
-                          (f"require{i}",), view))
-    for i, p in enumerate(task.prohibited_assumptions):
-        out.append(Clause(f"c.prohibit{i}", f"Do not assume {p}.",
-                          (f"prohibit{i}",), view))
-
-    out.append(Clause(
-        "c.objective",
-        "No goal is stated; encode the object only."
-        if task.objective is None
-        else f"The goal is to {task.objective.kind} {task.objective.statement}.",
-        ("objective",), view))
+    for record in sorted(v["encoding_statements"], key=lambda r: r["position"]):
+        ids = tuple(f.fact_id for f in _facts_of(record))
+        out.append(Clause(f"c.{record['statement_id']}", _clause_text(record), ids, view))
 
     # A derived fact is explanatory, never a premise, and carries no required fact id.
     for i, fact in enumerate(task.derived_facts):
@@ -192,8 +214,27 @@ def prose_clauses(task: CanonicalAcq0TaskV2, view: str = "ACQ0_TRANSLATION") -> 
             out.append(Clause(
                 f"c.derived{i}",
                 f"It follows from {' and '.join(fact.derived_from)} that "
-                f"{fact.statement}; this is a consequence, not a further restriction.",
+                f"`{fact.statement}`; this is a consequence, not a further restriction, "
+                f"and must not be encoded.",
                 (), view, required=False))
+    for i, p in enumerate(task.prohibited_assumptions):
+        out.append(Clause(f"c.prohibit{i}",
+                          f"Do not assume {p}. This is guidance and must not be encoded.",
+                          (f"prohibit{i}",), view))
+
+    # The objective is METADATA about the task, not a statement to emit. The previous
+    # wording -- "The goal is to prove X." -- was one word from the prose form of the
+    # `prove` statement itself, so every objective-bearing task shipped two goal sentences
+    # and the duplicate reading COMPILED with a different hash. Naming the already-listed
+    # statement, and forbidding a second, removes the rival reading.
+    out.append(Clause(
+        "c.objective",
+        "No goal is stated; do not add one. Encode the statements above and nothing else."
+        if task.objective is None
+        else (f"The point of this task is the `{task.objective.kind}` statement already "
+              f"listed above ({task.objective.statement}). It is described here, not "
+              f"restated: do not emit a second statement for it."),
+        ("objective",), view))
     return tuple(out)
 
 
@@ -209,18 +250,16 @@ def check_prose_coverage(task: CanonicalAcq0TaskV2) -> ProseCoverage:
 
 def semantic_payload(task: CanonicalAcq0TaskV2) -> dict[str, Any]:
     """The SEMANTIC content of a task, excluding operational fields."""
-    st = task.structured_target()
+    from .v2_view import encoding_view
+
+    view = encoding_view(task)
     return {
-        "module": st["module"],
-        "family": st["family"],
-        "declarations": st["declarations"],
-        "definitions": st["definitions"],
-        "probability_laws": st["probability_laws"],
-        "assumptions": st["assumptions"],
-        "domain_constraints": st["domain_constraints"],
-        "derived_facts": st["derived_facts"],
-        "objective": st["objective"],
-        "prohibited_assumptions": st["prohibited_assumptions"],
+        "module": view["module"],
+        "family": view["family"],
+        "encoding_statements": view["encoding_statements"],
+        "derived_facts": view["derived_facts"],
+        "objective": view["objective"],
+        "prohibited_assumptions": view["prohibited_assumptions"],
     }
 
 
@@ -231,27 +270,15 @@ def reconstruct_semantic_payload(structured_target: dict[str, Any]) -> dict[str,
     If a field is absent the target was a summary, and reconstruction fails loudly rather
     than filling a default -- a silently defaulted field is how a model gets blamed for
     information it never had.
+
+    This check is weaker than `view_reconstructs_exactly` and does not replace it: both
+    sides derive from the view, so it can only detect a *missing key*, never a statement
+    the view drops. That blind spot is why the reconstruction gate exists.
     """
-    required = ("module", "family", "declarations", "definitions", "probability_laws",
-                "assumptions", "domain_constraints", "derived_facts", "objective",
+    required = ("module", "family", "encoding_statements", "derived_facts", "objective",
                 "prohibited_assumptions")
     missing = [k for k in required if k not in structured_target]
     if missing:
         raise ReversibilityFailure(
-            f"the structured target omits {missing}; it is a summary, not a complete "
-            f"model-visible target")
-
-    for i, d in enumerate(structured_target["declarations"]):
-        for field in ("name", "kind", "type"):
-            if field not in d:
-                raise ReversibilityFailure(f"declaration {i} omits {field!r}")
-        if d["kind"] in {"const", "obs"} and "value" not in d:
-            raise ReversibilityFailure(
-                f"declaration {d['name']!r} is {d['kind']} with no initialiser; an "
-                f"encoder cannot invent one")
-    for i, f in enumerate(structured_target["definitions"]):
-        for field in ("name", "binders", "codomain", "body"):
-            if field not in f or f[field] in (None, ""):
-                raise ReversibilityFailure(f"definition {i} omits {field!r}")
-
+            f"the model-visible target omits {missing}; it is a summary, not a target")
     return {k: structured_target[k] for k in required}

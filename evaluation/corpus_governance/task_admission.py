@@ -136,7 +136,18 @@ def audit_task(
                 name))
 
     # 3. Prose asserting an assumption while the visible assumption list is empty.
-    if not visible_assumptions and re.search(r"\bassumption\b|\bassume\b", text, re.I):
+    #
+    # Sentences that explicitly mark themselves non-encodable are not assertions. A
+    # prohibition reads "Do not assume X ... must not be encoded", and a derived fact reads
+    # "this is a consequence, not a further restriction" -- counting either as an asserted
+    # premise rejects exactly the tasks that state the distinction most carefully.
+    assertive = " ".join(
+        s for s in re.split(r"(?<=\.)\s+", text)
+        if "must not be encoded" not in s
+        and "not a further restriction" not in s
+        and not s.strip().lower().startswith("do not assume")
+    )
+    if not visible_assumptions and re.search(r"\bassumption\b|\bassume\b", assertive, re.I):
         found.append(TaskDefect(
             DefectClass.ASSUMPTION_NOT_DECLARED,
             "prose states an assumption but model_visible_target.assumptions is empty"))
