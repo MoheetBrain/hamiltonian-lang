@@ -158,25 +158,71 @@ CALIBRATION_LIMITATIONS: tuple[str, ...] = (
 )
 
 
-def calibration_tasks(corpus: Sequence[GateTask] | None = None) -> tuple[GateTask, GateTask]:
+#: The Lead's freeze supersedes :data:`CALIBRATION_CURRICULUM_SIZE` for **execution**. The
+#: pre-registered 0 is kept above with its reasoning intact rather than overwritten, so the
+#: record shows that the change came from the freeze and not from a result.
+FROZEN_CALIBRATION_CURRICULUM_SIZE = 5
+
+#: The frozen curriculum, in the Lead's exact order.
+FROZEN_CURRICULUM_IDS: tuple[str, ...] = (
+    "binding_chain_000",
+    "quantifier_scope_000",
+    "distribution_law_000",
+    "dimensional_algebra_000",
+    "transformation_chain_000",
+)
+
+
+#: Tasks the model has already been shown by a previous calibration run. They are not
+#: contaminated for the gate -- they were never held out -- but they are no longer clean
+#: for a *protocol* comparison: a second exposure measures recall as well as encoding.
+#: Appended to, never rewritten, so the exposure history stays legible.
+EXPOSED_TASK_IDS: tuple[str, ...] = (
+    # v1 calibration run, 2026-08-06, retained at
+    # evaluation/results/acq0/protocol_calibration/
+    "binding_chain_001",
+    "distribution_law_001",
+)
+
+#: What a fresh calibration must avoid: the frozen curriculum (a task in its own
+#: demonstration set measures copying) and every previously exposed task.
+CALIBRATION_EXCLUSIONS: tuple[str, ...] = FROZEN_CURRICULUM_IDS + EXPOSED_TASK_IDS
+
+
+def calibration_tasks(
+    corpus: Sequence[GateTask] | None = None,
+    *,
+    exclude_ids: Sequence[str] = CALIBRATION_EXCLUSIONS,
+) -> tuple[GateTask, GateTask]:
     """The two non-evaluation tasks, chosen deterministically.
 
     Deterministic selection matters more than clever selection: the first
-    demonstration-stage task in each chosen domain, in id order. A different rule would
-    need a justification that could later be read as having been chosen to produce a
-    result.
+    demonstration-stage task in each chosen domain, in id order, **excluding the frozen
+    curriculum**. A different rule would need a justification that could later be read as
+    having been chosen to produce a result.
+
+    The exclusion is not cosmetic. Measured at ``21687cf``, the unexcluded rule returns
+    ``binding_chain_000`` and ``distribution_law_000``, and both are in the Lead's frozen
+    5-demonstration curriculum. Running those at curriculum 5 would paste each task's own
+    reference encoding into its own prompt as a worked example: the trial would measure
+    copying, and ``assert_demonstrations_disjoint`` would (correctly) refuse to build the
+    prompt at all. Skipping to the next id in the same domain preserves both the domain
+    contrast and the determinism.
     """
     from evaluation.syntax_gate.partition import partition
 
     tasks = list(corpus) if corpus is not None else _track_a()
     stage_of = partition()["stage_of"]
+    banned = set(exclude_ids)
     picked: list[GateTask] = []
     for domain in CALIBRATION_DOMAINS:
         candidates = sorted(
             (
                 t
                 for t in tasks
-                if t.domain == domain and stage_of.get(t.id) == "demonstration"
+                if t.domain == domain
+                and stage_of.get(t.id) == "demonstration"
+                and t.id not in banned
             ),
             key=lambda t: t.id,
         )

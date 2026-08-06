@@ -1,0 +1,12 @@
+{
+  "surface": "A_v0_labelled_linear",
+  "model": "scripted",
+  "allow_live_model": false,
+  "repair_budget": "official_one",
+  "feedback_arm": "CHAIN_OF_REPAIR",
+  "include_execution_verifiers": false,
+  "summary_max_chars": 4000,
+  "output_dir": null,
+  "_note_surface": "Round 1 of the syntax gate is pending. Switching to B/C/D is this line only; the id is resolved through evaluation.syntax_gate.candidates.resolve_adapters().",
+  "_note_model": "scripted is the only backend this milestone ships. No model call is made. allow_live_model must stay false while other measured runs share this host."
+}

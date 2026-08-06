@@ -743,6 +743,14 @@ class LiteralRefinementBoundChecker:
 # ---------------------------------------------------------------------------
 
 
+def _numeric(tok: str) -> bool:
+    try:
+        Fraction(tok)
+    except (ValueError, ZeroDivisionError):
+        return False
+    return True
+
+
 def parse_dimension_text(text: str) -> Dimension | None:
     """Parse ``Length^2 * Mass / Time^2`` into a :class:`Dimension`.
 
@@ -754,6 +762,80 @@ def parse_dimension_text(text: str) -> Dimension | None:
     if tokens is None:
         return None
     pos = 0
+
+
+    def _exponent() -> Fraction | None:
+        """Read an exponent, which may be a rational written `1/2`.
+
+        `/` is also the division operator, so `n / m` is an exponent only when BOTH
+        sides are numeric -- `Length^1/2` is a half power, while `Mass^2 / Time` is a
+        squared mass divided by time. The language parser draws the same distinction
+        (`/`-before-NUMBER is a fractional exponent, `/`-before-identifier is division),
+        and this re-reader must agree with it or it would reject valid programs.
+        """
+        nonlocal pos
+        if pos >= len(tokens):
+            return None
+        raw = tokens[pos]
+        pos += 1
+        if (
+            pos + 1 < len(tokens)
+            and tokens[pos] == "/"
+            and _numeric(raw)
+            and _numeric(tokens[pos + 1])
+        ):
+            denom = tokens[pos + 1]
+            pos += 2
+            raw = f"{raw}/{denom}"
+        try:
+            return Fraction(raw)
+        except (ValueError, ZeroDivisionError):
+            return None
+
+    def group() -> Dimension | None:
+        """A parenthesised sub-expression, or a single term.
+
+        Parentheses used to be **deleted** by the tokeniser, so `Mass / (Length * Time^2)`
+        was re-read as `Mass / Length * Time^2` and the second divisor's exponent kept its
+        sign. Since the compiler renders its own canonical form *with* parentheses, every
+        dimension needing two divisions was re-read wrongly whatever the author wrote --
+        pressure, density and the rest could not be asserted at all. See D-028.
+        """
+        nonlocal pos
+        if pos < len(tokens) and tokens[pos] == "(":
+            pos += 1
+            inner = expression()
+            if inner is None or pos >= len(tokens) or tokens[pos] != ")":
+                return None
+            pos += 1
+            return _maybe_power(inner)
+        return term()
+
+    def _maybe_power(base: Dimension) -> Dimension | None:
+        """`(...)^n` must bind to the whole group, not to its last factor."""
+        nonlocal pos
+        if pos < len(tokens) and tokens[pos] == "^":
+            pos += 1
+            if pos >= len(tokens):
+                return None
+            exponent = _exponent()
+            return None if exponent is None else base.power(exponent)
+        return base
+
+    def expression() -> Dimension | None:
+        """Left-associative `*` and `/` over groups. `a / b / c` is `(a / b) / c`."""
+        nonlocal pos
+        acc = group()
+        if acc is None:
+            return None
+        while pos < len(tokens) and tokens[pos] in ("*", "/"):
+            op = tokens[pos]
+            pos += 1
+            nxt = group()
+            if nxt is None:
+                return None
+            acc = acc * nxt if op == "*" else acc / nxt
+        return acc
 
     def term() -> Dimension | None:
         nonlocal pos
@@ -778,43 +860,31 @@ def parse_dimension_text(text: str) -> Dimension | None:
             pos += 1
             if pos >= len(tokens):
                 return None
-            raw = tokens[pos]
-            pos += 1
-            try:
-                exponent = Fraction(raw)
-            except (ValueError, ZeroDivisionError):
+            exponent = _exponent()
+            if exponent is None:
                 return None
             base = base.power(exponent)
         return base
 
-    acc = term()
-    if acc is None:
-        return None
-    while pos < len(tokens) and tokens[pos] in ("*", "/"):
-        op = tokens[pos]
-        pos += 1
-        nxt = term()
-        if nxt is None:
-            return None
-        acc = acc * nxt if op == "*" else acc / nxt
-    return acc if pos == len(tokens) else None
+    acc = expression()
+    return acc if acc is not None and pos == len(tokens) else None
 
 
 def _dim_tokens(text: str) -> list[str] | None:
     out: list[str] = []
     i = 0
-    body = text.replace("(", " ").replace(")", " ")
+    body = text
     while i < len(body):
         ch = body[i]
         if ch.isspace():
             i += 1
             continue
-        if ch in "*/^":
+        if ch in "*/^()":
             out.append(ch)
             i += 1
             continue
         j = i
-        while j < len(body) and (body[j].isalnum() or body[j] in "_-./"):
+        while j < len(body) and (body[j].isalnum() or body[j] in "_-."):
             j += 1
         if j == i:
             return None

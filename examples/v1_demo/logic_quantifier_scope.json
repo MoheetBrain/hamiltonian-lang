@@ -1,0 +1,39 @@
+{
+  "cso": {
+    "id": "logic_quantifier_scope",
+    "domain": "logic",
+    "difficulty": "medium",
+    "prose": "Over the two truth values, consider the claim that for every b there is some c differing from it. Now consider the same two quantifiers in the opposite order: that there is some c differing from every b.",
+    "question": "Does the statement with the quantifiers in the reversed order also hold?",
+    "answer": {
+      "kind": "boolean",
+      "value": false,
+      "justification": "The first claim holds by taking c to be the negation of b. The reversed claim asks for one c unequal to both truth values, and no such c exists."
+    },
+    "semantics": {
+      "entities": {
+        "b": "Bool",
+        "c": "Bool"
+      },
+      "quantifier_order": [
+        "forall b",
+        "exists c"
+      ],
+      "constraints": [
+        "forall b : Bool . exists c : Bool . c != b"
+      ]
+    },
+    "distractors": [
+      "assuming the two quantifier orders are interchangeable",
+      "reading the reversed statement as a rewording of the first"
+    ],
+    "reference_hml": "",
+    "_note": "reference_hml is deliberately empty. solve runs in reasoning mode: there is no reference encoding to withhold, because producing the encoding is part of the task. The withheld key is cso.answer and nothing else."
+  },
+  "pipeline": {
+    "answer_binding": "reversed_scope_holds"
+  },
+  "scripted_turns": {
+    "generation": "The domain is finite, so both orders can be settled by exhaustion. For each b, choosing c as its negation works, so the first order holds. The reversed order demands a single c unequal to both truth values, and it has no witness. I name the reversed statement so its truth value can be read out, and require its negation.\n\n```hml\nmodule QuantifierScope\n\nrequire forall b : Bool . exists c : Bool . c != b\n\ndef reversed_scope_holds := exists c : Bool . forall b : Bool . c != b\n\nrequire not reversed_scope_holds\n```\n"
+  }
+}

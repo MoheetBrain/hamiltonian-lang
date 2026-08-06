@@ -1,0 +1,11 @@
+{
+  "task_id": "transformation_chain_022",
+  "characters": 7656,
+  "prompt_eval_count": 1831,
+  "provenance": "measured",
+  "fit": "FITS",
+  "headroom": 4057,
+  "detail": "1831 + 2048 + 256 = 4135 <= 8192",
+  "wall_s": 77.4,
+  "selection_basis": "pool unset"
+}

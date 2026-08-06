@@ -1,0 +1,764 @@
+{
+  "bears_on": {
+    "H2": "Reasoning *in* the representation, as an intermediate workspace, improves the answer relative to reasoning in prose and answering in either notation.",
+    "H3": "A structured diagnostic plus one repair attempt improves the verified answer relative to a single unassisted attempt.",
+    "H3_does_not_support": "It does NOT support any claim about the representation. A win here is a win for verifier-guided reasoning; any checkable notation with a comparable checker would predict the same gain. Reporting it as a representation result (H1 or H2) misattributes the cause.",
+    "hypotheses": [
+      "H2",
+      "H3"
+    ],
+    "not_acq0": "This benchmark is not ACQ0 and not H1. ACQ0 asks whether the model can write the syntax at all; a result here says nothing about that question, and an ACQ0 result says nothing about this one."
+  },
+  "contamination": {
+    "candidate_corpus": "v1_benchmark",
+    "checked_against": [
+      "acq0::G2_screening",
+      "acq0::G3_curriculum",
+      "acq0::G4_confirmatory",
+      "acq0::G4_replication",
+      "acq0::demonstration",
+      "acq0::excluded",
+      "acq0::track_b",
+      "acq0::track_a_exclusions",
+      "hml_eval_001::corpus",
+      "hml_eval_001::demonstrations",
+      "acq0::frozen_demonstrations_5",
+      "acq0::calibration_tasks",
+      "m3_lite::adversarial",
+      "m3_lite::development",
+      "m3_lite::promotion",
+      "m3_lite::transfer",
+      "v1_concept_ablation::corpus",
+      "v1_concept_ablation::demonstrations"
+    ],
+    "clean": true,
+    "flagged_near_duplicates": [],
+    "hard_collisions": [],
+    "method": "content hash, never id: exact digest, normalised digest, 5-token shingle Jaccard",
+    "n_foreign_corpora": 18,
+    "n_tasks": 24
+  },
+  "corpus_version": "v1bench-v1",
+  "decision_rule": {
+    "l": "solved by SE and not by HML-V1",
+    "no_benefit": "P <= 0.2",
+    "otherwise": "extend to 40, then close as INCONCLUSIVE",
+    "posterior": "theta | D ~ Beta(1 + w, 1 + l); report P(theta > 0.5 | D)",
+    "strong_signal": "P >= 0.9 AND absolute uplift >= 10.0 points",
+    "w": "solved by HML-V1 and not by SE"
+  },
+  "matching": [
+    {
+      "detail": "one CanonicalSemanticObject; prose and question are byte-identical in both arms",
+      "dimension": "task",
+      "matched": true
+    },
+    {
+      "detail": "gemma4:31b, digest pinned to 6316f0629137...",
+      "dimension": "model",
+      "matched": true
+    },
+    {
+      "detail": "0.0 in both arms, every call",
+      "dimension": "temperature",
+      "matched": true
+    },
+    {
+      "detail": "4 x 8192; one server configuration for the whole run",
+      "dimension": "runtime",
+      "matched": true
+    },
+    {
+      "detail": "2048 completion tokens per task per arm, across all calls (2 x 1024). Inherited from the ACQ0 context budget.",
+      "dimension": "total generation budget",
+      "matched": true
+    },
+    {
+      "detail": "2 generations per task in both arms",
+      "dimension": "number of attempts",
+      "matched": true
+    },
+    {
+      "detail": "NOT MATCHED, and this is the treatment. HML-V1's second call carries compiler diagnostics; SE's second call carries only its own prior working. A win attributable to the repair is H3, not H2, and scoring attributes it per task.",
+      "dimension": "external information",
+      "matched": false
+    },
+    {
+      "detail": "identical render_instruction() and identical ANSWER markers, so extraction is not an arm-dependent variable",
+      "dimension": "answer contract",
+      "matched": true
+    },
+    {
+      "detail": "NOT MATCHED. The HML arm carries a language specification of roughly 3,000 characters; the SE arm carries an eight-point schema of roughly 600. Padding SE to match would add content nobody would otherwise send. Measured prompt_tokens are recorded per call so the gap is visible in the results rather than argued about.",
+      "dimension": "prompt length",
+      "matched": false
+    },
+    {
+      "detail": "NOT MATCHED and not matchable. Structured English is in the model's pretraining distribution; Hamiltonian Lang was invented weeks ago and is not. This biases AGAINST the HML arm, so it does not manufacture a positive result, but it does mean a null result cannot distinguish 'the representation does not help' from 'the model cannot yet write it'. That is ACQ0's question, not this benchmark's.",
+      "dimension": "familiarity of the notation",
+      "matched": false
+    },
+    {
+      "detail": "zero in both arms. The benchmark is zero-shot on both sides.",
+      "dimension": "worked demonstrations",
+      "matched": true
+    }
+  ],
+  "measured": false,
+  "runtime": {
+    "calls_per_arm": 2,
+    "model": "gemma4:31b",
+    "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+    "per_call_completion_budget": 1024,
+    "runtime": "4 x 8192",
+    "temperature": 0.0,
+    "total_completion_budget_per_task_per_arm": 2048
+  },
+  "standing": "DEVELOPMENTAL RESULT, NOT PROOF. This is a 24-task (or, after extension, 40-task) paired comparison on a single model at a single temperature, analysed on its discordant pairs alone. It is evidence about a direction of development. It is not a demonstration that the representation helps, it does not generalise beyond this model and this corpus, and no verdict it produces may be reported as a benchmark result or as superiority over any other language or notation.",
+  "study": "HML-V1-MATCHED-BENCHMARK",
+  "tasks": {
+    "difficulty_status": "PREDICTED_NOT_MEASURED",
+    "domains": {
+      "algebra": 3,
+      "calculus": 3,
+      "dimensions_physics": 3,
+      "epistemic_reasoning": 4,
+      "linear_algebra": 3,
+      "logic_quantifier_scope": 4,
+      "probability_statistics": 4
+    },
+    "extension": 40,
+    "items": [
+      {
+        "answer_kind": "numeric",
+        "attractor": "Squaring introduces extraneous roots often enough that discarding the boundary root becomes reflexive; here the boundary root is genuine, so the habit that usually protects the solver is exactly what defeats them.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.47,
+            0.71
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 4,
+          "in_target_band": true,
+          "predicted_accuracy": 0.59,
+          "rationale": "Four dependent steps (rationalise, reduce, factor, verify each root) with a high-reachability attractor: the verification step is the one solvers skip.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "algebra",
+        "id": "v1b_01_radical_extraneous",
+        "key_verification": "Both candidate roots substituted back into the original equation in exact arithmetic; both satisfy it to machine precision.",
+        "question": "Report the sum of all real solutions x of this equation."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "The symmetric-function identity for reciprocal squares needs the cross term; dropping it leaves a clean-looking 36. The roots are irrational by construction so no numeric shortcut rescues the omission.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.48,
+            0.72
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.6,
+          "rationale": "Five dependent steps (identify the symmetric functions, recall or derive the identity, apply, and confirm no rational root permits a shortcut).",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "algebra",
+        "id": "v1b_02_vieta_reciprocal_squares",
+        "key_verification": "Cubic confirmed to have three real irrational roots by sign-change bisection over [-20, 20]; the numerical sum of 1/r^2 over the located roots agrees with the Vieta value to 9 decimal places.",
+        "question": "Report the exact value of 1/a^2 + 1/b^2 + 1/c^2."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "The period is 3 and 2024 is not a multiple of it, but 2+0+2+4 = 8 offers no divisibility cue and the identity answer feels like the intended elegance.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.47,
+            0.71
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 4,
+          "in_target_band": true,
+          "predicted_accuracy": 0.59,
+          "rationale": "Four dependent steps (compute the orbit, detect the period, reduce the index modulo it, evaluate) with an off-by-one index reduction as the attractor.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "algebra",
+        "id": "v1b_03_mobius_iteration_period",
+        "key_verification": "Verified by exact rational iteration of all 2024 compositions with fractions.Fraction, which returned 2/3.",
+        "question": "Report the value of f^[2024](3)."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "Conditioning on the maximum leaves the minimum non-uniform: the diagonal outcome (4,4) has half the weight of each off-diagonal value, and assuming uniformity gives the tidy 2.5.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.4,
+            0.64
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.52,
+          "rationale": "Five dependent steps (characterise the event, enumerate it, weight the diagonal correctly, sum, divide) with a strong uniformity attractor.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "probability_statistics",
+        "id": "v1b_04_conditional_min_given_max",
+        "key_verification": "Exhaustive enumeration of all 36 ordered pairs, filtering on max == 4.",
+        "question": "Report the conditional expectation of min(X, Y) given that max(X, Y) = 4."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "Two sign flips have to survive at once: the minus in 2X - Y and the negative correlation, whose product makes the covariance term add rather than subtract. Dropping the term altogether is the commoner failure and gives sqrt(52).",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.47,
+            0.71
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 4,
+          "in_target_band": true,
+          "predicted_accuracy": 0.59,
+          "rationale": "Four dependent steps with a double sign inversion, the classic point at which a variance calculation silently loses a term.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "probability_statistics",
+        "id": "v1b_05_sd_of_linear_combination",
+        "key_verification": "Closed-form bilinear expansion of Var(aX + bY); arithmetic recomputed independently.",
+        "question": "Report the standard deviation of the random variable 2*X - Y."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "The treatment is superior in both strata, so a positive pooled difference feels forced; the reversal only appears if the raw counts are pooled rather than the rates averaged.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.33,
+            0.57
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 6,
+          "in_target_band": true,
+          "predicted_accuracy": 0.45,
+          "rationale": "Six dependent steps (four stratum rates, two pooled rates, then the difference) against the strongest attractor in the corpus: the direction of the answer contradicts every intermediate result.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "probability_statistics",
+        "id": "v1b_06_simpson_reversal",
+        "key_verification": "Both stratum-level comparisons and the pooled comparison computed from the raw counts; the within-stratum advantage and the pooled reversal both confirmed.",
+        "question": "Pooling both strata, report the overall treatment success rate minus the overall control\nsuccess rate, as a decimal fraction rather than a percentage."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "Replacing a random parameter by its expectation preserves the mean of H but destroys the between-coin variance, which here is five times the within-coin variance. The substitution is invisible unless the hierarchy is made explicit.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.33,
+            0.57
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 6,
+          "in_target_band": true,
+          "predicted_accuracy": 0.45,
+          "rationale": "Six dependent steps across two levels of a hierarchy; the attractor collapses the hierarchy, which is precisely the structure a formal representation makes explicit.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "probability_statistics",
+        "id": "v1b_07_law_of_total_variance",
+        "key_verification": "Both components computed in exact rational arithmetic with fractions.Fraction: E[Var(H|P)] = 5/3 and Var(E[H|P]) = 25/3.",
+        "question": "Report the variance of H."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "The relation is reflexive, so the swapped reading is satisfied by every element and returns zero. Only the exists-then-forall order exposes the gap.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.4,
+            0.64
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.52,
+          "rationale": "Five dependent steps and the corpus's cleanest scope attractor: the swapped reading is true, so the wrong answer is internally consistent.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "logic_quantifier_scope",
+        "id": "v1b_08_quantifier_order_repair",
+        "key_verification": "Exhaustive search over all three candidate witnesses y, counting missing pairs for each; both quantifier orders evaluated independently by brute force.",
+        "question": "Report the minimum number of ordered pairs that must be added to R so that the statement\n\"there exists y in D such that for all x in D, R(x, y)\" becomes true."
+      },
+      {
+        "answer_kind": "exact_string",
+        "attractor": "The prefix must dualise position by position; copying it across is the failure, and the embedded implication invites the separate error of negating it to an implication rather than a conjunction.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.55,
+            0.79
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 4,
+          "in_target_band": true,
+          "predicted_accuracy": 0.67,
+          "rationale": "Four dependent steps (dualise three quantifiers, then rewrite the matrix); the answer space is small but the string is not guessable.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "logic_quantifier_scope",
+        "id": "v1b_09_negation_prenex_prefix",
+        "key_verification": "Dualisation applied position by position and checked against the standard epsilon-delta discontinuity statement, whose prefix is exists/for-all/exists.",
+        "question": "Report the quantifier prefix of the prenex normal form of the negation of phi, as a\nsequence of the tokens exists and forall separated by single spaces, in order."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "Vacuous truth makes a universal and its apparent contrary hold simultaneously. The contradiction is only apparent, but resisting it is the natural reading.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.47,
+            0.71
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 4,
+          "in_target_band": true,
+          "predicted_accuracy": 0.59,
+          "rationale": "Four dependent steps (establish emptiness, then evaluate three quantified statements under empty-domain semantics) with a strong consistency attractor.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "logic_quantifier_scope",
+        "id": "v1b_10_vacuous_truth_count",
+        "key_verification": "Emptiness of S confirmed by enumeration over the integers in [-10, 10]; the three statements evaluated under standard empty-domain semantics.",
+        "question": "Report how many of the three statements are true."
+      },
+      {
+        "answer_kind": "choice",
+        "attractor": "The negation scopes over the quantifier, not over the predicate. Option A is the inside reading and is strictly stronger; recognising that B and C are equivalent requires a second step after rejecting A.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.55,
+            0.79
+          ],
+          "chance_floor": 0.2,
+          "dependent_steps": 4,
+          "in_target_band": true,
+          "predicted_accuracy": 0.67,
+          "rationale": "Four dependent steps; the 0.20 chance floor applies but does not bind, since the rubric's prediction stays above it.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "logic_quantifier_scope",
+        "id": "v1b_11_negation_scope_choice",
+        "key_verification": "Equivalence of B and C checked by the standard De Morgan dualisation of a universally quantified implication.",
+        "question": "Report the letter of the correct option."
+      },
+      {
+        "answer_kind": "dimension",
+        "attractor": "Dividing by a density inverts a Length^3, which is the step that turns L^-1 into L^2. Losing one power of length yields the velocity dimension, which looks physically plausible for a flow quantity.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.55,
+            0.79
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 4,
+          "in_target_band": true,
+          "predicted_accuracy": 0.67,
+          "rationale": "Four dependent steps of exponent arithmetic with an attractor that is dimensionally adjacent, so it survives a rough plausibility check.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "dimensions_physics",
+        "id": "v1b_12_kinematic_viscosity_dimension",
+        "key_verification": "Exponent arithmetic on each base dimension carried out separately and confirmed against the parser used to score the answer.",
+        "question": "Report the dimension of nu."
+      },
+      {
+        "answer_kind": "dimension",
+        "attractor": "The constraint has to be inverted rather than evaluated: the target appears in the denominator of a quantity asserted to be dimensionless. Missing the square on e is the single commonest slip, and the two time exponents compound it.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.34,
+            0.58
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 7,
+          "in_target_band": true,
+          "predicted_accuracy": 0.46,
+          "rationale": "Seven dependent steps: five exponent reductions plus the inversion of the dimensionless constraint, which is the step that has no analogue in a forward dimensional check.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "dimensions_physics",
+        "id": "v1b_13_permittivity_from_dimensionless",
+        "key_verification": "Exponent arithmetic performed separately per base dimension and checked against the known SI dimension of vacuum permittivity.",
+        "question": "Report the dimension of epsilon_0."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "Inverting the ratio inside the square root produces a frequency, not a period. The two are so often used interchangeably in prose that the inversion reads as harmless.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.48,
+            0.72
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.6,
+          "rationale": "Five dependent steps (three separate reductions plus the dimensionless-bracket judgement and the count).",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "dimensions_physics",
+        "id": "v1b_14_pendulum_consistency_count",
+        "key_verification": "Each proposal reduced to base dimensions independently; only proposal (1) reduces to Time.",
+        "question": "Report how many of the three proposals are dimensionally consistent with T being a time."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "The upper bound is the familiar one and is usually correct; the lower bound requires Sylvester's inequality, and without it zero looks attainable because nothing obviously forbids the product from vanishing.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.4,
+            0.64
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.52,
+          "rationale": "Five dependent steps; the lower bound is the discriminating one and the attractor (rank zero) is what an argument from the upper bound alone yields.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "linear_algebra",
+        "id": "v1b_15_sylvester_rank_range",
+        "key_verification": "Both bounds checked against the standard statements of the rank of a product and of Sylvester's rank inequality with inner dimension 6.",
+        "question": "Let M be the largest rank that A*B can have and m the smallest rank that A*B can have,\nover all matrices A and B meeting these conditions. Report M - m."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "Algebraic multiplicity 2 does not give geometric multiplicity 2. The matrix is defective, and assuming one eigenvector per root is the standard error; it divides the correct trace by exactly two.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.4,
+            0.64
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.52,
+          "rationale": "Five dependent steps combining a defectiveness judgement with a matrix power; the attractor gives a clean answer that is exactly half the correct one.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "linear_algebra",
+        "id": "v1b_16_defective_matrix_trace",
+        "key_verification": "Trace of the fifth power computed from the closed form for a Jordan block; the eigenspace dimension confirmed by solving (A - 3I)v = 0.",
+        "question": "Report the trace of A^5 divided by k."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "Two independent facts must both land: similarity leaves the determinant unchanged, and a scalar multiple raises it to the power of the dimension. The second is the one that is dropped, and det(A) = 2 is a decoy that invites a spurious cancellation.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.4,
+            0.64
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.52,
+          "rationale": "Five dependent steps with a decoy value; the attractor arises from applying the scalar rule as though the matrix were 1-by-1.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "linear_algebra",
+        "id": "v1b_17_determinant_scalar_similarity",
+        "key_verification": "Determinant identities applied step by step; the scalar exponent checked against the 3-by-3 dimension.",
+        "question": "Report det( 2 * A^(-1) * B^T * A ), where the leading 2 multiplies every entry of the product."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "The ratio's orientation is set by which exponent belongs to the subtracted term; inverting it flips the sign of an answer that must be positive, since the integrand is positive throughout.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.48,
+            0.72
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.6,
+          "rationale": "Five dependent steps (establish convergence, identify the Frullani form, fix the orientation of the ratio, evaluate) with an attractor that inverts the sign.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "calculus",
+        "id": "v1b_18_frullani_integral",
+        "key_verification": "Value cross-checked against the closed form ln(5/2) evaluated to 16 significant figures.",
+        "question": "Report the value of the integral."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "The second differentiation must treat y as a function of x in three separate places and must feed y' back in before evaluating. Omitting any one of them produces a plausible negative value, matching the sign of y'.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.34,
+            0.58
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 7,
+          "in_target_band": true,
+          "predicted_accuracy": 0.46,
+          "rationale": "Seven dependent steps, the longest chain in the corpus, with a re-substitution that is easy to omit and produces an answer of the wrong sign.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "calculus",
+        "id": "v1b_19_implicit_second_derivative",
+        "key_verification": "Confirmed by a central finite-difference second derivative on the curve, with y solved implicitly by Newton's method at each of three abscissae; the numerical result matched 5/24 to 8 decimal places.",
+        "question": "Report the value of the second derivative d^2y/dx^2 at the point (3, 1)."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "Both terms contribute at third order. Truncating either expansion one order too early loses exactly one of the two contributions and yields 1/6 or 1/2, both of which look like credible closed forms.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.48,
+            0.72
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.6,
+          "rationale": "Five dependent steps requiring both expansions to be carried to matching order; the attractor is an order-truncation rather than an arithmetic slip.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "calculus",
+        "id": "v1b_20_series_order_limit",
+        "key_verification": "Confirmed numerically at x = 1e-4, which agreed with 1/3 to 8 significant figures.",
+        "question": "Report the value of the limit."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "The low prior survives two confirmations because the false-alarm rate is not negligible; the posterior stays well under the 0.9 reliability figure that the problem foregrounds.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.4,
+            0.64
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.52,
+          "rationale": "Five dependent steps; the attractor is the base-rate neglect that this problem shape is specifically built to elicit.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "epistemic_reasoning",
+        "id": "v1b_21_two_detector_posterior",
+        "key_verification": "Bayes' rule applied with both likelihoods squared under conditional independence; result equals the exact fraction 9/13.",
+        "question": "Report the posterior probability that the signal is present."
+      },
+      {
+        "answer_kind": "numeric",
+        "attractor": "A duplicated report looks like corroboration. Counting it once more raises the posterior by roughly 17 points, and nothing in the arithmetic signals the double count unless the dependency is represented explicitly.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.33,
+            0.57
+          ],
+          "chance_floor": 0.0,
+          "dependent_steps": 6,
+          "in_target_band": true,
+          "predicted_accuracy": 0.45,
+          "rationale": "Six dependent steps across three sources, one of which must be assigned a likelihood ratio of exactly 1 on structural rather than numerical grounds.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "epistemic_reasoning",
+        "id": "v1b_22_correlated_testimony",
+        "key_verification": "Likelihood ratios composed in exact rational arithmetic; the posterior equals 14/23.",
+        "question": "Report the posterior probability of p given all three reports."
+      },
+      {
+        "answer_kind": "choice",
+        "attractor": "The inference is valid as logic and invalid as epistemology. Distinguishing the two requires tracking the epistemic status of each premise separately, which the surface form of the argument does not display.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "MEDIUM",
+          "band": [
+            0.55,
+            0.79
+          ],
+          "chance_floor": 0.2,
+          "dependent_steps": 4,
+          "in_target_band": true,
+          "predicted_accuracy": 0.67,
+          "rationale": "Four dependent steps; option D is a near-miss distractor that is true of a different scenario, so eliminating it takes a further step.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "epistemic_reasoning",
+        "id": "v1b_23_knowledge_closure_choice",
+        "key_verification": "Checked against the standard formulation of closure under known implication, which requires knowledge of the antecedent.",
+        "question": "Report the letter of the correct option."
+      },
+      {
+        "answer_kind": "choice",
+        "attractor": "A perfect in-sample regularity across 500 records reads as a law. Option E is the trap for a reasoner who is careful enough to accept C but not careful enough to reject A.",
+        "difficulty": {
+          "anchor": {
+            "anchor_source": "HML-EVAL-001 measured accuracy across all seven arms",
+            "anchor_steps": 2,
+            "ceiling_anchor": 0.93
+          },
+          "attractor": "HIGH",
+          "band": [
+            0.4,
+            0.64
+          ],
+          "chance_floor": 0.2,
+          "dependent_steps": 5,
+          "in_target_band": true,
+          "predicted_accuracy": 0.52,
+          "rationale": "Five dependent steps, one per option; the attractor E is strictly more attractive than the answer because it appears to concede more.",
+          "status": "PREDICTED_NOT_MEASURED"
+        },
+        "domain": "epistemic_reasoning",
+        "id": "v1b_24_licensed_conclusion_choice",
+        "key_verification": "Each option classified against what an observational sample of unspecified provenance can support; only the in-sample conditional frequency survives.",
+        "question": "Report the letter of the single conclusion that the evidence licenses."
+      }
+    ],
+    "n": 24,
+    "pre_registered_tranche": 24,
+    "target_band": [
+      0.4,
+      0.7
+    ]
+  }
+}

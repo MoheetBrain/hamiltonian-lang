@@ -1,0 +1,39 @@
+{
+  "cso": {
+    "id": "physics_mechanical_power",
+    "domain": "physics",
+    "difficulty": "easy",
+    "prose": "A winch pulls a load. The instantaneous mechanical power it delivers is the product of the applied force and the load's velocity.",
+    "question": "What is the physical dimension of the delivered power?",
+    "answer": {
+      "kind": "dimension",
+      "value": "Mass * Length^2 / Time^3",
+      "justification": "Force carries Mass * Length / Time^2 and velocity carries Length / Time; their product carries Mass * Length^2 / Time^3."
+    },
+    "semantics": {
+      "entities": {
+        "force": "Quantity[Mass * Length / Time^2]",
+        "velocity": "Quantity[Length / Time]"
+      },
+      "declaration_kinds": {
+        "force": "param",
+        "velocity": "param"
+      },
+      "dimensions": {
+        "power": "Mass * Length^2 / Time^3"
+      }
+    },
+    "distractors": [
+      "giving the dimension of work rather than of power",
+      "treating power as force divided by velocity"
+    ],
+    "reference_hml": "",
+    "_note": "reference_hml is deliberately empty. solve runs in reasoning mode: there is no reference encoding to withhold, because producing the encoding is part of the task. The withheld key is cso.answer and nothing else."
+  },
+  "pipeline": {
+    "answer_binding": "power"
+  },
+  "scripted_turns": {
+    "generation": "Force has the dimension of mass times acceleration and velocity has the dimension of length over time. Multiplying them composes the exponent vectors, and I assert the composed dimension so the checker re-derives it independently rather than taking my word for it.\n\n```hml\nmodule MechanicalPower\n\nparam force : Quantity[Mass * Length / Time^2]\nparam velocity : Quantity[Length / Time]\n\ndef power := force * velocity\n\ncheck dimension power = Mass * Length^2 / Time^3\n```\n"
+  }
+}

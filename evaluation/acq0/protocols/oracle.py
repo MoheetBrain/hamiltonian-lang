@@ -72,6 +72,14 @@ __all__ = [
     "TaskInformation",
     "PERMITTED_TASK_INFORMATION",
     "ORACLE_FIELDS",
+    "Hypothesis",
+    "REASONING_HYPOTHESES",
+    "ACQ0_ENCODING_DISCLOSURE",
+    "NEVER_DISCLOSED",
+    "OracleExemption",
+    "ExemptionMisuse",
+    "ACQ0_ENCODING_EXEMPTION",
+    "ACQ0_ANSWER_FACET_VOID",
     "OracleLeak",
     "InformationAsymmetry",
     "permitted_text",
@@ -135,6 +143,155 @@ ORACLE_FIELDS: frozenset[TaskInformation] = frozenset(
         TaskInformation.SEMANTIC_FACTS,
         TaskInformation.DISTRACTORS,
     }
+)
+
+
+class Hypothesis(StrEnum):
+    """Which study a prompt is being built for. Decides whether an exemption may exist.
+
+    ACQ0 asks *can the model encode a mathematical object it has already been given*.
+    H1/H2/H3 ask the model to **derive** something. The distinction is the whole basis of
+    the exemption below: disclosing a target to an encoding task removes a confound;
+    disclosing it to a reasoning task removes the task.
+    """
+
+    #: Encoding-only. The canonical target is supplied by construction.
+    ACQ0 = "ACQ0"
+    H1 = "H1"
+    H2 = "H2"
+    H3 = "H3"
+
+
+#: The three hypotheses for which :func:`assert_no_oracle` is unconditional. H3 in
+#: particular becomes a tautology the moment its prompt carries the answer: it would be
+#: asked whether the model can reach a conclusion it was handed.
+REASONING_HYPOTHESES: frozenset[Hypothesis] = frozenset(
+    {Hypothesis.H1, Hypothesis.H2, Hypothesis.H3}
+)
+
+#: What an ACQ0 **encoding** prompt is permitted to disclose, per the user's ACQ0
+#: addendum §1: the model is given the complete canonical mathematical target and asked
+#: only to encode it. Concretely that is the verified answer (the target proposition) and
+#: the structured ground truth (declared entities, mathematical roles, law families,
+#: quantifier order, domains and dimensions).
+ACQ0_ENCODING_DISCLOSURE: frozenset[TaskInformation] = frozenset(
+    {
+        TaskInformation.GOLD_ANSWER,
+        TaskInformation.SEMANTIC_FACTS,
+    }
+)
+
+#: Never disclosed, **including** under the ACQ0 exemption, and the reasons differ.
+#:
+#: ``REFERENCE_ENCODING`` — disclosing the reference HML-L1 text turns ACQ0 into a copying
+#: task. Every remaining ACQ0 facet (format adherence, parse, resolution, type, exact
+#: semantic preservation) would then be measuring transcription, so the exemption would
+#: destroy the last thing ACQ0 still measures. The disclosure is of the *mathematics*, not
+#: of the *encoding*: producing the encoding is the task.
+#:
+#: ``DISTRACTORS`` — these are what a careless reader concludes. Naming them teaches the
+#: failure modes the corpus was built to detect.
+NEVER_DISCLOSED: frozenset[TaskInformation] = frozenset(
+    {
+        TaskInformation.REFERENCE_ENCODING,
+        TaskInformation.DISTRACTORS,
+    }
+)
+
+
+class ExemptionMisuse(AssertionError):
+    """An oracle exemption was constructed or presented outside ACQ0."""
+
+
+@dataclass(frozen=True)
+class OracleExemption:
+    """An explicit, recorded permission to disclose part of the answer key.
+
+    Deliberately awkward to obtain. It cannot be a boolean, it cannot default to on, and
+    it cannot be constructed for a reasoning hypothesis: :meth:`__post_init__` refuses
+    every hypothesis but ACQ0, so there is no value of this type that an H1/H2/H3 prompt
+    builder could pass even if one tried to.
+
+    ``permits`` is intersected against :data:`ACQ0_ENCODING_DISCLOSURE` at construction
+    rather than trusted, and any request for a :data:`NEVER_DISCLOSED` field raises rather
+    than being silently dropped — a caller asking for the reference encoding has
+    misunderstood what ACQ0 measures, and quietly narrowing the request would leave that
+    misunderstanding in place.
+    """
+
+    hypothesis: Hypothesis
+    granted_by: str
+    authority: str
+    rationale: str
+    permits: frozenset[TaskInformation]
+
+    def __post_init__(self) -> None:
+        if self.hypothesis is not Hypothesis.ACQ0:
+            raise ExemptionMisuse(
+                f"an oracle exemption was requested for {self.hypothesis}. It exists only "
+                "for ACQ0, which supplies the canonical target and asks only for an "
+                "encoding of it. A reasoning hypothesis whose prompt carries the answer "
+                "is not a weakened test of reasoning, it is not a test of reasoning: H3 "
+                "in particular would become a tautology."
+            )
+        for field_name in ("granted_by", "authority", "rationale"):
+            if not str(getattr(self, field_name)).strip():
+                raise ExemptionMisuse(
+                    f"an oracle exemption must record {field_name}; an unattributed "
+                    "exemption is indistinguishable from a leak after the fact"
+                )
+        forbidden = sorted(str(i) for i in (self.permits & NEVER_DISCLOSED))
+        if forbidden:
+            raise ExemptionMisuse(
+                f"the exemption requests {forbidden}, which is never disclosed even under "
+                "ACQ0. Disclosing the reference encoding makes ACQ0 a transcription task "
+                "and its remaining facets measure copying; disclosing distractors teaches "
+                "the failure modes the corpus exists to detect."
+            )
+        outside = sorted(str(i) for i in (self.permits - ACQ0_ENCODING_DISCLOSURE))
+        if outside:
+            raise ExemptionMisuse(
+                f"the exemption requests {outside}, which is outside the ACQ0 encoding "
+                f"disclosure {sorted(str(i) for i in ACQ0_ENCODING_DISCLOSURE)}"
+            )
+        if not self.permits:
+            raise ExemptionMisuse(
+                "an exemption that permits nothing is not an exemption; omit it instead, "
+                "so the record shows the guard ran unmodified"
+            )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "hypothesis": str(self.hypothesis),
+            "granted_by": self.granted_by,
+            "authority": self.authority,
+            "rationale": self.rationale,
+            "permits": sorted(str(i) for i in self.permits),
+            "never_disclosed": sorted(str(i) for i in NEVER_DISCLOSED),
+            "consequence": ACQ0_ANSWER_FACET_VOID,
+        }
+
+
+#: The consequence, written once and carried into every record the exemption touches.
+ACQ0_ANSWER_FACET_VOID = (
+    "ACQ0 prompts supply the target, so ACQ0's answer_correct facet is uninformative by "
+    "construction and must never be cited as evidence about the representation. ACQ0 "
+    "measures format adherence, parse, resolution, type and exact semantic preservation "
+    "only."
+)
+
+#: The single instance this study uses. One instance, so every use is the same use and the
+#: record cannot contain two exemptions with different scopes.
+ACQ0_ENCODING_EXEMPTION = OracleExemption(
+    hypothesis=Hypothesis.ACQ0,
+    granted_by="user (project owner)",
+    authority="ACQ0 addendum §1",
+    rationale=(
+        "ACQ0 asks whether the model can encode a mathematical object, not whether it can "
+        "find one. Withholding the target confounds encoding failure with derivation "
+        "failure, and every ACQ0 facet would then be reporting the sum of the two."
+    ),
+    permits=ACQ0_ENCODING_DISCLOSURE,
 )
 
 
@@ -240,16 +397,52 @@ def scan_for_oracle(
 
 
 def assert_no_oracle(
-    prompt_text: str, cso: CanonicalSemanticObject, *, where: str = "<prompt>"
-) -> None:
-    """Raise :class:`OracleLeak` if the prompt carries any of the answer key."""
+    prompt_text: str,
+    cso: CanonicalSemanticObject,
+    *,
+    where: str = "<prompt>",
+    hypothesis: Hypothesis = Hypothesis.H1,
+    exemption: OracleExemption | None = None,
+) -> tuple[LeakFinding, ...]:
+    """Raise :class:`OracleLeak` if the prompt carries any of the answer key.
+
+    Both new parameters default to the strict behaviour, which is what keeps the guard
+    mandatory everywhere it already runs: ``evaluation/acq0/prompts/stages.py`` passes
+    neither, so the H1/H2/H3 prompt builders are unchanged and cannot become exempt
+    without an edit that a reviewer would see.
+
+    With an :class:`OracleExemption`, findings on the fields it permits are **returned**
+    rather than raised, so the disclosure stays in the record instead of disappearing.
+    Findings on any other field still raise: an exemption for the target does not license
+    leaking the reference encoding alongside it.
+    """
+    if exemption is not None:
+        if hypothesis is not Hypothesis.ACQ0:
+            raise ExemptionMisuse(
+                f"an oracle exemption was presented at {where} for {hypothesis}. The "
+                "exemption is scoped to ACQ0 encoding prompts; for a reasoning "
+                "hypothesis the guard is what stops the study answering its own question."
+            )
+        if exemption.hypothesis is not Hypothesis.ACQ0:  # pragma: no cover - unreachable
+            raise ExemptionMisuse("exemption hypothesis is not ACQ0")
+    elif hypothesis is Hypothesis.ACQ0:
+        # ACQ0 without an exemption is legitimate (an un-disclosed ACQ0 prompt), so this
+        # is not an error. Fall through to the strict scan.
+        pass
+
     findings = scan_for_oracle(prompt_text, cso, where=where)
+    if exemption is not None:
+        disclosed = tuple(f for f in findings if f.field in exemption.permits)
+        findings = tuple(f for f in findings if f.field not in exemption.permits)
+        if not findings:
+            return disclosed
     if findings:
         raise OracleLeak(
             f"{len(findings)} oracle fragment(s) reached {where}. A stage that is told "
             "the answer makes its protocol win for the wrong reason:\n  "
             + "\n  ".join(str(f) for f in findings)
         )
+    return ()
 
 
 def assert_demonstrations_disjoint(task: Any, demonstrations: Sequence[Any]) -> None:

@@ -1,0 +1,42 @@
+{
+  "cso": {
+    "id": "algebra_rectangle",
+    "domain": "algebra",
+    "difficulty": "easy",
+    "prose": "A rectangular plot is three times as long as it is wide. Walking once around its boundary covers 32 metres.",
+    "question": "What is the area of the plot, in square metres?",
+    "answer": {
+      "kind": "numeric",
+      "value": 48,
+      "tolerance": 1e-09,
+      "justification": "2*(w + 3w) = 32 gives w = 4 and length 12, so the area is 4 * 12 = 48."
+    },
+    "semantics": {
+      "entities": {
+        "width": "Real",
+        "length": "Real",
+        "area": "Real"
+      },
+      "declaration_kinds": {
+        "width": "const",
+        "length": "const"
+      },
+      "constraints": [
+        "length = 3 * width",
+        "2 * (width + length) = 32"
+      ]
+    },
+    "distractors": [
+      "reading the boundary walk as the area rather than the perimeter",
+      "halving the perimeter and calling the result the area"
+    ],
+    "reference_hml": "",
+    "_note": "reference_hml is deliberately empty. solve runs in reasoning mode: there is no reference encoding to withhold, because producing the encoding is part of the task. The withheld key is cso.answer and nothing else."
+  },
+  "pipeline": {
+    "answer_binding": "area"
+  },
+  "scripted_turns": {
+    "generation": "Let the width be w. The length is 3w, so the boundary walk is 2*(w + 3w) = 8w = 32, giving w = 4 and a length of 12. The area is then the product of the two sides. I state both facts as checkable constraints.\n\n```hml\nmodule RectangleArea\n\nconst width : Real := 4\nconst length : Real := 12\n\ndef perimeter := 2 * (width + length)\ndef area := width * length\n\nrequire perimeter = 32\nrequire area = 48\n```\n"
+  }
+}

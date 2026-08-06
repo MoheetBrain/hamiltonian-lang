@@ -721,3 +721,61 @@ zero false positives.
 **Limitation retained.** The benchmark still contains no spare-rename case. These fixes are
 pinned by the falsifier's own adversarial tests rather than by the corpus, and the corpus
 should gain such pairs before any H1/H2 number is computed.
+
+## D-028 — the verifier's dimension re-reader must honour parentheses
+
+**Date.** 2026-08-06 · **Status.** Accepted · **Bug fix, not a grammar change.**
+
+**Scope, stated first because it determines the procedure.** This changes
+`verification/obligations/checkers.py::parse_dimension_text`, a checker-side helper. It does
+**not** touch `ast/nodes.py`, `types.py`, `backends/canonical.py`, the grammar or the
+canonical form, so the `V0_DESIGN_FREEZE` design-change procedure does not apply. Content
+hashes are unaffected. It is recorded here because it changes verification behaviour.
+
+**Problem.** `parse_dimension_text` is a deliberately independent re-implementation of the
+dimension grammar, so a dimensional claim is compared against a *second* reading of the
+source rather than the type checker's answer echoed back. That independence is sound, but
+the second reader was incomplete: `_dim_tokens` did
+`text.replace("(", " ").replace(")", " ")`, deleting grouping outright.
+
+Because the compiler **renders its own canonical form with parentheses**, the re-reader
+received `Mass / (Length * Time^2)` and re-read it as `Mass / Length * Time^2`. Every
+dimension requiring two divisions — pressure, density, force per area — was reported
+DISPROVED regardless of how the author spelled it. A single trailing division was
+unaffected, which is why `examples/physics/kinetic_energy.hml` never caught it.
+
+**One defect, not two.** The bug report also alleged right-associative division. That does
+not reproduce: `a / b / c` parsed correctly as `(a / b) / c` both before and after. All
+three reported spellings failed for the single reason above, which is exactly what made the
+symptom look like an associativity error.
+
+**Decision.** Tokenise `(` and `)` and give the re-reader a recursive `group` rule with
+left-associative `*` and `/`, plus a group exponent so `(a * b)^2` binds to the whole group.
+
+**A regression the fix introduced and closed.** Removing `/` from the identifier character
+class broke rational exponents: `Length^1/2` had tokenised as one identifier and became
+three tokens. `_exponent()` now reads `n / m` as a fraction **only when both sides are
+numeric**, so `Length^1/2` is a half power while `Mass^2 / Time` stays a division — the same
+distinction the language parser draws. Without this, valid programs would have been
+rejected.
+
+**Evidence.**
+
+| assertion | before | after |
+|---|---|---|
+| `check dimension q = Mass / Length / Time^2` | DISPROVED | **VERIFIED** |
+| `check dimension q = Mass / (Length * Time^2)` | DISPROVED | **VERIFIED** |
+| `check dimension q = Mass / Length^1 / Time^2` | DISPROVED | **VERIFIED** |
+| `Mass / (Length / Time)` vs `Mass / (Length * Time)` | identical | **distinct** |
+| `Length^1/2` | `Length^1/2` | `Length^1/2` |
+| `check dimension q = Mass * Time^2 / Length` | rejected | **still rejected** (`HML-D504`) |
+
+A genuinely wrong assertion is still caught, by the type checker, before the obligation
+engine runs — so it surfaces as `INVALID` rather than `DISPROVED`. The fix removes a false
+negative without making the check permissive.
+
+`tests/verification/test_dimension_text_parentheses.py` pins all of the above, including a
+negative control.
+
+**Reversal.** Restore the two `replace` calls and delete the `group`/`_exponent` rules.
+Reversal reintroduces the inability to assert any two-division dimension.

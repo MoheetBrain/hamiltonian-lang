@@ -1557,3 +1557,72 @@ report repeated the projection as though it settled the question; it did not.
 **Effect.** The tournament can be run fairly at `4 x 8192`. This is not ACQ0 evidence.
 
 **Next.** Resolve the ACQ0 oracle-scoping question, then run the 16-condition calibration.
+
+---
+
+## 2026-08-06 — ACQ0 instrument rebuilt: canonical v2, one authority
+
+**Branch.** `integration/m1.5-paper-derived-closeout`
+
+**Objective.** Replace an evaluation corpus that could not measure what it claimed to.
+
+**What was completed.**
+
+*The v1 corpus is inadmissible, 41 of 41.* Mathematics lived in three independently
+authored places — prose, a `SemanticFacts(...)` **repr string**, and a private reference —
+with nothing forcing agreement. In `assumption_boundary_000` the prose said "varrho of an
+argument equals 5 divided by that argument" while the reference wrote `eta / mu` with
+`eta = 5`. Same function, different canonical hash. A frontier model followed the prose and
+was scored FAIL; it also added a `prove` statement invited by a question posed while
+`objective=None`. **That was a scoring-instrument failure, not a model failure**, and the
+earlier FAIL verdict is withdrawn.
+
+Defect counts across the 41: question-without-objective 41 · entity-absent-from-prose 38 ·
+function-body-missing 10 · assumption-not-declared 6 · derived-fact-as-premise 4 ·
+public-insufficient 3 · const-without-initialiser 2.
+
+*`CanonicalAcq0TaskV2`* makes the compiled source the sole authored mathematics and derives
+the structured target, prose, four surface renderings, reference and expected hash from it.
+No second mathematical AST was created — the compiler's AST is the AST. Seven invariants
+are enforced at construction, each rejecting a defect the audit actually found.
+
+*Eight proof tasks*, one per family, fresh unexposed ids, **8/8 admissible**, exact
+round-trips through A/B/C/D, ACQ0 and H2 views provably distinct.
+
+**Decisions made and why.**
+
+- The authority is the compiled source, not a parallel description of it. Editing prose
+  would not have fixed a defect whose cause is that three artefacts could be authored
+  separately at all.
+- v1 ids stay quarantined with their evidence; v2 ids carry a `v2_` prefix and a test
+  enforces it. No exposed id is reused.
+- Surface B was **not** changed. Its grammar renders `mod` / `dec const … :=` / `fun` and
+  accepts exactly what it renders; the ChatGPT output imported with zero diagnostics. The
+  suspected `def`/`fun` conflict was documentation prose and did not reproduce.
+- No HML syntax, keyword, canonical form or type changed anywhere.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---|---|
+| `pytest -n 18` | **5191 passed**, 4 skipped, 7 xfailed, 7 xpassed |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, 8/8, no override |
+| 8 tasks x 4 surfaces round-trip | **32/32 exact** |
+| identity sensitivity (7 properties) | all correct |
+| `pytest tests/evaluation/test_acq0_canonical_v2.py` | 108 passed |
+
+**Failures and unresolved uncertainty.**
+
+- **Both protocol calibrations are void.** v1 hit the 2048-token completion cap on 56 of 76
+  generations; v2 ran on `binding_chain_002` and `distribution_law_002`, both
+  `INVALID_INSTRUMENT`. Different causes, same outcome: **no protocol has been validly
+  selected.** All 32 raw records are preserved.
+- The 41-task regeneration is **not** attempted.
+- Epistemic categories are structural (assume/require/prove), not per-statement labels.
+- Prose is machine-plain; its readability to a model is unmeasured.
+- **No model has seen any v2 task.** Admission proves the instrument is self-consistent, not
+  that a model can encode it.
+
+**Effect.** ACQ0 has an instrument that can measure a model rather than its own corpus.
+
+**Next.** Human-review hardening audit of the v2 architecture.
