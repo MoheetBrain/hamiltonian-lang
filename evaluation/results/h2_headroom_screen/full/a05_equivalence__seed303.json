@@ -1,0 +1,21 @@
+{
+  "task_id": "a05_equivalence",
+  "domain": "algebraic",
+  "difficulty": "easy",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "2d377e71b19b184a4f0c5cfe833183ab5cb697501474490457d3cdab77130c68",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "<ANSWER>FALSE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 249,
+  "completion_tokens": 447,
+  "latency_s": 21.63,
+  "extracted_answer": "FALSE",
+  "correct": true,
+  "scoring_failure": ""
+}

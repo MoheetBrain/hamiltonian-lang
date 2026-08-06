@@ -1,0 +1,21 @@
+{
+  "task_id": "p22_binomial_moments",
+  "domain": "probability",
+  "difficulty": "easy",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "2fbb9f52fcb3f26b256bbf72d556de794a6c9790dc2f4066160179427d6ffc5b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the variance of the total number of successes $S$ in a sequence of independent trials, we identify that $S$ follows a binomial distribution with parameters $n=18$ and $p=0.25$.\n\nThe formula for the variance of a binomial random variable $S \\sim \\text{Binomial}(n, p)$ is:\n$$\\text{Var}(S) = n \\cdot p \\cdot (1 - p)$$\n\nSubstituting the given values into the formula:\n$n = 18$\n$p = 0.25$\n$q = 1 - p = 1 - 0.25 = 0.75$\n\n$$\\text{Var}(S) = 18 \\cdot 0.25 \\cdot 0.75$$\n\nCalculating the values:\n$18 \\cdot 0.25 = 4.5$\n$4.5 \\cdot 0.75 = 3.375$\n\nAlternatively, using fractions:\n$$\\text{Var}(S) = 18 \\cdot \\frac{1}{4} \\cdot \\frac{3}{4} = \\frac{18 \\cdot 3}{16} = \\frac{54}{16} = \\frac{27}{8}$$\n$\\frac{27}{8} = 3.375$\n\n<ANSWER>3.375</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 256,
+  "completion_tokens": 1010,
+  "latency_s": 52.78,
+  "extracted_answer": "3.375",
+  "correct": true,
+  "scoring_failure": ""
+}

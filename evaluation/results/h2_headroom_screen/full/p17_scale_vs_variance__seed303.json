@@ -1,0 +1,21 @@
+{
+  "task_id": "p17_scale_vs_variance",
+  "domain": "probability",
+  "difficulty": "easy",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "0d09058fa0427534a593e903646df0728217666ca0670c6c58c7ea44b159e3b7",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the scale parameter (standard deviation) of the normal distribution given its variance, we use the relationship between these two parameters.\n\n1.  **Identify the given information:**\n    *   Mean ($\\mu$) = 11\n    *   Variance ($\\sigma^2$) = 49\n\n2.  **Recall the definition of the scale parameter for a normal distribution:**\n    The problem states that the scale parameter is the standard deviation ($\\sigma$).\n\n3.  **Calculate the standard deviation from the variance:**\n    The relationship between the variance and the standard deviation is:\n    $$\\text{Variance} = (\\text{Standard Deviation})^2$$\n    $$\\sigma^2 = 49$$\n    To find $\\sigma$, we take the square root of the variance:\n    $$\\sigma = \\sqrt{49}$$\n    $$\\sigma = 7$$\n\n<ANSWER>7</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 261,
+  "completion_tokens": 418,
+  "latency_s": 28.94,
+  "extracted_answer": "7.0",
+  "correct": true,
+  "scoring_failure": ""
+}

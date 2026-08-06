@@ -28,7 +28,20 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**PYRIGHT CONFIGURED; ONE STALE RE-EXPORT CLOSED.** The repository had no Pyright
+**eval001 IS SATURATED AND UNUSABLE FOR H2 — HEADROOM_INSUFFICIENT.** The plain-English
+headroom screen (95 deduplicated problems x 3 seeds, temperature 0.7) returns **mean
+accuracy 0.959**: of 90 tasks with all three seeds complete, **85 are 3/3 correct** and only
+**3** fall in the 1/3-2/3 headroom band against a required 30. The pilot's 93.3% was not an
+artefact of its 15-problem sample — the whole corpus is saturated.
+
+This closes a wrong path cheaply and confirms the right one: the purpose-built **24-task v1
+benchmark** (`evaluation/v1_benchmark/tasks.py`) is the H2 corpus. Its claims were verified
+independently — 24 tasks, mean predicted accuracy **0.556** exactly, all 24 inside the
+0.40-0.70 band (range 0.45-0.67), contamination clean against 517 items across 18 corpora,
+24/24 carrying independent key verification, and its 3 apparent answer leaks cleared as
+multiple-choice letters that necessarily appear in their own options.
+
+Previously: **PYRIGHT CONFIGURED; ONE STALE RE-EXPORT CLOSED.** The repository had no Pyright
 configuration at all, so 126 of 484 baseline diagnostics were unresolved imports of
 installed packages — and every file carrying one was analysed against a partly-blind view.
 Configuring the environment truthfully (no mode weakened, nothing excluded that matters)

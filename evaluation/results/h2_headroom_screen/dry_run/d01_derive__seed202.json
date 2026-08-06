@@ -1,0 +1,21 @@
+{
+  "task_id": "d01_derive",
+  "domain": "dimensional",
+  "difficulty": "medium",
+  "answer_kind": "dimension",
+  "seed": 202,
+  "prompt_sha256": "f93b3b48df3e4240155483501342ee08c63549d629348125115e5d63f50fd1d1",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the physical dimension of molar energy, we start with its definition:\nMolar Energy = Energy / Amount of substance.\n\n1.  **Determine the dimensions of Energy (E):**\n    Energy is equivalent to work, which is force multiplied by distance.\n    *   Force = Mass × Acceleration = $\\text{Mass} \\times \\frac{\\text{Length}}{\\text{Time}^2}$\n    *   Distance = Length\n    Therefore, Energy = $(\\text{Mass} \\times \\frac{\\text{Length}}{\\text{Time}^2}) \\times \\text{Length} = \\frac{\\text{Mass} \\times \\text{Length}^2}{\\text{Time}^2}$.\n\n2.  **Determine the dimensions of Amount of substance (n):**\n    The dimension of amount of substance is simply Amount.\n\n3.  **Calculate the dimension of Molar Energy:**\n    Molar Energy = $\\frac{\\text{Dimension of Energy}}{\\text{Dimension of Amount}}$\n    Molar Energy = $\\frac{\\text{Mass} \\times \\text{Length}^2 / \\text{Time}^2}{\\text{Amount}} = \\frac{\\text{Mass} \\times \\text{Length}^2}{\\text{Time}^2 \\times \\text{Amount}}$.\n\nExpressing this using the requested format:\n<ANSWER>Mass * Length^2 / (Time^2 * Amount)</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 283,
+  "completion_tokens": 1522,
+  "latency_s": 73.52,
+  "extracted_answer": "[('Amount', -1.0), ('Length', 2.0), ('Mass', 1.0), ('Time', -2.0)]",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "q14_unique",
+  "domain": "quantifier",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 202,
+  "prompt_sha256": "06d3f8f333c8056b39b6a4ea81fce81c3fa3505610810093213c5a0f6c29ccd9",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine if the statement \"there exists exactly one real number $x$ such that $x^3 = 10$\" is true, we analyze the equation $x^3 = 10$.\n\n1.  **Existence**: The function $f(x) = x^3 - 10$ is a continuous polynomial. As $x \\to -\\infty$, $f(x) \\to -\\infty$, and as $x \\to \\infty$, $f(x) \\to \\infty$. By the Intermediate Value Theorem, there must be at least one real value $x$ such that $f(x) = 0$. Specifically, this value is $x = \\sqrt[3]{10}$.\n\n2.  **Uniqueness**: To check if this root is unique among the real numbers, we examine the derivative of $f(x)$. The derivative is $f'(x) = 3x^2$. Since $f'(x) > 0$ for all $x \\neq 0$ and $f'(0) = 0$, the function $f(x)$ is strictly increasing over the entire set of real numbers. A strictly monotonic function can cross the x-axis at most once.\n\n3.  **Conclusion**: Since there is at least one real root and it must be unique, there exists exactly one real number $x$ such that $x^3 = 10$.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 243,
+  "completion_tokens": 840,
+  "latency_s": 48.12,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

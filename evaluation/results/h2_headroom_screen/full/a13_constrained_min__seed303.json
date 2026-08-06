@@ -1,0 +1,21 @@
+{
+  "task_id": "a13_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "e74047910b768b85e05d5abbea3b75f94701ba887f7de9546d50c038e25b478e",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible value of $x^2 + y^2$ given that $x \\ge 0$, $y \\ge 0$, and $x + y \\ge 24$, we can use several methods.\n\n**Method 1: Geometric Approach**\nThe function $f(x, y) = x^2 + y^2$ represents the square of the distance from the origin $(0, 0)$ to a point $(x, y)$. The constraint $x + y \\ge 24$ (with $x, y \\ge 0$) defines a region in the first quadrant that lies on or above the line $x + y = 24$. To minimize the distance from the origin to this region, we look for the point on the boundary $x + y = 24$ closest to the origin. The shortest distance from a point to a line is along the perpendicular. For the line $x + y = 24$, the perpendicular through the origin is the line $y = x$.\n\nSubstituting $y = x$ into the boundary equation:\n$x + x = 24$\n$2x = 24$\n$x = 12 \\implies y = 12$\n\nThe minimum value is then:\n$f(12, 12) = 12^2 + 12^2 = 144 + 144 = 288$.\n\n**Method 2: Cauchy-Schwarz Inequality**\nAccording to the Cauchy-Schwarz inequality for two variables:\n$(x^2 + y^2)(1^2 + 1^2) \\ge (x \\cdot 1 + y \\cdot 1)^2$\n$2(x^2 + y^2) \\ge (x + y)^2$\n\nGiven $x + y \\ge 24$, we have:\n$(x + y)^2 \\ge 24^2$\n$2(x^2 + y^2) \\ge 576$\n$x^2 + y^2 \\ge \\frac{576}{2} = 288$\n\nThe minimum value is achieved when $x/1 = y/1$, meaning $x=y$. With $x+y=24$, this gives $x=12, y=12$.\n\n**Method 3: Substitution**\nFrom the constraint $x + y \\ge 24$, the minimum for $x^2 + y^2$ must occur when $x + y = 24$ (because if $x+y > 24$, we could decrease one of the variables to reduce $x^2 + y^2$).\nSubstituting $y = 24 - x$:\n$f(x) = x^2 + (24 - x)^2$\n$f(x) = x^2 + 576 - 48x + x^2$\n$f(x) = 2x^2 - 48x + 576$\n\nTo find the minimum, take the derivative and set it to zero:\n$f'(x) = 4x - 48$\n$4x - 48 = 0 \\implies x = 12$\nSubstituting $x=12$ back into $f(x)$:\n$f(12) = 2(12^2) - 48(12) + 576 = 2(144) - 576 + 576 = 288$.\n\n<ANSWER>288</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 254,
+  "completion_tokens": 1899,
+  "latency_s": 92.88,
+  "extracted_answer": "288.0",
+  "correct": true,
+  "scoring_failure": ""
+}

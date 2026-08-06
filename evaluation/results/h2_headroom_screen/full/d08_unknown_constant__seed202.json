@@ -1,0 +1,21 @@
+{
+  "task_id": "d08_unknown_constant",
+  "domain": "dimensional",
+  "difficulty": "hard",
+  "answer_kind": "dimension",
+  "seed": 202,
+  "prompt_sha256": "e1c49178420da0f4d3631f389b5dde0303fc17371b6332c5b2e71ab5351209ce",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The relationship is given as Speed = k * Duration. To find the physical dimension of the constant k, we use dimensional analysis.\n\n1.  Identify the dimensions of the known quantities:\n    - Speed has the dimension of Length divided by Time (Length / Time).\n    - Duration has the dimension of Time (Time).\n\n2.  Set up the equation for the dimensions based on the relationship Speed = k * Duration:\n    [Speed] = [k] * [Duration]\n\n3.  Substitute the known dimensions into the equation:\n    (Length / Time) = [k] * (Time)\n\n4.  Solve for the dimension of k ([k]):\n    [k] = (Length / Time) / Time\n    [k] = Length / (Time * Time)\n    [k] = Length / Time^2\n\n<ANSWER>Length / Time^2</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 274,
+  "completion_tokens": 432,
+  "latency_s": 21.15,
+  "extracted_answer": "[('Length', 1.0), ('Time', -2.0)]",
+  "correct": true,
+  "scoring_failure": ""
+}

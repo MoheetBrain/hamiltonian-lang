@@ -1,0 +1,21 @@
+{
+  "task_id": "d03_fractional_power",
+  "domain": "dimensional",
+  "difficulty": "hard",
+  "answer_kind": "dimension",
+  "seed": 202,
+  "prompt_sha256": "53068dee0bab0000b8d0afa57bb5dfddbf24ff36b6c8928af66e6dab3a4b3168",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The physical dimension of area is Length^2 (or L^2). The square root of an area, therefore, has the dimension:\n\n$\\sqrt{\\text{Length}^2} = \\text{Length}$\n\n<ANSWER>Length</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 263,
+  "completion_tokens": 271,
+  "latency_s": 12.89,
+  "extracted_answer": "[('Length', 1.0)]",
+  "correct": true,
+  "scoring_failure": ""
+}

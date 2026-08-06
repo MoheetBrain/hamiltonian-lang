@@ -1,0 +1,21 @@
+{
+  "task_id": "a19_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "20254e19e3d7df5f89c553bf9c50b8b06b99f0de8515050f9f3ba5d33997201b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible numerical value of $x^2 + y^2$ given that $x, y \\ge 0$ and $x + y \\ge 10$, we can use several methods.\n\n**Method 1: Substitution**\nSince we want to minimize $f(x, y) = x^2 + y^2$, the minimum will occur on the boundary where $x + y = 10$. If $x + y > 10$, we could decrease either variable to reduce the sum of squares while still satisfying the constraint.\nSubstituting $y = 10 - x$ into the objective function:\n$$f(x) = x^2 + (10 - x)^2$$\n$$f(x) = x^2 + 100 - 20x + x^2$$\n$$f(x) = 2x^2 - 20x + 100$$\n\nTo find the minimum, we take the derivative with respect to $x$ and set it to zero:\n$$f'(x) = 4x - 20$$\n$$4x - 20 = 0 \\implies x = 5$$\nSubstituting back to find $y$:\n$$y = 10 - 5 = 5$$\n\nThe value of the function at $(5, 5)$ is:\n$$f(5, 5) = 5^2 + 5^2 = 25 + 25 = 50$$\n\n**Method 2: Cauchy-Schwarz Inequality**\nAccording to the Cauchy-Schwarz inequality for vectors $(1, 1)$ and $(x, y)$:\n$$(1^2 + 1^2)(x^2 + y^2) \\ge (1\\cdot x + 1\\cdot y)^2$$\n$$2(x^2 + y^2) \\ge (x + y)^2$$\n\nGiven that $x + y \\ge 10$, it follows that $(x + y)^2 \\ge 100$:\n$$2(x^2 + y^2) \\ge 100$$\n$$x^2 + y^2 \\ge 50$$\n\nThe equality holds when the vectors are proportional, meaning $x/1 = y/1$, or $x=y$. For $x+y=10$ and $x=y$, we have $x=5$ and $y=5$.\n\n<ANSWER>50</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 254,
+  "completion_tokens": 1554,
+  "latency_s": 75.87,
+  "extracted_answer": "50.0",
+  "correct": true,
+  "scoring_failure": ""
+}

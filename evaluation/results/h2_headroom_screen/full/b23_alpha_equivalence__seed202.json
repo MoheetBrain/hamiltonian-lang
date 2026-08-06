@@ -1,0 +1,21 @@
+{
+  "task_id": "b23_alpha_equivalence",
+  "domain": "binding",
+  "difficulty": "easy",
+  "answer_kind": "boolean",
+  "seed": 202,
+  "prompt_sha256": "acba3f49e108e45a265dffb8d968625df2bdc528707150e91d8b3dfb5bb3f67e",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine whether function F and function G denote the same function, we examine their definitions:\n\n- Function F is defined as $F(q) = q \\times 12$.\n- Function G is defined as $G(s) = s \\times 12$.\n\nIn mathematics, a function is defined by its rule of assignment (mapping an input to an output), its domain, and its codomain. Here, both functions follow the same rule: take an input and multiply it by 12. The variables used to represent the inputs ($q$ for $F$ and $s$ for $G$) are dummy variables; they serve as placeholders and do not affect the function's definition.\n\nSince both $F(x) = 12x$ and $G(x) = 12x$ describe the same mathematical operation over the same implied domain, $F$ and $G$ denote the same function.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 255,
+  "completion_tokens": 752,
+  "latency_s": 35.97,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

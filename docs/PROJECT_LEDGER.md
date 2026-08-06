@@ -2197,3 +2197,62 @@ real runtime defect on the verifier path is closed.
 **Next intended step.** Triage the 29 `reportPossiblyUnboundVariable`; finish
 `repair/record.py`; decide whether `equivalence/` is in scope, since it holds 52 of the 58
 `src` diagnostics and sits off the critical path.
+
+---
+
+## 2026-08-06 — eval001 headroom screen: saturated, HEADROOM_INSUFFICIENT
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** H2 benchmark headroom.
+
+**Objective.** Determine whether the existing eval001 corpus has the difficulty headroom an
+H2 representation comparison needs.
+
+**What was completed.** 95 problems (120 minus 25 exact duplicates, 16 groups sharing prose
+and question verbatim with agreeing answers), three seeds each at temperature 0.7 and
+max_tokens 2400, plain-English arm only, prompts read from the pre-generated `arms/A/` files
+so no prompt builder sat in the loop. A five-problem dry run across five domains preceded it
+and was clean.
+
+**Result: the corpus is saturated.** Of 90 tasks with all three seeds complete, **85 are 3/3
+correct**; mean accuracy **0.959**; the 1/3-2/3 headroom band holds **3 tasks** against a
+required 30. Verdict **HEADROOM_INSUFFICIENT**. The pilot's 93.3% across all seven arms was
+not a small-sample artefact — eval001 simply cannot discriminate between representations,
+because the model already solves nearly all of it.
+
+**Decisions made and why.** eval001 is retired as an H2 corpus. The purpose-built 24-task v1
+benchmark is the H2 corpus instead; its claims were verified rather than assumed (24 tasks,
+mean predicted accuracy 0.556 exactly, 24/24 inside the 0.40-0.70 band, contamination clean
+against 517 foreign items across 18 corpora, 24/24 with independent key verification, and
+its three apparent answer "leaks" cleared as multiple-choice letters that necessarily appear
+in their own option lists).
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| records | 271/285 at commit (14 outstanding; the process was still running) |
+| complete tasks | 90/95 |
+| transport failures | 0 |
+| scoring failures | 0 |
+| prompt-hash stability vs manifest | **all records match** |
+| model-digest stability | single digest across all records |
+| **truncations** | **11** at max_tokens 2400 |
+| histogram | 0/3 = 2 · 1/3 = 2 · 2/3 = 1 · 3/3 = 85 |
+
+**Failures and unresolved uncertainty.**
+
+- **The screen was still running at commit time**: 271 of 285 records, 90 of 95 tasks
+  complete. The verdict is not in doubt — 85/90 at 3/3 cannot be overturned by five tasks —
+  but the figures are interim and `analyse.py` should be re-run for the final ones.
+- **11 truncations** at the inherited max_tokens of 2400. On a saturated corpus this does
+  not change the verdict, but it would have to be fixed before any corpus is measured for
+  real.
+- This screen was launched before the 24-task benchmark was located. It answers a question
+  about eval001, not about the H2 corpus.
+
+**Effect.** A wrong path is closed for the cost of one unattended overnight GPU run, and the
+right corpus is identified and independently verified.
+
+**Next intended step.** Re-run `analyse.py` for the final records, then run Arm E
+(structured English plus one unaided self-review) on the 24 frozen tasks — the baseline
+headroom calibration, which doubles as the Arm-E data the E-versus-H comparison needs.

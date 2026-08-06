@@ -1,0 +1,21 @@
+{
+  "task_id": "q14_unique",
+  "domain": "quantifier",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "06d3f8f333c8056b39b6a4ea81fce81c3fa3505610810093213c5a0f6c29ccd9",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 243,
+  "completion_tokens": 291,
+  "latency_s": 18.35,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

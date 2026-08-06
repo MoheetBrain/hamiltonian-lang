@@ -1,0 +1,21 @@
+{
+  "task_id": "a15_domain_restriction",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "846b902a18844d390da37528ef246f71b562c561a2bc73efe24fc7afa1eef81a",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The claim states that the equation $\\sqrt{x} \\cdot \\sqrt{x} = x$ holds for $x = -4$ over the real numbers.\n\nIn the set of real numbers, the square root function $\\sqrt{x}$ is only defined for $x \\ge 0$. Since $-4$ is less than zero, $\\sqrt{-4}$ is not a real number. Therefore, the expression cannot be evaluated within the domain of real numbers, and the claim that the equality holds specifically \"over the real numbers\" is invalid.\n\n<ANSWER>FALSE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 268,
+  "completion_tokens": 528,
+  "latency_s": 26.11,
+  "extracted_answer": "FALSE",
+  "correct": true,
+  "scoring_failure": ""
+}

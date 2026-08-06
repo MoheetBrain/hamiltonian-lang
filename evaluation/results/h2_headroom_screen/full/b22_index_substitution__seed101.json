@@ -1,0 +1,21 @@
+{
+  "task_id": "b22_index_substitution",
+  "domain": "binding",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "630f45a575cdf02b84fec3ffd27b6259719bf8ba9ecc547034dde4984fa9c6f2",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the numerical value of the sum described, we first identify the components of the vector $\\mathbf{v}$. The vector $\\mathbf{v}$ has length 3 with entries in order: $v[1] = 2$, $v[2] = 5$, and $v[3] = 1$.\n\nThe problem asks for the sum of $v[i]$ over all indices $i$ from 1 to 3 such that $i \\neq 1$. The indices meeting this condition are:\n- $i = 2$\n- $i = 3$\n\nNow we calculate the sum of the entries at these indices:\nSum $= v[2] + v[3]$\nSum $= 5 + 1$\nSum $= 6$\n\n<ANSWER>6</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 278,
+  "completion_tokens": 629,
+  "latency_s": 30.73,
+  "extracted_answer": "6.0",
+  "correct": true,
+  "scoring_failure": ""
+}

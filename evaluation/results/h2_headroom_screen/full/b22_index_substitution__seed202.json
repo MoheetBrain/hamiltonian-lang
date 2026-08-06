@@ -1,0 +1,21 @@
+{
+  "task_id": "b22_index_substitution",
+  "domain": "binding",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "630f45a575cdf02b84fec3ffd27b6259719bf8ba9ecc547034dde4984fa9c6f2",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the numerical value of the sum, we follow these steps:\n\n1.  **Identify the vector entries**: The vector $v$ has length 3 with entries in order:\n    - $v[1] = 2$\n    - $v[2] = 5$\n    - $v[3] = 1$\n\n2.  **Determine the range of indices**: We are summing over every index $i$ from 1 to 3. These indices are $\\{1, 2, 3\\}$.\n\n3.  **Apply the condition**: The sum is restricted to those indices where $i \\neq 1$.\n    - For $i = 1$: Condition $1 \\neq 1$ is False.\n    - For $i = 2$: Condition $2 \\neq 1$ is True.\n    - For $i = 3$: Condition $3 \\neq 1$ is True.\n\n4.  **Calculate the sum**: The indices that satisfy the condition are $i=2$ and $i=3$. We sum their corresponding entries:\n    $$\\text{Sum} = v[2] + v[3]$$\n    $$\\text{Sum} = 5 + 1$$\n    $$\\text{Sum} = 6$$\n\n<ANSWER>6</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 278,
+  "completion_tokens": 484,
+  "latency_s": 23.07,
+  "extracted_answer": "6.0",
+  "correct": true,
+  "scoring_failure": ""
+}

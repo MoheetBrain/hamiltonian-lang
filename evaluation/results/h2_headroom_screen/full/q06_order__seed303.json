@@ -1,0 +1,21 @@
+{
+  "task_id": "q06_order",
+  "domain": "quantifier",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "c37fe04475addf32305b4df4d125060f70ecaf9c10f6524dbee3e30fe567ce6f",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The statement \"for every real number x, there exists a real number y such that y is greater than x\" can be written in formal logic as:\n∀x ∈ ℝ, ∃y ∈ ℝ : y > x.\n\nTo determine if this is true, we consider any arbitrary real number x. For any given x, we can choose a value for y, such as y = x + 1. Since adding 1 to any real number always results in a larger real number, and the set of real numbers is closed under addition, y = x + 1 is a real number and satisfies the condition y > x.\n\nSince this holds for all possible values of x, the statement is true.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 252,
+  "completion_tokens": 414,
+  "latency_s": 25.58,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

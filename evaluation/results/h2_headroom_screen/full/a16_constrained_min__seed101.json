@@ -1,0 +1,21 @@
+{
+  "task_id": "a16_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "ba916f8f1340bbe5c9255e8356a5946f67e172d6200ef05738105a69c54529a7",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible numerical value of $x^2 + y^2$ given that $x, y \\ge 0$ and $x + y \\ge 6$, we can analyze the problem geometrically or algebraically.\n\n**1. Geometric Approach:**\nThe expression $x^2 + y^2$ represents the square of the distance from the origin $(0, 0)$ to a point $(x, y)$. The constraints define a region in the first quadrant ($x \\ge 0, y \\ge 0$) bounded by the line $x + y = 6$. To minimize the distance (and thus its square), we look for the point in this feasible region closest to the origin. This is the perpendicular projection of the origin onto the line $x + y = 6$.\n\n**2. Algebraic Approach:**\nSince $x^2 + y^2$ increases as $x$ or $y$ increase (for positive values), the minimum must occur on the boundary where $x + y = 6$. We can substitute $y = 6 - x$ into the expression:\n$$f(x) = x^2 + (6 - x)^2$$\nExpanding the equation:\n$$f(x) = x^2 + 36 - 12x + x^2$$\n$$f(x) = 2x^2 - 12x + 36$$\n\nTo find the minimum, we take the derivative of $f(x)$ with respect to $x$ and set it to zero:\n$$f'(x) = 4x - 12$$\n$$4x - 12 = 0 \\implies x = 3$$\n\nSubstituting $x = 3$ back into the equation for $y$:\n$$y = 6 - 3 = 3$$\n\nNow we calculate the value of $x^2 + y^2$ at $(3, 3)$:\n$$3^2 + 3^2 = 9 + 9 = 18$$\n\n**Verification:**\nCheck other points on the boundary $x + y = 6$:\n- If $(0, 6)$, then $0^2 + 6^2 = 36$.\n- If $(6, 0)$, then $6^2 + 0^2 = 36$.\n- If $(2, 4)$, then $2^2 + 4^2 = 4 + 16 = 20$.\nThe value at $(3, 3)$ is indeed the minimum.\n\n<ANSWER>18</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 253,
+  "completion_tokens": 1755,
+  "latency_s": 85.62,
+  "extracted_answer": "18.0",
+  "correct": true,
+  "scoring_failure": ""
+}

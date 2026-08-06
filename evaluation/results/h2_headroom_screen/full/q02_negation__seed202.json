@@ -1,0 +1,21 @@
+{
+  "task_id": "q02_negation",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "boolean",
+  "seed": 202,
+  "prompt_sha256": "7d7e0b393b3b1380e5ada5cd75cbb00a8667919c94a5ce9ad7c1ab99d4708068",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The statement \"for every real number x, it is not the case that x squared is negative\" can be written symbolically as:\n$\\forall x \\in \\mathbb{R}, \\neg(x^2 < 0)$.\n\nIn the set of real numbers $\\mathbb{R}$, the square of any value $x$ (where $x^2 = x \\cdot x$) is always greater than or equal to zero ($x^2 \\ge 0$). Since $x^2 \\ge 0$ for all $x$, it is impossible for $x^2$ to be less than zero. Therefore, the assertion that \"it is not the case that $x^2$ is negative\" is true for every real number $x$.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 244,
+  "completion_tokens": 381,
+  "latency_s": 24.82,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

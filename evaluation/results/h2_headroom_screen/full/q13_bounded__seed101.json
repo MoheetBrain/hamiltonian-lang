@@ -1,0 +1,21 @@
+{
+  "task_id": "q13_bounded",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "80141ef53f17baaf43314ef286e1d9cae065a5ca0e640430229c5ef18731dcfe",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The statement asks whether there exists a real number $y$ such that for every real number $x$ in the closed interval $[0, 1]$, $y \\ge x$. This is equivalent to asking if the set $\\{x \\in \\mathbb{R} : 0 \\le x \\le 1\\}$ has an upper bound in $\\mathbb{R}$.\n\nBy definition, any real number $y \\ge 1$ serves as an upper bound for this interval. For example, if we let $y = 1$, then for every $x \\in [0, 1]$, the condition $x \\le 1$ (and thus $y \\ge x$) is satisfied by the definition of the closed interval $[0, 1]$. Since such a real number $y$ exists, the statement is true.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 252,
+  "completion_tokens": 651,
+  "latency_s": 39.88,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

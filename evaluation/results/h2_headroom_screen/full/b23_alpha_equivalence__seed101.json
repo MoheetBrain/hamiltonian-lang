@@ -1,0 +1,21 @@
+{
+  "task_id": "b23_alpha_equivalence",
+  "domain": "binding",
+  "difficulty": "easy",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "acba3f49e108e45a265dffb8d968625df2bdc528707150e91d8b3dfb5bb3f67e",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine if functions $F$ and $G$ denote the same function, we examine their definitions:\n- $F(q) = q \\times 12$\n- $G(s) = s \\times 12$\n\nA function is defined by its mapping rule, domain, and codomain. In this case, both functions take an input (regardless of whether the variable is named $q$ or $s$) and multiply that input by 12. The choice of the dummy variable used to describe the function does not change the identity of the function itself.\n\nSince for any value $x$, $F(x) = 12x$ and $G(x) = 12x$, the mapping rule is identical. Assuming they share the same domain and codomain (which is standard in such problems), they are the same function.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 255,
+  "completion_tokens": 679,
+  "latency_s": 34.39,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

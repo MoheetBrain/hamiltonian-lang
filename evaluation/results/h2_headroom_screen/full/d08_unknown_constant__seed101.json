@@ -1,0 +1,21 @@
+{
+  "task_id": "d08_unknown_constant",
+  "domain": "dimensional",
+  "difficulty": "hard",
+  "answer_kind": "dimension",
+  "seed": 101,
+  "prompt_sha256": "e1c49178420da0f4d3631f389b5dde0303fc17371b6332c5b2e71ab5351209ce",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the physical dimension of the constant $k$, we start with the given relationship:\n$$\\text{Speed} = k \\times \\text{Duration}$$\n\nWe know the dimensions of speed and duration:\n- The dimension of Speed is $\\frac{\\text{Length}}{\\text{Time}}$ (L/T).\n- The dimension of Duration is $\\text{Time}$ (T).\n\nFor the equation to be dimensionally consistent, the dimensions on both sides must be equal:\n$$[\\text{Speed}] = [k] \\times [\\text{Duration}]$$\n$$\\frac{\\text{Length}}{\\text{Time}} = [k] \\times \\text{Time}$$\n\nNow, we solve for the dimension of $k$:\n$$[k] = \\frac{[\\text{Speed}]}{[\\text{Duration}]} = \\frac{\\text{Length} / \\text{Time}}{\\text{Time}}$$\n$$[k] = \\frac{\\text{Length}}{\\text{Time}^2}$$\n\nThe physical dimension of the constant $k$ is Length divided by Time squared.\n\n<ANSWER>Length / Time^2</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 274,
+  "completion_tokens": 438,
+  "latency_s": 21.55,
+  "extracted_answer": "[('Length', 1.0), ('Time', -2.0)]",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "q01_order",
+  "domain": "quantifier",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "5db6e8ed3dfd5fcccb31125dc11f548853cde9dfc420b48714eb5584a81228c0",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "<ANSWER>FALSE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 253,
+  "completion_tokens": 473,
+  "latency_s": 25.93,
+  "extracted_answer": "FALSE",
+  "correct": true,
+  "scoring_failure": ""
+}

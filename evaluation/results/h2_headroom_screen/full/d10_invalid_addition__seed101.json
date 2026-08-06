@@ -1,0 +1,21 @@
+{
+  "task_id": "d10_invalid_addition",
+  "domain": "dimensional",
+  "difficulty": "easy",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "455a2aca2565be0552f4706d089353690df6e048d57e6cf5986d01835122dcb5",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine if the expression is dimensionally valid, we analyze the operations involved:\n\n1.  **Addition**: The expression first adds a temperature to a length. In dimensional analysis, quantities can only be added or subtracted if they have the same dimensions. Temperature has the dimension $[Θ]$ and length has the dimension $[L]$. Since these are fundamental dimensions that differ from each other, adding them is physically and dimensionally invalid.\n2.  **Multiplication**: The result of the addition is then multiplied by a dimensionless constant. While multiplying by a dimensionless number is a valid operation, it cannot correct an already invalid dimensional operation (the addition).\n\nBecause you cannot add temperature to length, the expression is not dimensionally valid.\n\n<ANSWER>FALSE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 240,
+  "completion_tokens": 370,
+  "latency_s": 17.93,
+  "extracted_answer": "FALSE",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "a15_domain_restriction",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "846b902a18844d390da37528ef246f71b562c561a2bc73efe24fc7afa1eef81a",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine if the claim that $(\\sqrt{x})^2 = x$ holds for $x = -4$ over the real numbers, we must check the definition of the square root function within the set of real numbers ($\\mathbb{R}$).\n\nIn the real number system, the square root $\\sqrt{x}$ is defined only for non-negative values ($x \\ge 0$). For any $x < 0$, such as $x = -4$, the expression $\\sqrt{x}$ does not result in a real number. Since $\\sqrt{-4}$ is not a member of the set of real numbers, the operation cannot be performed within that domain, and the equation $(\\sqrt{-4})^2 = -4$ is not valid over the real numbers.\n\n<ANSWER>FALSE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 268,
+  "completion_tokens": 632,
+  "latency_s": 30.4,
+  "extracted_answer": "FALSE",
+  "correct": true,
+  "scoring_failure": ""
+}

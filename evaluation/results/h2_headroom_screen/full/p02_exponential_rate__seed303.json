@@ -1,0 +1,21 @@
+{
+  "task_id": "p02_exponential_rate",
+  "domain": "probability",
+  "difficulty": "easy",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "5912828b6ae3c5d75be9a66338da347d7153f1169bb7731a128bd47220d56d5b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the rate parameter $\\lambda$ of an exponential distribution, we use the relationship between the mean $\\mu$ and the rate parameter:\n\n$\\mu = \\frac{1}{\\lambda}$\n\nGiven that the mean time between events is $\\mu = 16$ hours, we can solve for $\\lambda$:\n\n$\\lambda = \\frac{1}{\\mu} = \\frac{1}{16}$\n\nCalculating the numerical value:\n\n$\\lambda = 0.0625$\n\nThe rate parameter $\\lambda$ is $0.0625$ events per hour.\n\n<ANSWER>0.0625</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 258,
+  "completion_tokens": 384,
+  "latency_s": 26.9,
+  "extracted_answer": "0.0625",
+  "correct": true,
+  "scoring_failure": ""
+}

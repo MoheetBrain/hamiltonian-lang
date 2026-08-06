@@ -1,0 +1,21 @@
+{
+  "task_id": "d24_unknown_constant",
+  "domain": "dimensional",
+  "difficulty": "hard",
+  "answer_kind": "dimension",
+  "seed": 101,
+  "prompt_sha256": "ce2be56b9cc0ce4085d2fcf9db4bb91ccd52af0f0c0f28c72a81f094adacbc52",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the physical dimension of the constant $k$, we start with the given relationship:\n$$\\text{Energy} = k \\times \\text{Temperature}$$\n\nAssuming dimensional consistency, the dimensions on both sides must be equal:\n$$[\\text{Energy}] = [k] \\times [\\text{Temperature}]$$\n\nSolve for $[k]$:\n$$[k] = \\frac{[\\text{Energy}]}{[\\text{Temperature}]}$$\n\nThe physical dimension of Energy is derived as follows:\n$$\\text{Energy} = \\text{Force} \\times \\text{Distance}$$\nSince $\\text{Force} = \\text{Mass} \\times \\text{Acceleration}$, and $\\text{Acceleration} = \\frac{\\text{Length}}{\\text{Time}^2}$:\n$$[\\text{Force}] = \\text{Mass} \\times \\frac{\\text{Length}}{\\text{Time}^2}$$\nTherefore:\n$$[\\text{Energy}] = \\left(\\text{Mass} \\times \\frac{\\text{Length}}{\\text{Time}^2}\\right) \\times \\text{Length} = \\frac{\\text{Mass} \\times \\text{Length}^2}{\\text{Time}^2}$$\n\nThe physical dimension of Temperature is simply $\\text{Temperature}$. Substituting these into the expression for $[k]$:\n$$[k] = \\frac{\\text{Mass} \\times \\text{Length}^2 / \\text{Time}^2}{\\text{Temperature}} = \\frac{\\text{Mass} \\times \\text{Length}^2}{\\text{Time}^2 \\times \\text{Temperature}}$$\n\n<ANSWER>Mass * Length^2 / (Time^2 * Temperature)</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 274,
+  "completion_tokens": 1162,
+  "latency_s": 74.87,
+  "extracted_answer": "[('Length', 2.0), ('Mass', 1.0), ('Temperature', -1.0), ('Time', -2.0)]",
+  "correct": true,
+  "scoring_failure": ""
+}

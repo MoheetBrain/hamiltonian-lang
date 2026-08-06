@@ -1,0 +1,21 @@
+{
+  "task_id": "d21_derive",
+  "domain": "dimensional",
+  "difficulty": "medium",
+  "answer_kind": "dimension",
+  "seed": 303,
+  "prompt_sha256": "a596f374087eb10c2d99c2c619ddc307ae20463d5369e0f30862a5c6a23adc9a",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the physical dimension of momentum, we use its definition: momentum is the product of mass and speed.\n\n1.  **Identify the dimensions of the inputs**:\n    - The dimension of mass ($m$) is **Mass**.\n    - The dimension of speed ($v$) is length divided by time, which is **Length/Time**.\n\n2.  **Multiply the dimensions**:\n    Momentum = Mass $\\times$ Speed\n    Dimension of Momentum = (Dimension of Mass) $\\times$ (Dimension of Speed)\n    Dimension of Momentum = Mass $\\times$ (Length / Time)\n\n3.  **Express as a product of base dimensions**:\n    The resulting dimension is **Mass * Length / Time**.\n\n<ANSWER>Mass * Length / Time</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 281,
+  "completion_tokens": 558,
+  "latency_s": 32.97,
+  "extracted_answer": "[('Length', 1.0), ('Mass', 1.0), ('Time', -1.0)]",
+  "correct": true,
+  "scoring_failure": ""
+}

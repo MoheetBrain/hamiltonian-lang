@@ -1,0 +1,21 @@
+{
+  "task_id": "p03_beta_binomial_posterior",
+  "domain": "probability",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "3a00ae7075b3b5d809477c770fcde56573604a9ac12192aa4bd0d4e38628a650",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the posterior mean of $\\theta$, we use the properties of the Beta-Binomial conjugate prior.\n\n1.  **Prior Distribution**: The initial distribution for $\\theta$ is a Beta distribution with shape parameters $\\alpha_{prior} = 2$ and $\\beta_{prior} = 2$:\n    $$\\theta \\sim \\text{Beta}(2, 2)$$\n\n2.  **Likelihood**: The coin is tossed $n = 12$ times, and we observe $k = 6$ heads. The likelihood of observing $k$ successes in $n$ independent trials follows a Binomial distribution:\n    $$P(\\text{data}|\\theta) \\propto \\theta^k (1-\\theta)^{n-k}$$\n\n3.  **Posterior Distribution**: For a Beta prior and a Binomial likelihood, the posterior distribution is also a Beta distribution with parameters $\\alpha_{posterior} = \\alpha_{prior} + k$ and $\\beta_{posterior} = \\beta_{prior} + (n - k)$:\n    $$\\alpha_{posterior} = 2 + 6 = 8$$\n    $$\\beta_{posterior} = 2 + (12 - 6) = 2 + 6 = 8$$\n    So, the posterior distribution is $\\theta | \\text{data} \\sim \\text{Beta}(8, 8)$.\n\n4.  **Posterior Mean**: The mean of a Beta distribution with parameters $\\alpha$ and $\\beta$ is given by:\n    $$\\mu = \\frac{\\alpha}{\\alpha + \\beta}$$\n    Substituting the posterior parameters:\n    $$\\mu_{posterior} = \\frac{8}{8 + 8} = \\frac{8}{16} = 0.5$$\n\n<ANSWER>0.5</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 284,
+  "completion_tokens": 1499,
+  "latency_s": 101.73,
+  "extracted_answer": "0.5",
+  "correct": true,
+  "scoring_failure": ""
+}

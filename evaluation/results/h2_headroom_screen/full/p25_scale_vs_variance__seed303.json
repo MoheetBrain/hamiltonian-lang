@@ -1,0 +1,21 @@
+{
+  "task_id": "p25_scale_vs_variance",
+  "domain": "probability",
+  "difficulty": "easy",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "97403e6c23ef50d7bfa2f3ceccfaa555e10cae312cce34e0b1b3d977db101b8b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the scale parameter of a normally distributed measurement W, we identify the given information:\n- Mean ($\\mu$) = 15\n- Variance ($\\sigma^2$) = 64\n\nThe problem states that the scale parameter is the standard deviation ($\\sigma$). The relationship between variance and standard deviation is defined as:\nVariance = (Standard Deviation)²\n$\\sigma^2 = 64$\n\nTo find the standard deviation, we take the square root of the variance:\n$\\sigma = \\sqrt{64}$\n$\\sigma = 8$\n\nThe numerical value of the scale parameter is 8.\n\n<ANSWER>8</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 261,
+  "completion_tokens": 307,
+  "latency_s": 17.14,
+  "extracted_answer": "8.0",
+  "correct": true,
+  "scoring_failure": ""
+}

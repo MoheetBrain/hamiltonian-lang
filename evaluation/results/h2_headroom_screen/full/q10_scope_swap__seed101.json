@@ -1,0 +1,21 @@
+{
+  "task_id": "q10_scope_swap",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "choice",
+  "seed": 101,
+  "prompt_sha256": "adc5cafefa68383eb61ec7288b86e320d62870f9fba99dec99a63f5ca4f115f3",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The definition provided for Property P states that for each positive epsilon, there exists a positive delta that depends only on the tolerance (epsilon) and not on the specific point in the domain. This is the defining characteristic of uniform continuity, as opposed to pointwise continuity, where the delta may depend on both epsilon and the point being considered.\n\n<ANSWER>UNIFORM</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 284,
+  "completion_tokens": 469,
+  "latency_s": 29.38,
+  "extracted_answer": "UNIFORM",
+  "correct": true,
+  "scoring_failure": ""
+}

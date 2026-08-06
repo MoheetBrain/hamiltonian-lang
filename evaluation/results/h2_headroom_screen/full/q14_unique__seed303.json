@@ -1,0 +1,21 @@
+{
+  "task_id": "q14_unique",
+  "domain": "quantifier",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "06d3f8f333c8056b39b6a4ea81fce81c3fa3505610810093213c5a0f6c29ccd9",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The equation $x^3 = 10$ has a unique solution in the set of real numbers, which is $x = \\sqrt[3]{10}$. The function $f(x) = x^3$ is a strictly increasing continuous function mapping $\\mathbb{R}$ to $\\mathbb{R}$, meaning for every real number $y$, there exists exactly one real number $x$ such that $x^3 = y$. In this case, $y=10$.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 243,
+  "completion_tokens": 647,
+  "latency_s": 38.06,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "b06_shadowing",
+  "domain": "binding",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "408f54c2f00b6e3e2294e6735f42047caf6e93d6ab6677f44454b461c4bcae8b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To solve this problem, let's break down the instructions provided:\n\n1.  **Global Variable:** The problem starts by stating \"Let x be 28.\" This defines a variable $x$ with a value of 28.\n2.  **Function Definition:** Next, it defines a function $f$. It says that $f$ \"takes an argument... and returns that argument plus 4.\" Mathematically, this is expressed as:\n    $$f(x) = x + 4$$\n    (Note: The $x$ used inside the definition of $f$ is a local parameter/argument, which is distinct from the global variable $x=28$).\n3.  **Evaluation:** Finally, it asks to \"evaluate f at the value 1.\" This means we substitute the argument in the function with the number 1:\n    $$f(1) = 1 + 4$$\n    $$f(1) = 5$$\n\nThe initial statement \"Let x be 28\" is a distracter, as the problem specifically asks for the evaluation of the function at the value 1.\n\n<ANSWER>5</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 275,
+  "completion_tokens": 830,
+  "latency_s": 39.93,
+  "extracted_answer": "5.0",
+  "correct": true,
+  "scoring_failure": ""
+}

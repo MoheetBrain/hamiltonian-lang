@@ -1,0 +1,21 @@
+{
+  "task_id": "b03_alpha_equivalence",
+  "domain": "binding",
+  "difficulty": "easy",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "558aafbbb6d1b44a3d15cb7793eff54cccf6b60671e5c6fabc41ad4929e3cf21",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine whether function F and function G denote the same function, we examine their definitions:\n- Function F is defined as: $F(u) = u \\times 2$.\n- Function G is defined as: $G(t) = t \\times 2$.\n\nIn mathematics, a function is defined by its domain, codomain, and the rule that assigns each element of the domain to an element of the codomain. The variable used as a placeholder (in this case, $u$ for F and $t$ for G) is called a dummy variable. Changing the name of the input variable does not change the function itself.\n\nBoth $F$ and $G$ follow the same rule: they take an input and multiply it by 2. Assuming the domain and codomain are the same (which is standard unless otherwise specified), $F(x) = 2x$ and $G(x) = 2x$. Since the rules are identical, F and G denote the same function.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 253,
+  "completion_tokens": 739,
+  "latency_s": 35.81,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

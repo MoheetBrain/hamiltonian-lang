@@ -1,0 +1,21 @@
+{
+  "task_id": "b08_alpha_equivalence",
+  "domain": "binding",
+  "difficulty": "easy",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "daa5a2eb2d68ccf45ffd5c750576e6560f387a2135eeee4051afa43c01f1539d",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine whether functions F and G denote the same function, we evaluate their definitions:\n\n1.  **Function F** is defined as $F(w) = w \\times 9$.\n2.  **Function G** is defined as $G(s) = s \\times 9$.\n\nIn mathematics, a function is defined by its rule of assignment, its domain, and its codomain. The names of the variables used to describe the input (in this case, $w$ for F and $s$ for G) are known as \"dummy variables.\" They serve only as placeholders for any element within the function's domain.\n\nThe rule for both F and G is identical: take an input and multiply it by 9. Assuming both functions operate on the same implicit domain (such as the set of real numbers), they produce the same output for every given input.\n\nSince $F(x) = 9x$ and $G(x) = 9x$ for all $x$, F and G denote the same mathematical function.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 253,
+  "completion_tokens": 873,
+  "latency_s": 43.11,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "a13_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "e74047910b768b85e05d5abbea3b75f94701ba887f7de9546d50c038e25b478e",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible numerical value of $x^2 + y^2$ given that $x, y \\ge 0$ and $x + y \\ge 24$, we can use several methods:\n\n**Method 1: Substitution**\nSince we want to minimize $x^2 + y^2$ and both variables are non-negative, the minimum will occur when the sum $x+y$ is at its smallest possible value, which is $x + y = 24$. We can express $y$ as $y = 24 - x$.\nSubstitute this into the expression we want to minimize:\n$$f(x) = x^2 + (24 - x)^2$$\nExpand the square:\n$$f(x) = x^2 + (576 - 48x + x^2)$$\n$$f(x) = 2x^2 - 48x + 576$$\nTo find the minimum of this quadratic function, we can find the vertex where $x = -b / (2a)$:\n$$x = \\frac{-(-48)}{2(2)} = \\frac{48}{4} = 12$$\nIf $x = 12$, then $y = 24 - 12 = 12$. Both are non-negative.\nThe minimum value is:\n$$f(12) = 12^2 + (24 - 12)^2 = 144 + 144 = 288$$\n\n**Method 2: Cauchy-Schwarz Inequality**\nAccording to the Cauchy-Schwarz inequality for two variables:\n$$(x^2 + y^2)(1^2 + 1^2) \\ge (x \\cdot 1 + y \\cdot 1)^2$$\n$$(x^2 + y^2)(2) \\ge (x + y)^2$$\nGiven that $x + y \\ge 24$, it follows that $(x + y)^2 \\ge 24^2$:\n$$2(x^2 + y^2) \\ge 576$$\nDivide both sides by 2:\n$$x^2 + y^2 \\ge 288$$\nThe equality holds when $x/1 = y/1$, meaning $x = y$. Since $x + y = 24$, we have $2x = 24$, so $x = 12$ and $y = 12$.\n\nBoth methods confirm that the minimum value of $x^2 + y^2$ is 288.\n\n<ANSWER>288</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 254,
+  "completion_tokens": 1644,
+  "latency_s": 80.29,
+  "extracted_answer": "288.0",
+  "correct": true,
+  "scoring_failure": ""
+}

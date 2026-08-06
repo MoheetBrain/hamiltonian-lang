@@ -1,0 +1,21 @@
+{
+  "task_id": "q04_unique",
+  "domain": "quantifier",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "fccf346ebc8fa65b759c4e3c052f8c521d1a7be92e410e2958196f781d0ec59f",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine if the statement \"there exists exactly one real number $x$ such that $x^3 = 20$\" is true, we analyze the equation $x^3 = 20$.\n\n1.  **Existence**: The cube root of any real number is itself a real number. For the given equation, $x = \\sqrt[3]{20}$. Since $20$ is a real number, $\\sqrt[3]{20}$ exists and is a real number (approximately $2.714$).\n2.  **Uniqueness**: The function $f(x) = x^3$ is a strictly increasing function over the domain of all real numbers ($\\mathbb{R}$). A strictly monotonic function is injective (one-to-one), meaning that for every output value in its range, there is exactly one corresponding input value.\n3.  **Range**: The range of $f(x) = x^3$ is $(-\\infty, \\infty)$, which means it covers all real numbers. Therefore, for any real number $y$, the equation $x^3 = y$ has exactly one real solution.\n\nSince there is exactly one real value ($\\sqrt[3]{20}$) that satisfies the equation $x^3 = 20$, the statement is true.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 243,
+  "completion_tokens": 699,
+  "latency_s": 47.39,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

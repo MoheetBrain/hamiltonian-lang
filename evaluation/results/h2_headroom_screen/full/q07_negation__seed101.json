@@ -1,0 +1,21 @@
+{
+  "task_id": "q07_negation",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "df6f3cd5d53363668d3d238c666b3d4675dcdbd6d0bb1dbe2581ebaab52a98f6",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To evaluate the truth value of the statement \"it is not the case that, for every real number x, x squared is negative,\" we can break it down logically:\n\n1.  **Identify the inner proposition**: The part of the sentence following \"it is not the case that\" is \"for every real number $x$, $x$ squared is negative.\" In logical symbols, this is $\\forall x \\in \\mathbb{R}, x^2 < 0$.\n2.  **Evaluate the inner proposition**: We know from the properties of real numbers that for any real number $x$, $x^2 \\ge 0$. Therefore, it is false to claim that every $x^2$ is negative. In fact, no $x^2$ is negative. Thus, the inner proposition is **FALSE**.\n3.  **Apply the negation**: The phrase \"it is not the case that\" acts as a logical negation ($\\neg$). If the inner proposition is false, then its negation is true.\n    *   $\\neg(\\text{FALSE}) = \\text{TRUE}$\n\nAlternatively, using the rules of quantifier negation:\nThe statement $\\neg (\\forall x \\in \\mathbb{R}, x^2 < 0)$ is logically equivalent to $\\exists x \\in \\mathbb{R}, \\neg (x^2 < 0)$, which simplifies to $\\exists x \\in \\mathbb{R}, x^2 \\ge 0$. Since there exists at least one real number $x$ such that $x^2 \\ge 0$ (indeed, all of them do), the statement is true.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 245,
+  "completion_tokens": 965,
+  "latency_s": 59.54,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

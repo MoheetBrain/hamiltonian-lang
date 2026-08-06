@@ -1,0 +1,21 @@
+{
+  "task_id": "a07_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "04d31e13a4e71ed07ba5bbc6c2ad0e81c3618bc0a7c09e09886b142b6e504e44",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible numerical value of $x^2 + y^2$ given that $x, y \\ge 0$ and $x + y \\ge 12$, we can use several methods.\n\n**Method 1: Substitution**\nSince $x^2 + y^2$ increases as either $x$ or $y$ increases (for non-negative values), the minimum must occur on the boundary of the constraint, where $x + y = 12$. We can express one variable in terms of the other:\n$y = 12 - x$\n\nSubstituting this into the objective function:\n$f(x) = x^2 + (12 - x)^2$\n$f(x) = x^2 + 144 - 24x + x^2$\n$f(x) = 2x^2 - 24x + 144$\n\nTo find the minimum, we take the derivative of $f(x)$ with respect to $x$ and set it to zero:\n$f'(x) = 4x - 24$\n$4x - 24 = 0 \\implies x = 6$\n\nSubstituting $x = 6$ back into the equation for $y$:\n$y = 12 - 6 = 6$\n\nThe value of the objective function at $(6, 6)$ is:\n$f(6) = 6^2 + 6^2 = 36 + 36 = 72$\n\n**Method 2: Geometric Interpretation**\nThe expression $x^2 + y^2$ represents the square of the distance from the origin $(0, 0)$ to a point $(x, y)$. The constraint $x + y \\ge 12$ (with $x, y \\ge 0$) defines a region in the first quadrant. The closest point to the origin within this region is on the line segment $x + y = 12$. Specifically, it is the projection of the origin onto that line. For the line $x + y = 12$, the shortest distance occurs at the midpoint where $x = y$.\n$x + x = 12 \\implies 2x = 12 \\implies x = 6$ and $y = 6$.\n\nThe minimum value is:\n$6^2 + 6^2 = 72$\n\n**Method 3: Cauchy-Schwarz Inequality**\nBy the Cauchy-Schwarz inequality for vectors $(x, y)$ and $(1, 1)$:\n$(x \\cdot 1 + y \\cdot 1)^2 \\le (x^2 + y^2)(1^2 + 1^2)$\n$(x + y)^2 \\le (x^2 + y^2)(2)$\n\nGiven $x + y \\ge 12$, we have:\n$12^2 \\le (x + y)^2 \\le 2(x^2 + y^2)$\n$144 \\le 2(x^2 + y^2)$\n$72 \\le x^2 + y^2$\n\nThe equality holds when $x/1 = y/1$, or $x = y$. With $x+y=12$, this occurs at $x=6, y=6$.\n\n<ANSWER>72</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 254,
+  "completion_tokens": 1724,
+  "latency_s": 84.33,
+  "extracted_answer": "72.0",
+  "correct": true,
+  "scoring_failure": ""
+}

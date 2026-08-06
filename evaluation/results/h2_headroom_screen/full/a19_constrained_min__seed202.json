@@ -1,0 +1,21 @@
+{
+  "task_id": "a19_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "20254e19e3d7df5f89c553bf9c50b8b06b99f0de8515050f9f3ba5d33997201b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible numerical value of $x^2 + y^2$ given that $x, y \\ge 0$ and $x + y \\ge 10$, we can use several methods:\n\n1.  **Substitution Method**:\n    Since $x^2 + y^2$ increases as the values of $x$ and $y$ increase, the minimum must occur on the boundary where $x + y = 10$.\n    Substitute $y = 10 - x$ into the expression:\n    $f(x) = x^2 + (10 - x)^2$\n    $f(x) = x^2 + 100 - 20x + x^2$\n    $f(x) = 2x^2 - 20x + 100$\n    To find the minimum, take the derivative and set it to zero:\n    $f'(x) = 4x - 20 = 0 \\implies x = 5$.\n    If $x = 5$, then $y = 10 - 5 = 5$.\n    The value is $5^2 + 5^2 = 25 + 25 = 50$.\n\n2.  **Cauchy-Schwarz Inequality**:\n    According to the Cauchy-Schwarz inequality:\n    $(x^2 + y^2)(1^2 + 1^2) \\ge (x(1) + y(1))^2$\n    $2(x^2 + y^2) \\ge (x + y)^2$\n    Given $x + y \\ge 10$, then $(x + y)^2 \\ge 100$.\n    $2(x^2 + y^2) \\ge 100$\n    $x^2 + y^2 \\ge 50$.\n\n3.  **Geometric Interpretation**:\n    The expression $x^2 + y^2$ represents the square of the distance from the origin $(0,0)$ to a point $(x,y)$. The region defined by $x+y \\ge 10$ (for $x,y \\ge 0$) is the area on and above the line connecting $(10,0)$ and $(0,10)$. The closest point on this line to the origin is the midpoint $(5,5)$.\n    The distance squared is $5^2 + 5^2 = 50$.\n\n<ANSWER>50</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 254,
+  "completion_tokens": 1333,
+  "latency_s": 64.7,
+  "extracted_answer": "50.0",
+  "correct": true,
+  "scoring_failure": ""
+}

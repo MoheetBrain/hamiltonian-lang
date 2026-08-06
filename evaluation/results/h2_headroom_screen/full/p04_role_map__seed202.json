@@ -1,0 +1,21 @@
+{
+  "task_id": "p04_role_map",
+  "domain": "probability",
+  "difficulty": "medium",
+  "answer_kind": "role_map",
+  "seed": 202,
+  "prompt_sha256": "e90ed9ba3fc05ccca8f895570cf20dba24c946518a46d871cfb91108d4350ffb",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "<ANSWER>{\"location\": \"rho\", \"scale\": \"phi\"}</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 272,
+  "completion_tokens": 169,
+  "latency_s": 10.59,
+  "extracted_answer": "{\"location\": \"rho\", \"scale\": \"phi\"}",
+  "correct": true,
+  "scoring_failure": ""
+}

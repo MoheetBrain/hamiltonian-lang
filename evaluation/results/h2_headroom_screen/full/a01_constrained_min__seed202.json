@@ -1,0 +1,21 @@
+{
+  "task_id": "a01_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "7dda67004985648364acb0e421501c53f232248209a0736aba6aa312c9503c90",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible numerical value of $x^2 + y^2$ given that $x, y \\geq 0$ and $x + y \\geq 8$, we can use several methods.\n\n**Method 1: Using Cauchy-Schwarz Inequality**\nThe Cauchy-Schwarz inequality states that for any real numbers $a_i$ and $b_i$:\n$(a_1^2 + a_2^2)(b_1^2 + b_2^2) \\geq (a_1 b_1 + a_2 b_2)^2$\n\nLet $a_1 = x$, $a_2 = y$, $b_1 = 1$, and $b_2 = 1$. Then:\n$(x^2 + y^2)(1^2 + 1^2) \\geq (x(1) + y(1))^2$\n$(x^2 + y^2)(2) \\geq (x+y)^2$\n\nWe are given that $x+y \\geq 8$, so:\n$(x+y)^2 \\geq 8^2 = 64$\n\nSubstituting this into the inequality:\n$2(x^2 + y^2) \\geq 64$\n$x^2 + y^2 \\geq 32$\n\nThe equality holds when $x/1 = y/1$, meaning $x=y$. If $x+y=8$ and $x=y$, then $x=4$ and $y=4$. Both values are non-negative, satisfying the constraints.\n\n**Method 2: Substitution (Calculus)**\nTo minimize $f(x, y) = x^2 + y^2$ subject to $x+y \\geq 8$, we note that the minimum must occur when $x+y=8$. If $x+y > 8$, we can decrease $x$ or $y$ while keeping them non-negative and still satisfy the constraint, which in turn decreases $x^2 + y^2$.\n\nSubstituting $y = 8 - x$:\n$g(x) = x^2 + (8 - x)^2$\n$g(x) = x^2 + 64 - 16x + x^2$\n$g(x) = 2x^2 - 16x + 64$\n\nTo find the minimum, take the derivative and set it to zero:\n$g'(x) = 4x - 16$\n$4x - 16 = 0 \\implies x = 4$\n\nThen $y = 8 - 4 = 4$. The value at this point is:\n$f(4, 4) = 4^2 + 4^2 = 16 + 16 = 32$\n\n<ANSWER>32</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 253,
+  "completion_tokens": 1822,
+  "latency_s": 86.25,
+  "extracted_answer": "32.0",
+  "correct": true,
+  "scoring_failure": ""
+}

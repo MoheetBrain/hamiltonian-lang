@@ -1,0 +1,21 @@
+{
+  "task_id": "b18_alpha_equivalence",
+  "domain": "binding",
+  "difficulty": "easy",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "77d366da45a32203c850f2d0178b4e297a4b0c37da79aa9d53e4b0e028862fbf",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine whether functions $F$ and $G$ denote the same function, we examine their definitions:\n\n1.  **Function $F$**: Defined as $F(u) = u \\times 5$.\n2.  **Function $G$**: Defined as $G(t) = t \\times 5$.\n\nIn mathematics, a function is defined by its domain, codomain, and the rule that assigns each element of the domain to an element of the codomain. Here:\n- The **rule for $F$** is to multiply the input variable ($u$) by 5.\n- The **rule for $G$** is to multiply the input variable ($t$) by 5.\n\nThe choice of variable name (the \"dummy variable\") used to define a function does not change the identity of the function itself. Both functions take an input and return that input multiplied by 5. Assuming they operate on the same domain (typically the real numbers $\\mathbb{R}$ if not otherwise specified), $F$ and $G$ are identical mappings.\n\nThus, $F$ and $G$ denote the same function.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 253,
+  "completion_tokens": 719,
+  "latency_s": 34.5,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

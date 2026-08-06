@@ -1,0 +1,21 @@
+{
+  "task_id": "p17_scale_vs_variance",
+  "domain": "probability",
+  "difficulty": "easy",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "0d09058fa0427534a593e903646df0728217666ca0670c6c58c7ea44b159e3b7",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the scale parameter of a normally distributed measurement W, given its variance, we use the relationship between the standard deviation and the variance.\n\n1.  The problem states that the mean is 11 and the variance is 49.\n2.  The scale parameter for a normal distribution is defined as the standard deviation ($\\sigma$).\n3.  The variance ($\\sigma^2$) is equal to the square of the standard deviation: $\\sigma^2 = 49$.\n4.  To find the standard deviation, we take the square root of the variance: $\\sigma = \\sqrt{49}$.\n5.  Calculating the square root gives $\\sigma = 7$.\n\n<ANSWER>7</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 261,
+  "completion_tokens": 344,
+  "latency_s": 23.02,
+  "extracted_answer": "7.0",
+  "correct": true,
+  "scoring_failure": ""
+}

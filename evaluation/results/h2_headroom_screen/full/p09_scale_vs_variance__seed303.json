@@ -1,0 +1,21 @@
+{
+  "task_id": "p09_scale_vs_variance",
+  "domain": "probability",
+  "difficulty": "easy",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "292b9ad69cdb79ae08aff7508ade8f537ee041a71f197281b60b8e37aa6062d0",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the scale parameter of the normal distribution, we identify that the scale parameter is the standard deviation ($\\sigma$). Given the variance ($\\sigma^2$) of the measurement $W$ is 49:\n\n$\\text{Variance} (\\sigma^2) = 49$\n$\\text{Standard Deviation} (\\sigma) = \\sqrt{\\text{Variance}}$\n$\\sigma = \\sqrt{49}$\n$\\sigma = 7$\n\nThe numerical value of the scale parameter (standard deviation) is 7.\n\n<ANSWER>7</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 261,
+  "completion_tokens": 307,
+  "latency_s": 19.59,
+  "extracted_answer": "7.0",
+  "correct": true,
+  "scoring_failure": ""
+}

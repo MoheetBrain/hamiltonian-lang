@@ -1,0 +1,21 @@
+{
+  "task_id": "q02_negation",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "boolean",
+  "seed": 101,
+  "prompt_sha256": "7d7e0b393b3b1380e5ada5cd75cbb00a8667919c94a5ce9ad7c1ab99d4708068",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To evaluate the statement \"for every real number x, it is not the case that x squared is negative,\" we can analyze it mathematically:\n\n1.  **Identify the property**: The square of any real number $x$ (denoted as $x^2$) is always non-negative. This means for all $x \\in \\mathbb{R}$, $x^2 \\geq 0$.\n2.  **Analyze the wording**: \"It is not the case that x squared is negative\" means $\\neg(x^2 < 0)$.\n3.  **Compare the two**: Since $x^2 \\geq 0$ for all real numbers $x$, it follows that $x^2$ can never be less than zero (negative). Therefore, the condition $\\neg(x^2 < 0)$ is true for every real number $x$.\n\nThe statement \"for every real number x, it is not the case that x squared is negative\" is logically equivalent to saying \"for all $x \\in \\mathbb{R}$, $x^2 \\geq 0$,\" which is a fundamental property of the real numbers.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 244,
+  "completion_tokens": 651,
+  "latency_s": 40.75,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

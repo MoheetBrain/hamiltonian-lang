@@ -1,0 +1,21 @@
+{
+  "task_id": "p03_beta_binomial_posterior",
+  "domain": "probability",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "3a00ae7075b3b5d809477c770fcde56573604a9ac12192aa4bd0d4e38628a650",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the posterior mean of $\\theta$, we start with the given prior distribution and the observed data.\n\n1.  **Prior Distribution**:\n    The probability $\\theta$ follows a Beta prior distribution with shape parameters $\\alpha = 2$ and $\\beta = 2$. The probability density function of the prior is:\n    $$P(\\theta) \\propto \\theta^{\\alpha-1}(1-\\theta)^{\\beta-1} = \\theta^{2-1}(1-\\theta)^{2-1} = \\theta(1-\\theta)$$\n\n2.  **Likelihood**:\n    The coin was tossed $n = 12$ times, and the number of heads observed was $k = 6$. The likelihood of observing $k$ heads in $n$ tosses given $\\theta$ is:\n    $$P(\\text{data}|\\theta) \\propto \\theta^k(1-\\theta)^{n-k} = \\theta^6(1-\\theta)^{12-6} = \\theta^6(1-\\theta)^6$$\n\n3.  **Posterior Distribution**:\n    The posterior distribution $P(\\theta|\\text{data})$ is proportional to the product of the prior and the likelihood:\n    $$P(\\theta|\\text{data}) \\propto P(\\text{data}|\\theta) P(\\theta)$$\n    $$P(\\theta|\\text{data}) \\propto (\\theta^6(1-\\theta)^6) \\cdot (\\theta^{2-1}(1-\\theta)^{2-1})$$\n    $$P(\\theta|\\text{data}) \\propto \\theta^{6+2-1} (1-\\theta)^{6+2-1} = \\theta^{8-1} (1-\\theta)^{8-1}$$\n    This is the kernel of a Beta distribution with parameters $\\alpha' = \\alpha + k$ and $\\beta' = \\beta + n - k$. Substituting the values:\n    $$\\alpha' = 2 + 6 = 8$$\n    $$\\beta' = 2 + (12 - 6) = 8$$\n    So, the posterior distribution is $\\text{Beta}(8, 8)$.\n\n4.  **Posterior Mean**:\n    The mean of a Beta distribution with parameters $\\alpha'$ and $\\beta'$ is given by:\n    $$\\mu = \\frac{\\alpha'}{\\alpha' + \\beta'}$$\n    Substituting the posterior parameters:\n    $$\\mu = \\frac{8}{8 + 8} = \\frac{8}{16} = 0.5$$\n\n<ANSWER>0.5</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 284,
+  "completion_tokens": 1609,
+  "latency_s": 114.46,
+  "extracted_answer": "0.5",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "q15_scope_swap",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "choice",
+  "seed": 202,
+  "prompt_sha256": "15f15e97914963c674b7bd1c956bb3a7a2deb201dd29e705ebed15967fe41f5b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine whether property P describes pointwise continuity or uniform continuity, we analyze the definition provided:\n\n1.  **Property P analysis:** The definition states that for each positive epsilon ($\\epsilon$), there exists a positive delta ($\\delta$) such that the \"usual closeness condition\" holds at a point. Crucially, it specifies that $\\delta$ can depend on both the tolerance ($\\epsilon$) and the point ($x$).\n2.  **Pointwise Continuity:** A function $f$ is continuous at a point $x_0$ if for every $\\epsilon > 0$, there exists a $\\delta > 0$ (where $\\delta$ may depend on both $\\epsilon$ and $x_0$) such that $|f(x) - f(x_0)| < \\epsilon$ whenever $|x - x_0| < \\delta$. If this holds for all points in the domain, the function is pointwise continuous.\n3.  **Uniform Continuity:** A function $f$ is uniformly continuous if for every $\\epsilon > 0$, there exists a $\\delta > 0$ (where $\\delta$ depends *only* on $\\epsilon$, not on the point $x$) such that $|f(x) - f(y)| < \\epsilon$ whenever $|x - y| < \\delta$ for all $x, y$ in the domain.\n\nSince property P explicitly allows $\\delta$ to depend on the point, it describes pointwise continuity rather than uniform continuity.\n\n<ANSWER>POINTWISE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 284,
+  "completion_tokens": 771,
+  "latency_s": 46.17,
+  "extracted_answer": "POINTWISE",
+  "correct": true,
+  "scoring_failure": ""
+}

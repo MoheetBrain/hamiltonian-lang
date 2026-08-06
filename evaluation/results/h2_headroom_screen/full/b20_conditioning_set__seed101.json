@@ -1,0 +1,21 @@
+{
+  "task_id": "b20_conditioning_set",
+  "domain": "binding",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "27cad751de57723df88e854ac4d11bcd2819c68bac9664e7e1ab0f44427a0331",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine the number of distinct symbols in the conditioning set for the law of Y, we identify the variables mentioned as part of that set. The problem states that the outcome Y depends on a coefficient vector b, a noise scale s, and a group index g, and that the law of Y is stated conditionally on all three of those and nothing else.\n\nThe symbols in the conditioning set are:\n1.  b (coefficient vector)\n2.  s (noise scale)\n3.  g (group index)\n\nCounting these distinct symbols gives a total of 3.\n\n<ANSWER>3</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 277,
+  "completion_tokens": 228,
+  "latency_s": 11.68,
+  "extracted_answer": "3.0",
+  "correct": true,
+  "scoring_failure": ""
+}

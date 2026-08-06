@@ -1,0 +1,21 @@
+{
+  "task_id": "q05_scope_swap",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "choice",
+  "seed": 303,
+  "prompt_sha256": "8d55c88f454e54cd894a7ada5c2c2b3e49faf47ad25089e30167ab48d1354add",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The property P described is: for every positive tolerance (ε), there exists a positive delta (δ) that may depend on both the tolerance and the specific point in question such that the closeness condition holds. This definition matches the definition of pointwise continuity, where the choice of δ can vary depending on which point in the domain is being considered. In contrast, uniform continuity requires that for a given ε, a single δ must work for all points in the domain simultaneously (i.e., δ depends only on ε).\n\n<ANSWER>POINTWISE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 284,
+  "completion_tokens": 454,
+  "latency_s": 30.08,
+  "extracted_answer": "POINTWISE",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "a01_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "7dda67004985648364acb0e421501c53f232248209a0736aba6aa312c9503c90",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible numerical value of $x^2 + y^2$ given that $x \\ge 0$, $y \\ge 0$, and $x+y \\ge 8$, we can analyze the geometry or use algebraic methods.\n\nThe expression $x^2 + y^2$ represents the squared distance from the origin $(0,0)$ to the point $(x,y)$. We are looking for the minimum distance from the origin to the region defined by $x \\ge 0, y \\ge 0$, and $x+y \\ge 8$. The closest part of this region to the origin is the line segment where $x+y=8$ (for $x,y \\ge 0$).\n\nTo minimize $f(x,y) = x^2 + y^2$ subject to $x+y=8$, we can substitute $y = 8-x$ into the objective function:\n$$g(x) = x^2 + (8-x)^2$$\n$$g(x) = x^2 + 64 - 16x + x^2$$\n$$g(x) = 2x^2 - 16x + 64$$\n\nTo find the minimum of this quadratic function, we take the derivative with respect to $x$ and set it to zero:\n$$g'(x) = 4x - 16$$\n$$4x - 16 = 0 \\implies x = 4$$\n\nSubstituting $x=4$ back into the equation for $y$:\n$$y = 8 - 4 = 4$$\n\nNow, we calculate the value of $x^2 + y^2$ at $(4,4)$:\n$$x^2 + y^2 = 4^2 + 4^2 = 16 + 16 = 32$$\n\nAlternatively, using the Cauchy-Schwarz inequality:\n$$(x+y)^2 \\le (1^2+1^2)(x^2+y^2)$$\n$$8^2 \\le 2(x^2+y^2)$$\n$$64 \\le 2(x^2+y^2)$$\n$$32 \\le x^2+y^2$$\n\nThe minimum value is attained when $x=y$, and since $x+y=8$, we have $x=y=4$.\n\n<ANSWER>32</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 253,
+  "completion_tokens": 1426,
+  "latency_s": 61.84,
+  "extracted_answer": "32.0",
+  "correct": true,
+  "scoring_failure": ""
+}

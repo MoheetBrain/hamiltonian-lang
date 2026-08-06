@@ -1,0 +1,21 @@
+{
+  "task_id": "d10_invalid_addition",
+  "domain": "dimensional",
+  "difficulty": "easy",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "455a2aca2565be0552f4706d089353690df6e048d57e6cf5986d01835122dcb5",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine if the expression is dimensionally valid, we must examine the operations performed:\n\n1.  **Addition**: The expression starts by adding a temperature to a length. In dimensional analysis, the principle of dimensional homogeneity states that only quantities with the same dimensions can be added or subtracted.\n    *   Dimension of Temperature = $[ \\Theta ]$ (or $K$)\n    *   Dimension of Length = $[ L ]$ (or $m$)\n    Since temperature and length have different dimensions ($[ \\Theta ] \\neq [ L ]$), adding them is physically and dimensionally invalid.\n\n2.  **Multiplication**: The result of the addition is then multiplied by a dimensionless constant. While multiplying by a dimensionless constant does not change the dimensions of the quantity, it cannot correct an already invalid operation (the addition).\n\nBecause you cannot add temperature to length, the expression is not dimensionally valid.\n\n<ANSWER>FALSE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 240,
+  "completion_tokens": 399,
+  "latency_s": 18.96,
+  "extracted_answer": "FALSE",
+  "correct": true,
+  "scoring_failure": ""
+}

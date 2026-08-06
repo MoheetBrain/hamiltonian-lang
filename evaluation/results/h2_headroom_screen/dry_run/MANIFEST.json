@@ -1,0 +1,143 @@
+{
+  "experiment": "h2_headroom_screen",
+  "arm": "A_plain_english",
+  "purpose": "difficulty screening only; NOT a representation comparison",
+  "model": "gemma4:31b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "seeds": [
+    101,
+    202,
+    303
+  ],
+  "generations_per_problem": 3,
+  "scorer": "evaluation.corpus.cso.check_answer",
+  "scorer_sha256": "996ec684d787da8e31fb92b9df04c52f83d426c7c24be5b8202fb56af7834dd3",
+  "corpus_version": "eval001-v1",
+  "original_problems": 120,
+  "eligible_problems": 5,
+  "excluded": [
+    {
+      "id": "a09_domain_restriction",
+      "reason": "duplicate prose+question of a03_domain_restriction"
+    },
+    {
+      "id": "a10_constrained_min",
+      "reason": "duplicate prose+question of a07_constrained_min"
+    },
+    {
+      "id": "a20_equivalence",
+      "reason": "duplicate prose+question of a14_equivalence"
+    },
+    {
+      "id": "b10_conditioning_set",
+      "reason": "duplicate prose+question of b05_conditioning_set"
+    },
+    {
+      "id": "b15_conditioning_set",
+      "reason": "duplicate prose+question of b05_conditioning_set"
+    },
+    {
+      "id": "b25_conditioning_set",
+      "reason": "duplicate prose+question of b05_conditioning_set"
+    },
+    {
+      "id": "d07_fractional_power",
+      "reason": "duplicate prose+question of d03_fractional_power"
+    },
+    {
+      "id": "d11_fractional_power",
+      "reason": "duplicate prose+question of d03_fractional_power"
+    },
+    {
+      "id": "d12_unknown_constant",
+      "reason": "duplicate prose+question of d08_unknown_constant"
+    },
+    {
+      "id": "d15_fractional_power",
+      "reason": "duplicate prose+question of d03_fractional_power"
+    },
+    {
+      "id": "d16_unknown_constant",
+      "reason": "duplicate prose+question of d04_unknown_constant"
+    },
+    {
+      "id": "d19_fractional_power",
+      "reason": "duplicate prose+question of d03_fractional_power"
+    },
+    {
+      "id": "d20_unknown_constant",
+      "reason": "duplicate prose+question of d08_unknown_constant"
+    },
+    {
+      "id": "d23_fractional_power",
+      "reason": "duplicate prose+question of d03_fractional_power"
+    },
+    {
+      "id": "d25_derive",
+      "reason": "duplicate prose+question of d01_derive"
+    },
+    {
+      "id": "p15_conditional_independence",
+      "reason": "duplicate prose+question of p07_conditional_independence"
+    },
+    {
+      "id": "p23_conditional_independence",
+      "reason": "duplicate prose+question of p07_conditional_independence"
+    },
+    {
+      "id": "q09_unique",
+      "reason": "duplicate prose+question of q04_unique"
+    },
+    {
+      "id": "q12_negation",
+      "reason": "duplicate prose+question of q02_negation"
+    },
+    {
+      "id": "q17_negation",
+      "reason": "duplicate prose+question of q02_negation"
+    },
+    {
+      "id": "q21_order",
+      "reason": "duplicate prose+question of q11_order"
+    },
+    {
+      "id": "q22_negation",
+      "reason": "duplicate prose+question of q07_negation"
+    },
+    {
+      "id": "q23_bounded",
+      "reason": "duplicate prose+question of q03_bounded"
+    },
+    {
+      "id": "q24_unique",
+      "reason": "duplicate prose+question of q14_unique"
+    },
+    {
+      "id": "q25_scope_swap",
+      "reason": "duplicate prose+question of q05_scope_swap"
+    }
+  ],
+  "task_hashes": {
+    "a01_constrained_min": "02b71120b14e9c4d9aa13a581aafca60e79a08523730ee2136b9aed1b8d87c82",
+    "b01_shadowing": "264ff889b022aeaf939060783328379355bb6a5cae76200cc2040bd7b862896f",
+    "d01_derive": "318b1d4514c260a6ad6a27208a71dfbf190b28128c888e836bb1ab9beb99d0b0",
+    "p01_scale_vs_variance": "e872c31f0a5d2f366a0e82642180cf4bc3030a49b79416857f52897b1720a16e",
+    "q01_order": "15d387c0ecb2342c1776f9fbcefe9f256b8daa28b5f07c346a2a0eca79bb9122"
+  },
+  "prompt_hashes": {
+    "a01_constrained_min": "7dda67004985648364acb0e421501c53f232248209a0736aba6aa312c9503c90",
+    "b01_shadowing": "9f8cffd4de9b430fadc5cb1cc4989bbb286d4507ac945d02dd379e4c9d2f931a",
+    "d01_derive": "f93b3b48df3e4240155483501342ee08c63549d629348125115e5d63f50fd1d1",
+    "p01_scale_vs_variance": "74732ce68feece3767f79857e7d77eabb7648c757c3c11df5718aed73f10602d",
+    "q01_order": "5db6e8ed3dfd5fcccb31125dc11f548853cde9dfc420b48714eb5584a81228c0"
+  },
+  "frozen_order": [
+    "a01_constrained_min",
+    "b01_shadowing",
+    "d01_derive",
+    "p01_scale_vs_variance",
+    "q01_order"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "a13_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "e74047910b768b85e05d5abbea3b75f94701ba887f7de9546d50c038e25b478e",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible numerical value of $x^2 + y^2$ given that $x, y \\ge 0$ and $x + y \\ge 24$, we can use several methods.\n\n**Method 1: Cauchy-Schwarz Inequality**\nThe Cauchy-Schwarz inequality states that for any real numbers $(a_1, a_2)$ and $(b_1, b_2)$:\n$(a_1^2 + a_2^2)(b_1^2 + b_2^2) \\ge (a_1b_1 + a_2b_2)^2$\n\nLet $a_1 = x$, $a_2 = y$, $b_1 = 1$, and $b_2 = 1$. Substituting these into the inequality:\n$(x^2 + y^2)(1^2 + 1^2) \\ge (x(1) + y(1))^2$\n$(x^2 + y^2)(2) \\ge (x + y)^2$\n\nWe are given that $x + y \\ge 24$. Since both sides of this inequality are non-negative, squaring it preserves the inequality:\n$(x + y)^2 \\ge 24^2 = 576$\n\nSubstituting this back into our Cauchy-Schwarz result:\n$2(x^2 + y^2) \\ge 576$\nDivide both sides by 2:\n$x^2 + y^2 \\ge 288$\n\n**Method 2: Geometric Interpretation**\nThe expression $x^2 + y^2$ represents the square of the distance from the origin $(0, 0)$ to the point $(x, y)$. The constraints $x \\ge 0$, $y \\ge 0$, and $x + y \\ge 24$ define a region in the first quadrant bounded by the line $x + y = 24$. The point in this region closest to the origin is the perpendicular projection of the origin onto the line $x + y = 24$.\n\nFor the line $x + y = 24$, the closest point occurs where $x = y$:\n$x + x = 24 \\implies 2x = 24 \\implies x = 12, y = 12$\n\nThe value of $x^2 + y^2$ at this point is:\n$12^2 + 12^2 = 144 + 144 = 288$\n\n**Conclusion**\nBoth methods confirm that the minimum possible numerical value of $x^2 + y^2$ is 288.\n\n<ANSWER>288</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 254,
+  "completion_tokens": 1608,
+  "latency_s": 80.34,
+  "extracted_answer": "288.0",
+  "correct": true,
+  "scoring_failure": ""
+}

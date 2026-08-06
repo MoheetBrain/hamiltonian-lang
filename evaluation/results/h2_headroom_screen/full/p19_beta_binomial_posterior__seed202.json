@@ -1,0 +1,21 @@
+{
+  "task_id": "p19_beta_binomial_posterior",
+  "domain": "probability",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "ae2437191e4f2b727129cfd14e80f3c0696da059861261bb1c5a0ab3d3661223",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "",
+  "finish_reason": "length",
+  "truncated": true,
+  "transport_error": "",
+  "prompt_tokens": 284,
+  "completion_tokens": 2400,
+  "latency_s": 424.08,
+  "extracted_answer": "",
+  "correct": false,
+  "scoring_failure": ""
+}

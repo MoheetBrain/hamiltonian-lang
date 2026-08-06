@@ -1,0 +1,21 @@
+{
+  "task_id": "b09_interface_rename",
+  "domain": "binding",
+  "difficulty": "hard",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "1e75050be04df18d097d74fdd7ce2f547171ac672c88e7af506dd11a0ec8b0b4",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The problem asks whether two models, both describing a normal distribution but with swapped location and scale parameters, always describe the same distribution for any given values of those parameters (iota and gamma_).\n\n1.  **Model 1**: Location = $\\text{iota}$, Scale = $\\text{gamma\\_}$\n2.  **Model 2**: Location = $\\text{gamma\\_}$, Scale = $\\text{iota}$\n\nA normal distribution is uniquely defined by its location parameter (the mean, $\\mu$) and its scale parameter (the standard deviation, $\\sigma$). For two normal distributions to be identical, their respective means must be equal ($\\mu_1 = \\mu_2$) and their respective standard deviations must be equal ($\\sigma_1 = \\sigma_2$).\n\nIn this case:\n-   $\\mu_1 = \\text{iota}$ and $\\mu_2 = \\text{gamma\\_}$\n-   $\\sigma_1 = \\text{gamma\\_}$ and $\\sigma_2 = \\text{iota}$\n\nFor the distributions to be the same, it must be that $\\text{iota} = \\text{gamma\\_}$. If we choose any values where $\\text{iota} \\neq \\text{gamma\\_}$ (for example, $\\text{iota} = 5$ and $\\text{gamma\\_} = 2$), Model 1 describes a distribution with mean 5 and standard deviation 2, while Model 2 describes a distribution with mean 2 and standard deviation 5. These are different distributions.\n\nSince the models do not describe the same distribution for every choice of iota and gamma_, the statement is false.\n\n<ANSWER>FALSE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 274,
+  "completion_tokens": 1031,
+  "latency_s": 49.71,
+  "extracted_answer": "FALSE",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "b11_shadowing",
+  "domain": "binding",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "5f474f0a9575c65af75564e5a5580aaf2aabaec48372afc066541febabfe181e",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To evaluate the function $f$ at the value 1, we use the definition provided. The function $f$ takes an argument (which it refers to as $x$ within its internal logic) and returns that argument plus 10.\n\nGiven the input is 1:\n$$f(1) = 1 + 10 = 11$$\n\nThe initial assignment of $x=24$ does not affect the evaluation of the function at a specific value.\n\n<ANSWER>11</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 276,
+  "completion_tokens": 349,
+  "latency_s": 16.69,
+  "extracted_answer": "11.0",
+  "correct": true,
+  "scoring_failure": ""
+}

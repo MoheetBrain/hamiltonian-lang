@@ -1,0 +1,21 @@
+{
+  "task_id": "b11_shadowing",
+  "domain": "binding",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "5f474f0a9575c65af75564e5a5580aaf2aabaec48372afc066541febabfe181e",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To evaluate the function $f$ at the value 1, we follow its definition. The problem states that $f$ takes an argument and returns that argument plus 10.\n\nThe initial assignment of $x = 24$ is irrelevant to the evaluation of the function at a specific given point unless that point was defined as $x$. However, the question specifically asks for the value of $f$ evaluated at 1.\n\nApplying the definition of $f$:\n$f(1) = 1 + 10 = 11$\n\n<ANSWER>11</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 276,
+  "completion_tokens": 444,
+  "latency_s": 21.11,
+  "extracted_answer": "11.0",
+  "correct": true,
+  "scoring_failure": ""
+}

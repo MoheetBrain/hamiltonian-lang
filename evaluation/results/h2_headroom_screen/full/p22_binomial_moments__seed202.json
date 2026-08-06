@@ -1,0 +1,21 @@
+{
+  "task_id": "p22_binomial_moments",
+  "domain": "probability",
+  "difficulty": "easy",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "2fbb9f52fcb3f26b256bbf72d556de794a6c9790dc2f4066160179427d6ffc5b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the numerical variance of the total number of successes $S$ in a series of independent trials, we use the properties of the binomial distribution.\n\nGiven:\n- Number of trials ($n$) = 18\n- Probability of success in each trial ($p$) = 0.25\n\nThe variance ($\\text{Var}(S)$) for a binomially distributed random variable is calculated using the formula:\n$$\\text{Var}(S) = n \\cdot p \\cdot (1 - p)$$\n\nSubstituting the given values into the formula:\n- $n = 18$\n- $p = 0.25$\n- $1 - p = 1 - 0.25 = 0.75$\n\n$$\\text{Var}(S) = 18 \\cdot 0.25 \\cdot 0.75$$\n\nCalculating the product:\n$$18 \\cdot 0.25 = 4.5$$\n$$4.5 \\cdot 0.75 = 3.375$$\n\nAlternatively, using fractions:\n$$\\text{Var}(S) = 18 \\cdot \\frac{1}{4} \\cdot \\frac{3}{4}$$\n$$\\text{Var}(S) = \\frac{18 \\cdot 3}{16}$$\n$$\\text{Var}(S) = \\frac{54}{16}$$\n$$\\text{Var}(S) = \\frac{27}{8} = 3.375$$\n\n<ANSWER>3.375</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 256,
+  "completion_tokens": 882,
+  "latency_s": 42.19,
+  "extracted_answer": "3.375",
+  "correct": true,
+  "scoring_failure": ""
+}

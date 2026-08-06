@@ -1,0 +1,21 @@
+{
+  "task_id": "p24_param_vs_observation",
+  "domain": "probability",
+  "difficulty": "medium",
+  "answer_kind": "choice",
+  "seed": 101,
+  "prompt_sha256": "818bd5aeb671aa3b856ce7c113f48601370da60c49326fe40e13f6b6f5719707",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "<ANSWER>SEEDS_OBSERVED_P_UNKNOWN</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 312,
+  "completion_tokens": 214,
+  "latency_s": 12.18,
+  "extracted_answer": "SEEDS_OBSERVED_P_UNKNOWN",
+  "correct": true,
+  "scoring_failure": ""
+}

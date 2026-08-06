@@ -1,0 +1,21 @@
+{
+  "task_id": "b23_alpha_equivalence",
+  "domain": "binding",
+  "difficulty": "easy",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "acba3f49e108e45a265dffb8d968625df2bdc528707150e91d8b3dfb5bb3f67e",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine whether functions $F$ and $G$ are the same, we look at their definitions:\n- Function $F$ is defined as $F(q) = q \\times 12$.\n- Function $G$ is defined as $G(s) = s \\times 12$.\n\nIn mathematics, two functions are identical if they have the same domain and codomain and map every element of the domain to the same element in the codomain. Here, both functions take an input (represented by $q$ for $F$ and $s$ for $G$) and multiply it by 12. The variables $q$ and $s$ are simply dummy variables used to denote the input.\n\nSince $F(x) = 12x$ and $G(x) = 12x$ for any given input $x$, the mapping rule is identical. Assuming they share the same domain (typically the set of real numbers unless otherwise specified), $F$ and $G$ denote the same function.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 255,
+  "completion_tokens": 634,
+  "latency_s": 30.2,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

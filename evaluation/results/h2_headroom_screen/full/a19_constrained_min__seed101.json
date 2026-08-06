@@ -1,0 +1,21 @@
+{
+  "task_id": "a19_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "20254e19e3d7df5f89c553bf9c50b8b06b99f0de8515050f9f3ba5d33997201b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum value of $x^2 + y^2$ subject to the constraints $x \\ge 0$, $y \\ge 0$, and $x+y \\ge 10$, we can analyze the objective function.\n\nThe expression $f(x, y) = x^2 + y^2$ represents the square of the distance from the point $(x, y)$ to the origin $(0, 0)$. We want to minimize this distance given that $(x, y)$ must lie in the first quadrant ($x \\ge 0, y \\ge 0$) and on or above the line $x+y = 10$.\n\nThe minimum value of $f(x, y)$ will occur at the point closest to the origin within this region. This point must be on the boundary line $x + y = 10$, as any point $(x, y)$ with $x + y > 10$ is further from the origin than its projection onto the line $x+y=10$.\n\nOn the line $x + y = 10$, we can express $y$ in terms of $x$:\n$y = 10 - x$\n\nSubstitute this into the objective function:\n$g(x) = x^2 + (10 - x)^2$\n$g(x) = x^2 + 100 - 20x + x^2$\n$g(x) = 2x^2 - 20x + 100$\n\nTo find the minimum of $g(x)$, we take the derivative with respect to $x$ and set it to zero:\n$g'(x) = 4x - 20 = 0$\n$4x = 20 \\implies x = 5$\n\nSince $x=5$, then $y = 10 - 5 = 5$. Both $x$ and $y$ are non-negative, satisfying the constraints. The value of the function at this point is:\n$f(5, 5) = 5^2 + 5^2 = 25 + 25 = 50$\n\nAlternatively, using the Cauchy-Schwarz inequality:\n$(x^2 + y^2)(1^2 + 1^2) \\ge (x \\cdot 1 + y \\cdot 1)^2$\n$2(x^2 + y^2) \\ge (x+y)^2$\nGiven $x+y \\ge 10$, it follows that $(x+y)^2 \\ge 100$.\nThus, $2(x^2 + y^2) \\ge 100$\n$x^2 + y^2 \\ge 50$\n\nThe minimum value is achieved when $x=y=5$.\n\n<ANSWER>50</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 254,
+  "completion_tokens": 1940,
+  "latency_s": 94.95,
+  "extracted_answer": "50.0",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "p01_scale_vs_variance",
+  "domain": "probability",
+  "difficulty": "easy",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "74732ce68feece3767f79857e7d77eabb7648c757c3c11df5718aed73f10602d",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the numerical value of the scale parameter, we identify that for a normally distributed variable, the scale parameter is defined as the standard deviation ($\\sigma$).\n\nGiven:\n- Mean ($\\mu$) = -21\n- Variance ($\\sigma^2$) = 9\n\nThe relationship between variance and standard deviation is:\n$\\text{Variance} = \\sigma^2$\n$\\sigma = \\sqrt{\\text{Variance}}$\n\nSubstituting the given value of the variance:\n$\\sigma = \\sqrt{9}$\n$\\sigma = 3$\n\n<ANSWER>3</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 260,
+  "completion_tokens": 289,
+  "latency_s": 18.85,
+  "extracted_answer": "3.0",
+  "correct": true,
+  "scoring_failure": ""
+}

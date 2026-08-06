@@ -1,0 +1,21 @@
+{
+  "task_id": "a03_domain_restriction",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "bf6b5ee80813d1fd415481ad8d9b9b26d3ab899b4b0dcb7c3db025fab0935fd9",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine if the claim \"the square root of x, multiplied by itself, equals x\" holds for $x = -7$ over the real numbers, we must examine the definition of the square root function within the domain of real numbers ($\\mathbb{R}$).\n\n1.  **Definition of Square Root**: In the set of real numbers, the square root $\\sqrt{x}$ is defined only for values of $x$ that are non-negative ($x \\ge 0$).\n2.  **Application to x = -7**: For $x = -7$, the expression $\\sqrt{-7}$ does not result in a real number. It is an imaginary number ($i\\sqrt{7}$).\n3.  **Evaluation of the Equation**: Since $\\sqrt{-7}$ is not defined over the real numbers, the operation $\\sqrt{-7} \\cdot \\sqrt{-7}$ cannot be carried out within the set of real numbers. \n4.  **Conclusion**: Because the components of the equation are not defined for $x = -7$ in the real number system, the claim that the equation holds for $x = -7$ over the real numbers is invalid.\n\n<ANSWER>FALSE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 268,
+  "completion_tokens": 734,
+  "latency_s": 35.39,
+  "extracted_answer": "FALSE",
+  "correct": true,
+  "scoring_failure": ""
+}

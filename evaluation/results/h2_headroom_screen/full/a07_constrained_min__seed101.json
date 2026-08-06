@@ -1,0 +1,21 @@
+{
+  "task_id": "a07_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "04d31e13a4e71ed07ba5bbc6c2ad0e81c3618bc0a7c09e09886b142b6e504e44",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible value of $x^2 + y^2$ given that $x \\ge 0$, $y \\ge 0$, and $x + y \\ge 12$, we can analyze the objective function $f(x, y) = x^2 + y^2$.\n\nSince $x$ and $y$ are non-negative and their sum must be at least 12, the minimum value of $x^2 + y^2$ will occur on the boundary where $x + y = 12$, because for any point $(x, y)$ such that $x + y > 12$, we could decrease $x$ or $y$ to reduce the distance from the origin while still satisfying the constraints.\n\nUsing the substitution $y = 12 - x$, we can rewrite the objective function as a function of one variable:\n$$f(x) = x^2 + (12 - x)^2$$\nExpanding this expression gives:\n$$f(x) = x^2 + (144 - 24x + x^2)$$\n$$f(x) = 2x^2 - 24x + 144$$\n\nTo find the minimum of this quadratic function, we take its derivative with respect to $x$ and set it equal to zero:\n$$f'(x) = 4x - 24 = 0$$\n$$4x = 24$$\n$$x = 6$$\n\nIf $x = 6$, then $y = 12 - 6 = 6$. Both $x$ and $y$ satisfy the non-negative constraints ($6 \\ge 0$).\n\nNow, we substitute these values back into the original expression to find the minimum value:\n$$x^2 + y^2 = 6^2 + 6^2$$\n$$x^2 + y^2 = 36 + 36$$\n$$x^2 + y^2 = 72$$\n\nAlternatively, by Cauchy-Schwarz inequality:\n$$(1^2 + 1^2)(x^2 + y^2) \\ge (x+y)^2$$\n$$2(x^2 + y^2) \\ge (12)^2$$\n$$2(x^2 + y^2) \\ge 144$$\n$$x^2 + y^2 \\ge 72$$\n\nThe minimum value is achieved when $x/1 = y/1$, i.e., $x=y$. Given $x+y=12$, this gives $x=6$ and $y=6$.\n\n<ANSWER>72</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 254,
+  "completion_tokens": 1539,
+  "latency_s": 75.6,
+  "extracted_answer": "72.0",
+  "correct": true,
+  "scoring_failure": ""
+}

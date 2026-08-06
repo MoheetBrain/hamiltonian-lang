@@ -1,0 +1,21 @@
+{
+  "task_id": "q15_scope_swap",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "choice",
+  "seed": 101,
+  "prompt_sha256": "15f15e97914963c674b7bd1c956bb3a7a2deb201dd29e705ebed15967fe41f5b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The description given for property P is as follows: \"for each positive epsilon, there exists a positive delta, possibly depending on both the tolerance and on the point, such that the usual closeness condition holds at that point.\"\n\nIn mathematics, continuity at a point $x$ means that for every $\\epsilon > 0$, there exists a $\\delta > 0$ (which may depend on both $\\epsilon$ and $x$) such that if $|y - x| < \\delta$, then $|f(y) - f(x)| < \\epsilon$. When this property holds for all points in the domain, it is called pointwise continuity.\n\nIn contrast, uniform continuity requires that for every $\\epsilon > 0$, there exists a $\\delta > 0$ that depends *only* on $\\epsilon$ and works for all $x$ and $y$ in the domain (i.e., $\\delta$ does not depend on the point).\n\nSince property P explicitly states that $\\delta$ may depend on the point, it refers to pointwise continuity.\n\n<ANSWER>POINTWISE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 284,
+  "completion_tokens": 676,
+  "latency_s": 40.25,
+  "extracted_answer": "POINTWISE",
+  "correct": true,
+  "scoring_failure": ""
+}

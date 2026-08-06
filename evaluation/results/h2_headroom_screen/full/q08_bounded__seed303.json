@@ -1,0 +1,21 @@
+{
+  "task_id": "q08_bounded",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "72846224239b454210564b80f491f1b29c10105a467f566a6106eb7d80bba6e2",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The statement says that for any real number $x$ such that $-1 \\le x \\le 1$, there exists a real number $y$ such that $y \\ge x$. For any given value of $x$ in the specified interval, we can always find such a $y$; for example, we could let $y = x$, or $y = x + 1$, or simply $y = 2$. Since there is at least one real number $y$ that satisfies the condition $y \\ge x$ for every $x$ in $[-1, 1]$, the statement is true.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 252,
+  "completion_tokens": 594,
+  "latency_s": 36.14,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

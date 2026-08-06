@@ -1,0 +1,21 @@
+{
+  "task_id": "a01_constrained_min",
+  "domain": "algebraic",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 303,
+  "prompt_sha256": "7dda67004985648364acb0e421501c53f232248209a0736aba6aa312c9503c90",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the minimum possible numerical value of $x^2 + y^2$ given that $x, y \\ge 0$ and $x + y \\ge 8$, we can analyze this problem geometrically or algebraically.\n\n**1. Geometric approach:**\nThe expression $x^2 + y^2$ represents the square of the distance from the origin $(0, 0)$ to a point $(x, y)$. The condition $x + y \\ge 8$ (along with $x, y \\ge 0$) describes a region in the first quadrant on or above the line $x + y = 8$. To minimize the distance from the origin to this region, we look for the closest point on the boundary line $x + y = 8$. The shortest distance from a point to a line is along the perpendicular. For the line $x + y = 8$, the closest point to $(0, 0)$ occurs when $x = y$.\n\n**2. Algebraic approach (Substitution):**\nSince we want to minimize $x^2 + y^2$ and the objective function increases as $x$ or $y$ increases, the minimum must occur on the boundary where $x + y = 8$. We can substitute $y = 8 - x$ into the expression:\n$$f(x) = x^2 + (8 - x)^2$$\n$$f(x) = x^2 + 64 - 16x + x^2$$\n$$f(x) = 2x^2 - 16x + 64$$\n\nTo find the minimum, we take the derivative with respect to $x$ and set it to zero:\n$$f'(x) = 4x - 16$$\n$$4x - 16 = 0 \\implies x = 4$$\n\nIf $x = 4$, then $y = 8 - 4 = 4$. Both values are non-negative, satisfying the given conditions.\n\n**3. Calculating the minimum value:**\nSubstitute $x = 4$ and $y = 4$ into the expression:\n$$x^2 + y^2 = 4^2 + 4^2 = 16 + 16 = 32$$\n\n**4. Verification with Cauchy-Schwarz Inequality:**\nThe Cauchy-Schwarz inequality states that $(x^2 + y^2)(1^2 + 1^2) \\ge (x \\cdot 1 + y \\cdot 1)^2$.\n$$(x^2 + y^2)(2) \\ge (x + y)^2$$\nGiven $x + y \\ge 8$, then $(x + y)^2 \\ge 64$:\n$$2(x^2 + y^2) \\ge 64$$\n$$x^2 + y^2 \\ge 32$$\n\nThe minimum value is achieved when $\\frac{x}{1} = \\frac{y}{1}$, which means $x=y$. With $x+y=8$, we have $x=4, y=4$, yielding the minimum value of 32.\n\n<ANSWER>32</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 253,
+  "completion_tokens": 1820,
+  "latency_s": 82.23,
+  "extracted_answer": "32.0",
+  "correct": true,
+  "scoring_failure": ""
+}

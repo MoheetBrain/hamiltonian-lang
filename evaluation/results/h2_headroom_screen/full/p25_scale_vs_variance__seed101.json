@@ -1,0 +1,21 @@
+{
+  "task_id": "p25_scale_vs_variance",
+  "domain": "probability",
+  "difficulty": "easy",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "97403e6c23ef50d7bfa2f3ceccfaa555e10cae312cce34e0b1b3d977db101b8b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To find the scale parameter of the distribution, we need to determine the standard deviation. The problem states that the variance of the normal distribution is 64 and defines the scale parameter as the standard deviation.\n\nThe relationship between variance ($\\sigma^2$) and standard deviation ($\\sigma$) is:\n$\\sigma = \\sqrt{\\text{Variance}}$\n\nGiven Variance = 64, we calculate:\n$\\sigma = \\sqrt{64} = 8$\n\n<ANSWER>8</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 261,
+  "completion_tokens": 274,
+  "latency_s": 15.48,
+  "extracted_answer": "8.0",
+  "correct": true,
+  "scoring_failure": ""
+}

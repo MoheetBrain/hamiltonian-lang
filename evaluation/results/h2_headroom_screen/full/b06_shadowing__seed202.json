@@ -1,0 +1,21 @@
+{
+  "task_id": "b06_shadowing",
+  "domain": "binding",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "408f54c2f00b6e3e2294e6735f42047caf6e93d6ab6677f44454b461c4bcae8b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To evaluate the function $f$ at the value 1, we use the definition provided: the function $f$ takes an argument and returns that argument plus 4.\n\nGiven the definition:\n$f(x) = x + 4$\n\nWe substitute the value 1 for the argument $x$:\n$f(1) = 1 + 4$\n$f(1) = 5$\n\nThe initial statement \"Let x be 28\" is a distractor and does not affect the evaluation of the function at a specific given value.\n\n<ANSWER>5</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 275,
+  "completion_tokens": 472,
+  "latency_s": 22.66,
+  "extracted_answer": "5.0",
+  "correct": true,
+  "scoring_failure": ""
+}

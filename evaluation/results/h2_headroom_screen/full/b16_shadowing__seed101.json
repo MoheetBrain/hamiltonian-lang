@@ -1,0 +1,21 @@
+{
+  "task_id": "b16_shadowing",
+  "domain": "binding",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 101,
+  "prompt_sha256": "776a1ddaae01bd4a0326c07972b1af03f313cd5b92a9d890856214e0336169de",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The problem defines a variable $x = 10$, and then defines a function $f$ that takes an argument (locally called $x$) and returns that argument plus 2. The goal is to evaluate $f(1)$.\n\nSubstituting the value 1 into the function:\n$f(1) = 1 + 2 = 3$\n\nThe initial definition of $x = 10$ does not affect the evaluation of the function at a specific provided argument.\n\n<ANSWER>3</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 275,
+  "completion_tokens": 392,
+  "latency_s": 19.49,
+  "extracted_answer": "3.0",
+  "correct": true,
+  "scoring_failure": ""
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "b20_conditioning_set",
+  "domain": "binding",
+  "difficulty": "medium",
+  "answer_kind": "numeric",
+  "seed": 202,
+  "prompt_sha256": "27cad751de57723df88e854ac4d11bcd2819c68bac9664e7e1ab0f44427a0331",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The law of Y is stated conditionally on the coefficient vector b, the noise scale s, and the group index g. The conditioning set consists of these three variables {b, s, g}. There are 3 distinct symbols in this set.\n\n<ANSWER>3</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 277,
+  "completion_tokens": 216,
+  "latency_s": 10.4,
+  "extracted_answer": "3.0",
+  "correct": true,
+  "scoring_failure": ""
+}
