@@ -28,7 +28,19 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**TRANCHE A VOID ON TRUNCATION; SURFACE D ELIMINATED BY UPPER BOUND.** The 32-condition
+**CAP_CALIBRATION_FAILED — THE SURVIVOR RERUN IS BLOCKED, AND A BIGGER CAP IS NOT THE
+FIX.** Both cap probes at 12,288 reached the cap exactly and truncated, on the same task
+that truncated at 6,144. The transcripts show why: the model restates the module header
+**229 times** in surface A and **161 times** in surface C, cycling on the identifier
+`varrho` which it repeatedly mistypes as `vvarrho` and restarts over. Two allowances a
+factor of two apart, both fully consumed, with the repetition count scaling with the
+budget — that is non-termination, not an undersized budget. The proposed 1 x 32,768
+configuration is recorded as required but is **not recommended**: it predicts ~500
+restatements, still truncates, and costs ~10 hours at halved concurrency. It is one task,
+not one surface: the other seven surface-A tasks finished with `stop`, and this task
+completed cleanly in surface B.
+
+Previously: **TRANCHE A VOID ON TRUNCATION; SURFACE D ELIMINATED BY UPPER BOUND.** The 32-condition
 run completed and is `MEASUREMENT_INVALID` (D-033). Everything except the cap audited clean:
 matrix complete 8x4, no duplicates, no missing, 0 transport failures, no prompt drift, no
 bundle drift, no repository mutation during measurement. Three conditions hit the 6,144-token

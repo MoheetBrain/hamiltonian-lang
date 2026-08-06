@@ -1,0 +1,17 @@
+{
+  "task_id": "v2_assumption_boundary_001",
+  "surface": "C_prefix_sexpr",
+  "completion_allowance": 12288,
+  "slot_context": 16384,
+  "safety_reserve": 256,
+  "prompt_sha256": "3907e4f6149fc800525112de2d833949f06e93cf55efe69d4125a50a40e8557c",
+  "bundle_sha256": "34e1e4edf42b532fd3aade7b76bfc8e7857a5f81f685f559586afdd884196229",
+  "prompt_tokens": 3097,
+  "completion_tokens": 12288,
+  "finish_reason": "length",
+  "transport_error": "",
+  "truncated": true,
+  "latency_s": 659.0,
+  "budget_inequality_holds": true,
+  "note": "operational calibration only; NOT semantically scored, NOT acquisition evidence"
+}

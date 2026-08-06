@@ -1,0 +1,40 @@
+{
+  "allowance": 12288,
+  "all_finished_below_cap": false,
+  "conditions": [
+    {
+      "task_id": "v2_assumption_boundary_001",
+      "surface": "A_v0_labelled_linear",
+      "completion_allowance": 12288,
+      "slot_context": 16384,
+      "safety_reserve": 256,
+      "prompt_sha256": "f03d9ed541215174398b61890eeca202d81917433b1dde325756c08fdd01ff6d",
+      "bundle_sha256": "c50abf32d2cd6f0b7b6bab107699ff4e5bbca09d1c2750d0ec21f5fa8a694f36",
+      "prompt_tokens": 2945,
+      "completion_tokens": 12288,
+      "finish_reason": "length",
+      "transport_error": "",
+      "truncated": true,
+      "latency_s": 620.3,
+      "budget_inequality_holds": true,
+      "note": "operational calibration only; NOT semantically scored, NOT acquisition evidence"
+    },
+    {
+      "task_id": "v2_assumption_boundary_001",
+      "surface": "C_prefix_sexpr",
+      "completion_allowance": 12288,
+      "slot_context": 16384,
+      "safety_reserve": 256,
+      "prompt_sha256": "3907e4f6149fc800525112de2d833949f06e93cf55efe69d4125a50a40e8557c",
+      "bundle_sha256": "34e1e4edf42b532fd3aade7b76bfc8e7857a5f81f685f559586afdd884196229",
+      "prompt_tokens": 3097,
+      "completion_tokens": 12288,
+      "finish_reason": "length",
+      "transport_error": "",
+      "truncated": true,
+      "latency_s": 659.0,
+      "budget_inequality_holds": true,
+      "note": "operational calibration only; NOT semantically scored, NOT acquisition evidence"
+    }
+  ]
+}

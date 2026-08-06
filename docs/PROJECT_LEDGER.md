@@ -2067,3 +2067,68 @@ arithmetic rather than on a rerun.
 
 **Next intended step.** A two-condition operational cap probe at 12,288 on the two prompts
 that truncated, then a clean 8x3 survivor rerun if both finish normally.
+
+---
+
+## 2026-08-06 — cap probe at 12,288 fails; the survivor rerun is not launched
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** ACQ0 measurement recovery.
+
+**Objective.** Establish whether a 12,288-token completion allowance removes the truncation
+that voided Tranche A, before spending a 24-condition scientific rerun on it.
+
+**Files and systems changed.** New
+`evaluation/results/acq0/operational_calibration/cap_probe_12288/` with two probe records, a
+summary and `CAP_CALIBRATION_FAILED.md`. No instrument file touched.
+
+**What was completed.** Both frozen prompts were re-run at allowance 12,288 with identical
+prompt bytes, bundle hashes, model digest, temperature 0, seed 0 and runtime; only the
+allowance changed. The cached replies were bypassed deliberately, since the cached ones were
+the capped ones.
+
+**Result: both reached the cap exactly and truncated.** A: prompt 2,945, completion 12,288,
+`length`, 620s. C: prompt 3,097, completion 12,288, `length`, 659s. The budget inequality
+held in both cases (15,489 and 15,641 against 16,384), so this was never a context-window
+problem.
+
+**The transcripts settle the diagnosis.** The model restates the module header **229 times**
+in surface A (34,858 chars) and **161 times** in surface C (32,352 chars), cycling on the
+identifier `varrho`, which it mistypes as `vvarrho`, rejects, and restarts over. It is a
+repetition loop, not deliberation.
+
+**Decisions made and why.** The survivor rerun was **not launched**. Three reasons: the
+allowance saturated at 6,144 and again at exactly 12,288, a factor of two apart; the
+restatement count scales with the budget, so 28,672 predicts ~500 restatements and another
+`length` finish; and the pathology is one task, not one surface — the other seven surface-A
+tasks finished with `stop` and this task completed cleanly in surface B.
+
+The 1 x 32,768 configuration is recorded as the directive requires, with its inequalities
+checked, and marked not recommended: it halves concurrency and would run up to ~10 hours to
+reproduce the same truncation.
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| probe A, allowance 12,288 | prompt 2,945, completion **12,288**, `length`, truncated, 620s |
+| probe C, allowance 12,288 | prompt 3,097, completion **12,288**, `length`, truncated, 659s |
+| budget inequality, both | holds (15,489 / 15,641 <= 16,384) |
+| module header restatements | A **229x**, C **161x** |
+| survivor rerun launched | **no** |
+
+**Failures and unresolved uncertainty.**
+
+- **No allowance is known to be sufficient**, and the evidence argues none is.
+- The three candidate fixes all touch frozen artefacts and none was applied: a decode-side
+  repetition penalty or stop sequence (least invasive, changes a sampling option only);
+  renaming the identifier (changes the corpus, needs a fresh id and re-admission); or
+  extracting the last complete candidate from a truncated transcript (a scorer change, and
+  the most dangerous — the transcripts contain correct encodings, so it would convert a null
+  measurement into a positive one on a rule invented after seeing the data).
+- Surfaces A, B and C remain **unresolved**. Only D is closed, and by upper bound.
+
+**Effect.** A 24-condition rerun that would have reproduced the same defect was not spent,
+and the defect is now characterised precisely enough to choose a fix.
+
+**Next intended step.** A decision on which of the three fixes is authorised. Nothing else
+proceeds until then.
