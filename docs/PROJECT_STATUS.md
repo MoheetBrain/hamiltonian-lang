@@ -28,10 +28,16 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**eval001 IS SATURATED AND UNUSABLE FOR H2 — HEADROOM_INSUFFICIENT.** The plain-English
-headroom screen (95 deduplicated problems x 3 seeds, temperature 0.7) returns **mean
-accuracy 0.959**: of 90 tasks with all three seeds complete, **85 are 3/3 correct** and only
-**3** fall in the 1/3-2/3 headroom band against a required 30. The pilot's 93.3% was not an
+**eval001 IS SATURATED AND UNUSABLE FOR H2 — HEADROOM_INSUFFICIENT (complete, 285/285).**
+The plain-English headroom screen (95 deduplicated problems x 3 seeds, temperature 0.7)
+returns **mean accuracy 0.961**: **90 of 95 tasks are 3/3 correct** and only **3** fall in
+the 1/3-2/3 headroom band against a required 30. **Three of five domains — algebraic,
+binding and quantifier — are at 3/3 on every single task**, so they carry no signal at all;
+the three headroom tasks are two dimensional and one probability. 92/95 tasks are unanimous
+across all three seeds, which makes this corpus saturation rather than sampling noise.
+Integrity: matrix complete, 0 duplicates, 0 transport failures, 0 scoring failures, every
+prompt hash matching the manifest, one model digest, 11 truncations at the inherited
+max_tokens of 2400. The pilot's 93.3% was not an
 artefact of its 15-problem sample — the whole corpus is saturated.
 
 This closes a wrong path cheaply and confirms the right one: the purpose-built **24-task v1

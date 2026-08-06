@@ -1,0 +1,21 @@
+{
+  "task_id": "q19_unique",
+  "domain": "quantifier",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 303,
+  "prompt_sha256": "b0738d4e5ce8b6e8ca827d4484819d4db1e39ac6a2da7c64b1464c6817c86159",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine if the statement \"there exists exactly one real number x such that x cubed equals 9\" is true, we examine the equation:\n\\[x^3 = 9\\]\n\n1.  **Analyze the function**: Let $f(x) = x^3$. We are looking for the values of $x \\in \\mathbb{R}$ such that $f(x) = 9$.\n2.  **Monotonicity**: The derivative of $f(x)$ is $f'(x) = 3x^2$. Since $f'(x) > 0$ for all $x \\neq 0$ and $f'(0) = 0$, the function $f(x) = x^3$ is strictly increasing over the entire set of real numbers.\n3.  **Existence**: Because $f(x)$ is a continuous function that goes from $-\\infty$ as $x \\to -\\infty$ to $+\\infty$ as $x \\to \\infty$, by the Intermediate Value Theorem, it must take every value in $(-\\infty, \\infty)$ at least once. Thus, there exists at least one real number $x$ such that $x^3 = 9$.\n4.  **Uniqueness**: Because $f(x) = x^3$ is strictly increasing (and thus injective), it cannot take the same value twice for different inputs. Therefore, if a solution exists, it must be unique.\n5.  **The Solution**: The unique real number that satisfies this equation is $x = \\sqrt[3]{9}$.\n\nSince there is exactly one real number $x$ such that $x^3 = 9$, the statement is true.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 242,
+  "completion_tokens": 924,
+  "latency_s": 53.76,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

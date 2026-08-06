@@ -1,0 +1,21 @@
+{
+  "task_id": "q20_scope_swap",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "choice",
+  "seed": 202,
+  "prompt_sha256": "718698ec11ec15b3c418716d4c46be120d54352dd661e98d7363b9a94ff6850d",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "<ANSWER>UNIFORM</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 284,
+  "completion_tokens": 326,
+  "latency_s": 19.07,
+  "extracted_answer": "UNIFORM",
+  "correct": true,
+  "scoring_failure": ""
+}

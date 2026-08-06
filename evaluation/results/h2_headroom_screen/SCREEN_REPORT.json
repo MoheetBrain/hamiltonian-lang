@@ -1,0 +1,68 @@
+{
+  "integrity": {
+    "matrix_complete": true,
+    "missing": [],
+    "extra": [],
+    "duplicates": 0,
+    "truncations": 11,
+    "transport_failures": 0,
+    "scoring_failures": 0,
+    "prompt_hash_stable": true,
+    "model_digest_stable": true,
+    "records": 285
+  },
+  "histogram": {
+    "0": 2,
+    "1": 2,
+    "2": 1,
+    "3": 90
+  },
+  "per_domain": {
+    "algebraic": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 17
+    },
+    "binding": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 22
+    },
+    "dimensional": {
+      "0": 0,
+      "1": 1,
+      "2": 1,
+      "3": 14
+    },
+    "probability": {
+      "0": 2,
+      "1": 1,
+      "2": 0,
+      "3": 20
+    },
+    "quantifier": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 17
+    }
+  },
+  "headroom_set": [
+    "d09_derive",
+    "d17_derive",
+    "p07_conditional_independence"
+  ],
+  "headroom_count": 3,
+  "unanimous_tasks": 92,
+  "cost": {
+    "calls": 285,
+    "prompt_tokens": 75450,
+    "completion_tokens": 224029,
+    "median_latency_s": 34.3,
+    "total_latency_h": 4.13
+  },
+  "verdict": "HEADROOM_INSUFFICIENT",
+  "mean_accuracy": 0.961
+}

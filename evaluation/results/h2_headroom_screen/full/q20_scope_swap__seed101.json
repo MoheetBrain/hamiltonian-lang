@@ -1,0 +1,21 @@
+{
+  "task_id": "q20_scope_swap",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "choice",
+  "seed": 101,
+  "prompt_sha256": "718698ec11ec15b3c418716d4c46be120d54352dd661e98d7363b9a94ff6850d",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine whether property P refers to pointwise continuity or uniform continuity, let's analyze the given definition:\n\n1.  **Pointwise Continuity:** A function $f$ is continuous at a point $x$ if for every $\\epsilon > 0$, there exists a $\\delta > 0$ such that for all $y$, $|x - y| < \\delta$ implies $|f(x) - f(y)| < \\epsilon$. In this case, the value of $\\delta$ may depend on both the tolerance $\\epsilon$ and the specific point $x$ (i.e., $\\delta = \\delta(\\epsilon, x)$).\n\n2.  **Uniform Continuity:** A function $f$ is uniformly continuous on a set if for every $\\epsilon > 0$, there exists a $\\delta > 0$ such that for all $x$ and $y$ in the set, $|x - y| < \\delta$ implies $|f(x) - f(y)| < \\epsilon$. Here, the value of $\\delta$ depends only on the tolerance $\\epsilon$ and not on the position of $x$ within the set (i.e., $\\delta = \\delta(\\epsilon)$).\n\nProperty P states: \"for every positive tolerance, there exists a positive delta, **depending on the tolerance alone and not on the point**, such that the usual closeness condition holds at every point.\"\n\nThis explicitly specifies that $\\delta$ is independent of the point $x$, which matches the definition of uniform continuity.\n\n<ANSWER>UNIFORM</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 284,
+  "completion_tokens": 847,
+  "latency_s": 49.1,
+  "extracted_answer": "UNIFORM",
+  "correct": true,
+  "scoring_failure": ""
+}

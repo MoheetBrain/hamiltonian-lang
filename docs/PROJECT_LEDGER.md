@@ -2256,3 +2256,54 @@ right corpus is identified and independently verified.
 **Next intended step.** Re-run `analyse.py` for the final records, then run Arm E
 (structured English plus one unaided self-review) on the 24 frozen tasks — the baseline
 headroom calibration, which doubles as the Arm-E data the E-versus-H comparison needs.
+
+---
+
+## 2026-08-06 — H2 headroom screen completed: 285/285, verdict unchanged
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** H2 benchmark headroom.
+
+**Objective.** Close out the eval001 screen with the final records and the integrity audit.
+`02fa482` committed it mid-run at 271/285.
+
+**Files and systems changed.** The remaining 12 records and `SCREEN_REPORT.json` under
+`evaluation/results/h2_headroom_screen/`. No source change.
+
+**What was completed.** The run finished all 285 conditions and `analyse.py` produced the
+audit. **The interim verdict holds on the complete data.**
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| matrix complete | **True**, 285/285, 0 duplicates, 0 missing |
+| transport / scoring failures | 0 / 0 |
+| prompt hash vs manifest | **all 285 match** |
+| model digest | single digest throughout |
+| truncations | 11 (inherited `max_tokens` 2400) |
+| mean plain-English accuracy | **0.961** |
+| histogram | 0/3 = 2 · 1/3 = 2 · 2/3 = 1 · **3/3 = 90** |
+| headroom band | **3** against a required 30 -> `HEADROOM_INSUFFICIENT` |
+| unanimous across seeds | **92/95** |
+| cost | 285 calls, 224,029 completion tokens, median 34.3s, 4.13h |
+
+**The domain breakdown is the sharpest part of the result.** Algebraic (17), binding (22)
+and quantifier (17) are at 3/3 on **every** task — three of five domains carry no signal
+whatever. Dimensional contributes two headroom tasks and probability one; probability also
+holds both 0/3 floor tasks. A representation comparison on this corpus would be measuring
+noise on 56 of 95 items and nothing at all on the rest.
+
+**Failures and unresolved uncertainty.**
+
+- 11 truncations at `max_tokens` 2400. Immaterial on a saturated corpus, but the cap must be
+  raised before any corpus is measured for real.
+- This screen answers a question about eval001, not about the 24-task H2 corpus.
+- 92/95 unanimity means the three-seed design bought little here; on a corpus with real
+  headroom it would buy more.
+
+**Effect.** eval001 is definitively retired as an H2 corpus, on complete data rather than a
+partial read.
+
+**Next intended step.** Arm E (structured English plus one unaided self-review) on the 24
+frozen tasks — the baseline headroom calibration, which doubles as the Arm-E half of the
+E-versus-H comparison.

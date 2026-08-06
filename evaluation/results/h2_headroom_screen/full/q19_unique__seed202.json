@@ -1,0 +1,21 @@
+{
+  "task_id": "q19_unique",
+  "domain": "quantifier",
+  "difficulty": "medium",
+  "answer_kind": "boolean",
+  "seed": 202,
+  "prompt_sha256": "b0738d4e5ce8b6e8ca827d4484819d4db1e39ac6a2da7c64b1464c6817c86159",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "To determine whether the statement \"there exists exactly one real number x such that x cubed equals 9\" is true, we analyze the equation $x^3 = 9$.\n\n1.  **Existence**: We are looking for a real number $x$ such that $x^3 = 9$. The cube root of any real number $a$ always exists and is unique in the set of real numbers. For $a=9$, the solution is $x = \\sqrt[3]{9}$. Since 9 is a positive real number, its cube root $\\sqrt[3]{9}$ (approximately 2.08) is also a real number.\n2.  **Uniqueness**: To check if this solution is unique over the real numbers, consider the function $f(x) = x^3$. The derivative of this function is $f'(x) = 3x^2$, which is non-negative for all $x$ and zero only at $x=0$. This means $f(x)$ is a strictly increasing function over the entire domain of real numbers. A strictly increasing function is injective (one-to-one), meaning that for any value $y$ in its range, there is exactly one $x$ such that $f(x) = y$. Since 9 is in the range of $f(x)$, there is exactly one real number $x$ such that $x^3 = 9$.\n\nThus, the statement is true.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 242,
+  "completion_tokens": 812,
+  "latency_s": 46.59,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}

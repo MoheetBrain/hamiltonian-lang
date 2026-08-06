@@ -1,0 +1,21 @@
+{
+  "task_id": "q18_bounded",
+  "domain": "quantifier",
+  "difficulty": "hard",
+  "answer_kind": "boolean",
+  "seed": 202,
+  "prompt_sha256": "cde17833bc1db0fff8d0d00f9614683fb4257bebb27b2b868f6a784f42c55408",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.7,
+  "max_tokens": 2400,
+  "raw_response": "The statement \"for every real number x in the closed interval from 0 to 10, there exists a real number y greater than or equal to x\" can be written in logical notation as:\n$\\forall x \\in [0, 10], \\exists y \\in \\mathbb{R} : y \\geq x$.\n\nTo determine if this statement is true, we examine whether for any chosen $x$ in the interval $[0, 10]$, we can find at least one real number $y$ that satisfies the condition $y \\geq x$. For any given $x$, we can choose $y = x$ (since $x \\geq x$ is always true) or $y = x + 1$ (since $x + 1 > x$). Because such a $y$ exists for every possible value of $x$ in the specified interval, the statement is true.\n\n<ANSWER>TRUE</ANSWER>",
+  "finish_reason": "stop",
+  "truncated": false,
+  "transport_error": "",
+  "prompt_tokens": 253,
+  "completion_tokens": 813,
+  "latency_s": 46.77,
+  "extracted_answer": "TRUE",
+  "correct": true,
+  "scoring_failure": ""
+}
