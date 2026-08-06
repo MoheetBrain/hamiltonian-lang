@@ -12,4 +12,11 @@ See :mod:`hamiltonian_lang.verification.obligations` and
 
 from __future__ import annotations
 
+# The submodule is imported, not merely named. `__all__ = ["obligations"]` alone was a
+# stale re-export: `hasattr(verification, "obligations")` was False, `verification.
+# obligations` raised AttributeError unless some other module had already imported it,
+# and `from ... import *` silently bound nothing. Found by Pyright
+# (reportUnsupportedDunderAll) and confirmed at runtime.
+from . import obligations
+
 __all__ = ["obligations"]

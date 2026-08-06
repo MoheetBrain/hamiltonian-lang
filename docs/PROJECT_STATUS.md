@@ -28,7 +28,17 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**CAP_CALIBRATION_FAILED — THE SURVIVOR RERUN IS BLOCKED, AND A BIGGER CAP IS NOT THE
+**PYRIGHT CONFIGURED; ONE STALE RE-EXPORT CLOSED.** The repository had no Pyright
+configuration at all, so 126 of 484 baseline diagnostics were unresolved imports of
+installed packages — and every file carrying one was analysed against a partly-blind view.
+Configuring the environment truthfully (no mode weakened, nothing excluded that matters)
+drops the count to 374. One confirmed runtime defect is fixed: `hamiltonian_lang.
+verification.__all__` named `obligations` without importing it, so attribute access raised
+and `import *` bound nothing; a test now walks every package and asserts each `__all__`
+entry exists. The remaining 374 are largely untriaged — see
+`docs/audits/PYRIGHT_OVERNIGHT_AUDIT.md`.
+
+Previously: **CAP_CALIBRATION_FAILED — THE SURVIVOR RERUN IS BLOCKED, AND A BIGGER CAP IS NOT THE
 FIX.** Both cap probes at 12,288 reached the cap exactly and truncated, on the same task
 that truncated at 6,144. The transcripts show why: the model restates the module header
 **229 times** in surface A and **161 times** in surface C, cycling on the identifier

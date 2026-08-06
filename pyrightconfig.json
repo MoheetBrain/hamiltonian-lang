@@ -1,0 +1,32 @@
+{
+  "//": "Pyright configuration for the actual repository layout. Written during the overnight audit: without it Pyright could not see .venv, so 126 of 484 baseline diagnostics were `reportMissingImports` on pytest, sympy, hypothesis, numpy and scipy -- and every file carrying one had its real analysis degraded. The mode is NOT weakened; only the environment is described truthfully.",
+
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "standard",
+
+  "//include": "Source, the evaluation apparatus and the tests. `benchmarks/` and `experiments/` are data and one-off scripts, analysed but not gated.",
+  "include": [
+    "src",
+    "evaluation",
+    "tests",
+    "benchmarks",
+    "experiments"
+  ],
+
+  "exclude": [
+    "**/__pycache__",
+    "**/node_modules",
+    ".venv",
+    "evaluation/results",
+    "benchmarks/eval001/arms"
+  ],
+
+  "extraPaths": [
+    "."
+  ],
+
+  "//reportMissingModuleSource": "tiktoken and similar ship no stubs; the import is real and resolvable at runtime, so a missing *stub* is not a defect worth a suppression in every file.",
+  "reportMissingModuleSource": "warning"
+}

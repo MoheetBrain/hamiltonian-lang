@@ -2132,3 +2132,68 @@ and the defect is now characterised precisely enough to choose a fix.
 
 **Next intended step.** A decision on which of the three fixes is authorised. Nothing else
 proceeds until then.
+
+---
+
+## 2026-08-06 — Pyright configured; a stale re-export closed
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** static-analysis audit,
+run alongside a live experiment.
+
+**Objective.** Establish a truthful Pyright baseline and fix high-confidence defects on the
+critical path.
+
+**Files and systems changed.** New `pyrightconfig.json`; `src/hamiltonian_lang/
+verification/__init__.py`; new `tests/verification/test_package_exports.py`; new
+`docs/audits/PYRIGHT_OVERNIGHT_AUDIT.md`. No experiment file touched, no model call made —
+the eval001 screen owned Ollama throughout (PID 38523).
+
+**What was completed.** The repository had **no Pyright configuration**, so Pyright could
+not see `.venv` and reported 126 missing imports for packages that import fine at runtime
+(pytest 99, sympy 7, hypothesis 6, numpy 5, scipy 7, tiktoken 1). That is worse than a code
+defect: every file with an unresolved import had its real analysis degraded. Describing the
+environment truthfully — without weakening the mode or excluding anything load-bearing —
+takes the count from **484 to 374**.
+
+**One confirmed defect fixed.** `hamiltonian_lang.verification` declared
+`__all__ = ["obligations"]` and never imported the submodule. Verified at runtime, not just
+by the checker: `hasattr(verification, "obligations")` was False, attribute access raised
+unless another module had already imported it, and `from ... import *` bound nothing while
+appearing to succeed. On the critical path, since the obligations engine is the verifier.
+The test added walks every package under `hamiltonian_lang` and asserts each `__all__`
+entry exists, closing the class rather than the instance.
+
+**Decisions made and why.** No suppression was added, no type weakened, no mode lowered.
+Two diagnostics were dispositioned rather than "fixed": `sympy_bridge.py`'s 21
+optional-access reports follow a guarded `except ImportError: sympy = None`, which is an
+intentional dynamic boundary — though whether every *use* is guarded was not verified and
+is flagged as tomorrow's first check.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---|---|
+| `pyright` baseline | 484 errors, 9 warnings, 329 files |
+| `pyright` after config | **374 errors, 7 warnings** |
+| `ruff check` (changed files) | All checks passed |
+| `mypy src` | Success, 84 source files |
+| `pytest tests/verification` | 135 passed |
+
+**Failures and unresolved uncertainty.**
+
+- **374 diagnostics remain and are largely untriaged.** Only the missing-import class and
+  one `reportUnsupportedDunderAll` were dispositioned.
+- `repair/record.py:329-334` is a **likely real** optional-access defect on an
+  experiment-record type. It was not fixed: it needs a reference search and a reproducing
+  test first, and there was not room to do that safely.
+- Sections 2-5 of the directive (interface mapping, ordered-view typing, firewall typing,
+  experiment-record invariants, verdict exhaustiveness, H2 typing) were **not executed**.
+- Full pytest and conformance were not re-run; the change is a single import covered by the
+  targeted suite, but they should run before this is treated as complete.
+
+**Effect.** The static-analysis baseline is now truthful rather than import-blind, and one
+real runtime defect on the verifier path is closed.
+
+**Next intended step.** Triage the 29 `reportPossiblyUnboundVariable`; finish
+`repair/record.py`; decide whether `equivalence/` is in scope, since it holds 52 of the 58
+`src` diagnostics and sits off the critical path.
