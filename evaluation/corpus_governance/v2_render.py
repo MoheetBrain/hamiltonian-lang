@@ -43,63 +43,72 @@ def _type_phrase(t: str | None) -> str:
 
 
 def render_prose(task: CanonicalAcq0TaskV2) -> str:
-    """Plain, complete, deterministic description of exactly what the object states.
+    """Prose in ENCODING ORDER, one clause per emitted statement.
 
-    Every declared entity appears. Every supplied assumption appears. A **derived** fact
-    appears only when it declares `state_in_prose`, and is then labelled as following from
-    its premises -- never presented as an independent restriction. v1 said "the assumption
-    is the only restriction given" while listing a second constraint.
+    The previous version walked kind-buckets, so prose order and source order diverged
+    whenever a module interleaved kinds -- three of eight tasks. Since `content_hash` is
+    order-sensitive, that made them unencodable. Prose now follows
+    `encoding_view()["encoding_statements"]` by position, so the reader sees the order the
+    answer requires.
     """
-    st = task.structured_target()
+    from .v2_view import encoding_view
+
+    view = encoding_view(task)
     lines: list[str] = []
-
-    for d in st["declarations"]:
-        kind = d["kind"]
+    for r in sorted(view["encoding_statements"], key=lambda x: x["position"]):
+        kind = r["kind"]
         if kind == "const":
-            lines.append(
-                f"The constant {d['name']} has type {_type_phrase(d['type'])} "
-                f"and the value {d.get('value', '<missing>')}.")
+            lines.append(f"The constant {r['name']} has type {r['type']} and the value "
+                         f"{r.get('value')}.")
         elif kind == "obs":
+            lines.append(f"The observed quantity {r['name']} has type {r['type']} and the "
+                         f"value {r.get('value')}.")
+        elif kind in {"var", "param", "index", "rv"}:
+            lines.append(f"The quantity {r['name']} is declared as {kind} with type "
+                         f"{r['type']}.")
+        elif kind == "def":
+            binders = ", ".join(f"{b['name']} of type {b['type']}" for b in r["binders"])
             lines.append(
-                f"The observed quantity {d['name']} has type {_type_phrase(d['type'])}"
-                + (f" and the value {d['value']}." if d.get("value") else "."))
+                f"The function {r['name']} takes {binders}, returns {r['codomain']}, and "
+                f"is defined by {r['body']}." if binders else
+                f"The value {r['name']} has type {r['codomain']} and is defined by "
+                f"{r['body']}.")
+        elif kind == "assume":
+            lines.append(f"It is assumed that {r['expression']}.")
+        elif kind == "require":
+            lines.append(f"It is required that {r['expression']}.")
+        elif kind == "prove":
+            lines.append(f"The goal is to prove that {r['expression']}.")
+        elif kind in {"prior", "likelihood", "law", "posterior"}:
+            given = f" given {', '.join(r['given'])}" if r.get("given") else ""
+            lines.append(f"The {kind} of {r['target']}{given} is {r['distribution']}.")
+        elif kind.startswith("check_"):
+            lines.append(f"It is checked that the {kind[len('check_'):]} of "
+                         f"{r['subject']} is {r['expression']}.")
         else:
+            raise ValueError(f"no prose form for statement kind {kind!r}")
+
+    for fact in task.derived_facts:
+        if fact.state_in_prose:
             lines.append(
-                f"The quantity {d['name']} is declared as {kind} "
-                f"with type {_type_phrase(d['type'])}.")
-
-    for f in st["definitions"]:
-        binders = ", ".join(f"{b['name']} of type {_type_phrase(b['type'])}"
-                            for b in f["binders"])
-        if binders:
-            lines.append(
-                f"The function {f['name']} takes {binders}, returns "
-                f"{_type_phrase(f['codomain'])}, and is defined by {f['body']}.")
-        else:
-            lines.append(
-                f"The value {f['name']} has type {_type_phrase(f['codomain'])} "
-                f"and is defined by {f['body']}.")
-
-    for law in st["probability_laws"]:
-        given = f" given {', '.join(law['given'])}" if law["given"] else ""
-        lines.append(
-            f"The {law['role']} of {law['target']}{given} is {law['distribution']}.")
-
-    for a in st["assumptions"]:
-        lines.append(f"It is assumed that {a}.")
-    for c in st["domain_constraints"]:
-        lines.append(f"It is required that {c}.")
-
-    for f in task.derived_facts:
-        if f.state_in_prose:
-            lines.append(
-                f"It follows from {' and '.join(f.derived_from)} that {f.statement}; "
-                f"this is a consequence, not a further restriction.")
-
-    for p in task.prohibited_assumptions:
-        lines.append(f"Do not assume {p}.")
-
+                f"It follows from {' and '.join(fact.derived_from)} that {fact.statement}; "
+                f"this is a consequence, not a further restriction, and must not be "
+                f"encoded.")
+    for p_ in task.prohibited_assumptions:
+        lines.append(f"Do not assume {p_}. This is guidance and must not be encoded.")
     return "\n".join(lines)
+
+
+def _ordered_view(task: CanonicalAcq0TaskV2) -> dict[str, Any]:
+    """What the model actually receives: the ordered encoding view.
+
+    Kind-buckets are not handed to a model. `content_hash` is order-sensitive, so a bucketed
+    view is not sufficient to reconstruct the answer -- three of eight tasks were
+    unencodable under it.
+    """
+    from .v2_view import encoding_view
+
+    return encoding_view(task)
 
 
 def render_question(task: CanonicalAcq0TaskV2) -> str | None:
@@ -137,7 +146,7 @@ def acq0_view(task: CanonicalAcq0TaskV2) -> dict[str, Any]:
                         "assigned surface syntax. Do not solve, add, remove or change "
                         "anything."),
         "prose": render_prose(task),
-        "structured_target": task.structured_target(),
+        "structured_target": _ordered_view(task),
         "question": None,
     }
 

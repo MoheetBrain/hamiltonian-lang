@@ -779,3 +779,81 @@ negative control.
 
 **Reversal.** Restore the two `replace` calls and delete the `group`/`_exponent` rules.
 Reversal reintroduces the inability to assert any two-division dimension.
+
+## D-029 — ACQ0's primary protocol is DIRECT_FORMAL
+
+**Date.** 2026-08-06 · **Status.** Accepted · **Experimental redesign, recorded before any
+model call.**
+
+**Decision.** The ACQ0 acquisition screen uses `DIRECT_FORMAL` only.
+`DRAFT_THEN_FORMAL` is deferred to H2, and permitted as a rescue arm only after direct
+acquisition has been *measured* to fail systematically.
+
+**Reason.** ACQ0 receives the complete canonical mathematical target and tests faithful
+*encoding*, not reasoning. A free-draft stage changes the intervention, doubles the call
+count, and obscures the acquisition measurement — the model would be reasoning about a
+problem whose answer it was already given.
+
+**Why the prior calibration cannot decide this.** Both runs are closed as
+`PROTOCOL_UNSTABLE` for different reasons, and neither is evidence about the protocols:
+
+- **v1** was invalidated by output capping: 56 of 76 generation events hit
+  `finish_reason="length"` at exactly 2048 tokens, returning empty visible answers. Six of
+  eight pairs were ties produced by that shared budget failure.
+- **v2** ran on `binding_chain_002` and `distribution_law_002`, both since audited
+  `INVALID_INSTRUMENT`. All 8 pairs tied, zero VERIFIED.
+
+One fact from v2 survives and motivates the split: at a 6144 allowance `DIRECT_FORMAL`
+capped **0 of 8** with visible output throughout, while the *same* 6144 split as
+2048 draft + 4096 formal capped 12 of 16. The two-stage arm's first stage never finished
+in either run (768 in v1, 2048 in v2, both 8/8 capped), so it was never "draft then
+formalise" — it was "truncated draft, then formalise". Re-running that comparison before
+ACQ0 would spend calls re-measuring a known truncation artefact.
+
+**Not deleted.** The `DRAFT_THEN_FORMAL` implementation and all 32 historical raw records
+are retained. They are preserved as invalid-measurement evidence and excluded from every
+new aggregate.
+
+**Reversal.** Re-enable the two-stage arm with a draft allowance large enough to reach
+`finish_reason="stop"`, and treat it as a new experiment with its own preregistration.
+
+## D-030 — the model-visible view is an ordered statement list
+
+**Date.** 2026-08-06 · **Status.** Accepted · **Supersedes the bucketed
+`structured_target()` as the model-facing artefact.**
+
+**Decision.** What a model receives is `encoding_view(task)`: a single positional list of
+`encoding_statements`, each carrying `position`, `statement_id`, `kind`, structured content,
+`epistemic_role` and an explicit `emit` flag. A task is admissible only if
+`reconstruct_source(encoding_view(task))` — a function permitted to read the view and
+nothing else — compiles to a module whose `content_hash` equals the reference.
+
+**Reason.** `content_hash` is order-sensitive; the previous view partitioned a module into
+unordered kind-buckets. Three of the eight v2 tasks were therefore unencodable: nothing in
+the view said that `v2_transformation_side_condition_001` puts `require` before `assume`.
+The other five passed only because their source order happened to match the bucket order. A
+fourth defect was worse — `structured_target()` had no `CheckStmt` branch, so
+`check dimension …` existed in the reference and in no model-visible artefact at all.
+
+**Why three existing checks all missed it.** `check_prose_coverage`,
+`reconstruct_semantic_payload` and the 32/32 surface round-trip each validated an artefact
+**against itself**: the first two derive from `structured_target()` and re-read its own
+keys; the third renders from `task.source` and never traverses the view. The loss lived
+exactly on the boundary between the view and the source, which none of them crossed. A
+check that cannot fail is not a check.
+
+**Consequences.**
+
+- Prose is generated in encoding order, one clause per emitted statement, rather than by
+  kind-bucket — the reader now sees the order the answer requires.
+- An unrepresented statement kind raises `UnsupportedStatement` instead of vanishing.
+- A missing initialiser, body or codomain raises `ViewIncomplete` rather than being
+  defaulted; defaulting is how an encoder gets blamed for information it never had.
+- `emit=false` records (derived facts, prohibited assumptions) carry the flag explicitly and
+  the emission rule is stated inside the view.
+- Two tasks whose mathematics could not survive the gate were replaced under **fresh ids**
+  and preserved in `evaluation/results/acq0/superseded_tasks/SUPERSEDED.md`.
+
+**Reversal.** Serve `structured_target()` to models again and delete
+`view_reconstructs_exactly` from admission. Reversal restores an instrument that scores
+models against information they were never given.

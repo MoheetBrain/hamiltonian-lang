@@ -28,7 +28,24 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**ACQ0 v2 AUDIT COMPLETE; MODEL TESTING PAUSED.** All hardening sections executed. Five defects were found in v2 itself and fixed: metadata outside identity, unguarded partiality, a self-contradictory `state_in_prose` classification, an ambiguous omitted codomain, and a leak check that could not fail. Prose coverage 8/8 exact, reversibility 8/8, round-trips 32/32, firewall enforced.
+**ACQ0 v2 MODEL-VISIBLE VIEW REPAIRED; AWAITING A SECOND HUMAN REVIEW.** A line-by-line
+English-versus-formal review of all eight tasks found that the artefact handed to a model
+was insufficient to produce the reference. `structured_target()` partitioned each module
+into unordered kind-buckets while `content_hash` is order-sensitive, so three tasks were
+unencodable; a fourth dropped its `check dimension` statement entirely because the function
+had no `CheckStmt` branch. Two further tasks were mathematically defective — a one-sided
+bound in the approximation family, and an unguardable division by a module-level `var` in
+the dimensional family.
+
+The repair is generator-level, not answer-level (D-030). The model now receives one ordered
+`encoding_statements` list with explicit `emit` flags, prose follows encoding order, and
+**admission requires that the view alone reconstruct the reference**: view → rebuild →
+compile → `content_hash` equality. That gate is the first check in this project that crosses
+the boundary where the loss occurred — the three previous checks each validated an artefact
+against itself. It is now **8/8 exact**, with the two defective tasks replaced under fresh
+ids and preserved. **No task is marked human-approved; that decision is not automatable.**
+
+Previously: **ACQ0 v2 AUDIT COMPLETE; MODEL TESTING PAUSED.** All hardening sections executed. Five defects were found in v2 itself and fixed: metadata outside identity, unguarded partiality, a self-contradictory `state_in_prose` classification, an ambiguous omitted codomain, and a leak check that could not fail. Prose coverage 8/8 exact, reversibility 8/8, round-trips 32/32, firewall enforced.
 
 Previously: **ACQ0 v2 HARDENED.** The hardening audit found two defects in v2 itself: semantic metadata sat outside canonical identity, and an unguarded partial definition was admitted. Both fixed; `canonical_hash` (encoding identity) is now distinguished from `semantic_identity` (task identity). Audit sections C, F, H, I, J remain incomplete.
 
@@ -103,8 +120,9 @@ structured English, LaTeX, or an existing formal representation.
 
 ## Current Branch
 
-`hml-v1-concept-kernel`. V0 preserved on `main` at tag `hml-v0-baseline`. No remote
-pushes. Repository is private.
+`integration/m1.5-paper-derived-closeout`. V0 preserved on `main` at tag
+`hml-v0-baseline`; the interrupted state is preserved on
+`recovery/session-limit-2026-08-05`. Repository is private.
 
 ## Current System Architecture
 
@@ -156,7 +174,13 @@ against isolated file ownership.
 | `GOAL.md` | project thesis |
 | `docs/design/V0_DESIGN_FREEZE.md` | the frozen v0 contract |
 | `SPEC.md` | normative language reference |
-| `DECISIONS.md` | D-001..D-021 with reversal costs |
+| `DECISIONS.md` | D-001..D-030 with reversal costs |
+| `evaluation/corpus_governance/canonical_v2.py` | **the single ACQ0 authority** |
+| `evaluation/corpus_governance/v2_view.py` | **the ordered view and the admission gate** |
+| `evaluation/corpus_governance/v2_render.py` | every model-visible artefact, all derived |
+| `evaluation/corpus_governance/v2_corpus/tasks.py` | the eight proof tasks |
+| `docs/evaluation/ACQ0_V2_HUMAN_REVIEW_PACKET_R2.md` | **private review packet — never model-visible** |
+| `evaluation/results/acq0/superseded_tasks/SUPERSEDED.md` | withdrawn tasks, with reasons |
 | `benchmarks/eval001/` | 120-problem corpus, 7 arms, 840 prompt files |
 | `evaluation/harness.py` | model-evaluation harness |
 | `evaluation/analyse.py` | paired intervals, McNemar, effect sizes |
@@ -205,7 +229,30 @@ D-001..D-021 in `DECISIONS.md`. Load-bearing ones:
 
 ## Verification and Test Results
 
-Commands executed and their real results:
+**Current run — the repaired model-visible view, 2026-08-06.** Every number below was
+executed, not estimated:
+
+| check | result |
+|---|---|
+| `pytest` (full suite) | **5300 passed**, 4 skipped, 7 xfailed, 7 xpassed |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS** |
+| `ruff check src tests evaluation/` | **All checks passed** |
+| `mypy src` | **Success: no issues found in 84 source files** |
+| view-only reconstruction (**the admission gate**) | **8/8 exact** |
+| every emitted statement present exactly once | **8/8** |
+| A/B/C/D surface round-trips | **32/32 exact** |
+| reference self-score | **8/8** |
+| `audit_task` admission | **8/8 admissible, 0 defects** |
+| ACQ0 / H2 view separation | 8/8, `assert_views_distinct` raised nothing |
+| model-safe bundle leak scan | 8/8 clean |
+| `tests/evaluation/test_acq0_view_reconstruction.py` | 50 passed, incl. 9 negative controls |
+
+The negative controls matter more than the pass counts: the gate is asserted to **fail** on
+a removed statement, a swapped order, a swapped `assume`/`require` role, a dropped dimension
+check, an emitted derived fact, an invented goal, and a missing initialiser, body or
+codomain. Each is a defect that actually occurred or a near neighbour of one.
+
+Commands executed and their real results (historical, cumulative):
 
 | command | result |
 |---------|--------|
@@ -236,6 +283,25 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Known Failures and Limitations
 
+- **The ACQ0 instrument has now failed its own audit twice.** v1 was 0/41 admissible
+  because the mathematics was authored in three places and disagreed. v2 was built to
+  remove that failure mode and still shipped a model-visible view from which three of eight
+  tasks could not be encoded, plus a fourth whose `check dimension` statement appeared in no
+  model-visible artefact. The lesson is specific and unresolved in general: **three separate
+  "verifications" all validated an artefact against itself.** Only a check that crosses the
+  boundary where information is lost can detect that class of defect.
+- **No model has seen any v2 task.** Every property recorded for v2 is a property of the
+  instrument, not an observation about model behaviour.
+- **The partiality guard is narrow and fails closed.** The compiler generates no definedness
+  obligation over a binder's declared domain, so admission rejects division by a **bare
+  binder** only. Compound denominators, `sqrt`, `log`, negative or fractional powers,
+  indexing, and partiality reachable through a chain of definitions are **not** detected.
+  `v2_dimensional_algebra_001` divided by a module-level `var`, which sits outside that
+  reach entirely; it was replaced rather than guarded, because `require area != 0` does not
+  compile (HML-D502 — a `Quantity[Length^2]` is not comparable to a dimensionless `0`).
+- **HML has no absolute-value form**, so a two-sided bound must be written as two explicit
+  inequalities. `v2_approximation_equality_001` stated one and was therefore satisfiable by
+  an estimate arbitrarily far below the target.
 - **The pilot found no representation advantage *on a saturated benchmark*.** Every paired
   contrast was exactly zero with zero discordant pairs — but 14 of 15 problems were solved
   by nearly every arm, so the design could not have detected an effect of realistic size.
@@ -308,10 +374,19 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Current Blockers
 
-None blocking implementation. Q-03 (OpenMath licensing) blocks a reuse decision, not the
-build.
+- **A second human review of the eight-task v2 corpus blocks every model call.** The packet
+  is `docs/evaluation/ACQ0_V2_HUMAN_REVIEW_PACKET_R2.md`. No task is marked human-approved;
+  the automated gates establish that a task *can* be encoded, not that its English says what
+  its formal version says. Only a person can close that gap.
+- **The 12-task development taxonomy is not located.** Four continuation tasks and two
+  sealed spares cannot be authored against a taxonomy that is not frozen.
+- Q-03 (OpenMath licensing) blocks a reuse decision, not the build.
 
 ## Exact Next Actions
+
+0. **Human review of the R2 packet**, task by task, against the five review questions. Then
+   either mark the corpus approved or return specific tasks for repair. Nothing downstream
+   is legitimate before this.
 
 1. Decide the D-003 cost/benefit question now that the token cost is measured at ~5.9%
    (D-014): is the explicitness worth it? This is H5 and is still open.

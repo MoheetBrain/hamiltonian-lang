@@ -72,7 +72,7 @@ def build_corpus() -> tuple[CanonicalAcq0TaskV2, ...]:
             notes="direction is the content; a swap must change the canonical identity",
         ),
         CanonicalAcq0TaskV2(
-            task_id="v2_approximation_equality_001",
+            task_id="v2_approximation_equality_002",
             family=TaskFamily.APPROXIMATION_VS_EQUALITY,
             source=(
                 "module ApproximationBoundary\n"
@@ -80,9 +80,17 @@ def build_corpus() -> tuple[CanonicalAcq0TaskV2, ...]:
                 "var estimate : Real\n"
                 "const tolerance : PositiveReal = 0.01\n"
                 "require estimate - target < tolerance\n"
+                "require target - estimate < tolerance\n"
             ),
             provenance=_P,
-            notes="a bounded difference is not an equality; both are stated explicitly",
+            notes=(
+                "supersedes v2_approximation_equality_001, whose single inequality was a "
+                "ONE-SIDED bound satisfied by an estimate arbitrarily far below target -- "
+                "it encoded uniquely but did not express the approximation-vs-equality "
+                "contrast its family claims. Two explicit inequalities give a genuine "
+                "two-sided bound; HML has no absolute-value form. Fresh id because the "
+                "mathematics changed"
+            ),
         ),
         CanonicalAcq0TaskV2(
             task_id="v2_quantifier_scope_001",
@@ -113,21 +121,25 @@ def build_corpus() -> tuple[CanonicalAcq0TaskV2, ...]:
             notes="role labels carry the meaning; swapping alpha and beta must differ",
         ),
         CanonicalAcq0TaskV2(
-            task_id="v2_dimensional_algebra_001",
+            task_id="v2_dimensional_algebra_002",
             family=TaskFamily.DIMENSIONAL_ALGEBRA,
             source=(
                 "module DimensionalAlgebra\n"
                 "var force : Quantity[Mass * Length / Time^2]\n"
-                "var area : Quantity[Length^2]\n"
-                "def pressure : Quantity[Mass / (Length * Time^2)] := force / area\n"
-                "check dimension pressure = Mass / (Length * Time^2)\n"
+                "var duration : Quantity[Time]\n"
+                "def impulse : Quantity[Mass * Length / Time] := force * duration\n"
+                "check dimension impulse = Mass * Length / Time\n"
             ),
             provenance=_P,
             notes=(
-                "a two-division dimension; exercises the D-028 fix end to end. The\n"
-                "codomain is declared explicitly: an omitted one hashes differently\n"
-                "from an annotated one, so `codomain: None` would leave an encoder\n"
-                "unable to know which spelling is meant"
+                "supersedes v2_dimensional_algebra_001, which divided by `area` -- a "
+                "module-level var admitting zero, outside the reach of the binder-only "
+                "partiality guard, and unguardable because `require area != 0` does not "
+                "compile (HML-D502: a Quantity[Length^2] cannot be compared to a "
+                "dimensionless 0). Multiplication is total, so no definedness question "
+                "arises. The dimension check is now present in the model-visible ordered "
+                "view; in the superseded task it existed only in the reference. Fresh id "
+                "because the mathematics changed"
             ),
         ),
         CanonicalAcq0TaskV2(

@@ -1745,3 +1745,108 @@ equality, not substring presence); a mode gate refusing an ACQ0 semantic diff ou
 and three of its own defects were found by them.
 
 **Next.** Human inspection of the review packet, then a decision on manual frontier testing.
+
+---
+
+## 2026-08-06 — repair the generator and the model-visible view, not the answers
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** ACQ0 v2 instrument
+repair, before any model call.
+
+**Objective.** A line-by-line English-versus-formal review of all eight v2 tasks was
+requested with a standing rule: *any uncertainty means UNSURE — do not admit.* Four tasks
+came back unsure or worse. The instruction that followed was explicit — repair the
+generator and the model-visible view, not the individual answers.
+
+**What was actually wrong.** The artefact handed to a model was insufficient to produce the
+reference it would be scored against.
+
+`structured_target()` partitioned each module into unordered kind-buckets — declarations,
+assumptions, requirements — while `content_hash` is **order-sensitive**. Nothing in the view
+said that `v2_transformation_side_condition_001` puts `require` before `assume`, so that
+task was unencodable; two others were unencodable for the same reason, and the remaining
+five passed only because their source order happened to coincide with the bucket order. A
+fourth defect was worse in kind: `structured_target()` had no `CheckStmt` branch, so
+`check dimension pressure = …` existed in the reference and in **no** model-visible artefact
+at all.
+
+**Why the existing checks could not have found it.** `check_prose_coverage`,
+`reconstruct_semantic_payload` and the 32/32 surface round-trip each validated an artefact
+**against itself** — the first two derive from `structured_target()` and re-read its own
+keys; the third renders from `task.source` and never traverses the view. The loss lived
+exactly on the boundary between the view and the source, and none of them crossed it. This
+is the second time this instrument has failed on self-validation; the first cost the entire
+41-task v1 corpus.
+
+**Files and systems changed.**
+
+- `evaluation/corpus_governance/v2_view.py` (new) — `encoding_view` (one positional list;
+  `position`, `statement_id`, `kind`, structured content, `epistemic_role`, explicit
+  `emit`; a `CheckStmt` branch; `UnsupportedStatement` for anything unrepresented),
+  `reconstruct_source` (reads the view and nothing else), `view_reconstructs_exactly`.
+- `evaluation/corpus_governance/v2_render.py` — `render_prose` rewritten to walk encoding
+  order by position; the kind-bucket version deleted, not deprecated; `acq0_view` now serves
+  the ordered view.
+- `evaluation/corpus_governance/v2_corpus/tasks.py` — two tasks replaced under **fresh ids**
+  because their mathematics changed.
+- `tests/evaluation/test_acq0_view_reconstruction.py` (new, 50 tests).
+- `DECISIONS.md` — D-029 (DIRECT_FORMAL as the primary protocol), D-030 (the ordered view
+  and the reconstruction gate).
+- `evaluation/results/acq0/superseded_tasks/SUPERSEDED.md`,
+  `docs/evaluation/ACQ0_V2_HUMAN_REVIEW_PACKET_R2.md`.
+
+**Decisions made and why.**
+
+*The gate is reconstruction from the view alone* (D-030). A function permitted to read the
+view and nothing else must rebuild a module that compiles to the reference hash. If a task
+cannot survive that, a model cannot encode it, and no amount of model capability changes the
+outcome. Missing fields raise rather than default — defaulting is how an encoder gets blamed
+for information it never had.
+
+*Two tasks were replaced, not patched.* `v2_approximation_equality_001` stated a **one-sided**
+bound, satisfied by an estimate arbitrarily far below the target; it encoded uniquely but did
+not express the contrast its family claims. HML has no absolute-value form, so the
+replacement states both inequalities explicitly. `v2_dimensional_algebra_001` divided by
+`area`, a module-level `var` admitting zero — outside the binder-only partiality guard and
+**unguardable**, because `require area != 0` does not compile (HML-D502: a
+`Quantity[Length^2]` is not comparable to a dimensionless `0`). The replacement uses
+multiplication, which is total. Fresh ids in both cases: the mathematics changed, so the
+identity must.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---|---|
+| `.venv/bin/python -m pytest` | **5300 passed**, 4 skipped, 7 xfailed, 7 xpassed |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS** |
+| `.venv/bin/ruff check src tests evaluation/` | **All checks passed** |
+| `.venv/bin/mypy src` | **Success: no issues found in 84 source files** |
+| view-only reconstruction | **8/8 exact** |
+| every emitted statement exactly once | **8/8** |
+| A/B/C/D round-trips | **32/32 exact** |
+| reference self-score | **8/8** |
+| `audit_task` admission | **8/8, zero defects** |
+| view separation, bundle leak scan | 8/8 clean, no exception raised |
+
+**Failures and unresolved uncertainty.**
+
+- **No task is marked human-approved.** The gates prove a task *can* be encoded from what
+  the model is given. They cannot prove the English says what the formal version says. That
+  is exactly the judgement the review was asked for, and it is not automatable.
+- The partiality guard remains **binder-only**. Compound denominators, `sqrt`, `log`,
+  negative or fractional powers, indexing, and partiality through a chain of definitions are
+  not detected. The dimensional task was replaced rather than guarded for this reason.
+- The 12-task development taxonomy was **not located**, so no continuation tasks were
+  authored. Per the standing instruction this is reported, not worked around.
+- The prose-order test asserts a token correspondence per emitted statement, not full
+  semantic agreement between prose and encoding. It would not catch a faithful-looking
+  clause that means something else.
+
+**Effect on the overall project.** The instrument now has one check that crosses the
+boundary where information is actually lost, and nine negative controls proving that check
+can fail. Two mathematically defective tasks are out of the corpus and preserved with
+reasons. Model testing remains blocked on human review — correctly.
+
+**Next.** Human review of `ACQ0_V2_HUMAN_REVIEW_PACKET_R2.md`. If it passes, locate or
+freeze the development taxonomy before authoring four continuation tasks and two sealed
+spares.

@@ -1,0 +1,83 @@
+{
+  "model": "gemma4:31b",
+  "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "slot_context": 16384,
+  "ceiling": 9984,
+  "num_predict": 1,
+  "per_call_num_ctx_sent": false,
+  "authorisation": {
+    "authorised_by": "Lead Architect",
+    "call_budget": 4,
+    "scope": "ACQ0 v2 context probe: the largest prompt of each of the four surfaces, num_predict=1, DIRECT_FORMAL, model gemma4:31b at the frozen -c 32768 -np 2 runtime",
+    "conformance_state": "green",
+    "granted_utc": "2026-08-06T12:54:41Z",
+    "citation": "commit 1b82c02"
+  },
+  "calls_made": 4,
+  "probes": [
+    {
+      "surface": "A_v0_labelled_linear",
+      "task_id": "v2_probability_law_role_001",
+      "prompt_hash": "b2507471091ff2978d7ef897766eba78a961908c8eef0b8ec4d5cec973640800",
+      "characters": 5419,
+      "prompt_eval_count": 1608,
+      "eval_count": 1,
+      "done_reason": "length",
+      "headroom_vs_ceiling": 8376,
+      "headroom_vs_slot": 14776,
+      "fits": true,
+      "truncation_suspected": false,
+      "chars_per_token": 3.37,
+      "wall_s": 8.62,
+      "error": null
+    },
+    {
+      "surface": "B_v1_labelled_linear_simplified",
+      "task_id": "v2_probability_law_role_001",
+      "prompt_hash": "d279940f7da5cafdf5da564c83f07ba7dccdea48a4513afded9485cbe0d66616",
+      "characters": 5429,
+      "prompt_eval_count": 1611,
+      "eval_count": 1,
+      "done_reason": "length",
+      "headroom_vs_ceiling": 8373,
+      "headroom_vs_slot": 14773,
+      "fits": true,
+      "truncation_suspected": false,
+      "chars_per_token": 3.37,
+      "wall_s": 3.86,
+      "error": null
+    },
+    {
+      "surface": "C_prefix_sexpr",
+      "task_id": "v2_probability_law_role_001",
+      "prompt_hash": "f2a46c254a2fc8d60846845d86cbf10ac912e376b9a6a4439c08b0c286507253",
+      "characters": 5669,
+      "prompt_eval_count": 1765,
+      "eval_count": 1,
+      "done_reason": "length",
+      "headroom_vs_ceiling": 8219,
+      "headroom_vs_slot": 14619,
+      "fits": true,
+      "truncation_suspected": false,
+      "chars_per_token": 3.21,
+      "wall_s": 6.87,
+      "error": null
+    },
+    {
+      "surface": "D_constrained_json_graph",
+      "task_id": "v2_probability_law_role_001",
+      "prompt_hash": "bfcea115f95dd6b88fec38702bb3696b64576a4bfd59bc3bf235fef30db0a0ad",
+      "characters": 12242,
+      "prompt_eval_count": 3983,
+      "eval_count": 1,
+      "done_reason": "length",
+      "headroom_vs_ceiling": 6001,
+      "headroom_vs_slot": 12401,
+      "fits": true,
+      "truncation_suspected": false,
+      "chars_per_token": 3.07,
+      "wall_s": 9.13,
+      "error": null
+    }
+  ]
+}
