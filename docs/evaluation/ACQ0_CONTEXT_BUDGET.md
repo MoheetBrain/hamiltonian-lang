@@ -251,3 +251,99 @@ condition it named has triggered.
   truncation, so proximity to the limit is the only signal available, and a prompt
   genuinely landing in the last few tokens of a slot is refused along with a truncated
   one. Refusing a fitting prompt is the safe direction of that error.
+
+## Measured on hardware: the 5-demonstration curriculum on `gemma4:31b`
+
+This section records the first run in which `prompt_eval_count` was obtained from the
+server rather than estimated. It settles the question the probe exists to answer.
+**It is not ACQ0 evidence.** It establishes only that the tournament can be run fairly.
+
+Environment, verified at measurement time:
+
+| item | value |
+| --- | --- |
+| model | `gemma4:31b` |
+| digest | `6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7` (unchanged) |
+| Ollama | 0.32.5 |
+| slot configuration | `llama-server -c 32768 -np 4` (per-slot 8192) |
+| instrument | `/api/generate` `prompt_eval_count`, `num_predict=0`, `temperature=0.0` |
+| completion allowance / safety reserve / allowed truncation | 2048 / 256 / 0 |
+| prompt ceiling at `4 x 8192` | 5888 |
+
+Measured at 5 demonstrations, curriculum `binding_chain_000`, `quantifier_scope_000`,
+`distribution_law_000`, `dimensional_algebra_000`, `transformation_chain_000`:
+
+| condition | chars | `prompt_eval_count` | chars/token | fit at `4 x 8192` | headroom |
+| --- | ---: | ---: | ---: | --- | ---: |
+| A_v0_labelled_linear | 6821 | 1880 | 3.63 | FITS | 4008 |
+| B_v1_labelled_linear_simplified | 6838 | 1887 | 3.62 | FITS | 4001 |
+| C_prefix_sexpr | 7163 | 2074 | 3.45 | FITS | 3814 |
+| D_constrained_json_graph | 16177 | **4907** | 3.30 | FITS | **981** |
+| SE_structured_english | 7646 | 1829 | 4.18 | FITS | 4059 |
+
+**The tokeniser beats 2.48 chars/token on every condition.** The decisive case, candidate
+D, measures 3.30 chars/token. Its worst prompt therefore costs 4907 tokens, and
+`4907 + 2048 + 256 = 7211 <= 8192`. The character-derived projection that put D beyond
+reach at this curriculum size was pessimistic by roughly a third.
+
+**Selected shared runtime: `4 x 8192`** — the highest-throughput rung (measured speedup
+2.08x), on which every condition fits on measured counts. Worst-condition headroom is
+981 tokens, 16.7% of the 5888 ceiling, so the lower rungs are not needed. A/B/C were also
+measured at `2 x 16384` and `1 x 32768` and are unchanged there, as expected: the count is
+a property of the prompt, not of the slot.
+
+### Maximum shared curriculum size is 5, and 6 is unconfirmed
+
+Offline character projection at the measured chars/token ratio reproduces the n=5
+measurement to within 3 tokens for candidate D (4904 projected against 4907 measured),
+so the ratio is stable enough to *select* the next size to measure. It is projected to be:
+
+| demonstrations | D projected tokens | against ceiling 5888 |
+| ---: | ---: | --- |
+| 5 | 4904 | measured 4907, fits |
+| 6 | 5469 | projected to fit, **not measured** |
+| 7 | 6071 | projected to exceed |
+
+Per the rule in `slots.eligibility`, a projection may select a prompt to measure and may
+never decide whether it fits. **The largest shared curriculum backed by measurement is
+therefore 5.** Six is plausible and must be measured before use; seven is out of reach at
+`4 x 8192` and would force the whole comparison down a rung, for every candidate together.
+
+### Failures recorded
+
+The ladder run used a 120 s transport timeout, which was too short under the model reloads
+that a change of `num_ctx` forces. Five of fifteen calls failed at transport with
+`TimeoutError`, recorded as `UNDETERMINED`, never as a small prompt:
+
+| rung | timed out |
+| --- | --- |
+| `4 x 8192` | SE_structured_english |
+| `2 x 16384` | D_constrained_json_graph, SE_structured_english |
+| `1 x 32768` | D_constrained_json_graph, SE_structured_english |
+
+Because `SE_structured_english` was undetermined on every rung, that run selected no plan
+(`selected_plan: null`, `official: false`). It was closed by re-measuring SE on the
+`4 x 8192` rung alone with the timeout raised to 600 s and no change to any prompt. The
+timeouts are a property of the harness, not of the prompts.
+
+`candidate_conditions()` returns four conditions while `report.CONDITIONS` — the default
+the probe actually measures against — holds five. The ladder run logged four candidates
+and measured five. The discrepancy is the reason the fifth condition's timeout went
+unanticipated.
+
+The `pool` argument silently changes which prompt is called worst-case. The ladder run
+left `pool` unset and selected `transformation_chain_022` for every condition; the SE
+closing run passed `demonstration_pool()` and selected `transformation_chain_002`.
+SE_structured_english was therefore measured on a 7645-character prompt while its true
+worst case under the ladder's selection is 7655 characters — a 10-character, roughly
+2-token difference against 4059 tokens of headroom. The verdict is unaffected, but SE's
+count is a **proxy measurement**, not a measurement of its worst prompt, and the two
+selections must be reconciled before the tournament runs. Per-condition prompt digests for
+both settings are in `evaluation/results/acq0/budget/prompt_hashes.json`; the curriculum
+digest is `f06e8efa9e0c7aaec7c0bf4d…`.
+
+### Artefacts
+
+- `evaluation/results/acq0/budget/ladder_report.json` — the three-rung ladder walk, 1234 s
+- `evaluation/results/acq0/budget/se_rung1_closing_probe.json` — the SE closing call, 94 s
+- `evaluation/results/acq0/budget/measured_matrix.json` — the consolidated 16-row matrix

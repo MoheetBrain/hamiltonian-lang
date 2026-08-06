@@ -1,0 +1,67 @@
+{
+  "curriculum_ids": [
+    "binding_chain_000",
+    "quantifier_scope_000",
+    "distribution_law_000",
+    "dimensional_algebra_000",
+    "transformation_chain_000"
+  ],
+  "curriculum_sha256": "f06e8efa9e0c7aaec7c0bf4daff0bc01e4e1fae11a9ec2cf13a0063ea58d1904",
+  "note": "pool=None reproduces the ladder run's targets; pool=demonstration_pool() reproduces the SE closing run's target",
+  "prompts": {
+    "pool_None": {
+      "A_v0_labelled_linear": {
+        "task_id": "transformation_chain_022",
+        "prompt_sha256": "f4e088defcc951a847f4a3fadff2988568bd7a3806bb7dad16c0d055b7f856f7",
+        "chars": 6820
+      },
+      "B_v1_labelled_linear_simplified": {
+        "task_id": "transformation_chain_022",
+        "prompt_sha256": "1385540661b529927bdfe374d8c3f3350e7e6ef4421ffce35ee3b1be98187f8b",
+        "chars": 6837
+      },
+      "C_prefix_sexpr": {
+        "task_id": "transformation_chain_022",
+        "prompt_sha256": "73fb0e377e3b21e745ad87de7132c06bc67bc37227ec9ca2006eb5d7c1db717f",
+        "chars": 7162
+      },
+      "D_constrained_json_graph": {
+        "task_id": "transformation_chain_022",
+        "prompt_sha256": "0eed509e1bbdf696ab0a7eb7a792b800f5f256ed3a19b6107df0f698eb908a9e",
+        "chars": 16176
+      },
+      "SE_structured_english": {
+        "task_id": "transformation_chain_022",
+        "prompt_sha256": "30bdcc27ebd6444c78aaa4300f4809451a85e0ca1638853b8e4f5467c7a7008a",
+        "chars": 7655
+      }
+    },
+    "pool_50": {
+      "A_v0_labelled_linear": {
+        "task_id": "transformation_chain_002",
+        "prompt_sha256": "5d6233fc768c073b29b758ba39f4b04c9a52ce6418611bc84cd52745d634a09a",
+        "chars": 6810
+      },
+      "B_v1_labelled_linear_simplified": {
+        "task_id": "transformation_chain_002",
+        "prompt_sha256": "21c63db84ac09209fc2166484d8c70a07c02cc1db59e1472e55ca8d392342869",
+        "chars": 6827
+      },
+      "C_prefix_sexpr": {
+        "task_id": "transformation_chain_002",
+        "prompt_sha256": "a4ded9a3f23627ce3b2c15c1466e1b38878782a9b2b824e65eabff1e96a943e5",
+        "chars": 7152
+      },
+      "D_constrained_json_graph": {
+        "task_id": "transformation_chain_002",
+        "prompt_sha256": "2c0864e5737166b4bb7ff58f2547868705a945346620704754a24551457e6fee",
+        "chars": 16166
+      },
+      "SE_structured_english": {
+        "task_id": "transformation_chain_002",
+        "prompt_sha256": "941b137ace4bb414276f49e76b9ed65178e469409b1a794a22221ee7c797d005",
+        "chars": 7645
+      }
+    }
+  }
+}

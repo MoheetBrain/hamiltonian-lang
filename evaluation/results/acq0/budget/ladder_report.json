@@ -1,0 +1,749 @@
+{
+  "curriculum": [
+    "binding_chain_000",
+    "quantifier_scope_000",
+    "distribution_law_000",
+    "dimensional_algebra_000",
+    "transformation_chain_000"
+  ],
+  "completion_allowance": 2048,
+  "safety_reserve": 256,
+  "authoritative": true,
+  "official": false,
+  "margin_is_thin": false,
+  "selected_plan": null,
+  "ladder": [
+    {
+      "policy": {
+        "parallel_slots": 4,
+        "per_slot_context": 8192,
+        "total_context": 32768,
+        "measured_speedup": 2.08,
+        "prompt_ceiling": 5888
+      },
+      "every_condition_fits": false,
+      "overflowing": [],
+      "undetermined": [
+        "SE_structured_english"
+      ],
+      "probes": [
+        {
+          "condition": "A_v0_labelled_linear",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 6821,
+          "prompt_eval_count": {
+            "value": 1880,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=8192, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 4,
+              "per_slot_context": 8192,
+              "total_context": 32768,
+              "measured_speedup": 2.08,
+              "prompt_ceiling": 5888
+            },
+            "prompt_eval_count": {
+              "value": 1880,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=8192, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 5888,
+            "headroom": 4008,
+            "detail": "1880 + 2048 + 256 = 4184 <= 8192"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "B_v1_labelled_linear_simplified",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 6838,
+          "prompt_eval_count": {
+            "value": 1887,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=8192, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 4,
+              "per_slot_context": 8192,
+              "total_context": 32768,
+              "measured_speedup": 2.08,
+              "prompt_ceiling": 5888
+            },
+            "prompt_eval_count": {
+              "value": 1887,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=8192, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 5888,
+            "headroom": 4001,
+            "detail": "1887 + 2048 + 256 = 4191 <= 8192"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "C_prefix_sexpr",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 7163,
+          "prompt_eval_count": {
+            "value": 2074,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=8192, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 4,
+              "per_slot_context": 8192,
+              "total_context": 32768,
+              "measured_speedup": 2.08,
+              "prompt_ceiling": 5888
+            },
+            "prompt_eval_count": {
+              "value": 2074,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=8192, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 5888,
+            "headroom": 3814,
+            "detail": "2074 + 2048 + 256 = 4378 <= 8192"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "D_constrained_json_graph",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 16177,
+          "prompt_eval_count": {
+            "value": 4907,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=8192, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 4,
+              "per_slot_context": 8192,
+              "total_context": 32768,
+              "measured_speedup": 2.08,
+              "prompt_ceiling": 5888
+            },
+            "prompt_eval_count": {
+              "value": 4907,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=8192, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 5888,
+            "headroom": 981,
+            "detail": "4907 + 2048 + 256 = 7211 <= 8192"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "SE_structured_english",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 7656,
+          "prompt_eval_count": {
+            "value": null,
+            "provenance": "absent",
+            "instrument": "",
+            "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+          },
+          "eligibility": {
+            "fit": "UNDETERMINED",
+            "policy": {
+              "parallel_slots": 4,
+              "per_slot_context": 8192,
+              "total_context": 32768,
+              "measured_speedup": 2.08,
+              "prompt_ceiling": 5888
+            },
+            "prompt_eval_count": {
+              "value": null,
+              "provenance": "absent",
+              "instrument": "",
+              "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 5888,
+            "headroom": null,
+            "detail": "no authoritative prompt_eval_count, so eligibility is undetermined. This is not a pass: running on an undetermined prompt is how a curriculum gets silently evicted. (the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt)"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        }
+      ]
+    },
+    {
+      "policy": {
+        "parallel_slots": 2,
+        "per_slot_context": 16384,
+        "total_context": 32768,
+        "measured_speedup": 1.54,
+        "prompt_ceiling": 14080
+      },
+      "every_condition_fits": false,
+      "overflowing": [],
+      "undetermined": [
+        "D_constrained_json_graph",
+        "SE_structured_english"
+      ],
+      "probes": [
+        {
+          "condition": "A_v0_labelled_linear",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 6821,
+          "prompt_eval_count": {
+            "value": 1880,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=16384, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 2,
+              "per_slot_context": 16384,
+              "total_context": 32768,
+              "measured_speedup": 1.54,
+              "prompt_ceiling": 14080
+            },
+            "prompt_eval_count": {
+              "value": 1880,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=16384, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 14080,
+            "headroom": 12200,
+            "detail": "1880 + 2048 + 256 = 4184 <= 16384"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "B_v1_labelled_linear_simplified",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 6838,
+          "prompt_eval_count": {
+            "value": 1887,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=16384, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 2,
+              "per_slot_context": 16384,
+              "total_context": 32768,
+              "measured_speedup": 1.54,
+              "prompt_ceiling": 14080
+            },
+            "prompt_eval_count": {
+              "value": 1887,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=16384, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 14080,
+            "headroom": 12193,
+            "detail": "1887 + 2048 + 256 = 4191 <= 16384"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "C_prefix_sexpr",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 7163,
+          "prompt_eval_count": {
+            "value": 2074,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=16384, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 2,
+              "per_slot_context": 16384,
+              "total_context": 32768,
+              "measured_speedup": 1.54,
+              "prompt_ceiling": 14080
+            },
+            "prompt_eval_count": {
+              "value": 2074,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=16384, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 14080,
+            "headroom": 12006,
+            "detail": "2074 + 2048 + 256 = 4378 <= 16384"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "D_constrained_json_graph",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 16177,
+          "prompt_eval_count": {
+            "value": null,
+            "provenance": "absent",
+            "instrument": "",
+            "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+          },
+          "eligibility": {
+            "fit": "UNDETERMINED",
+            "policy": {
+              "parallel_slots": 2,
+              "per_slot_context": 16384,
+              "total_context": 32768,
+              "measured_speedup": 1.54,
+              "prompt_ceiling": 14080
+            },
+            "prompt_eval_count": {
+              "value": null,
+              "provenance": "absent",
+              "instrument": "",
+              "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 14080,
+            "headroom": null,
+            "detail": "no authoritative prompt_eval_count, so eligibility is undetermined. This is not a pass: running on an undetermined prompt is how a curriculum gets silently evicted. (the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt)"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "SE_structured_english",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 7656,
+          "prompt_eval_count": {
+            "value": null,
+            "provenance": "absent",
+            "instrument": "",
+            "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+          },
+          "eligibility": {
+            "fit": "UNDETERMINED",
+            "policy": {
+              "parallel_slots": 2,
+              "per_slot_context": 16384,
+              "total_context": 32768,
+              "measured_speedup": 1.54,
+              "prompt_ceiling": 14080
+            },
+            "prompt_eval_count": {
+              "value": null,
+              "provenance": "absent",
+              "instrument": "",
+              "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 14080,
+            "headroom": null,
+            "detail": "no authoritative prompt_eval_count, so eligibility is undetermined. This is not a pass: running on an undetermined prompt is how a curriculum gets silently evicted. (the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt)"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        }
+      ]
+    },
+    {
+      "policy": {
+        "parallel_slots": 1,
+        "per_slot_context": 32768,
+        "total_context": 32768,
+        "measured_speedup": 1.0,
+        "prompt_ceiling": 30464
+      },
+      "every_condition_fits": false,
+      "overflowing": [],
+      "undetermined": [
+        "D_constrained_json_graph",
+        "SE_structured_english"
+      ],
+      "probes": [
+        {
+          "condition": "A_v0_labelled_linear",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 6821,
+          "prompt_eval_count": {
+            "value": 1880,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=32768, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 1,
+              "per_slot_context": 32768,
+              "total_context": 32768,
+              "measured_speedup": 1.0,
+              "prompt_ceiling": 30464
+            },
+            "prompt_eval_count": {
+              "value": 1880,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=32768, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 30464,
+            "headroom": 28584,
+            "detail": "1880 + 2048 + 256 = 4184 <= 32768"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "B_v1_labelled_linear_simplified",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 6838,
+          "prompt_eval_count": {
+            "value": 1887,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=32768, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 1,
+              "per_slot_context": 32768,
+              "total_context": 32768,
+              "measured_speedup": 1.0,
+              "prompt_ceiling": 30464
+            },
+            "prompt_eval_count": {
+              "value": 1887,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=32768, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 30464,
+            "headroom": 28577,
+            "detail": "1887 + 2048 + 256 = 4191 <= 32768"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "C_prefix_sexpr",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 7163,
+          "prompt_eval_count": {
+            "value": 2074,
+            "provenance": "measured",
+            "instrument": "provider_usage",
+            "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=32768, num_predict=0"
+          },
+          "eligibility": {
+            "fit": "FITS",
+            "policy": {
+              "parallel_slots": 1,
+              "per_slot_context": 32768,
+              "total_context": 32768,
+              "measured_speedup": 1.0,
+              "prompt_ceiling": 30464
+            },
+            "prompt_eval_count": {
+              "value": 2074,
+              "provenance": "measured",
+              "instrument": "provider_usage",
+              "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=32768, num_predict=0"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 30464,
+            "headroom": 28390,
+            "detail": "2074 + 2048 + 256 = 4378 <= 32768"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "D_constrained_json_graph",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 16177,
+          "prompt_eval_count": {
+            "value": null,
+            "provenance": "absent",
+            "instrument": "",
+            "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+          },
+          "eligibility": {
+            "fit": "UNDETERMINED",
+            "policy": {
+              "parallel_slots": 1,
+              "per_slot_context": 32768,
+              "total_context": 32768,
+              "measured_speedup": 1.0,
+              "prompt_ceiling": 30464
+            },
+            "prompt_eval_count": {
+              "value": null,
+              "provenance": "absent",
+              "instrument": "",
+              "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 30464,
+            "headroom": null,
+            "detail": "no authoritative prompt_eval_count, so eligibility is undetermined. This is not a pass: running on an undetermined prompt is how a curriculum gets silently evicted. (the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt)"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        },
+        {
+          "condition": "SE_structured_english",
+          "task_id": "transformation_chain_022",
+          "curriculum_size": 5,
+          "curriculum": [
+            "binding_chain_000",
+            "quantifier_scope_000",
+            "distribution_law_000",
+            "dimensional_algebra_000",
+            "transformation_chain_000"
+          ],
+          "characters": 7656,
+          "prompt_eval_count": {
+            "value": null,
+            "provenance": "absent",
+            "instrument": "",
+            "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+          },
+          "eligibility": {
+            "fit": "UNDETERMINED",
+            "policy": {
+              "parallel_slots": 1,
+              "per_slot_context": 32768,
+              "total_context": 32768,
+              "measured_speedup": 1.0,
+              "prompt_ceiling": 30464
+            },
+            "prompt_eval_count": {
+              "value": null,
+              "provenance": "absent",
+              "instrument": "",
+              "reason": "the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt"
+            },
+            "completion_allowance": 2048,
+            "safety_reserve": 256,
+            "ceiling": 30464,
+            "headroom": null,
+            "detail": "no authoritative prompt_eval_count, so eligibility is undetermined. This is not a pass: running on an undetermined prompt is how a curriculum gets silently evicted. (the prompt-eval probe failed at transport (TimeoutError: timed out); no count was obtained, and a transport failure is not a small prompt)"
+          },
+          "counter": "ollama:prompt_eval_count",
+          "authoritative": true,
+          "notes": [
+            "probe target chosen by character length, and the runner-up is within 3 characters; the longest prompt by characters may not be the longest by tokens, so treat a near-ceiling verdict here as provisional and measure the runner-up too"
+          ]
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "4 x 8192: ['SE_structured_english'] undetermined, so this rung cannot be selected. An undetermined prompt is not a fitting prompt.",
+    "2 x 16384: ['D_constrained_json_graph', 'SE_structured_english'] undetermined, so this rung cannot be selected. An undetermined prompt is not a fitting prompt.",
+    "1 x 32768: ['D_constrained_json_graph', 'SE_structured_english'] undetermined, so this rung cannot be selected. An undetermined prompt is not a fitting prompt.",
+    "no rung fits every condition on measured counts. The permitted responses are to shorten the curriculum FOR EVERY CANDIDATE TOGETHER, or to record that the comparison cannot be run at this curriculum size. Trimming one candidate is not among them."
+  ],
+  "_eligibility_rule": "prompt_eval_count + completion_allowance + safety_reserve <= per_slot_context, decided only on a measured prompt_eval_count; UNDETERMINED is never a pass"
+}

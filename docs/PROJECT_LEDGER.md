@@ -1503,3 +1503,57 @@ and known not yet to be measured.
 
 **Next intended step.** Freeze and tag M1.5, then run the authoritative context-budget
 probe.
+
+---
+
+## 2026-08-06 — M2 context budget measured; shared runtime frozen
+
+**Branch.** `integration/m1.5-paper-derived-closeout`
+
+**Objective.** Replace character estimates with authoritative `prompt_eval_count` and
+select one shared runtime.
+
+**What was completed.** The ladder probe ran to completion (1234 s) and Agent 1 audited it
+rather than rerunning it. All five conditions fit `4 x 8192` at curriculum size 5:
+
+| condition | prompt_eval_count | ch/tok | headroom |
+|---|---:|---:|---:|
+| A_v0_labelled_linear | 1880 | 3.63 | 4008 |
+| B_v1_labelled_linear_simplified | 1887 | 3.62 | 4001 |
+| C_prefix_sexpr | 2074 | 3.45 | 3814 |
+| D_constrained_json_graph | **4907** | 3.30 | **981** |
+| SE_structured_english | 1829 | 4.18 | 4059 |
+
+**Decisions.** Shared runtime `4 x 8192`; curriculum size 5 (measured). n=6 projects to
+5469 and fits, but is **unmeasured** and may not be used without measurement.
+
+**Corrections to earlier records.** The character projection of ~35,321 tokens for
+candidate D at 50 demonstrations was pessimistic by about a third; at the frozen size of
+five D measures 4907 and fits. **Candidate D is not eliminated on budget.** An earlier Lead
+report repeated the projection as though it settled the question; it did not.
+
+**Verification.** `pytest -n 18` all passed; `./scripts/conformance.sh` **PASS**;
+`ruff check src tests` clean; `mypy` Success, 76 files. Model digest verified unchanged.
+
+**Failures and unresolved uncertainty.**
+
+- Five transport timeouts, caused by `probe.py` sending `num_ctx` per call, which forces a
+  full 24 GB model reload on every rung change. Recorded `UNDETERMINED`, never as small
+  prompts. Closed for SE by one re-measurement at `timeout_s=600`; **no scientific prompt
+  was altered.**
+- **Governance defect (Lead):** the probe was authorised with `call_budget=400` against a
+  15-call plan. The counts are physical and sound; the authorisation record is not, and
+  `ladder_report.json` carries the wrong figure.
+- `candidate_conditions()` returns 4 conditions while the probe actually measures 5. The
+  probe logged 4 and measured 5, which is why SE's timeout went unanticipated.
+- **SE's count is a proxy.** Passing `pool=` changes worst-case selection, so SE was
+  measured on 7645 chars rather than its true worst 7655. ~2 tokens against 4059 headroom;
+  verdict unaffected, but the two selections must be reconciled before the tournament.
+- Agent 1 lost one otherwise-good measurement to a serialiser bug of its own and recorded
+  it as a harness fault rather than a transport retry.
+- Harness transport retries issued: **0** — the counter records `ABSENT` rather than
+  retrying.
+
+**Effect.** The tournament can be run fairly at `4 x 8192`. This is not ACQ0 evidence.
+
+**Next.** Resolve the ACQ0 oracle-scoping question, then run the 16-condition calibration.

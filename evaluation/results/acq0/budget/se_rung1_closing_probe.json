@@ -1,0 +1,40 @@
+{
+  "planned_calls": 1,
+  "max_transport_retries": 1,
+  "call_budget": 2,
+  "timeout_s": 600.0,
+  "model": "gemma4:31b",
+  "probes": [
+    {
+      "condition": "SE_structured_english",
+      "task_id": "transformation_chain_002",
+      "curriculum_size": 5,
+      "characters": 7646,
+      "prompt_eval_count": 1829,
+      "provenance": "measured",
+      "instrument": "provider_usage",
+      "reason": "Ollama /api/generate prompt_eval_count for model gemma4:31b at num_ctx=8192, num_predict=0",
+      "fit": "FITS",
+      "ceiling": 5888,
+      "headroom": 4059,
+      "detail": "1829 + 2048 + 256 = 4133 <= 8192",
+      "policy": {
+        "parallel_slots": 4,
+        "per_slot_context": 8192,
+        "total_context": 32768,
+        "measured_speedup": 2.08,
+        "prompt_ceiling": 5888
+      },
+      "curriculum": [
+        "binding_chain_000",
+        "quantifier_scope_000",
+        "distribution_law_000",
+        "dimensional_algebra_000",
+        "transformation_chain_000"
+      ],
+      "counter_name": "ollama:prompt_eval_count",
+      "authoritative": true
+    }
+  ],
+  "wall_seconds": 94.1
+}
