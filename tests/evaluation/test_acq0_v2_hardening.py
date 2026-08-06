@@ -94,7 +94,15 @@ def test_metadata_must_not_enter_the_encoding_identity():
 # --- D: state_in_prose -----------------------------------------------------------------
 
 def test_state_in_prose_changes_prose_but_never_the_structured_target():
-    """It must not hide a fact ACQ0 scores. The structured target is what ACQ0 scores."""
+    """MIGRATED by audit section 0.
+
+    This previously asserted that flipping the flag CHANGES `semantic_identity`. That made
+    the field classification self-contradictory: a PRESENTATION_ONLY field must not alter
+    task identity. The derived fact and its provenance are SEMANTIC; whether an
+    already-model-visible fact is *redundantly repeated in prose* is presentation.
+    `state_in_prose` is now excluded from `semantic_identity`, and the fact itself is still
+    included -- see `test_the_derived_fact_itself_is_semantic`.
+    """
     task = next(t for t in PROOF_CORPUS if t.derived_facts)
     flipped = dataclasses.replace(task, derived_facts=tuple(
         dataclasses.replace(f, state_in_prose=not f.state_in_prose)
@@ -102,7 +110,7 @@ def test_state_in_prose_changes_prose_but_never_the_structured_target():
     assert task.structured_target() == flipped.structured_target()
     assert render_prose(task) != render_prose(flipped)
     assert task.canonical_hash() == flipped.canonical_hash()
-    assert task.semantic_identity() != flipped.semantic_identity()
+    assert task.semantic_identity() == flipped.semantic_identity()
 
 
 def test_a_derived_fact_is_never_in_the_source_so_acq0_cannot_score_it():

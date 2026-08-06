@@ -28,7 +28,9 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**ACQ0 v2 HARDENED; MODEL TESTING PAUSED.** The hardening audit found two defects in v2 itself: semantic metadata sat outside canonical identity, and an unguarded partial definition was admitted. Both fixed; `canonical_hash` (encoding identity) is now distinguished from `semantic_identity` (task identity). Audit sections C, F, H, I, J remain incomplete.
+**ACQ0 v2 AUDIT COMPLETE; MODEL TESTING PAUSED.** All hardening sections executed. Five defects were found in v2 itself and fixed: metadata outside identity, unguarded partiality, a self-contradictory `state_in_prose` classification, an ambiguous omitted codomain, and a leak check that could not fail. Prose coverage 8/8 exact, reversibility 8/8, round-trips 32/32, firewall enforced.
+
+Previously: **ACQ0 v2 HARDENED.** The hardening audit found two defects in v2 itself: semantic metadata sat outside canonical identity, and an unguarded partial definition was admitted. Both fixed; `canonical_hash` (encoding identity) is now distinguished from `semantic_identity` (task identity). Audit sections C, F, H, I, J remain incomplete.
 
 Previously: **ACQ0 INSTRUMENT REBUILT (v2).** The v1 41-task corpus is quarantined `INVALID_INSTRUMENT` (0/41 admissible): mathematics was authored in three independent places and disagreed, so a frontier model that followed the prose was scored FAIL. `CanonicalAcq0TaskV2` makes one object the authority and derives every artefact from it; 8 proof tasks are admissible with exact round-trips through all four surfaces. Both protocol calibrations (v1 completion-cap, v2 invalid corpus) are void; no protocol has been validly selected.
 

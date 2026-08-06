@@ -1687,3 +1687,61 @@ change the structured target ACQ0 scores, so it cannot hide a scored fact.
 **Effect.** The v2 authority claim is now true as stated rather than approximately true.
 
 **Next.** Complete the remaining audit sections, or accept the current hardening for review.
+
+---
+
+## 2026-08-06 — ACQ0 v2 audit sections 0, C, F, H, I, J completed
+
+**Branch.** `integration/m1.5-paper-derived-closeout` (from `b454f4e`)
+
+**Objective.** Complete the remaining hardening-audit sections.
+
+**What was completed.** Three further defects were found **in v2 itself**.
+
+*Section 0 — the classification was self-contradictory.* `state_in_prose` sat inside
+`semantic_identity`, so a PRESENTATION_ONLY field altered task identity. The derived fact
+and its provenance are SEMANTIC; whether an already-visible fact is *redundantly repeated
+in prose* is presentation. The flag is now excluded from identity; the fact is still in it.
+
+*Section F — an ambiguous codomain, in this project's own corpus.*
+`v2_dimensional_algebra_001` used `def pressure := force / area` with no declared codomain.
+An annotated and an unannotated definition **hash differently**, so the model-visible
+`codomain: None` left an encoder unable to know which spelling was meant — the v1 ambiguity
+class, recurring in its replacement. The task now declares its codomain, and the schema
+rejects any definition without one.
+
+*Section H — the leak check could not fail.* It compared raw text against a JSON-escaped
+blob, so `\n` never matched `\\n` and every containment check silently passed. Found by its
+own negative control. The scan is now whitespace-normalised. The bundle hash is unchanged,
+so the fix tightened the check without altering the artefact.
+
+*Sections C, I, J* delivered: a fact-provenance layer giving exact prose coverage (set
+equality, not substring presence); a mode gate refusing an ACQ0 semantic diff outside
+`Mode.ACQ0`; and a private human-review packet.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---|---|
+| `pytest -n 18` | **5250 passed**, 4 skipped, 7 xfailed, 7 xpassed |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, 8/8, no override |
+| prose exact coverage | **8/8 EXACT** (6–19 facts per task) |
+| structured-target reversibility | **8/8 exact** after the codomain fix |
+| A/B/C/D round-trips | **32/32 exact** |
+| firewall | ACQ0 permitted; H2 and H3 refused |
+| safe bundle | 7 parts, hash `204ad665821a3c69…`, leakage NONE |
+
+**Failures and unresolved uncertainty.**
+
+- **The compiler generates no definedness obligation over a binder's declared domain.** The
+  guard is corpus-side and detects division by a **bare binder** only — not compound
+  denominators, `sqrt`, `log`, negative or fractional powers, indexing, or partiality
+  reachable through a chain of definitions. Documented as fail-closed.
+- One hardening test was migrated rather than deleted: it asserted the pre-section-0
+  behaviour, and its docstring records why the expectation reversed.
+- **No model has seen any v2 task.** Every property here is about the instrument.
+
+**Effect.** The v2 instrument's claims are now executable checks rather than assertions,
+and three of its own defects were found by them.
+
+**Next.** Human inspection of the review packet, then a decision on manual frontier testing.

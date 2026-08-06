@@ -119,11 +119,16 @@ def build_corpus() -> tuple[CanonicalAcq0TaskV2, ...]:
                 "module DimensionalAlgebra\n"
                 "var force : Quantity[Mass * Length / Time^2]\n"
                 "var area : Quantity[Length^2]\n"
-                "def pressure := force / area\n"
+                "def pressure : Quantity[Mass / (Length * Time^2)] := force / area\n"
                 "check dimension pressure = Mass / (Length * Time^2)\n"
             ),
             provenance=_P,
-            notes="a two-division dimension; exercises the D-028 fix end to end",
+            notes=(
+                "a two-division dimension; exercises the D-028 fix end to end. The\n"
+                "codomain is declared explicitly: an omitted one hashes differently\n"
+                "from an annotated one, so `codomain: None` would leave an encoder\n"
+                "unable to know which spelling is meant"
+            ),
         ),
         CanonicalAcq0TaskV2(
             task_id="v2_transformation_side_condition_001",

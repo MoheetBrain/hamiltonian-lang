@@ -195,9 +195,17 @@ class CanonicalAcq0TaskV2:
                     if ptype is None:
                         raise SchemaViolation(
                             f"{self.task_id}: binder {pname!r} of {st.name!r} is untyped")
-                if st.params and st.declared_type is None:
+                if st.declared_type is None:
+                    # Not only for parameterised definitions. An annotated and an
+                    # unannotated definition hash DIFFERENTLY, so `codomain: None` in the
+                    # model-visible target leaves an encoder unable to know which spelling
+                    # is meant -- the v1 ambiguity class, found here by the reversibility
+                    # check in this project's own dimensional task.
                     raise SchemaViolation(
-                        f"{self.task_id}: function {st.name!r} has no codomain")
+                        f"{self.task_id}: definition {st.name!r} has no declared codomain. "
+                        f"An omitted codomain is not reconstructable from the model-visible "
+                        f"target and produces a different canonical form from an annotated "
+                        f"one.")
                 _reject_unguarded_partiality(self.task_id, st, result)
 
         # objective=None means no goal may exist, anywhere.
@@ -324,12 +332,19 @@ class CanonicalAcq0TaskV2:
     #: Every field, classified by what it can change. Audited and asserted by tests.
     #:
     #: SEMANTIC          -- changes task identity; must enter `semantic_identity`
-    #: PRESENTATION_ONLY -- may change rendering, never mathematical identity
+    #: PRESENTATION_ONLY -- may change rendering, never task identity or scoring
     #: OPERATIONAL_ONLY  -- provenance or execution only
+    #:
+    #: `DerivedFact.state_in_prose` is a PRESENTATION_ONLY sub-field of a SEMANTIC field:
+    #: the fact and its provenance are part of what the task means; whether an
+    #: already-visible fact is repeated in prose is not. It is therefore excluded from
+    #: `semantic_identity` while `statement` and `derived_from` are included.
     FIELD_CLASSIFICATION = {
         "source": "SEMANTIC",
         "objective": "SEMANTIC",
-        "derived_facts": "SEMANTIC",          # reaches prose via state_in_prose
+        "derived_facts": "SEMANTIC",          # statement + provenance; the
+        #                                      state_in_prose flag inside is
+        #                                      PRESENTATION_ONLY (see below)
         "prohibited_assumptions": "SEMANTIC",  # reaches prose
         "family": "SEMANTIC",                  # selects the experiment cell
         "task_id": "OPERATIONAL_ONLY",
@@ -354,9 +369,13 @@ class CanonicalAcq0TaskV2:
                 "family": str(self.family),
                 "objective": None if self.objective is None else
                              [self.objective.kind, self.objective.statement],
+                # `state_in_prose` is EXCLUDED on purpose. The derived fact and its
+                # provenance are SEMANTIC -- they say what follows from what. Whether an
+                # already-model-visible fact is *redundantly repeated in prose* is a
+                # rendering choice, and a PRESENTATION_ONLY field must not alter task
+                # identity. Including it made the classification self-contradictory.
                 "derived_facts": sorted(
-                    [f.statement, sorted(f.derived_from), f.state_in_prose]
-                    for f in self.derived_facts
+                    [f.statement, sorted(f.derived_from)] for f in self.derived_facts
                 ),
                 "prohibited_assumptions": sorted(self.prohibited_assumptions),
             },
