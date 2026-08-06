@@ -1,0 +1,22 @@
+{
+  "content": "module BindingDependency\nconst alpha : Real = 3\nconst beta : Real = 4\ndef gamma : Real := alpha + beta\ndef delta : Real := gamma * alpha",
+  "reasoning": "*   Module name: `BindingDependency`\n    *   Statement 1: Constant `alpha`, type `Real`, value `3`.\n    *   Statement 2: Constant `beta`, type `Real`, value `4`.\n    *   Statement 3: Definition `gamma`, codomain `Real`, body `alpha + beta`.\n    *   Statement 4: Definition `delta`, codomain `Real`, body `gamma * alpha`.\n\n    *   `module <Name>`\n    *   `const <name> : <Type> = <expr>`\n    *   `def <name> : <Type> := <expr>`\n\n    *   `module BindingDependency`\n    *   `const alpha : Real = 3`\n    *   `const beta : Real = 4`\n    *   `def gamma : Real := alpha + beta`\n    *   `def delta : Real := gamma * alpha`",
+  "prompt_tokens": 2905,
+  "completion_tokens": 243,
+  "total_tokens": 3148,
+  "latency_s": 15.758,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "c5945cb64a0943d877f332f9ba7d46de74baa223b294fcaf194a3c64ed0374b4",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 6144,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-06T14:15:34Z"
+}

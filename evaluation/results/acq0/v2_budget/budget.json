@@ -1,0 +1,83 @@
+{
+  "runtime": {
+    "total_context": 32768,
+    "parallel_slots": 2,
+    "slot_context": 16384,
+    "completion_allowance": 6144,
+    "safety_reserve": 256,
+    "ceiling": 9984
+  },
+  "surfaces": {
+    "A_v0_labelled_linear": {
+      "fits": true,
+      "measurements": [
+        {
+          "task_id": "v2_quantifier_scope_003",
+          "surface": "A_v0_labelled_linear",
+          "characters": 10104,
+          "prompt_hash": "37e2685962590cd977d84e11f95c855d70b7fa6bef18788b144980aeed34c067",
+          "bundle_hash": "2096741fd9e2b515",
+          "prompt_eval_count": 3177,
+          "headroom": 6807,
+          "fits": true,
+          "error": ""
+        }
+      ]
+    },
+    "B_v1_labelled_linear_simplified": {
+      "fits": true,
+      "measurements": [
+        {
+          "task_id": "v2_quantifier_scope_003",
+          "surface": "B_v1_labelled_linear_simplified",
+          "characters": 10105,
+          "prompt_hash": "0e9342c7a0e0c5f6bd88ffae9c7ded93ccf5c1c15d4a1e8a4195da32cddba6da",
+          "bundle_hash": "45eb1726ec80cc70",
+          "prompt_eval_count": 3179,
+          "headroom": 6805,
+          "fits": true,
+          "error": ""
+        }
+      ]
+    },
+    "C_prefix_sexpr": {
+      "fits": true,
+      "measurements": [
+        {
+          "task_id": "v2_quantifier_scope_003",
+          "surface": "C_prefix_sexpr",
+          "characters": 10365,
+          "prompt_hash": "6bde57583d6eadd281442f17df1b7b90e695b4b87b3d5015097340b36dfbbbea",
+          "bundle_hash": "94772ee08fb6f025",
+          "prompt_eval_count": 3329,
+          "headroom": 6655,
+          "fits": true,
+          "error": ""
+        }
+      ]
+    },
+    "D_constrained_json_graph": {
+      "fits": true,
+      "measurements": [
+        {
+          "task_id": "v2_quantifier_scope_003",
+          "surface": "D_constrained_json_graph",
+          "characters": 15530,
+          "prompt_hash": "a91e20ff0152191b7f0c7ea18e8e71dc8bc4c94d8f1eef89f41794c28b347c07",
+          "bundle_hash": "5a09abe13522d2d6",
+          "prompt_eval_count": 5056,
+          "headroom": 4928,
+          "fits": true,
+          "error": ""
+        }
+      ]
+    }
+  },
+  "all_fit": true,
+  "surfaces_measured": [
+    "A_v0_labelled_linear",
+    "B_v1_labelled_linear_simplified",
+    "C_prefix_sexpr",
+    "D_constrained_json_graph"
+  ]
+}

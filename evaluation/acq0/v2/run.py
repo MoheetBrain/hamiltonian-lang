@@ -130,10 +130,35 @@ def _constitutional_failures(record: ConditionRecord, task) -> list[str]:
     return out
 
 
+def strip_fence(text: str, surface: str) -> str:
+    """Remove a surrounding markdown code fence before importing.
+
+    Found on the first run and it would have been fatal. The candidate-C specification
+    advertises the fence tags `sexpr`, `lisp` and `scheme`; the model used ```lisp, wrote a
+    **hash-identical** encoding inside it, and the raw text was handed to the importer
+    fence and all. Surface C would have been eliminated on a harness defect, and the
+    elimination would have been reported as a property of the notation.
+
+    Any fence is accepted, not only the advertised tags: refusing an unadvertised tag
+    measures instruction-following, which is a different experiment.
+    """
+    stripped = text.strip()
+    if not stripped.startswith("```"):
+        return text
+    body = stripped[3:]
+    newline = body.find("\n")
+    if newline == -1:
+        return text
+    body = body[newline + 1:]
+    close = body.rfind("```")
+    return body[:close] if close != -1 else body
+
+
 def _evaluate(text: str, surface: str, task) -> dict[str, Any]:
     """Import one surface answer and score it mechanically."""
     from hamiltonian_lang import compile_source, content_hash
 
+    text = strip_fence(text, surface)
     adapters = resolve_adapters()
     adapter = adapters[surface]
     out: dict[str, Any] = {"imported_hml": "", "import_ok": False,

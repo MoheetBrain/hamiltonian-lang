@@ -28,7 +28,24 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**ACQ0 v2 DEVELOPMENT CORPUS ADMITTED — 12 TASKS + 2 SEALED SPARES.** The taxonomy is
+**MEASUREMENT_INSTRUMENT_GREEN; TRANCHE A RUNNING.** All green conditions hold: 12/12
+development tasks and 2/2 spares admitted, view-only reconstruction 14/14, round-trips
+56/56, leakage clean with a firing negative control, mutation controls firing, full tests
+and conformance passing. Green means **suitable for a developmental model experiment** — it
+does not mean officially human-approved, promotion-ready, or mathematically exhaustive.
+
+The prompt budget is re-measured against the frozen runtime (`-c 32768 -np 2`, slot 16384,
+completion 6144, reserve 256, ceiling 9984) with the **same builder the run uses**: worst
+case A 3177 / B 3179 / C 3329 / D 5056 tokens, all four fitting with 4928–6807 headroom.
+
+**One harness defect was found by the first Tranche A attempt and the attempt was
+discarded.** Candidate C's own specification advertises the fence tags `sexpr`, `lisp` and
+`scheme`; the model answered inside a ```lisp fence with a **hash-identical** encoding, the
+raw text went to the importer fence and all, and the import failed. Surface C would have
+been eliminated on a harness bug reported as a property of the notation. The scorer now
+strips any fence, with a regression matrix over every surface and seven tags.
+
+Previously: **ACQ0 v2 DEVELOPMENT CORPUS ADMITTED — 12 TASKS + 2 SEALED SPARES.** The taxonomy is
 frozen at twelve feature cells (`docs/evaluation/ACQ0_V2_TAXONOMY.md`), all twelve covered,
 every coverage rule met. Two independent read-only reviewers examined the corpus in two
 rounds and returned **0 WRONG and 0 REJECT**; all eight of their findings were repaired at

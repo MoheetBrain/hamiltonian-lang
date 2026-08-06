@@ -1947,3 +1947,60 @@ instrument is ready for a developmental acquisition run.
 
 **Next intended step.** Re-measure the prompt budget against the frozen runtime, then
 Tranche A.
+
+---
+
+## 2026-08-06 — instrument GREEN, budget re-measured, and a discarded Tranche A attempt
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** ACQ0 developmental
+acquisition run.
+
+**Objective.** Declare the instrument green, re-measure the prompt budget against the frozen
+runtime, and begin Tranche A.
+
+**What was completed.**
+
+*MEASUREMENT_INSTRUMENT_GREEN recorded.* Every stated condition was checked, not asserted.
+The label means suitable for a developmental model experiment — not officially
+human-approved, not promotion-ready, not mathematically exhaustive.
+
+*The prompt budget was re-measured* with the **same builder the run uses**, which is the
+property v1 broke. Frozen runtime `-c 32768 -np 2`: slot 16384, completion 6144, reserve
+256, ceiling 9984. Selection followed the directive — render all twelve prompts per surface
+offline, take the longest, add any within 2%. Worst case in every surface is
+`v2_quantifier_scope_003`: A 3177, B 3179, C 3329, D 5056 tokens, headroom 6807 / 6805 /
+6655 / 4928. All four fit; no surface was shortened.
+
+*The first Tranche A attempt was discarded after three conditions, and the defect is the
+point.* Candidate C's specification advertises the fence tags `sexpr`, `lisp` and `scheme`.
+The model answered inside a ```lisp fence, and the encoding **inside** it was
+hash-identical to the reference — but the raw text was handed to the importer fence and
+all, so the import failed and the condition scored parse=0. Surface C would have been
+eliminated on a harness defect, and the elimination would have been reported as a property
+of the notation.
+
+**Decisions made and why.** The scorer strips any fence, not only advertised tags: refusing
+an unadvertised tag measures instruction-following, which is a different experiment.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---|---|
+| budget probe, 4 surfaces, authoritative `prompt_eval_count` | 4/4 FIT |
+| `tests/evaluation/test_acq0_scoring.py` | 84 passed — reference self-scores exact for every task x surface; a fenced answer scores identically for 7 tags x 4 surfaces; a dropped statement, a reordered module and prose all score not-exact |
+| re-scored condition 3 after the fix | `C_prefix_sexpr` parse=1 exact=1, previously parse=0 |
+
+**Failures and unresolved uncertainty.**
+
+- Tranche A is **incomplete at the time of writing**: three of thirty-two conditions.
+- The fence defect was found by inspecting the first three records. It was not predicted by
+  any test, and no test existed that could have failed. There is no general guarantee that
+  another harness defect of this class is not present.
+- Generation cost is uneven: 16s for A, 110s for B, 62s for C on the same task, and B spent
+  1691 completion tokens on a four-statement module. Latency is recorded per condition but
+  is not part of any gate.
+
+**Effect.** The budget is frozen against real measurements, and the scorer no longer
+penalises a correct answer for its packaging.
+
+**Next intended step.** Complete Tranche A and apply the preregistered continuation rule.

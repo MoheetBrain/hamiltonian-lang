@@ -1,0 +1,22 @@
+{
+  "content": "```lisp\n(module BindingDependency\n  (dec const alpha Real 3)\n  (dec const beta Real 4)\n  (def gamma () Real (+ alpha beta))\n  (def delta () Real (* gamma alpha)))\n```",
+  "reasoning": "*   Module Name: `BindingDependency`\n    *   Statement 1: Constant `alpha`, type `Real`, value `3`.\n    *   Statement 2: Constant `beta`, type `Real`, value `4`.\n    *   Statement 3: Definition `gamma`, no arguments, codomain `Real`, body `alpha + beta`.\n    *   Statement 4: Definition `delta`, no arguments, codomain `Real`, body `gamma * alpha`.\n\n    *   `module`: `(module <Name> <statement> ...)`\n    *   `const`: `(const <name> <type> <expr>)` (Wait, looking at the demonstrations, it's `(dec const <name> <type> <value>)`). Let me re-check the reference.\n        *   Reference says: `(const <name> <type> <expr>)`.\n        *   DemoBinding says: `(dec const a Real 2)`.\n        *   Wait, looking closer at DemoBinding's encoding: `(dec const a Real 2)`. The reference section lists `(const <name> <type> <expr>)` under \"DECLARATIONS\". But the demo uses `(dec const ...)`. Let me check if there is a pattern.\n        *   DemoLaw says: `(dec param sigma PositiveReal)`, `(dec obs y Real 3)`.\n        *   DemoConstraint says: `(dec var t PositiveReal)`.\n        *   It seems the demonstrations use `(dec ...)` as a wrapper for declarations (`var`, `param`, `const`, `obs`). I will follow the demonstration's pattern.\n\n    *   `def`: `(def <name> ((<p> <type>) ...) <type> <expr>)`.\n        *   DemoBinding: `(def c () Real (+ a b))`.\n\n    *   Module header: `(module BindingDependency ...)`\n    *   S1 (alpha): `(dec const alpha Real 3)`\n    *   S2 (beta): `(dec const beta Real 4)`\n    *   S3 (gamma): `(def gamma () Real (+ alpha beta))`\n    *   S4 (delta): `(def delta () Real (* gamma alpha))`\n\n    *   `alpha`: constant, Real, 3. -> `(dec const alpha Real 3)`\n    *   `beta`: constant, Real, 4. -> `(dec const beta Real 4)`\n    *   `gamma`: def, (), Real, alpha + beta. -> `(def gamma () Real (+ alpha beta))`\n    *   `delta`: def, (), Real, gamma * alpha. -> `(def delta () Real (* gamma alpha))`\n\n    Wait, let me double-check the reference again.\n    Reference: `(const <name> <type> <expr>)`\n    DemoBinding: `(dec const a Real 2)`\n    The demo is usually more authoritative for the exact syntax expected in these tasks. I'll use `(dec const ...)`.\n\n    Wait, let me look at DemoDimension too.\n    `(dec var length (Quantity Length))`\n    Yes, it uses `(dec var ...)` and `(dec const ...)`.\n\n    Let's re-verify the operators:\n    `(+ a b)`, `(* a b)`. Correct.",
+  "prompt_tokens": 3057,
+  "completion_tokens": 791,
+  "total_tokens": 3848,
+  "latency_s": 62.003,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "fb8d365ce23f094b49c9566166f9d9aa5396ee31bc63f2cc169dae323a5ee7f3",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 6144,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-06T14:18:26Z"
+}
