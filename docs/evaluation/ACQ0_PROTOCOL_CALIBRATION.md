@@ -191,7 +191,7 @@ No statistical significance is claimed from 16 calls.
 
 ---
 
-## 8. Results (executed)
+## 8. Results — v1 run (RETAINED, REJECTED as a syntax measurement)
 
 38 of 40 authorised calls spent; 0 transport retries; 17 truncated generations; **27 of 38
 calls returned an empty visible answer** with `finish_reason="length"` and `eval_count` at
@@ -232,3 +232,79 @@ semantically different object at 426 tokens with no truncation on either side.
 
 Every draft stage hit its 768-token cap (`truncated: true`, 8/8), so the two-stage arm's
 first stage never completed. The arm as executed is "truncated draft, then formalise".
+
+
+---
+
+## 9. v2 run — re-run at 16,384-token slot, 6,144-token allowance
+
+Runtime verified before starting: `llama-server ... -c 32768 -np 2` (pid 9464), Ollama
+reports `context_length 16384`, digest `6316f0629137b426…`. `num_ctx=16384` constant on
+every call; not changed mid-run.
+
+Changes from v1, and nothing else: completion allowance 2048 → **6144**; split
+`DIRECT_FORMAL` formal 6144 / `DRAFT_THEN_FORMAL` draft 2048 + formal 4096; repair 1024 →
+2048; **`reasoning`/`thinking` now persisted** (`reasoning`, `reasoning_characters` —
+297,374 characters captured across the run); fresh tasks `binding_chain_002` and
+`distribution_law_002` (`calibration.EXPOSED_TASK_IDS` now records the v1 exposures and
+`CALIBRATION_EXCLUSIONS` unions them with the frozen curriculum); new phase-specific
+authorisation; output to `protocol_calibration_v2/`. v1 records are untouched.
+
+### Cap count — the stopping rule fires
+
+| Arm | Stage | Allowance | n | hit `length` |
+| --- | --- | --- | --- | --- |
+| DIRECT_FORMAL | formalise | 6144 | 8 | **0** |
+| DIRECT_FORMAL | repair | 2048 | 8 | 6 |
+| DRAFT_THEN_FORMAL | draft | 2048 | 8 | **8** |
+| DRAFT_THEN_FORMAL | formalise | 4096 | 8 | 4 |
+| DRAFT_THEN_FORMAL | repair | 2048 | 8 | 7 |
+
+**12 of 24 generation events (50%)** hit the cap, against the ~15% invalidity threshold.
+Including repair: 25 of 40 (62%). 25 empty visible answers. 0 transport retries.
+
+### Results
+
+| Condition | Task | DIRECT_FORMAL | DRAFT_THEN_FORMAL |
+| --- | --- | --- | --- |
+| A_v0_labelled_linear | binding_chain_002 | SEMANTIC_LOSS | SEMANTIC_LOSS |
+| A_v0_labelled_linear | distribution_law_002 | SEMANTIC_LOSS | FORMAT_FAILED |
+| B_v1_labelled_linear_simplified | binding_chain_002 | PARSE_FAILED | PARSE_FAILED |
+| B_v1_labelled_linear_simplified | distribution_law_002 | PARSE_FAILED | PARSE_FAILED |
+| C_prefix_sexpr | binding_chain_002 | PARSE_FAILED | PARSE_FAILED |
+| C_prefix_sexpr | distribution_law_002 | PARSE_FAILED | FORMAT_FAILED |
+| D_constrained_json_graph | binding_chain_002 | PARSE_FAILED | FORMAT_FAILED |
+| D_constrained_json_graph | distribution_law_002 | PARSE_FAILED | FORMAT_FAILED |
+
+Paired: helps 0, harms 0, **ties 8**. Zero VERIFIED in either arm. No repair recovered any
+cell (16 repairs, 0 recoveries). Generated tokens excluding repair: DIRECT 24,507 / DRAFT
+39,273 (1.60x). Latency 2,957 s / 4,258 s. 40 of 40 authorised calls spent.
+
+### Gate: `PROTOCOL_UNSTABLE`
+
+Two independent reasons, either sufficient:
+
+1. the pre-agreed invalidity criterion fired — 50% of generation events capped;
+2. every pair tied, so the design produced no discriminating evidence at all.
+
+### The allowance fix worked, but only for the one-stage arm
+
+`DIRECT_FORMAL` at 6144 capped **0 of 8** times (`eval_count` 659–5,727, all
+`finish_reason="stop"`, all with visible output). That arm is now a clean measurement of
+the representation — and on the fresh tasks it produced 6 PARSE_FAILED and 2 SEMANTIC_LOSS,
+0 VERIFIED.
+
+The failure is now specific to the **split**: the same 6,144-token budget spent as
+2048 + 4096 caps 12 of 16 times. All 8 drafts capped at 2048; 4 of 8 second-stage
+formalisations capped at 4096. A two-stage arm whose first stage never finishes is not the
+protocol it is labelled as, and the 2,048-token repair allowance is also too small
+(13 of 16 capped).
+
+### What this does and does not license
+
+- It does **not** license selecting `DIRECT_FORMAL`. Nothing discriminated the arms.
+- It does not license a claim that the candidate surfaces are bad. The `_002` tasks are a
+  different pair from v1's `_001` pair, where `DIRECT_FORMAL` verified 2 of 8; a
+  task-difficulty difference and a protocol difference are not separated here.
+- The `reasoning` field is now on disk for every call, so the next diagnosis has evidence.
+  Total generated thinking: 297,374 characters against 24 generation calls.

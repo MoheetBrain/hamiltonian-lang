@@ -44,13 +44,16 @@ def build_corpus() -> tuple[CanonicalAcq0TaskV2, ...]:
                 "const eta : Real = 5\n"
                 "var digamma : Real\n"
                 "assume digamma > 4\n"
-                "def varrho(mu : Real) : Real := eta / mu\n"
+                "def varrho(mu : PositiveReal) : Real := eta / mu\n"
             ),
             derived_facts=(DerivedFact("digamma != 0", ("digamma > 4",)),),
             provenance=_P,
             notes=(
                 "the v1 task this replaces hid eta's value and varrho's body, and filed "
-                "the derived non-zero fact as an input premise"
+                "the derived non-zero fact as an input premise. The binder is "
+                "PositiveReal, not Real: eta / mu is not total at zero, and the hardening "
+                "audit rejected the Real spelling rather than let the corpus assume "
+                "non-zeroness on the model's behalf"
             ),
         ),
         CanonicalAcq0TaskV2(

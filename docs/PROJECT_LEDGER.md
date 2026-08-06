@@ -1626,3 +1626,64 @@ round-trips through A/B/C/D, ACQ0 and H2 views provably distinct.
 **Effect.** ACQ0 has an instrument that can measure a model rather than its own corpus.
 
 **Next.** Human-review hardening audit of the v2 architecture.
+
+---
+
+## 2026-08-06 — ACQ0 v2 hardening audit: two defects in v2 itself
+
+**Branch.** `integration/m1.5-paper-derived-closeout` (checkpoint `986f4ee`)
+
+**Objective.** Audit the v2 architecture against its own claims and fix what fails.
+
+**What was completed.** Two real defects were found **in v2 itself** and fixed.
+
+*1. Semantic metadata sat outside canonical identity.* `derived_facts` and
+`prohibited_assumptions` reach model-visible prose, yet two tasks differing only in them
+shared a canonical hash — semantic metadata affecting a renderer while excluded from
+identity. Fixed by separating two identities that had been conflated:
+
+- `canonical_hash` — the **encoding's** identity, from the compiled AST alone. Metadata is
+  excluded *on purpose*: a model encodes mathematics, not prohibitions, and this is what it
+  is scored against.
+- `semantic_identity` — the **task's** identity, AST plus every SEMANTIC metadata field.
+
+Every field is now classified `SEMANTIC` / `PRESENTATION_ONLY` / `OPERATIONAL_ONLY`, and a
+test fails if a field is added without a classification. The documented authority wording
+was corrected from *"the reference encoding is the authority"* to *"the normalised compiler
+AST plus validated semantic metadata"*.
+
+*2. An unguarded partial definition was admitted.* `def varrho(mu : Real) := eta / mu`
+declares totality over `Real` while being undefined at zero. The obligation engine returns
+`VERIFIED` for it **and for the guarded spelling alike** — it generates no definedness
+obligation over a binder's declared domain at all. This project's own proof task carried
+the defect. The binder is now `PositiveReal`; the corpus does not assume non-zeroness on
+the model's behalf.
+
+*3. `state_in_prose` disposition.* Changes prose and task identity; provably does **not**
+change the structured target ACQ0 scores, so it cannot hide a scored fact.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---|---|
+| `pytest -n 18` | **5206 passed**, 4 skipped, 7 xfailed, 7 xpassed |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, 8/8, no override |
+| 8 tasks x 4 surfaces after the corpus fix | **32/32 exact** |
+| `e / mu` with `mu:Real` / `mu:PositiveReal` / `e * mu` | REJECTED / ADMITTED / ADMITTED |
+
+**Failures and unresolved uncertainty.**
+
+- **The compiler generates no definedness obligation over a binder's declared domain.** The
+  guard added here is corpus-side admission, not a compiler fix, and covers division by a
+  **bare binder only** — not division by an arbitrary expression, `sqrt`, `log` or indexing.
+- **Audit sections C, F, H, I and J are not complete**: prose clause-to-fact exact
+  coverage, structured-target reversibility, the safe-bundle leakage seal, the ACQ0/H2/H3
+  firewall test, and the human-review packet.
+- The protocol calibration agent returned `PROTOCOL_UNSTABLE`: 50% of generation events hit
+  the cap, all 8 pairs tied, zero VERIFIED. It confirmed the allowance diagnosis —
+  `DIRECT_FORMAL` at 6144 capped 0/8 — but the same 6144 split as 2048+4096 capped 12/16,
+  and it ran on two `INVALID_INSTRUMENT` tasks. No protocol is selected.
+
+**Effect.** The v2 authority claim is now true as stated rather than approximately true.
+
+**Next.** Complete the remaining audit sections, or accept the current hardening for review.

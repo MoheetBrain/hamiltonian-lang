@@ -13,10 +13,24 @@ The fix is structural, not editorial: **one authority, everything else generated
 
 Where the authority lives
 -------------------------
-The authoritative mathematics is the HML-L1 `source`. Not a parallel description of it --
-the source itself, compiled by the real compiler. The structured target, the prose, every
-surface rendering and the expected hash are all *derived*. Nothing is hand-authored twice,
-so nothing can disagree.
+**The canonical ACQ0 authority is the normalised compiler AST plus every validated semantic
+metadata field.** Not the source text alone: metadata such as `derived_facts` and
+`prohibited_assumptions` reaches model-visible prose, so it is part of what the task *means*
+and must participate in identity. The earlier wording -- "the reference encoding is the
+authority" -- was wrong, and the hardening audit found the consequence: two tasks with
+different prohibited assumptions rendered different prose while sharing a canonical hash.
+
+Two identities are therefore distinguished, and confusing them is the defect:
+
+* :meth:`canonical_hash` -- the identity of the **encoding**. Derived from the compiled AST
+  alone. This is what a model's output is scored against, and metadata must *not* enter it:
+  a model is asked to encode mathematics, not to restate a prohibition.
+* :meth:`semantic_identity` -- the identity of the **task**. AST hash plus every SEMANTIC
+  metadata field. Two tasks sharing this are the same experiment; two tasks sharing only
+  `canonical_hash` are not.
+
+The structured target, prose, every surface rendering and the expected hash remain derived.
+Nothing is hand-authored twice, so nothing can disagree.
 
 This deliberately avoids inventing a second mathematical AST for evaluation. The compiler's
 AST is the AST; a competing one would reintroduce exactly the divergence this replaces.
@@ -184,6 +198,7 @@ class CanonicalAcq0TaskV2:
                 if st.params and st.declared_type is None:
                     raise SchemaViolation(
                         f"{self.task_id}: function {st.name!r} has no codomain")
+                _reject_unguarded_partiality(self.task_id, st, result)
 
         # objective=None means no goal may exist, anywhere.
         if self.objective is None and goals:
@@ -301,9 +316,53 @@ class CanonicalAcq0TaskV2:
                 "notes": self.provenance.notes,
             },
             "canonical_hash": self.canonical_hash(),
+            "semantic_identity": self.semantic_identity(),
             "content_digest": self.content_digest(),
             "notes": self.notes,
         }
+
+    #: Every field, classified by what it can change. Audited and asserted by tests.
+    #:
+    #: SEMANTIC          -- changes task identity; must enter `semantic_identity`
+    #: PRESENTATION_ONLY -- may change rendering, never mathematical identity
+    #: OPERATIONAL_ONLY  -- provenance or execution only
+    FIELD_CLASSIFICATION = {
+        "source": "SEMANTIC",
+        "objective": "SEMANTIC",
+        "derived_facts": "SEMANTIC",          # reaches prose via state_in_prose
+        "prohibited_assumptions": "SEMANTIC",  # reaches prose
+        "family": "SEMANTIC",                  # selects the experiment cell
+        "task_id": "OPERATIONAL_ONLY",
+        "schema_version": "OPERATIONAL_ONLY",
+        "provenance": "OPERATIONAL_ONLY",
+        "notes": "OPERATIONAL_ONLY",
+    }
+
+    def semantic_identity(self) -> str:
+        """Identity of the **task**: compiled AST plus every SEMANTIC metadata field.
+
+        Distinct from :meth:`canonical_hash`, which identifies only the *encoding* and is
+        what a model is scored against. Metadata must not enter that one -- a model encodes
+        mathematics, and asking it to also encode a prohibition would change what ACQ0
+        measures. But metadata must enter *this* one, or two materially different tasks
+        compare equal. The hardening audit found exactly that: differing
+        `prohibited_assumptions` rendered different prose under one canonical hash.
+        """
+        payload = json.dumps(
+            {
+                "ast": self.canonical_hash(),
+                "family": str(self.family),
+                "objective": None if self.objective is None else
+                             [self.objective.kind, self.objective.statement],
+                "derived_facts": sorted(
+                    [f.statement, sorted(f.derived_from), f.state_in_prose]
+                    for f in self.derived_facts
+                ),
+                "prohibited_assumptions": sorted(self.prohibited_assumptions),
+            },
+            sort_keys=True,
+        )
+        return hashlib.sha256(payload.encode()).hexdigest()
 
     def content_digest(self) -> str:
         """Digest over the whole task record, not only its mathematics."""
@@ -316,6 +375,54 @@ class CanonicalAcq0TaskV2:
             sort_keys=True,
         )
         return hashlib.sha256(payload.encode()).hexdigest()
+
+
+def _reject_unguarded_partiality(task_id: str, define: Any, compiled: Any) -> None:
+    """A function declared total over a domain where its body is not total is rejected.
+
+    Found by the hardening audit in this project's own proof corpus:
+    `def varrho(mu : Real) : Real := eta / mu` declares totality over Real while being
+    undefined at zero, and the obligation engine returns VERIFIED for it -- it generates no
+    definedness obligation over a binder's declared domain at all.
+
+    A task carrying that is not a valid instrument: a model could encode it faithfully, or
+    could add a guard, and neither reading is wrong. The remedy is to narrow the binder
+    type (`PositiveReal`) or state an explicit precondition -- **never** to have the
+    corpus silently assume non-zeroness on the model's behalf.
+    """
+    from hamiltonian_lang.ast.nodes import BinOp
+
+    binder_types = {n: t for n, t in define.params}
+
+    def totality_gap(expr: Any, depth: int = 0) -> str | None:
+        if expr is None or depth > 24:
+            return None
+        if isinstance(expr, BinOp) and expr.op == "/":
+            name = getattr(expr.right, "name", None)
+            if name in binder_types:
+                declared = binder_types[name]
+                kind = getattr(declared, "name", None) or (
+                    declared.render() if declared is not None else None)
+                if kind not in {"PositiveReal", "PositiveNatural"}:
+                    return (f"divides by binder {name!r} declared {kind or declared}, "
+                            f"which admits zero")
+        for attr in ("left", "right", "operand", "body", "base"):
+            gap = totality_gap(getattr(expr, attr, None), depth + 1)
+            if gap:
+                return gap
+        for arg in getattr(expr, "args", ()) or ():
+            gap = totality_gap(arg, depth + 1)
+            if gap:
+                return gap
+        return None
+
+    gap = totality_gap(define.body)
+    if gap:
+        raise SchemaViolation(
+            f"{task_id}: definition {define.name!r} is declared total over its binder "
+            f"domain but {gap}. Narrow the binder type or state an explicit precondition; "
+            f"the corpus must not assume non-zeroness on the model's behalf."
+        )
 
 
 def _render_expr(expr: Any) -> str:

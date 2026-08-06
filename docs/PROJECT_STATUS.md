@@ -28,7 +28,9 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**ACQ0 INSTRUMENT REBUILT (v2); MODEL TESTING PAUSED.** The v1 41-task corpus is quarantined `INVALID_INSTRUMENT` (0/41 admissible): mathematics was authored in three independent places and disagreed, so a frontier model that followed the prose was scored FAIL. `CanonicalAcq0TaskV2` makes one object the authority and derives every artefact from it; 8 proof tasks are admissible with exact round-trips through all four surfaces. Both protocol calibrations (v1 completion-cap, v2 invalid corpus) are void; no protocol has been validly selected.
+**ACQ0 v2 HARDENED; MODEL TESTING PAUSED.** The hardening audit found two defects in v2 itself: semantic metadata sat outside canonical identity, and an unguarded partial definition was admitted. Both fixed; `canonical_hash` (encoding identity) is now distinguished from `semantic_identity` (task identity). Audit sections C, F, H, I, J remain incomplete.
+
+Previously: **ACQ0 INSTRUMENT REBUILT (v2).** The v1 41-task corpus is quarantined `INVALID_INSTRUMENT` (0/41 admissible): mathematics was authored in three independent places and disagreed, so a frontier model that followed the prose was scored FAIL. `CanonicalAcq0TaskV2` makes one object the authority and derives every artefact from it; 8 proof tasks are admissible with exact round-trips through all four surfaces. Both protocol calibrations (v1 completion-cap, v2 invalid corpus) are void; no protocol has been validly selected.
 
 Previously: **M2 CONTEXT BUDGET MEASURED.** Selected shared runtime `4x8192`, curriculum size 5, measured `prompt_eval_count`: A 1880 / B 1887 / C 2074 / D 4907 / SE 1829 against a 5888 ceiling. Worst case D, 981 tokens headroom (16.7%), full 2048 allowance and 256 reserve intact, zero truncation. The tokeniser beats 2.48 ch/tok everywhere, so candidate D is NOT eliminated on budget.
 
