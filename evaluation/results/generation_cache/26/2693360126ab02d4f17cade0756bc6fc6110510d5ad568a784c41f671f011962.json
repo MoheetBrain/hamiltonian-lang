@@ -1,0 +1,22 @@
+{
+  "content": "(module QuantifierScope\n  (def every_x_has_a_y () Proposition (forall (x Real) (exists (y Real) (> y x))))\n  (assume every_x_has_a_y))",
+  "reasoning": "*   Module Name: `QuantifierScope`\n    *   Statement 1 (s1): Definition `every_x_has_a_y`.\n        *   Binders: None (`()`).\n        *   Codomain: `Proposition`.\n        *   Body: `forall x : Real . exists y : Real . y > x`.\n    *   Statement 2 (s2): Assumption.\n        *   Expression: `every_x_has_a_y`.\n\n    *   `module`: `(module <Name> <statement> ...)`\n    *   `def`: `(def <name> ((<p> <type>) ...) <type> <expr>)`\n    *   `assume`: `(assume <expr>)`\n    *   Quantifiers: `(forall (x Real) <expr>)`, `(exists (y Real) <expr>)`\n    *   Comparison operator: `(> y x)`\n\n    *   Module header: `(module QuantifierScope ...)`\n    *   Definition of `every_x_has_a_y`:\n        `(def every_x_has_a_y () Proposition (forall (x Real) (exists (y Real) (> y x))))`\n    *   Assumption:\n        `(assume every_x_has_a_y)`\n\n    *   Check against surface specification.\n    *   Prefix notation? Yes.\n    *   Parenthesized forms? Yes.\n    *   Correct types (`Proposition`, `Real`)? Yes.\n    *   No extra statements (like the prohibited assumption)? Yes.\n    *   Order preserved? Yes.\n\n    ```lisp\n    (module QuantifierScope\n      (def every_x_has_a_y () Proposition (forall (x Real) (exists (y Real) (> y x))))\n      (assume every_x_has_a_y))\n    ```",
+  "prompt_tokens": 2938,
+  "completion_tokens": 473,
+  "total_tokens": 3411,
+  "latency_s": 32.518,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "2693360126ab02d4f17cade0756bc6fc6110510d5ad568a784c41f671f011962",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 6144,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-06T15:22:13Z"
+}

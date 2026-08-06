@@ -1,0 +1,22 @@
+{
+  "content": "module ApproximationBoundary\nconst target : Real = 2\nvar estimate : Real\nconst tolerance : PositiveReal = 0.01\nrequire estimate - target < tolerance\nrequire target - estimate < tolerance",
+  "reasoning": "*   Module name: `ApproximationBoundary`\n    *   Statement 1: Constant `target`, type `Real`, value `2`.\n    *   Statement 2: Variable `estimate`, type `Real`.\n    *   Statement 3: Constant `tolerance`, type `PositiveReal`, value `0.01`.\n    *   Statement 4: Requirement `estimate - target < tolerance`.\n    *   Statement 5: Requirement `target - estimate < tolerance`.\n\n    *   `module <Name>`\n    *   `const <name> : <Type> = <expr>`\n    *   `var <name> : <Type>`\n    *   `require <prop>`\n\n    *   `module ApproximationBoundary`\n    *   `const target : Real = 2`\n    *   `var estimate : Real`\n    *   `const tolerance : PositiveReal = 0.01`\n    *   `require estimate - target < tolerance`\n    *   `require target - estimate < tolerance`\n\n    *   ASCII only? Yes.\n    *   One statement per line? Yes.\n    *   No solving, adding, removing or changing anything? Yes.\n    *   Faithful to the provided structured target? Yes.",
+  "prompt_tokens": 2938,
+  "completion_tokens": 320,
+  "total_tokens": 3258,
+  "latency_s": 27.134,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "35894074623e91fb6e851c96b7bdc5f1e7ec0d17cdad9c5aa4979596df1e24ca",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 6144,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-06T15:09:07Z"
+}

@@ -28,7 +28,20 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**MEASUREMENT_INSTRUMENT_GREEN; TRANCHE A RUNNING.** All green conditions hold: 12/12
+**TRANCHE A VOID ON TRUNCATION; SURFACE D ELIMINATED BY UPPER BOUND.** The 32-condition
+run completed and is `MEASUREMENT_INVALID` (D-033). Everything except the cap audited clean:
+matrix complete 8x4, no duplicates, no missing, 0 transport failures, no prompt drift, no
+bundle drift, no repository mutation during measurement. Three conditions hit the 6,144-token
+completion allowance, and the truncation decides the verdict for two of four surfaces, so no
+surface-selection or continuation decision is derived from it. All 32 records are preserved
+with a hash manifest, admissible for debugging only.
+
+**Surface D is eliminated without a rerun**: repaired parse 0/8, one truncated record and
+only in repair, so the best attainable count is 1/8 against a frozen 6/8 threshold. Its
+failure class is schema conformance — every attempt emitted a *triples* encoding where the
+candidate specifies a `statements` array, and all failed at import, none at the compiler.
+
+Previously: **MEASUREMENT_INSTRUMENT_GREEN; TRANCHE A RUNNING.** All green conditions hold: 12/12
 development tasks and 2/2 spares admitted, view-only reconstruction 14/14, round-trips
 56/56, leakage clean with a firing negative control, mutation controls firing, full tests
 and conformance passing. Green means **suitable for a developmental model experiment** — it

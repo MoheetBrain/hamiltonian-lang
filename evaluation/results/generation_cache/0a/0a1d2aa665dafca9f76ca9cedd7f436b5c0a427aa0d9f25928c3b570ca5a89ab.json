@@ -1,0 +1,22 @@
+{
+  "content": "module TransformationSideCondition\nvar lhs : Real\nvar rhs : Real\nvar scale : Real\nrequire scale != 0\nassume lhs * scale = rhs * scale",
+  "reasoning": "*   Module name: `TransformationSideCondition`\n    *   Statements to encode (in order):\n        1.  `lhs` : `Real` (var)\n        2.  `rhs` : `Real` (var)\n        3.  `scale` : `Real` (var)\n        4.  Requirement: `scale != 0`\n        5.  Assumption: `lhs * scale = rhs * scale`\n\n    *   Module header: `module TransformationSideCondition`\n    *   Variable declarations: `var <name> : <Type>`\n    *   Requirements: `require <prop>`\n    *   Assumptions: `assume <prop>`\n\n    *   `module TransformationSideCondition`\n    *   `var lhs : Real`\n    *   `var rhs : Real`\n    *   `var scale : Real`\n    *   `require scale != 0`\n    *   `assume lhs * scale = rhs * scale`\n\n    *   ASCII only? Yes.\n    *   One statement per line? Yes.\n    *   Correct types used (`Real`)? Yes.\n    *   Correct keywords (`var`, `require`, `assume`)? Yes.\n    *   No extra goals or statements added? Yes.",
+  "prompt_tokens": 2914,
+  "completion_tokens": 315,
+  "total_tokens": 3229,
+  "latency_s": 24.454,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "0a1d2aa665dafca9f76ca9cedd7f436b5c0a427aa0d9f25928c3b570ca5a89ab",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 6144,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-06T15:58:07Z"
+}

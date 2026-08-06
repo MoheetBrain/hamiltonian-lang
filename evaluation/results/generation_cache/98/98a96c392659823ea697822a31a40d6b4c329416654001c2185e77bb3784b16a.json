@@ -1,0 +1,22 @@
+{
+  "content": "module ImplicationDirection\nvar p : Bool\nvar q : Bool\ndef forward : Proposition := p => q\ndef backward : Proposition := q => p\nassume p => q",
+  "reasoning": "*   Module name: `ImplicationDirection`\n    *   Statements to encode (in order):\n        1.  `p` is a `var` of type `Bool`.\n        2.  `q` is a `var` of type `Bool`.\n        3.  Definition `forward`: codomain `Proposition`, body `p => q`.\n        4.  Definition `backward`: codomain `Proposition`, body `q => p`.\n        5.  Assumption: `p => q`.\n\n    *   Module header: `module ImplicationDirection`\n    *   Variable declarations: `var <name> : <Type>`\n    *   Definitions: `def <name> : <Type> := <expr>`\n    *   Assumptions: `assume <prop>`\n\n    *   `module ImplicationDirection`\n    *   `var p : Bool`\n    *   `var q : Bool`\n    *   `def forward : Proposition := p => q`\n    *   `def backward : Proposition := q => p`\n    *   `assume p => q`\n\n    *   ASCII only? Yes.\n    *   One statement per line? Yes.\n    *   No solving, adding, removing or changing anything? Yes.\n    *   Faithful to the provided structured target and instructions? Yes.",
+  "prompt_tokens": 3009,
+  "completion_tokens": 331,
+  "total_tokens": 3340,
+  "latency_s": 28.569,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "98a96c392659823ea697822a31a40d6b4c329416654001c2185e77bb3784b16a",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 6144,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-06T14:56:41Z"
+}

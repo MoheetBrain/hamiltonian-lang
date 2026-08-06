@@ -1,0 +1,50 @@
+{
+  "A_v0_labelled_linear": {
+    "surface": "A_v0_labelled_linear",
+    "n": 8,
+    "repaired_parse": 7,
+    "exact_semantic": 7,
+    "first_pass_parse": 7,
+    "first_pass_exact": 7,
+    "constitutional_failures": 1,
+    "tokens": 31987,
+    "latency_s": 595.1,
+    "viable": false
+  },
+  "B_v1_labelled_linear_simplified": {
+    "surface": "B_v1_labelled_linear_simplified",
+    "n": 8,
+    "repaired_parse": 7,
+    "exact_semantic": 7,
+    "first_pass_parse": 7,
+    "first_pass_exact": 7,
+    "constitutional_failures": 0,
+    "tokens": 38178,
+    "latency_s": 1017.3,
+    "viable": true
+  },
+  "C_prefix_sexpr": {
+    "surface": "C_prefix_sexpr",
+    "n": 8,
+    "repaired_parse": 5,
+    "exact_semantic": 5,
+    "first_pass_parse": 5,
+    "first_pass_exact": 5,
+    "constitutional_failures": 1,
+    "tokens": 39714,
+    "latency_s": 1329.9,
+    "viable": false
+  },
+  "D_constrained_json_graph": {
+    "surface": "D_constrained_json_graph",
+    "n": 8,
+    "repaired_parse": 0,
+    "exact_semantic": 0,
+    "first_pass_parse": 0,
+    "first_pass_exact": 0,
+    "constitutional_failures": 1,
+    "tokens": 60386,
+    "latency_s": 3370.9,
+    "viable": false
+  }
+}

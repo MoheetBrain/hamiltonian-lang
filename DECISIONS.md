@@ -902,3 +902,38 @@ translation, and it penalises whichever surface is hardest to *guess* rather tha
 
 **Reversal.** Point `DEMONSTRATIONS` back at `PROOF_CORPUS[:k]` and drop the `GIVEN:` block.
 Reversal reintroduces answer exposure across tasks and measures guessability.
+
+## D-033 — Tranche A is void on truncation; surface D is eliminated by upper bound
+
+**Date.** 2026-08-06 · **Status.** Accepted
+
+**Decision.** The completed 32-condition Tranche A run is `MEASUREMENT_INVALID`. Surface D
+is eliminated **without a rerun**, by a bound no resolution of its truncated record escapes.
+
+**Why the run is void.** Three conditions hit the 6,144-token completion allowance, and the
+truncation is outcome-determining for two of four surfaces. Surface A is 7/8 exact and fails
+the gate *solely* on its one truncation, since `constitutional failures = 0` is required.
+Surface C's truncated condition is one of its three non-parses, so without it C's
+repaired-parse count would cross the 6/8 threshold. The truncated attempts show the model
+**deliberating** — it wrote a correct surface-A encoding, replied to itself `-> NO!`, started
+again and ran out of budget — while the same model answered the same task cleanly in surface
+B. That is decoding instability meeting a cap, not a measurement of what a notation can
+express. It is the mechanism that already voided the v1 calibration (56/76 capped at 2,048).
+
+**The cap was not forced by the runtime**: slot 16,384, prompt ~3,000, so ~13,000 tokens
+were free. 6,144 was chosen before this corpus's generation behaviour was known.
+
+**Why D needs no rerun.** Its repaired-parse count is 0/8; exactly one D record truncated,
+and only in *repair* (its attempt zero finished `stop` at 3,866 tokens and failed on
+content). Granting that record the most favourable possible resolution gives at most 1/8
+against a frozen threshold of 6/8. Arithmetic, not taste. The failure class is schema
+conformance: every D attempt emitted a *triples* encoding where the candidate specifies a
+`statements` array, and all failed at import rather than at the compiler.
+
+**Not deleted.** All 32 records are preserved with a manifest of prompt and bundle hashes.
+They are admissible for debugging and operational planning and **must never** enter the
+valid Tranche A aggregate.
+
+**Reversal.** Treat the truncated conditions as legitimate failures and report A and C as
+non-viable. Reversal publishes a confidently wrong claim about two notations on the strength
+of a harness parameter.

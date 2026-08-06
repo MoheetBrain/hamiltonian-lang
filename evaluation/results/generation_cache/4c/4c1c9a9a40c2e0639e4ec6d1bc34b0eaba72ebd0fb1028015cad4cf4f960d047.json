@@ -1,0 +1,22 @@
+{
+  "content": "module DimensionalAlgebra\nvar force : Quantity[Length * Mass / Time^2]\nvar duration : Quantity[Time]\ndef impulse : Quantity[Length * Mass / Time] := force * duration\ncheck dimension impulse = Length * Mass / Time",
+  "reasoning": "*   Module name: `DimensionalAlgebra`\n    *   Statement 1: `force` (var) : `Quantity[Length * Mass / Time^2]`\n    *   Statement 2: `duration` (var) : `Quantity[Time]`\n    *   Statement 3: `impulse` (def) : `Quantity[Length * Mass / Time]` := `force * duration`\n    *   Statement 4: check dimension of `impulse` = `Length * Mass / Time`\n\n    *   Module header: `module DimensionalAlgebra`\n    *   Variable declaration: `var <name> : <Type>`\n    *   Definition: `def <name> : <Type> := <expr>`\n    *   Dimension check: `check dimension <expr> [= <dimension>]`\n\n    *   S1: `var force : Quantity[Length * Mass / Time^2]`\n    *   S2: `var duration : Quantity[Time]`\n    *   S3: `def impulse : Quantity[Length * Mass / Time] := force * duration`\n    *   S4: `check dimension impulse = Length * Mass / Time`\n\n    *   ASCII only? Yes.\n    *   One statement per line? Yes.\n    *   Module header included? Yes.\n    *   No extra goals or statements? Yes.\n    *   Correct types and operators? Yes (`Quantity[...]`, `*`, `/`, `^`).",
+  "prompt_tokens": 2909,
+  "completion_tokens": 373,
+  "total_tokens": 3282,
+  "latency_s": 26.917,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "4c1c9a9a40c2e0639e4ec6d1bc34b0eaba72ebd0fb1028015cad4cf4f960d047",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 6144,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-06T15:40:40Z"
+}

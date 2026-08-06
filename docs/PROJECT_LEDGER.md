@@ -2004,3 +2004,66 @@ an unadvertised tag measures instruction-following, which is a different experim
 penalises a correct answer for its packaging.
 
 **Next intended step.** Complete Tranche A and apply the preregistered continuation rule.
+
+---
+
+## 2026-08-06 — Tranche A closed MEASUREMENT_INVALID; surface D eliminated by upper bound
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** ACQ0 measurement recovery.
+
+**Objective.** Close the invalid run honestly, preserve every record with a manifest, and
+eliminate the one surface that needs no rerun.
+
+**Files and systems changed.** `evaluation/results/acq0/v2_tranche_a/`: 32 immutable
+condition records (unchanged), new `MEASUREMENT_INVALID.md` and `RUN_MANIFEST.json`. D-033
+in `DECISIONS.md`. No instrument file was touched — not the corpus, prompts, demonstrations,
+surfaces, importer, canonicaliser, scorer, comparator or thresholds.
+
+**What was completed.** The run finished all 32 conditions. Integrity audited clean on every
+axis except the cap: matrix complete, one immutable record per condition, all 35 required
+fields present, every recorded prompt hashes its own recorded prompt AND matches the frozen
+builder today, every bundle hash recomputes, zero transport failures, zero empty attempts,
+and no tracked repository file was altered during measurement.
+
+**Three conditions hit the 6,144-token completion allowance**, and the truncation is
+outcome-determining. Surface A is 7/8 exact and fails the gate *solely* on that one
+truncation. Surface C's truncated condition is one of its three non-parses. The truncated
+attempts show deliberation, not inexpressibility: the model wrote a correct surface-A
+encoding, replied `-> NO!` to itself, restarted and ran out of budget, while answering the
+same task cleanly in surface B.
+
+**Surface D was eliminated by upper bound**, mechanically: repaired parse 0/8; exactly one
+truncated record, in repair only; best attainable 1/8; frozen threshold 6/8.
+
+**Decisions made and why.** D-033. The run is void rather than "a result with three bad
+conditions", because reporting A and C as non-viable would publish a confidently wrong claim
+about two notations on the strength of a harness parameter — the same mechanism that voided
+the v1 calibration at 2,048 tokens. The cap was not forced by the runtime: ~13,000 tokens
+were free in the slot.
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| task x surface matrix | complete 8x4, 0 missing, 0 duplicate |
+| required fields, all records | 32/32 |
+| recorded prompt hash == its own prompt | 32/32 |
+| recorded prompt hash == frozen builder today | 32/32, no drift |
+| bundle hashes recomputable | 32/32 |
+| transport failures / empty attempts | 0 / 0 |
+| truncations | **3** — two attempt-zero, one repair |
+| D upper bound | 0/8 + 1 truncated = **1/8 < 6/8** |
+
+**Failures and unresolved uncertainty.**
+
+- The completion allowance is a chosen parameter that was set before the corpus's generation
+  behaviour was known, and nothing predicted the deliberation loops. No test could have
+  failed here; the defect was found by auditing finish reasons.
+- Whether 12,288 is sufficient is **not yet known** — that is what the cap probe is for.
+- The exploratory table is preserved but is not evidence about any surface.
+
+**Effect.** No invalid number enters any aggregate, and one surface is closed out on
+arithmetic rather than on a rerun.
+
+**Next intended step.** A two-condition operational cap probe at 12,288 on the two prompts
+that truncated, then a clean 8x3 survivor rerun if both finish normally.

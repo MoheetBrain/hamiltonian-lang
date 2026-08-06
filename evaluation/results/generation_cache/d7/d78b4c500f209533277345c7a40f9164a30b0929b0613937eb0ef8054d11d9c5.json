@@ -1,0 +1,22 @@
+{
+  "content": "```lisp\n(module ApproximationBoundary\n  (dec const target Real 2)\n  (dec var estimate Real)\n  (dec const tolerance PositiveReal 0.01)\n  (require (< (- estimate target) tolerance))\n  (require (< (- target estimate) tolerance)))\n```",
+  "reasoning": "*   Module Name: `ApproximationBoundary`\n    *   Statement 1: Constant `target`, type `Real`, value `2`.\n    *   Statement 2: Variable `estimate`, type `Real`.\n    *   Statement 3: Constant `tolerance`, type `PositiveReal`, value `0.01`.\n    *   Statement 4: Requirement `estimate - target < tolerance`.\n    *   Statement 5: Requirement `target - estimate < tolerance`.\n\n    *   `module`: `(module <Name> <statement> ...)`\n    *   `const`: `(const <name> <type> <expr>)` (Wait, the demo shows `(dec const a Real 2)`, let me check the reference).\n        *   Reference says: `(const <name> <type> <expr>)`.\n        *   DemoBinding says: `(dec const a Real 2)`.\n        *   DemoLaw says: `(dec obs y Real 3)`.\n        *   Wait, the reference section lists declarations as `(var ...)`, `(param ...)`, `(const ...)`, `(obs ...)`. But the demos use `(dec var ...)` and `(dec const ...)`. Let me re-examine.\n        *   DemoBinding: `(dec const a Real 2)`, `(dec var b Real)`.\n        *   DemoConstraint: `(dec var t PositiveReal)`.\n        *   DemoLaw: `(dec param sigma PositiveReal)`, `(dec obs y Real 3)`.\n        *   Conclusion: The demos use the prefix `dec` for declarations. I will follow the demo pattern as it's more specific to the actual output expected.\n\n    *   `var`: `(dec var <name> <type>)`.\n    *   `require`: `(require <expr>)`.\n    *   Operators: `(- a b)`, `(< a b)`.\n\n    *   S1: `(dec const target Real 2)`\n    *   S2: `(dec var estimate Real)`\n    *   S3: `(dec const tolerance PositiveReal 0.01)`\n    *   S4: `(require (< (- estimate target) tolerance))`\n    *   S5: `(require (< (- target estimate) tolerance))`\n\n    ```lisp\n    (module ApproximationBoundary\n      (dec const target Real 2)\n      (dec var estimate Real)\n      (dec const tolerance PositiveReal 0.01)\n      (require (< (- estimate target) tolerance))\n      (require (< (- target estimate) tolerance)))\n    ```\n\n    *   Module name correct? Yes (`ApproximationBoundary`).\n    *   `target` constant, type `Real`, value `2`? Yes.\n    *   `estimate` variable, type `Real`? Yes.\n    *   `tolerance` constant, type `PositiveReal`, value `0.01`? Yes.\n    *   Requirement 1: `estimate - target < tolerance`? Yes (`(< (- estimate target) tolerance)`).\n    *   Requirement 2: `target - estimate < tolerance`? Yes (`(< (- target estimate) tolerance)`).\n    *   No extra goals or statements? Yes.",
+  "prompt_tokens": 3090,
+  "completion_tokens": 780,
+  "total_tokens": 3870,
+  "latency_s": 50.879,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "d78b4c500f209533277345c7a40f9164a30b0929b0613937eb0ef8054d11d9c5",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 6144,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-06T15:11:36Z"
+}

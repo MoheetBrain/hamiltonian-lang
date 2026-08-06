@@ -1,0 +1,22 @@
+{
+  "content": "module ProbabilityRole\nparam theta : Probability\nprior theta ~ Beta(alpha := 2, beta := 5)\nobs successes : Natural = 7\nobs trials : Natural = 10\nlikelihood successes | theta ~ Binomial(trials := trials, prob := theta)",
+  "reasoning": "*   Module name: `ProbabilityRole`\n    *   Statement 1: `theta` is a `param` of type `Probability`.\n    *   Statement 2: Prior for `theta` is `Beta(alpha := 2, beta := 5)`.\n    *   Statement 3: Observed quantity `successes` is `Natural`, value `7`.\n    *   Statement 4: Observed quantity `trials` is `Natural`, value `10`.\n    *   Statement 5: Likelihood of `successes` given `theta` is `Binomial(trials := trials, prob := theta)`.\n\n    *   Module header: `module ProbabilityRole`\n    *   Param declaration: `param <name> : <Type>` -> `param theta : Probability`\n    *   Prior law: `prior <target> ~ <Family>(<role> := <expr>, ...)` -> `prior theta ~ Beta(alpha := 2, beta := 5)`\n    *   Observed datum: `obs <name> : <Type> = <expr>` -> `obs successes : Natural = 7` and `obs trials : Natural = 10`\n    *   Likelihood law: `likelihood <target> | <given> ~ <Family>(<role> := <expr>, ...)` -> `likelihood successes | theta ~ Binomial(trials := trials, prob := theta)`\n\n    ```\n    module ProbabilityRole\n    param theta : Probability\n    prior theta ~ Beta(alpha := 2, beta := 5)\n    obs successes : Natural = 7\n    obs trials : Natural = 10\n    likelihood successes | theta ~ Binomial(trials := trials, prob := theta)\n    ```\n\n    *   ASCII only? Yes.\n    *   One statement per line? Yes.\n    *   `#` for comments (none needed)? Yes.\n    *   Module header present? Yes.\n    *   Types correct (`Probability`, `Natural`)? Yes.\n    *   Law syntax correct (labelled roles, target/given)? Yes.\n    *   No extra goals or statements added? Yes.",
+  "prompt_tokens": 3008,
+  "completion_tokens": 526,
+  "total_tokens": 3534,
+  "latency_s": 35.138,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "bca976bc83c481a7f482448caf50e2ab2ab0725a4b5cba43c38eadcf1e4a1d5f",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 6144,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-06T15:30:43Z"
+}
