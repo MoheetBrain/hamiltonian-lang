@@ -1422,3 +1422,84 @@ tree.
 
 **Next intended step.** Audit on `integration/m1.5-paper-derived-closeout`; finish or
 quarantine the three interrupted subsystems; then freeze M1.5.
+
+---
+
+## 2026-08-06 — M1.5: four agents integrated; two soundness defects closed
+
+**Branch.** `integration/m1.5-paper-derived-closeout`
+
+**Project stage.** HML-RESUME-RECOVER-FREEZE-ACQ0-006, integration.
+
+**Objective.** Finish the three interrupted subsystems, falsify the four that reported
+ready, and close whatever the falsifier finds.
+
+**What was completed.**
+
+All four resumed agents returned: `ACQ0_PROTOCOL_READY_FOR_PROBE`,
+`HML_CHAIN_OF_REPAIR_READY`, `M3_LITE_CORPUS_READY`,
+`M1_5_FALSIFICATION_FOUND_DEFECTS`.
+
+*The falsifier earned its place.* Five reproduced defects, two of them soundness breaks in
+endpoints that gate published numbers. Both are now closed by the Lead:
+
+- **D-026 (F-2).** `partiality_risk` had no `Ref` case while `_to_sympy` inlines
+  definitions, so the guard inspected a different expression from the one SymPy decided.
+  `def q := x / x ; prove q = 1` with `x : Real` reached **VERIFIED** — false at zero — and
+  `classify` inherited it. Reproduced by the Lead before fixing.
+- **D-027 (F-1).** The Tier-1 name lock required *exact* vocabulary equality, so renaming
+  one unused declaration disabled it and Tier 1 certified `p=>q` as equivalent to `q=>p`.
+  A false-positive equivalence is the one error class the scorer trades coverage to avoid.
+
+*Three further findings*, fixed by their owners or recorded: F-3 silent budget overflow
+(`completion_allowance` unvalidated, now floored); F-4 repair-plan leak via statement
+permutation; F-5 a soundness allowlist re-exported by value, giving two disagreeing copies.
+
+*The interrupted agents' own controls were the missing part*, as predicted. Chain-of-Repair
+found its leakage harness reported a **floor effect as a finding** — `PLAN_NOT_USEFUL` with
+reasoning explaining a gain that never occurred — and a pre-existing test built on a
+**ceiling fixture**, demonstrating "C fails to beat A" using a case where C cannot. Every
+fixture was a stipulation: the scripted probe ignored its inputs entirely.
+
+*The governance fixture was worse than "does not compile".* It declared `centre : Real`,
+making the role swap visible to the type checker, so gate 1 rejected it and gate 2 never
+ran — **the test asserted the opposite of its own thesis.** Quarantine lifted only after 15
+targeted mutations were each shown to fail the guarding test.
+
+*The stale token figure was not merely stale — the 50-demo curriculum is impossible.*
+Estimated on frozen material: A 9,857, D **35,321** tokens against a 5,888 ceiling. D
+exceeds the entire 32,768 context; at 10 demos D alone (8,494) exceeds the 8,192 slot. At 5
+demos D fits `4x8192` only if the real tokeniser beats 2.48 chars/token — genuinely
+undecidable offline, which is exactly why the probe must run.
+
+**Tests and verification actually executed.**
+
+| command | result |
+|---------|--------|
+| `pytest -n 18` | **4927 passed, 4 skipped, 7 xfailed, 7 xpassed** |
+| `./scripts/conformance.sh` | **CONFORMANCE: PASS**, 8/8, no override |
+| `ruff check src tests` · `mypy src/hamiltonian_lang` | clean · Success, 76 files |
+| D-026 probes | `def q := x/x` with `x : Real` UNSUPPORTED; with `PositiveReal` VERIFIED |
+| D-027 probes | `a>b`/`b>a`, `a-b>0`/`b-a>0`, `a/b=2`/`b/a=2` all COUNTEREXAMPLE_FOUND under both spare variants; `a=a`/`b=b` still EQUIVALENT |
+| equivalence benchmark | 49/49 decided, precision 1.000, **0 false positives** |
+
+**Failures and unresolved uncertainty.**
+
+- **A Lead verification was incomplete and the falsifier caught it.** "VERIFIED is
+  reachable and refusable" was established on the *direct* form only; the indirect form
+  behind a `def` was never tested and was unsound. Recorded in D-026.
+- The 49-pair equivalence corpus contains **no spare-rename case**, so precision 1.000 was
+  untested exactly where model output will hit it. D-027 is pinned by the falsifier's
+  adversarial tests, not by the corpus.
+- Repair-plan **usefulness** (`C > A`, `C > D`) is unmeasurable offline; every measured
+  B rate is exactly 0.0 or 1.0, so the 0.10 leak threshold has never discriminated.
+- **No token count anywhere is a measurement.** Every figure is a character estimate; the
+  probe is built, stub-tested, and unrun. The five-example curriculum is PROVISIONAL.
+- **ACQ0 = UNTESTED. H1 = H2 = H3 = UNTESTED.** No experimental model call has been made.
+
+**Effect on the overall project.** Two endpoints that would have gated published numbers
+were unsound and are now sound. The context budget is known to be the binding constraint,
+and known not yet to be measured.
+
+**Next intended step.** Freeze and tag M1.5, then run the authoritative context-budget
+probe.

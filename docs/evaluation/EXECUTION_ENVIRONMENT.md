@@ -57,6 +57,17 @@ requests to queue while still competing for bandwidth, and throughput falls back
 curriculum is the longest prompt in the tournament and **must be measured against the
 8192 per-slot budget, not the 32768 total**.
 
+> **SUPERSEDED for ACQ0 — see `docs/evaluation/ACQ0_CONTEXT_BUDGET.md`.**
+> The table below is a real measurement and is preserved as one. It is **not
+> authoritative for the syntax tournament or for ACQ0**, because it was measured on the
+> legacy V0 material in `benchmarks/representations/` and **not on the frozen
+> syntax-gate curricula those experiments actually use**. The frozen curricula are
+> several times larger: at 50 demonstrations, candidate A estimates at ~9,857 tokens and
+> candidate D at ~35,321 — against the 5,893 recorded here. The caveat two paragraphs
+> below ("if the frozen curricula are materially longer, re-measure before Phase G2")
+> has therefore **triggered**, and no curriculum above 5 demonstrations should be assumed
+> to fit any slot.
+
 Measured with Ollama's own `prompt_eval_count` (not a chars-per-token estimate), building
 curricula from the 24 paired English/HML demonstrations in `benchmarks/representations/`:
 

@@ -38,6 +38,7 @@ from enum import StrEnum
 from typing import Any
 
 from evaluation.corpus.cso import ANSWER_CLOSE, ANSWER_OPEN
+
 from hamiltonian_lang.improvement.state import Hypothesis
 
 from .items import LiteItem

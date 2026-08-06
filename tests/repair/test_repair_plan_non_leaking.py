@@ -21,8 +21,10 @@ from hamiltonian_lang.repair import (
     PlanLeak,
     RepairPlan,
     assert_plan_non_leaking,
+    is_program_like,
     numerals_in,
     plan_leak_reasons,
+    statement_lines,
 )
 
 # --- a minimal, valid plan to mutate ---------------------------------------------
@@ -141,6 +143,37 @@ def test_a_numeral_already_visible_to_the_learner_is_not_novel() -> None:
         plan, forbid_novel_numerals=True, known_numerals=numerals_in("f takes 2, got 1")
     )
     assert reasons == []
+
+
+def test_a_short_but_complete_corrected_statement_still_leaks() -> None:
+    """The blind spot the leakage harness surfaced.
+
+    ``param x : Real`` carries three significant tokens — below the fragment floor — and
+    is nonetheless the entire answer to an unknown-type diagnostic. A pure token-count
+    guard let exactly that class of short corrected statement through unflagged, so the
+    boundary check and the reconstruction study disagreed about the same plan.
+    """
+    target = "param x : Real"
+    plan = make_plan(repair_steps=(f"Replace the annotation: {target}",))
+    assert is_program_like(target)
+    reasons = plan_leak_reasons(plan, target_program=target)
+    assert any("complete corrected program" in r for r in reasons)
+
+
+@pytest.mark.parametrize("fragment", ["x", "Real", "f(1.0)", "the call site"])
+def test_a_fragment_that_is_not_a_statement_is_not_treated_as_the_answer(
+    fragment: str,
+) -> None:
+    """The floor still holds. Otherwise every plan naming a variable would 'leak'."""
+    assert not is_program_like(fragment)
+    plan = make_plan(repair_steps=(f"Look again at {fragment} and correct it.",))
+    assert plan_leak_reasons(plan, target_program=fragment) == []
+
+
+def test_the_two_leak_mechanisms_share_one_notion_of_a_statement() -> None:
+    """A drift between them would show up as a silent disagreement, in either direction."""
+    assert statement_lines("param x : Real\nRead the rule above.") == ["param x : Real"]
+    assert all(is_program_like(s) for s in statement_lines("def g : Real := f(1.0, 2.0)"))
 
 
 def test_a_clean_plan_passes_and_is_returned_unchanged() -> None:

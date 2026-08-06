@@ -48,9 +48,12 @@ __all__ = [
     "PLAN_VERSION",
     "MAX_STEPS",
     "MAX_STEP_LINES",
+    "STATEMENT_KEYWORDS",
     "RepairPlan",
     "NoPlan",
     "PlanLeak",
+    "statement_lines",
+    "is_program_like",
     "plan_leak_reasons",
     "assert_plan_non_leaking",
 ]
@@ -195,8 +198,11 @@ class RepairPlan:
 # The non-leaking contract
 # ---------------------------------------------------------------------------
 
-#: Statement keywords. More than one in a single step means the step is a program.
-_STATEMENT_KEYWORDS = (
+#: Statement keywords — the tokens a Hamiltonian Lang statement may open with. More than
+#: one in a single step means the step is a program. Public because the leakage harness's
+#: reconstruction probe needs the *same* notion of "this line is a statement, not prose";
+#: two definitions of that would drift and the drift would be invisible.
+STATEMENT_KEYWORDS = (
     "module", "param", "const", "var", "obs", "result", "def", "law", "prior",
     "likelihood", "assume", "require", "prove", "minimise", "maximise", "minimize",
     "maximize", "solve", "infer", "check", "concept",
@@ -209,15 +215,52 @@ _NUMERAL = re.compile(r"(?<![A-Za-z0-9_.])-?\d+(?:\.\d+)?(?![A-Za-z0-9_])")
 
 _WS = re.compile(r"\s+")
 
-#: Below this many significant tokens a "program" is too short for containment to mean
-#: anything: every plan mentioning ``x`` would otherwise count as a leak.
+#: Below this many significant tokens a fragment is too short for containment to mean
+#: anything: every plan mentioning ``x`` would otherwise count as a leak. It is a floor on
+#: *fragments only* — see :func:`is_program_like`.
 _MIN_PROGRAM_TOKENS = 4
 
 _TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*|[0-9.]+")
 
+#: A line is a *statement* when its first token opens one. Prose imperatives ("Read the
+#: rule above.", "Do not delete the failing construct.") never do, which separates an
+#: instruction from a program without parsing either.
+_LEADING_KEYWORD = re.compile(
+    rf"^\s*(?:{'|'.join(sorted(STATEMENT_KEYWORDS, key=len, reverse=True))})\s+\S"
+)
+
 
 def _normalise(text: str) -> str:
     return _WS.sub(" ", text).strip()
+
+
+def statement_lines(text: str) -> list[str]:
+    """Every line of ``text`` that opens with a statement keyword, in order.
+
+    The shared definition of "this is a program line, not prose". Both the leak detector
+    here and the leakage harness's reconstruction probe use it; two definitions would
+    drift, and a drift between them would show up as the two mechanisms disagreeing about
+    whether a plan carries the answer — silently, in opposite directions.
+    """
+    return [_normalise(line) for line in text.splitlines() if _LEADING_KEYWORD.match(line)]
+
+
+def is_program_like(text: str) -> bool:
+    """Whether ``text`` is substantial enough that containing it verbatim means something.
+
+    Either it is long enough to be a fragment worth matching, **or** it opens with a
+    statement keyword — a complete statement is a complete statement however short.
+    ``param x : Real`` carries three significant tokens and is nonetheless the whole
+    answer to an unknown-type diagnostic; a pure token-count floor lets exactly that
+    class of short corrected statement through unflagged.
+    """
+    normalised = _normalise(text)
+    if not normalised:
+        return False
+    return (
+        len(_TOKEN.findall(normalised)) >= _MIN_PROGRAM_TOKENS
+        or _LEADING_KEYWORD.match(normalised) is not None
+    )
 
 
 def plan_leak_reasons(
@@ -242,7 +285,7 @@ def plan_leak_reasons(
 
     if target_program:
         needle = _normalise(target_program)
-        if len(_TOKEN.findall(needle)) >= _MIN_PROGRAM_TOKENS and needle in haystack:
+        if is_program_like(needle) and needle in haystack:
             reasons.append(
                 "the plan contains the complete corrected program; a Learner given the "
                 "answer measures transcription, not verifier-guided repair"
@@ -264,7 +307,7 @@ def plan_leak_reasons(
                 "step that long is a replacement patch rather than an instruction"
             )
         found = {
-            kw for kw in _STATEMENT_KEYWORDS
+            kw for kw in STATEMENT_KEYWORDS
             if re.search(rf"(?<![A-Za-z0-9_]){kw}\s", step)
         }
         if len(found) > 1:

@@ -40,6 +40,7 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 from evaluation.corpus.cso import AnswerSpec, CanonicalSemanticObject, SemanticFacts
+
 from hamiltonian_lang.improvement.state import Hypothesis
 
 from . import ERROR_CATEGORIES, M3_LITE_VERSION, SEED_NAMESPACE

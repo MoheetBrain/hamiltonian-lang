@@ -656,3 +656,68 @@ are retained as secondary evidence and labelled as such.
 **Reversal.** Restore the module global and delete the two structural assertions. Reversal
 reintroduces silent cross-thread corruption and must not be done to make a threaded scorer
 simpler.
+
+## D-026 — the partiality guard must follow definitions
+
+**Date.** 2026-08-06 · **Status.** Accepted · **Closes falsifier finding F-2.**
+
+**Problem.** `checkers.partiality_risk` had no `Ref` case, while `checkers._to_sympy`
+inlines `env.definitions`. The guard therefore inspected a *different expression* from the
+one SymPy decided, and one line of idiomatic HML defeated it:
+
+```
+prove x / x = 1          , x : Real   ->  UNSUPPORTED   (guard sees the `/`)
+def q := x / x ; prove q = 1          ->  VERIFIED      (guard sees only `q`)
+```
+
+The second claim is **false at zero**, and `improvement.verification.classify` inherited
+the unsound verdict, so the H3 primary endpoint could be reached by a false claim.
+Generalises to `x ^ (-1)` and `x ^ 0`.
+
+**Decision.** Add a `Ref` case that follows `env.definitions`, mirroring what `_to_sympy`
+and `dimension_of_expr` already do. Guard and decision procedure now read the same
+expression.
+
+**Evidence.** `def q := x/x; prove q = 1` with `x : Real` -> `UNSUPPORTED`; with
+`x : PositiveReal` -> `VERIFIED`. So this is a fix, not a blanket refusal: the guard still
+lifts when the domain excludes zero. Regression controls hold — `2+2=4` VERIFIED,
+`2+2=5` DISPROVED.
+
+**Provenance, stated plainly.** The Lead had earlier verified "VERIFIED is reachable and
+refusable" using only the *direct* form and reported it as such. That verification was
+incomplete; the indirect form was not tested. The independent falsifier found it.
+
+---
+
+## D-027 — the Tier-1 name lock is the shared vocabulary, not exact equality
+
+**Date.** 2026-08-06 · **Status.** Accepted · **Closes falsifier finding F-1.**
+
+**Problem.** `matching.strict_match` enabled the module-level name lock only when the two
+vocabularies were *exactly* equal. Renaming a single **unused** declaration disabled it,
+and Tier 1 then certified a role swap:
+
+```
+p=>q vs q=>p, spare/spare   ->  VERIFIED_NONEQUIVALENT
+p=>q vs q=>p, spare/filler  ->  VERIFIED_EQUIVALENT   {p:q, q:p, spare:filler}
+```
+
+That is a **false-positive equivalence** — the one error class the scorer's whole design
+trades coverage to avoid, because it silently declares a wrong answer right and would
+corrupt every H1/H2 number. The 49-pair corpus contains no renaming case, so the reported
+precision of 1.000 was untested exactly where real model output will hit it.
+
+**Decision.** `Env.names_locked: bool` becomes `Env.locked_names: frozenset[str]`, holding
+the **intersection** of the two declared vocabularies. A name declared in both modules is
+being used as an identity and may not be permuted; a name genuinely absent from one side
+stays free, which preserves the coverage the original condition was protecting.
+
+**Evidence.** `a > b` vs `b > a`, `a - b > 0` vs `b - a > 0`, and `a / b = 2` vs
+`b / a = 2` all report `COUNTEREXAMPLE_FOUND` under **both** the same-spare and
+renamed-spare variants. Legitimate alpha-renaming (`a = a` vs `b = b`) still reports
+`VERIFIED_EQUIVALENT`. The 49-pair benchmark is unchanged: 49/49 decided, precision 1.000,
+zero false positives.
+
+**Limitation retained.** The benchmark still contains no spare-rename case. These fixes are
+pinned by the falsifier's own adversarial tests rather than by the corpus, and the corpus
+should gain such pairs before any H1/H2 number is computed.

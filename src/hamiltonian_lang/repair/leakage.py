@@ -25,9 +25,33 @@ can be recovered with the program removed has become the answer.
 The leak check takes precedence over the usefulness check. A leaking plan that is also
 useful is not a good plan — its usefulness is exactly the thing in doubt.
 
+The controls on the study itself
+--------------------------------
+A four-condition table can be arithmetically well formed and still measure nothing, and
+that failure is the one least likely to be noticed: the harness runs, every rate is
+populated, and the verdict reads like a finding.
+
+Two cases produce a table with no discriminating power at all:
+
+*The probe is at floor.* No condition reconstructed the target, anywhere. ``C > A`` and
+``C > D`` are then both false as arithmetic, not as evidence, and reporting
+``PLAN_NOT_USEFUL`` would state a conclusion about the plan drawn from a study in which
+nothing was measured.
+
+*The baseline is at ceiling.* Condition A already reconstructs every target without the
+plan. ``C > A`` is then unsatisfiable by construction, so the usefulness test is
+undecidable rather than failed, and the case set — not the plan — is what needs changing.
+
+Both yield :attr:`LeakageVerdict.INSUFFICIENT_EVIDENCE` with the cause recorded in a
+machine-readable :class:`EvidenceGap`. The leak check still runs first: detecting a leak is
+a positive finding, and it stays valid in a study that is otherwise powerless.
+
 Offline by construction
 -----------------------
-:class:`LeakageProbe` is a Protocol and the shipped implementation is scripted.
+:class:`LeakageProbe` is a Protocol and both shipped implementations are deterministic.
+:class:`ScriptedLeakageProbe` replays a fixture. :class:`ReconstructionProbe` actually
+*reads* the material it is given — it is what makes a leak measurable rather than merely
+stipulated by a fixture that asserts its own conclusion. Neither calls a model.
 :func:`run_leakage_study` refuses a probe that declares ``live`` unless ``allow_live`` is
 set, so building and testing this harness cannot start making model calls by accident.
 The Lead authorises live runs separately.
@@ -41,7 +65,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Protocol, runtime_checkable
 
-from .plan import RepairPlan
+from .plan import RepairPlan, statement_lines
 
 __all__ = [
     "LEAKAGE_VERSION",
@@ -54,8 +78,11 @@ __all__ = [
     "LeakageCase",
     "LeakageProbe",
     "ScriptedLeakageProbe",
+    "ReconstructionProbe",
+    "statement_lines",
     "LeakageTrial",
     "ConditionRate",
+    "EvidenceGap",
     "LeakageVerdict",
     "LeakageReport",
     "shuffle_plan",
@@ -173,14 +200,22 @@ def shuffle_plan(
     order = _seeded_permutation(len(steps), seed)
     shuffled = tuple(steps[i] for i in order)
     if shuffled == steps:
-        # One retry with a derived seed. Still equal means the permutation space is
-        # exhausted for this length, which is reported rather than papered over.
+        # One retry with a derived seed. A short plan is genuinely likely to draw the
+        # identity — a two-step plan has only one non-identity permutation, so each seeded
+        # draw is a coin flip — and losing its D trial to chance would cost the study
+        # power for no reason that has anything to do with the plan.
         order = _seeded_permutation(len(steps), seed + "!")
         shuffled = tuple(steps[i] for i in order)
     if shuffled == steps:
+        # Deterministic last resort: reversal. For distinct steps it is a genuine
+        # reordering, it is reproducible without a seed, and it is still an order that
+        # does not describe a repair — which is all condition D asks of it.
+        shuffled = tuple(reversed(steps))
+    if shuffled == steps:
+        # Reached only by a palindromic step list, where reversal is also the identity.
         raise ShuffleDegenerate(
-            "the seeded permutation is the identity for this plan; the D condition would "
-            "duplicate C"
+            "every permutation tried, including reversal, reproduces this plan's own step "
+            "order; the D condition would duplicate C"
         )
     from dataclasses import replace
 
@@ -190,6 +225,10 @@ def shuffle_plan(
 # ---------------------------------------------------------------------------
 # Probes
 # ---------------------------------------------------------------------------
+
+
+def _normalise(text: str) -> str:
+    return " ".join(text.split())
 
 
 @runtime_checkable
@@ -235,13 +274,65 @@ class ScriptedLeakageProbe:
         return self.script.get((case.case_id, condition), "")
 
 
+@dataclass
+class ReconstructionProbe:
+    """A probe that reads its material instead of replaying a fixture.
+
+    Why this exists
+    ---------------
+    A scripted probe ignores ``broken_output`` and ``plan`` entirely, so every rate it
+    produces is a stipulation: the fixture asserts the conclusion the study then reports.
+    That is adequate for testing the verdict arithmetic and worthless as a control. This
+    probe makes the *leak* half of the study a measurement — it reconstructs from the
+    material it was actually handed, so B rises above floor only when the plan really does
+    carry the answer.
+
+    The reading rule
+    ----------------
+    A reader shown a complete statement inside the plan copies it. A reader shown only the
+    broken program can at best repeat it. So:
+
+    1. the last statement-shaped line in the **plan's own text**, if there is one;
+    2. otherwise the last statement-shaped line in the **broken output**;
+    3. otherwise nothing.
+
+    Rule 2 is what makes condition A a true floor by construction rather than by fixture:
+    repeating the broken program is never the target.
+
+    What it cannot do
+    -----------------
+    It cannot repair. It has no reasoning capacity, so ``C`` can never exceed ``A`` under
+    it and the *usefulness* half of the study is unmeasurable offline — which is reported
+    as :attr:`EvidenceGap.PROBE_AT_FLOOR` rather than as a finding about the plan.
+    """
+
+    name: str = "reconstruction"
+    live: bool = False
+    calls: list[tuple[str, LeakageCondition]] = field(default_factory=list)
+
+    def attempt(
+        self,
+        *,
+        case: LeakageCase,
+        condition: LeakageCondition,
+        broken_output: str | None,
+        plan: RepairPlan | None,
+    ) -> str:
+        self.calls.append((case.case_id, condition))
+        if plan is not None:
+            from_plan = [s for f in plan.text_fields() for s in statement_lines(f)]
+            if from_plan:
+                return from_plan[-1]
+        if broken_output:
+            from_broken = statement_lines(broken_output)
+            if from_broken:
+                return from_broken[-1]
+        return ""
+
+
 # ---------------------------------------------------------------------------
 # Trials and the report
 # ---------------------------------------------------------------------------
-
-
-def _normalise(text: str) -> str:
-    return " ".join(text.split())
 
 
 @dataclass(frozen=True)
@@ -300,6 +391,28 @@ class LeakageVerdict(StrEnum):
     INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
 
 
+class EvidenceGap(StrEnum):
+    """Why no verdict about the plan could be issued. Machine-readable on purpose.
+
+    ``INSUFFICIENT_EVIDENCE`` has four distinct causes and they demand different fixes —
+    more cases, a more capable probe, harder cases. A reader who has to parse the prose to
+    tell them apart will not, and will read all four as "inconclusive, try again".
+    """
+
+    #: A verdict about the plan *was* issued; there is no gap.
+    NONE = "none"
+    #: No cases were supplied at all.
+    NO_CASES = "no_cases"
+    #: At least one condition has fewer usable trials than the minimum.
+    TOO_FEW_TRIALS = "too_few_trials"
+    #: No condition reconstructed the target anywhere. The comparisons are false as
+    #: arithmetic, not as evidence. Fix: a probe that can reconstruct at all.
+    PROBE_AT_FLOOR = "probe_at_floor"
+    #: Condition A already reconstructs every target without the plan, so ``C > A`` is
+    #: unsatisfiable by construction. Fix: cases the baseline does not already solve.
+    BASELINE_AT_CEILING = "baseline_at_ceiling"
+
+
 @dataclass(frozen=True)
 class LeakageReport:
     """Rates, verdict, and every parameter the verdict depends on."""
@@ -312,7 +425,22 @@ class LeakageReport:
     reasoning: str
     shuffle_mode: ShuffleMode
     seed: str
+    evidence_gap: EvidenceGap = EvidenceGap.NONE
     leakage_version: str = LEAKAGE_VERSION
+
+    def __post_init__(self) -> None:
+        issued = self.verdict is not LeakageVerdict.INSUFFICIENT_EVIDENCE
+        if issued and self.evidence_gap is not EvidenceGap.NONE:
+            raise ValueError(
+                f"verdict {self.verdict} was issued but the report also records the "
+                f"evidence gap {self.evidence_gap}; a verdict and a reason there is no "
+                "verdict cannot both be true"
+            )
+        if not issued and self.evidence_gap is EvidenceGap.NONE:
+            raise ValueError(
+                "INSUFFICIENT_EVIDENCE was returned without an EvidenceGap; the reason no "
+                "verdict could be issued is the only useful part of that result"
+            )
 
     def rate(self, condition: LeakageCondition) -> float:
         for r in self.rates:
@@ -330,11 +458,15 @@ class LeakageReport:
             "reasoning": self.reasoning,
             "shuffle_mode": str(self.shuffle_mode),
             "seed": self.seed,
+            "evidence_gap": str(self.evidence_gap),
             "leakage_version": self.leakage_version,
         }
 
     def render(self) -> str:
-        lines = [f"leakage study [{self.verdict}]", self.reasoning, "rates:"]
+        head = f"leakage study [{self.verdict}]"
+        if self.evidence_gap is not EvidenceGap.NONE:
+            head += f" gap={self.evidence_gap}"
+        lines = [head, self.reasoning, "rates:"]
         lines += [
             f"  {r.condition}: {r.correct}/{r.n} = {r.rate:.3f}"
             + (f" ({r.excluded} excluded)" if r.excluded else "")
@@ -379,6 +511,7 @@ def run_leakage_study(
             reasoning="no cases were supplied",
             shuffle_mode=shuffle_mode,
             seed=seed,
+            evidence_gap=EvidenceGap.NO_CASES,
         )
 
     trials: list[LeakageTrial] = []
@@ -432,7 +565,9 @@ def run_leakage_study(
         )
         for c in LeakageCondition
     )
-    verdict, reasoning = _verdict(rates, leak_threshold=leak_threshold, min_trials=min_trials)
+    verdict, reasoning, gap = _verdict(
+        rates, leak_threshold=leak_threshold, min_trials=min_trials
+    )
     return LeakageReport(
         verdict=verdict,
         rates=rates,
@@ -442,12 +577,13 @@ def run_leakage_study(
         reasoning=reasoning,
         shuffle_mode=shuffle_mode,
         seed=seed,
+        evidence_gap=gap,
     )
 
 
 def _verdict(
     rates: Sequence[ConditionRate], *, leak_threshold: float, min_trials: int
-) -> tuple[LeakageVerdict, str]:
+) -> tuple[LeakageVerdict, str, EvidenceGap]:
     by = {r.condition: r for r in rates}
     a = by[LeakageCondition.A_BROKEN_ONLY]
     b = by[LeakageCondition.B_PLAN_ONLY]
@@ -461,15 +597,46 @@ def _verdict(
             LeakageVerdict.INSUFFICIENT_EVIDENCE,
             f"fewer than {min_trials} usable trials in: {names}. No verdict is issued; a "
             "verdict from too few trials is a claim, not a measurement.",
+            EvidenceGap.TOO_FEW_TRIALS,
         )
 
+    # The leak check runs before the power checks. Detecting a leak is a *positive*
+    # finding: B reconstructed the target, which is evidence regardless of how the other
+    # conditions behaved. A study with no power to judge usefulness still has power to
+    # catch a plan that carries the answer.
     if b.rate > leak_threshold:
         return (
             LeakageVerdict.PLAN_LEAKS,
             f"condition B (plan only, no broken output) reconstructed the target at "
             f"{b.rate:.3f}, above the {leak_threshold} threshold. The plan carries the "
             "answer, so any CHAIN_OF_REPAIR gain measured with it is uninterpretable.",
+            EvidenceGap.NONE,
         )
+
+    # -- power checks: is this table capable of distinguishing anything at all? --------
+
+    if max(r.rate for r in (a, b, c, d)) == 0.0:
+        return (
+            LeakageVerdict.INSUFFICIENT_EVIDENCE,
+            "no condition reconstructed the target in any trial. C > A and C > D are both "
+            "false as arithmetic rather than as evidence, so no conclusion about the plan "
+            "follows; reporting PLAN_NOT_USEFUL here would state a finding about a study "
+            "in which nothing was measured. The probe, not the plan, is what this result "
+            "is about.",
+            EvidenceGap.PROBE_AT_FLOOR,
+        )
+
+    if a.rate >= 1.0:
+        return (
+            LeakageVerdict.INSUFFICIENT_EVIDENCE,
+            f"condition A already reconstructs every target ({a.rate:.3f}) without the "
+            "plan, so C > A cannot be satisfied by any plan whatever. The usefulness test "
+            "is undecidable on this case set rather than failed by this plan; the cases "
+            "need to be ones the baseline does not already solve.",
+            EvidenceGap.BASELINE_AT_CEILING,
+        )
+
+    # -- the usefulness test, now that it can return a meaningful answer ---------------
 
     if c.rate > a.rate and c.rate > d.rate:
         return (
@@ -477,17 +644,27 @@ def _verdict(
             f"C ({c.rate:.3f}) exceeds both A ({a.rate:.3f}) and D ({d.rate:.3f}), and B "
             f"({b.rate:.3f}) stays at or below the {leak_threshold} threshold: the plan's "
             "content helps, and its content alone does not reconstruct the target.",
+            EvidenceGap.NONE,
         )
 
-    if c.rate <= d.rate:
-        return (
-            LeakageVerdict.PLAN_NOT_USEFUL,
-            f"C ({c.rate:.3f}) does not exceed D ({d.rate:.3f}). A correct plan performs "
-            "no better than a shuffled one, so the gain over A is attributable to being "
-            "prompted again with plan-shaped text, not to the plan's content.",
+    # Both comparisons are reported when both failed. The "prompted again with plan-shaped
+    # text" attribution is only sound when C *did* beat A — asserting it when C failed
+    # against A too would explain a gain that never occurred.
+    failures: list[str] = []
+    if c.rate <= a.rate:
+        failures.append(
+            f"C ({c.rate:.3f}) does not exceed A ({a.rate:.3f}): supplying the plan did "
+            "not beat supplying the broken output alone"
         )
-    return (
-        LeakageVerdict.PLAN_NOT_USEFUL,
-        f"C ({c.rate:.3f}) does not exceed A ({a.rate:.3f}). Supplying the plan did not "
-        "beat supplying the broken output alone.",
-    )
+    if c.rate <= d.rate:
+        note = (
+            f"C ({c.rate:.3f}) does not exceed D ({d.rate:.3f}): a correct plan performs "
+            "no better than a shuffled one"
+        )
+        if c.rate > a.rate:
+            note += (
+                ", so the gain over A is attributable to being prompted again with "
+                "plan-shaped text, not to the plan's content"
+            )
+        failures.append(note)
+    return (LeakageVerdict.PLAN_NOT_USEFUL, "; ".join(failures) + ".", EvidenceGap.NONE)

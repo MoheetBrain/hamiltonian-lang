@@ -1123,6 +1123,23 @@ def partiality_risk(expr: Expr, env: Environment, *, depth: int = 0) -> str | No
         return None
     if isinstance(expr, UnaryOp):
         return partiality_risk(expr.operand, env, depth=depth + 1)
+    if isinstance(expr, Ref):
+        # A definition must be followed, because `_to_sympy` inlines `env.definitions`
+        # before SymPy sees the expression. Without this case the guard inspected a
+        # *different* expression from the one being decided, so one line of idiomatic
+        # HML defeated it:
+        #
+        #     prove x / x = 1        , x : Real   ->  UNSUPPORTED   (guard sees the `/`)
+        #     def q := x / x ; prove q = 1        ->  VERIFIED      (guard sees only `q`)
+        #
+        # The second is false at zero, and the federation inherited the unsound verdict.
+        # Found by the M1.5 falsifier (F-2) and reproduced by the Lead. Mirrors the
+        # definition-following already done by `_to_sympy` and `dimension_of_expr`, so
+        # the guard and the decision procedure now read the same expression.
+        definition = env.definitions.get(expr.name)
+        if definition is not None:
+            return partiality_risk(definition.body, env, depth=depth + 1)
+        return None
     if isinstance(expr, (Comparison, LogicalOp)):
         for child in (expr.left, expr.right):
             risk = partiality_risk(child, env, depth=depth + 1)

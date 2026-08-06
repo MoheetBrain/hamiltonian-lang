@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import ast
 import pathlib
+from dataclasses import replace
 
 import pytest
 from evaluation.corpus.cso import AnswerSpec, SemanticFacts
@@ -60,6 +61,7 @@ from evaluation.corpus_governance.negation import (
     Refutation,
     attack,
     no_prover_available,
+    obligation_disprover,
     sympy_disprover,
 )
 from evaluation.corpus_governance.semantic_checks import (
@@ -88,6 +90,20 @@ from evaluation.m3.lite.guidance import (
     render_prompt,
 )
 from evaluation.m3.lite.items import H3_INELIGIBLE_DOMAINS, LiteItem, build_items
+from evaluation.m3.lite.partitions import (
+    HELD_OUT,
+    PARTITION_ROLES,
+    VISIBLE,
+    Partition,
+    ProvenanceError,
+    acq0_demonstration_splits,
+    assign_partitions,
+    build_manifest,
+    held_out_contamination,
+    partitioned,
+    promotion_critical_ids,
+    validate_provenance,
+)
 from evaluation.m3.lite.roster import (
     DOMAIN_FLOORS,
     ERROR_CATEGORY_FLOOR,
@@ -102,29 +118,35 @@ from hamiltonian_lang.improvement.state import (
 )
 
 # ---------------------------------------------------------------------------
-# QUARANTINED 2026-08-05 -- this module is INCOMPLETE, not broken-by-regression.
+# QUARANTINE LIFTED 2026-08-06. Recorded here rather than deleted, because what the
+# quarantine was protecting against is the thing a future reader most needs to know.
 #
-# The benchmark-governance subagent terminated on an API session limit while writing this
-# exact file (its last words were "Now the test file"). It calls a `_skip` helper it never
-# wrote (`NameError: name '_skip' is not defined`) and one fixture does not compile, so
-# six tests fail for want of code that was never written.
+# Quarantined 2026-08-05: the benchmark-governance subagent terminated on a session limit
+# while writing this file. Three things were actually wrong, and the third was not in the
+# original diagnosis:
 #
-# The file is preserved VERBATIM rather than deleted or guessed at. Its module docstring
-# records what each test was meant to catch -- that compiler acceptance is not admission
-# (the FormalMATH failure), that a failed refutation carries no information, and that
-# judge disagreement must never be resolved by majority vote. That intent is worth more
-# than a hastily reconstructed implementation: rewriting it from the outside risks tests
-# that pass without checking those properties, which is worse than no tests.
+# 1. `evaluation/corpus_governance/semantic_checks.py::_distractors_distinct` called a
+#    `_skip` helper that was never written (`NameError`). It is now `_na`, the helper that
+#    already existed for exactly that meaning -- a structurally-absent precondition,
+#    neutral, and not counted towards MIN_APPLICABLE_CHECKS. A second name for one status
+#    would have been the thing that confuses somebody later.
+# 2. `test_compiler_acceptance_is_not_admission` did not compile, and *why* it did not
+#    compile inverted the test: the swapped fixture declared `centre : Real`, which made
+#    the role swap visible to the type checker, so gate 1 rejected it and gate 2 never ran.
+#    Both parameters are now `PositiveReal`, the swap is type-correct, and the test asserts
+#    the type-visible variant is caught at gate 1 as a control.
+# 3. `test_no_lean_or_stan_path_is_relied_on` flagged the corpus_governance package
+#    docstring -- the paragraph explaining why no Lean path can certify anything on this
+#    host -- as evidence of a dependency on Lean. Its line-prefix heuristic is replaced by
+#    a parse-based scan over identifiers and imports, with negative controls.
 #
-# To lift: write the missing `_skip` helper and fix the non-compiling fixture, delete this
-# block, then confirm each test FAILS when its property is violated. Until then it must
-# not gate conformance, and the corpus-governance subsystem must not be called validated.
-pytest.skip(
-    "incomplete: benchmark-governance agent interrupted mid-file; see the note above and "
-    "docs/evaluation/SESSION_LIMIT_RECOVERY_MANIFEST.md",
-    allow_module_level=True,
-)
-
+# The lift condition was not "the tests pass". It was that each property FAILS when
+# violated. Mutation controls were run and are recorded in the session report: neutering
+# `_roles_match` fails (1); a majority vote in `JudgePanel.verdict`, or merely adding a
+# `majority` attribute, fails (3); giving `NoInformation.evidential_weight` a non-zero
+# value, adding a `Confirmation` constructor, or returning `Refutation` when the negation
+# was not proved, all fail (2); comparing ids instead of content digests fails the
+# contamination controls; adding `auto_resolve` to `ReviewQueue` fails.
 REPO = pathlib.Path(__file__).resolve().parents[2]
 
 
@@ -264,11 +286,20 @@ def test_gate_order_is_the_declared_order() -> None:
 def test_compiler_acceptance_is_not_admission() -> None:
     """The FormalMATH finding, as an executable test.
 
-    This source type-checks perfectly. Its ground truth says the location role is filled by
-    ``centre``; the encoding fills it with ``spread``. Gate 1 passes, gate 2 rejects.
+    Both parameters are ``PositiveReal``, so the role swap is *type-correct* and the
+    compiler has no way to see it: gate 1 passes on an encoding that means something else.
+    The ground truth says ``location`` is filled by ``centre``; the encoding fills it with
+    ``spread``. Only gate 2, comparing against the recorded ground truth, rejects it — and
+    it rejects it on ``roles_match`` and nothing else, so the rejection is for the reason
+    claimed rather than an incidental one.
+
+    The type symmetry is load-bearing, and the second half of this test says why. An
+    earlier draft of the fixture declared ``centre : Real``; that made the swap visible to
+    the type checker, gate 1 rejected it, and gate 2 never ran — so the test asserted the
+    opposite of its own thesis.
     """
     source = """module SwappedRoles
-param centre : Real
+param centre : PositiveReal
 param spread : PositiveReal
 obs y : Real
 law y | centre spread ~ Normal(location := spread, scale := centre)
@@ -277,7 +308,7 @@ law y | centre spread ~ Normal(location := spread, scale := centre)
     assert result.ok(), "the fixture must compile, or it tests nothing"
 
     truth = SemanticFacts(
-        entities={"centre": "Real", "spread": "PositiveReal", "y": "Real"},
+        entities={"centre": "PositiveReal", "spread": "PositiveReal", "y": "Real"},
         declaration_kinds={"centre": "param", "spread": "param", "y": "obs"},
         law_families={"y": "Normal"},
         laws={"y": {"location": "centre", "scale": "spread"}},
@@ -288,11 +319,48 @@ law y | centre spread ~ Normal(location := spread, scale := centre)
         truth,
         prose="a normal law centred at centre with spread spread",
         question="which symbol fills which role?",
-        answer=AnswerSpec(kind="exact_string", value="centre", justification="stated"),
-        distractors=["spread"],
+        answer=AnswerSpec(
+            kind="role_map",
+            value={"location": "centre", "scale": "spread"},
+            justification="stated in the specification",
+        ),
+        distractors=['{"location": "spread", "scale": "centre"}'],
     )
     assert not report.admitted()
     assert {r.name for r in report.failures} == {"roles_match"}
+
+    # The same swap, made type-visible, is caught at gate 1 instead — HML-T413, because
+    # ``scale`` requires PositiveReal. Compiler acceptance is a real filter; it is just not
+    # the whole one, and this line is what keeps the fixture above honest about which gate
+    # is doing the work.
+    type_visible = source.replace("param centre : PositiveReal", "param centre : Real")
+    visible = compile_source(type_visible, file="swapped-visible")
+    assert not visible.ok()
+    assert any(d.code == "HML-T413" for d in visible.diagnostics.errors)
+
+    # And the corrected encoding — same source shape, roles the right way round — is
+    # admitted. Without this the test would be satisfied by a gate 2 that rejects
+    # everything.
+    fixed = source.replace(
+        "Normal(location := spread, scale := centre)",
+        "Normal(location := centre, scale := spread)",
+    )
+    fixed_result = compile_source(fixed, file="fixed")
+    assert fixed_result.ok()
+    fixed_report = run_semantic_checks(
+        "fixed",
+        fixed_result.module,
+        truth,
+        prose="a normal law centred at centre with spread spread",
+        question="which symbol fills which role?",
+        answer=AnswerSpec(
+            kind="role_map",
+            value={"location": "centre", "scale": "spread"},
+            justification="stated in the specification",
+        ),
+        distractors=['{"location": "spread", "scale": "centre"}'],
+    )
+    assert fixed_report.admitted(), [r.to_dict() for r in fixed_report.failures]
 
 
 def test_deterministic_semantics_rejects_a_reversed_quantifier_prefix() -> None:
@@ -484,6 +552,53 @@ def test_sympy_declines_rather_than_guessing_on_open_terms() -> None:
     outcome = attack("open", "Ne(x, 1)", disprove=sympy_disprover)
     assert isinstance(outcome, NoInformation)
     assert "free symbols" in outcome.attempt.detail
+
+
+def test_the_obligation_engine_can_refute_an_hml_stated_negation() -> None:
+    """Gate 4 reuses the project's obligation engine rather than a second set of checks."""
+    outcome = attack(
+        "arith", "module N\nrequire 2.0 * 7.0 != 15.0\n", disprove=obligation_disprover
+    )
+    assert isinstance(outcome, Refutation)
+    assert outcome.attempt.verdict is NegationVerdict.NEGATION_PROVED
+    assert outcome.attempt.procedure == "obligations"
+    assert "closed_arithmetic_equality" in outcome.attempt.detail
+
+
+def test_a_vacuously_verified_module_is_not_a_refutation() -> None:
+    """The trap that makes the ``substantive`` conjunct load-bearing.
+
+    ``verify_source`` returns ``VERIFIED`` on a module carrying no obligations at all —
+    correctly, since there was nothing to fail. Read on the verdict alone, gate 4 would
+    refute every candidate whose negation is not statable in the supported subset, which
+    deletes items rather than admitting them.
+    """
+    from hamiltonian_lang.verification.obligations import GlobalVerdict, verify_source
+
+    empty = verify_source("module N\nvar x : Real\n")
+    assert empty.verdict is GlobalVerdict.VERIFIED, "the fixture must verify, or it is moot"
+    assert not empty.substantive
+
+    outcome = attack("empty", "module N\nvar x : Real\n", disprove=obligation_disprover)
+    assert isinstance(outcome, NoInformation)
+    assert outcome.evidential_weight == 0
+    assert "vacuous" in outcome.attempt.detail
+
+
+@pytest.mark.parametrize(
+    ("label", "source"),
+    [
+        ("disproved", "module N\nrequire 2.0 * 7.0 != 14.0\n"),
+        ("unsupported", "module N\nvar x : Real\nrequire forall y : Real . y > x\n"),
+        ("invalid", "Ne(2*7, 15)"),
+    ],
+)
+def test_every_other_engine_verdict_is_no_information(label: str, source: str) -> None:
+    """``DISPROVED`` says the negation is false. It does not say the candidate is true."""
+    outcome = attack(label, source, disprove=obligation_disprover)
+    assert isinstance(outcome, NoInformation), label
+    assert outcome.evidential_weight == 0
+    assert outcome.attempt.verdict is NegationVerdict.NEGATION_NOT_PROVED
 
 
 def test_the_arithmetic_negated_claims_audit_the_answer_keys(
@@ -918,7 +1033,203 @@ def test_the_human_written_variant_will_not_silently_render_as_the_no_solution_a
 
 
 # ===========================================================================
-# 11. Nothing in this apparatus can call a model or a proof assistant
+# 11. Partitions: development / adversarial / promotion / transfer
+# ===========================================================================
+
+
+def test_the_deal_is_total_disjoint_and_level(items: list[LiteItem]) -> None:
+    manifest = build_manifest(items)
+    assert set(manifest.members) == set(Partition)
+    assert manifest.sizes() == {str(p): 10 for p in Partition}
+
+    seen: list[str] = [i for ids in manifest.members.values() for i in ids]
+    assert sorted(seen) == sorted(i.id for i in items), "the deal is not total"
+    assert len(set(seen)) == len(seen), "an item is in two partitions at once"
+    assert manifest.held_out_ids() | manifest.visible_ids() == set(seen)
+    assert not (manifest.held_out_ids() & manifest.visible_ids())
+
+
+def test_only_development_is_visible() -> None:
+    assert VISIBLE == frozenset({Partition.DEVELOPMENT})
+    assert HELD_OUT == {Partition.ADVERSARIAL, Partition.PROMOTION, Partition.TRANSFER}
+    assert not VISIBLE & HELD_OUT
+    assert set(PARTITION_ROLES) == set(Partition), "every partition states its own cost"
+    assert all(why.strip() for why in PARTITION_ROLES.values())
+
+
+def test_every_domain_is_present_in_every_partition(items: list[LiteItem]) -> None:
+    manifest = build_manifest(items)
+    assert not manifest.shortfalls(), manifest.shortfalls()
+    for partition in Partition:
+        assert set(manifest.domain_counts[partition]) == set(DOMAINS), partition
+
+
+def test_the_deal_is_reproducible_and_not_hand_picked(items: list[LiteItem]) -> None:
+    """A partition somebody chose by hand is a partition somebody chose by difficulty."""
+    first = assign_partitions(items)
+    second = assign_partitions(list(reversed(items)))
+    assert first == second, "the deal depends on input order, so it is not reproducible"
+
+
+def test_the_manifest_records_content_digests_not_only_ids(items: list[LiteItem]) -> None:
+    """Ids are re-usable; digests are not. This is the whole basis of the check below."""
+    manifest = build_manifest(items)
+    assert set(manifest.digests) == {i.id for i in items}
+    assert len(set(manifest.digests.values())) == len(items), "two items share content"
+
+    # A renamed item keeps its digest. That is the property every id-based check lacks.
+    original = items[0]
+    renamed = replace(original, cso=replace(original.cso, id="totally_different_id"))
+    assert renamed.id != original.id
+    assert content_digest(_extract(renamed)[1]) == manifest.digests[original.id]
+
+
+def test_no_acq0_demonstration_comes_from_a_held_out_partition(
+    items: list[LiteItem],
+) -> None:
+    """The requirement, on content rather than on names.
+
+    An item shown to a model as a worked example and later scored is measuring recall. The
+    comparison is over ``(specification, question, answer, reference)`` digests, so an item
+    reused under a new id is still caught — which is the case a name-based check passes.
+    """
+    splits = acq0_demonstration_splits()
+    assert {s.name for s in splits} >= {"acq0::demonstration"}
+    assert sum(len(s) for s in splits) >= 50, "the demonstration pools look truncated"
+
+    reports = held_out_contamination(items, splits)
+    assert set(reports) == HELD_OUT, "a held-out partition went unchecked"
+    for partition, report in reports.items():
+        assert report.clean(), (partition, [c.to_dict() for c in report.hard_collisions])
+        assert not report.flagged, (partition, [c.to_dict() for c in report.flagged])
+        assert report.checked_against, partition
+
+    # Explicitly as a set intersection of digests, per held-out partition per split.
+    pools = partitioned(items)
+    for partition in sorted(HELD_OUT):
+        mine = {content_digest(_extract(i)[1]) for i in pools[partition]}
+        for split in splits:
+            assert not mine & set(split.exact.values()), (partition, split.name)
+
+
+def test_the_held_out_check_fires_on_an_item_reused_under_a_new_name(
+    items: list[LiteItem],
+) -> None:
+    """The negative control for the test above.
+
+    A demonstration pool is synthesised containing one *renamed* copy of a promotion item.
+    Nothing about its id matches; every content field does. The check must fire, and it
+    must fire as a hard collision rather than a near-duplicate flag.
+    """
+    pools = partitioned(items)
+    reused = pools[Partition.PROMOTION][0]
+    disguised = replace(reused, cso=replace(reused.cso, id="demo_task_00"))
+    assert disguised.id != reused.id
+
+    planted = fingerprint("acq0::demonstration", [disguised], _extract)
+    reports = held_out_contamination(items, [planted])
+
+    promotion = reports[Partition.PROMOTION]
+    assert not promotion.clean()
+    assert [c.kind for c in promotion.hard_collisions] == ["exact"]
+    collision = promotion.hard_collisions[0]
+    assert collision.candidate_id == reused.id
+    assert collision.foreign_id == "demo_task_00"
+
+    # And the other held-out partitions are untouched: the check localises the leak.
+    assert reports[Partition.TRANSFER].clean()
+    assert reports[Partition.ADVERSARIAL].clean()
+
+
+def test_an_empty_foreign_set_is_refused_rather_than_passing(
+    items: list[LiteItem],
+) -> None:
+    """A contamination check against nothing passes trivially, so it must not be possible."""
+    with pytest.raises(ProvenanceError, match="passes trivially"):
+        held_out_contamination(items, [])
+
+
+def test_provenance_rejects_an_item_from_a_foreign_namespace(
+    items: list[LiteItem],
+) -> None:
+    assert validate_provenance(items)["n"] == 40
+    smuggled = list(items)
+    smuggled[3] = replace(
+        items[3], cso=replace(items[3].cso, generator="eval001::algebra_gen")
+    )
+    with pytest.raises(ProvenanceError, match="outside the .* namespace"):
+        validate_provenance(smuggled)
+
+
+def test_provenance_rejects_a_mixed_corpus_version(items: list[LiteItem]) -> None:
+    mixed = list(items)
+    mixed[7] = replace(items[7], cso=replace(items[7].cso, corpus_version="eval001-v1"))
+    with pytest.raises(ProvenanceError, match="mixed corpus versions"):
+        validate_provenance(mixed)
+
+
+def test_provenance_rejects_duplicate_ids(items: list[LiteItem]) -> None:
+    duped = [*items, replace(items[0])]
+    with pytest.raises(ProvenanceError, match="duplicate item ids"):
+        validate_provenance(duped)
+
+
+def test_provenance_rejects_a_domain_outside_the_declared_strata(
+    items: list[LiteItem],
+) -> None:
+    """An undeclared domain has no floor and no stratum, so it must not deal silently."""
+    stray = list(items)
+    stray[2] = replace(items[2], cso=replace(items[2].cso, domain="number_theory"))
+    with pytest.raises(ProvenanceError, match="outside the declared strata"):
+        assign_partitions(stray)
+
+
+def test_a_promotion_item_is_stopped_by_the_human_gate_end_to_end(
+    items: list[LiteItem],
+) -> None:
+    """The partition wired to gate 5, not merely declared.
+
+    Every gate passes and the item is still not admitted, because a promotion decision is
+    precisely where "the machinery was satisfied" is not a sufficient reason.
+    """
+    critical = promotion_critical_ids(items)
+    assert len(critical) == 10
+    assert critical == {i.id for i in partitioned(items)[Partition.PROMOTION]}
+
+    item = next(i for i in items if i.id in critical)
+    report, panel, negation = _clean_inputs(item)
+    queue = ReviewQueue()
+    funnel = run_funnel(
+        [(item.id, item.cso.reference_hml)],
+        semantic={item.id: report},
+        panels={item.id: panel},
+        negations={item.id: negation},
+        queue=queue,
+        promotion_critical=critical,
+    )
+    decision = funnel.decisions[0]
+    assert [r.outcome for r in decision.records[:4]] == [GateOutcome.PASSED] * 4
+    assert decision.records[-1].outcome is GateOutcome.ESCALATED
+    assert not decision.admitted()
+    with pytest.raises(HumanReviewRequired):
+        queue.assert_clear(context="promotion")
+
+    # The negative control: the same item, not promotion-critical, is admitted. Without
+    # this the test would also pass if the funnel rejected everything.
+    clean_queue = ReviewQueue()
+    ordinary = run_funnel(
+        [(item.id, item.cso.reference_hml)],
+        semantic={item.id: report},
+        panels={item.id: panel},
+        negations={item.id: negation},
+        queue=clean_queue,
+    )
+    assert ordinary.decisions[0].admitted()
+    clean_queue.assert_clear(context="promotion")
+
+
+# ===========================================================================
+# 12. Nothing in this apparatus can call a model or a proof assistant
 # ===========================================================================
 
 
@@ -955,19 +1266,101 @@ def test_no_module_here_can_reach_a_network_or_a_model_client() -> None:
     assert not offenders, offenders
 
 
-def test_no_lean_or_stan_path_is_relied_on() -> None:
+#: Import roots that would let a module reach an external tool.
+_FORBIDDEN_IMPORT_ROOTS = frozenset(
+    {"subprocess", "os", "importlib", "runpy", "pty", "shutil", "multiprocessing"}
+)
+#: Builtins that turn a string into running code. Their absence is what makes it safe to
+#: scan identifiers only: a module with no execution primitive cannot execute a literal.
+_FORBIDDEN_BUILTINS = frozenset({"exec", "eval", "compile", "open", "__import__"})
+#: External-tool call sites, matched as whole identifiers or attribute names.
+_FORBIDDEN_TOOL_NAMES = frozenset(
+    {"lean_verify", "stanc", "Popen", "system", "popen", "spawn", "check_output", "call"}
+)
+
+
+def _external_tool_references(path: pathlib.Path) -> list[str]:
+    """Every way this module could reach Lean, stanc, or any other external process.
+
+    Identifiers and imports are matched **as whole names**, never as substrings. Substring
+    matching is not an option here: ``stanc`` is a substring of ``isinstance``, which this
+    package uses on nearly every line, so a substring scan reports the entire subsystem.
+
+    Prose is excluded by *parsing*, not by a line-prefix heuristic. That distinction is the
+    whole reason this helper exists. The line-based version this replaces flagged the
+    ``corpus_governance`` package docstring — the paragraph explaining *why* no Lean path
+    can certify anything on this host — as evidence of a dependency on Lean, i.e. it read
+    the disclaimer as the offence.
+
+    Scanning names rather than string literals is sound only because
+    :data:`_FORBIDDEN_BUILTINS` is separately asserted absent: with no ``exec``, ``eval``,
+    ``compile``, ``open`` or ``__import__`` anywhere in the package, a string containing
+    ``"stanc"`` cannot become a call. ``negation.py`` contains exactly such a string — the
+    per-item message recording that stanc is *absent* — and it is not a dependency.
+    """
+    offenders: list[str] = []
+    tree = ast.parse(path.read_text())
+    for node in ast.walk(tree):
+        roots: list[str] = []
+        if isinstance(node, ast.Import):
+            roots = [a.name for a in node.names]
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            roots = [node.module]
+        for name in roots:
+            if name.split(".")[0] in _FORBIDDEN_IMPORT_ROOTS:
+                offenders.append(f"{path.name}: imports {name}")
+        if isinstance(node, ast.Name):
+            if node.id in _FORBIDDEN_BUILTINS:
+                offenders.append(f"{path.name}: uses the builtin {node.id}")
+            if node.id in _FORBIDDEN_TOOL_NAMES:
+                offenders.append(f"{path.name}: names {node.id}")
+        elif isinstance(node, ast.Attribute) and node.attr in _FORBIDDEN_TOOL_NAMES:
+            offenders.append(f"{path.name}: calls .{node.attr}")
+    return offenders
+
+
+def test_no_lean_or_stan_path_is_relied_on(tmp_path: pathlib.Path) -> None:
     """Mathlib and stanc are absent and the Lean backend closes obligations with ``sorry``,
     so ``lean_verify`` rejects its own backend's output. Nothing here may depend on either.
+
+    The negative controls at the end are not decoration. This assertion is a scan that
+    finds nothing, and a scan that finds nothing is indistinguishable from a scan that
+    looks for nothing — so the same scanner is pointed at a module that *does* offend and
+    at one whose only mention is prose, and it must separate them.
     """
-    for path in _sources():
-        text = path.read_text()
-        for token in ("lean_verify", "stanc", "subprocess"):
-            offending = [
-                line
-                for line in text.splitlines()
-                if token in line and not line.lstrip().startswith(("#", "*", '"'))
-            ]
-            assert not offending, f"{path.name}: {token} in {offending[:2]}"
+    offenders = [o for path in _sources() for o in _external_tool_references(path)]
+    assert not offenders, offenders
+
+    planted = tmp_path / "planted.py"
+    planted.write_text(
+        "import subprocess\n"
+        "\n"
+        "\n"
+        "def verify(path: str) -> object:\n"
+        "    proc = subprocess.Popen([path])\n"
+        "    return lean_verify(proc)\n"
+    )
+    found = _external_tool_references(planted)
+    assert any("imports subprocess" in o for o in found), found
+    assert any("calls .Popen" in o for o in found), found
+    assert any("names lean_verify" in o for o in found), found
+
+    stanc_call = tmp_path / "stanc_call.py"
+    stanc_call.write_text("def f(model: str) -> object:\n    return stanc(model)\n")
+    assert _external_tool_references(stanc_call) == ["stanc_call.py: names stanc"]
+
+    # Whole names, not substrings: ``stanc`` sits inside ``isinstance``.
+    lookalike = tmp_path / "lookalike.py"
+    lookalike.write_text("def f(x: object) -> bool:\n    return isinstance(x, str)\n")
+    assert not _external_tool_references(lookalike)
+
+    # Prose is not a dependency. This is the case the line-based scanner got wrong.
+    prose_only = tmp_path / "prose.py"
+    prose_only.write_text(
+        '"""stanc is absent here and lean_verify rejects its own backend output."""\n\n'
+        'REASON = "no deterministic disproof procedure applies: stanc is absent"\n'
+    )
+    assert not _external_tool_references(prose_only)
 
 
 def test_the_governance_document_exists_and_states_the_funnel() -> None:

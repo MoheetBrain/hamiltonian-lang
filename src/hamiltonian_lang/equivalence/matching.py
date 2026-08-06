@@ -97,28 +97,44 @@ _PERMUTATION_LIMIT = 7
 class Env:
     """An injective, total-so-far map between the two modules' bound symbols.
 
-    ``names_locked`` forbids permuting *module-level* names. It is switched on when
-    the two modules declare exactly the same vocabulary, because a candidate that
-    reuses the reference's own names is using them as identities: reading
-    ``prove p => q`` and ``prove q => p`` as one object because ``p`` and ``q`` can
-    be swapped would erase the direction of the implication. Locally bound names --
-    quantifier and parameter binders, at depth > 0 -- stay freely renameable, which
-    is what alpha-equivalence actually means.
+    ``locked_names`` forbids permuting *module-level* names that both modules declare.
+    A candidate reusing the reference's own names is using them as identities: reading
+    ``prove p => q`` and ``prove q => p`` as one object because ``p`` and ``q`` can be
+    swapped would erase the direction of the implication. Locally bound names --
+    quantifier and parameter binders, at depth > 0 -- stay freely renameable, which is
+    what alpha-equivalence actually means.
+
+    **It is the shared vocabulary, not exact vocabulary equality.** This was a boolean
+    switched on only when the two vocabularies matched exactly, so renaming a single
+    *unused* declaration disabled the lock entirely and Tier 1 certified a role swap
+    (M1.5 falsifier, F-1)::
+
+        p=>q vs q=>p, spare/spare   ->  VERIFIED_NONEQUIVALENT
+        p=>q vs q=>p, spare/filler  ->  VERIFIED_EQUIVALENT   {p:q, q:p, spare:filler}
+
+    A false-positive equivalence silently declares a wrong answer right, so precision
+    is not traded for coverage here. Locking per-name keeps the coverage that motivated
+    the original condition: a name genuinely absent from one side is still free.
     """
 
     fwd: Mapping[SymbolId, SymbolId] = field(default_factory=dict)
     bwd: Mapping[SymbolId, SymbolId] = field(default_factory=dict)
-    names_locked: bool = False
+    locked_names: frozenset[str] = frozenset()
 
     def bind(self, a: SymbolId, b: SymbolId) -> Env | None:
         """Extend with ``a <-> b``, or return None when that breaks injectivity."""
-        if self.names_locked and a.depth == 0 and b.depth == 0 and a.name != b.name:
+        if (
+            a.depth == 0
+            and b.depth == 0
+            and a.name != b.name
+            and (a.name in self.locked_names or b.name in self.locked_names)
+        ):
             return None
         seen_a = self.fwd.get(a)
         seen_b = self.bwd.get(b)
         if seen_a is not None or seen_b is not None:
             return self if (seen_a == b and seen_b == a) else None
-        return Env({**self.fwd, a: b}, {**self.bwd, b: a}, self.names_locked)
+        return Env({**self.fwd, a: b}, {**self.bwd, b: a}, self.locked_names)
 
     def pairs(self) -> tuple[tuple[SymbolId, SymbolId], ...]:
         return tuple(sorted(self.fwd.items()))
@@ -498,8 +514,10 @@ def strict_match(reference: Module, candidate: Module) -> Env | None:
     if sorted(skeleton(s) for s in left) != sorted(skeleton(s) for s in right):
         return None
 
-    vocabulary = declared_names(reference)
-    locked = bool(vocabulary) and vocabulary == declared_names(candidate)
+    # The names BOTH modules declare are identities and may not be permuted. Using
+    # exact vocabulary equality made the lock all-or-nothing, so one spare rename
+    # disabled it entirely (F-1).
+    locked = frozenset(declared_names(reference)) & frozenset(declared_names(candidate))
     order = sorted(range(len(left)), key=lambda i: -len(skeleton(left[i])))
 
     def rec(idx: int, used: frozenset[int], env: Env) -> Env | None:
@@ -516,7 +534,7 @@ def strict_match(reference: Module, candidate: Module) -> Env | None:
                     return got
         return None
 
-    return rec(0, frozenset(), Env(names_locked=locked))
+    return rec(0, frozenset(), Env(locked_names=locked))
 
 
 # ---------------------------------------------------------------------------

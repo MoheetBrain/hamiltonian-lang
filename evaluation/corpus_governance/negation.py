@@ -57,6 +57,7 @@ __all__ = [
     "attack",
     "no_prover_available",
     "sympy_disprover",
+    "obligation_disprover",
     "Disprover",
 ]
 
@@ -215,6 +216,64 @@ def sympy_disprover(item_id: str, negated_claim: str) -> tuple[NegationVerdict, 
         NegationVerdict.NEGATION_NOT_PROVED,
         "sympy",
         "SymPy returned a non-boolean; the attempt is undecided",
+    )
+
+
+def obligation_disprover(item_id: str, negated_claim: str) -> tuple[NegationVerdict, str, str]:
+    """Discharge an **HML-stated** negation with the project's own obligation engine.
+
+    ``negated_claim`` is a Hamiltonian Lang module whose obligations state the negation of
+    the recorded ground truth. This delegates to
+    :mod:`hamiltonian_lang.verification.obligations`, which decides nine narrow classes
+    soundly and reports ``UNSUPPORTED`` for everything else, rather than reimplementing a
+    second and inevitably divergent set of checks here.
+
+    Only ``VERIFIED`` **and** ``substantive`` refutes, and the conjunction is the whole
+    point. A module carrying no obligations verifies vacuously — ``verify_source("module N
+    var x : Real")`` returns ``VERIFIED`` with ``substantive=False`` and zero records. Read
+    on the verdict alone, that would refute every candidate whose negation happened not to
+    be statable in the supported subset: gate 4's spelling of "compiler acceptance is
+    admission", and the more dangerous spelling, because it removes items rather than
+    admitting them.
+
+    Every other verdict — ``DISPROVED``, ``UNSUPPORTED``, ``INCONCLUSIVE``, ``INVALID``,
+    ``SEMANTIC_LOSS`` — is ``NEGATION_NOT_PROVED``. Note in particular that ``DISPROVED``
+    means *the negation is false*, which is not the same as the candidate being true; it
+    closes off this one negation and nothing more.
+    """
+    from hamiltonian_lang.verification.obligations import GlobalVerdict, verify_source
+
+    del item_id
+    try:
+        outcome = verify_source(negated_claim)
+    except (SyntaxError, ValueError, TypeError) as exc:
+        return (
+            NegationVerdict.NEGATION_NOT_PROVED,
+            "obligations",
+            f"the negated claim is not a module the engine can read "
+            f"({exc.__class__.__name__})",
+        )
+
+    if outcome.verdict is GlobalVerdict.VERIFIED and outcome.substantive:
+        classes = ", ".join(sorted({str(r.obligation_class) for r in outcome.records}))
+        return (
+            NegationVerdict.NEGATION_PROVED,
+            "obligations",
+            f"the obligation engine discharged the negation substantively via {classes}, "
+            f"so the candidate is false",
+        )
+    if outcome.verdict is GlobalVerdict.VERIFIED:
+        return (
+            NegationVerdict.NEGATION_NOT_PROVED,
+            "obligations",
+            "the negation verified vacuously: the module carries no substantive obligation, "
+            "so nothing was decided. A vacuous VERIFIED is not a refutation",
+        )
+    return (
+        NegationVerdict.NEGATION_NOT_PROVED,
+        "obligations",
+        f"the engine returned {outcome.verdict}. The candidate is not thereby established; "
+        f"only this one negation is closed off",
     )
 
 

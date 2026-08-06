@@ -306,12 +306,68 @@ it holds "a plan was present" fixed while destroying relevance. A plan with fewe
 distinct steps cannot be permuted; that D trial is **excluded with a stated reason** and
 counted, because a D trial identical to its C trial silently inflates D.
 
+A short plan draws the identity permutation by chance rather than for any reason about the
+plan — a two-step plan has exactly one non-identity permutation, so each seeded draw is a
+coin flip. After two seeded attempts the shuffler falls back to **reversal**, which is
+deterministic, reproducible without a seed, and still an order that does not describe a
+repair. Only a palindromic step list, for which reversal is also the identity, reaches the
+`ShuffleDegenerate` guard. Before this fallback existed, one of the five real Teacher plans
+lost its D trial to the coin flip and D sat at exactly the minimum trial count.
+
 Verdicts: `PLAN_USEFUL_AND_NON_LEAKING` · `PLAN_NOT_USEFUL` · `PLAN_LEAKS` ·
 `INSUFFICIENT_EVIDENCE`. Every report records the leak threshold, the minimum-trials
 setting, the shuffle mode and the seed, so a report produced under one threshold cannot be
 read as though it were produced under another.
 
 `DEFAULT_LEAK_THRESHOLD = 0.10` is **provisional and not preregistered.**
+
+### 7a. Controls on the study itself
+
+A four-condition table can be arithmetically well formed and still measure nothing, and
+that is the failure least likely to be noticed: the harness runs, every rate is populated,
+and the verdict reads like a finding. Two cases produce a table with no discriminating
+power, and both used to be reported as `PLAN_NOT_USEFUL`:
+
+- **The probe is at floor.** No condition reconstructed the target anywhere. `C > A` and
+  `C > D` are then false *as arithmetic*, not as evidence.
+- **The baseline is at ceiling.** A already reconstructs every target without the plan, so
+  `C > A` is unsatisfiable by construction. The usefulness test is undecidable on that case
+  set rather than failed by that plan.
+
+Both now return `INSUFFICIENT_EVIDENCE` carrying a machine-readable `EvidenceGap`:
+`NO_CASES` · `TOO_FEW_TRIALS` · `PROBE_AT_FLOOR` · `BASELINE_AT_CEILING`. The four demand
+different fixes — more cases, a more capable probe, harder cases — and a reader who has to
+parse prose to tell them apart will read all four as "inconclusive, try again". A report
+cannot carry both a verdict and an evidence gap; the constructor refuses it.
+
+The **leak check still runs first**. Detecting a leak is a positive finding: B reconstructed
+the target, and that stays evidence however the other conditions behaved. A study with no
+power to judge usefulness retains full power to catch a plan that carries the answer.
+
+When both usefulness comparisons fail, both are reported. The "gain came from being
+prompted again with plan-shaped text" attribution is emitted **only** when C actually beat
+A — asserting it otherwise explains an effect that never occurred.
+
+### 7b. Probes, and what a scripted one cannot establish
+
+`ScriptedLeakageProbe` ignores `broken_output` and `plan` entirely, so every rate it
+produces is a *stipulation*: the fixture asserts the conclusion the study then reports.
+That is adequate for testing verdict arithmetic and worthless as evidence that the harness
+detects anything.
+
+`ReconstructionProbe` reads the material it is handed. Its rule: the last statement-shaped
+line in the plan's own text if there is one, otherwise the last statement-shaped line in
+the broken output, otherwise nothing. Rule 2 makes condition A a true floor *by
+construction* — repeating the broken program is never the target — rather than by fixture.
+
+Both are deterministic and neither calls a model. `statement_lines` / `is_program_like` are
+defined once in `plan.py` and used by both the construction-time leak detector and the
+probe, so the two mechanisms cannot drift apart in their notion of "this is a program line,
+not prose".
+
+`STEP_PERMUTATION` controls for a plan's **coherence, never for its content**: reordering
+preserves a leaked statement, so a leaking plan leaks in D too. That is why the leak check
+must precede the usefulness check, and it is asserted in the suite.
 
 ---
 
@@ -332,9 +388,22 @@ calls because a component was swapped upstream.
 
 - **No model call has been made.** Every number this subsystem can currently produce comes
   from scripted fixtures and says nothing about any model.
-- **No leakage study has been run against real plans and a real probe.** The harness is
-  built and its verdict logic is tested against constructed rates; whether the
-  `DeterministicRepairTeacher`'s plans are useful, and whether they leak, is unmeasured.
+- **The plans the `DeterministicRepairTeacher` actually emits do not leak — measured.**
+  The five deterministic mappings, compiled from real broken programs by the real compiler,
+  run through all four conditions against `ReconstructionProbe`: **B = 0.0**. Nothing in
+  those plans lets a reader reconstruct the corrected statement without the program. The
+  paired positive control plants the corrected statement into the *same* plans and the same
+  harness flags them at **B = 1.0**, so the clean result is not a probe that never fires.
+
+- **Whether those plans are *useful* remains unmeasured, and is not measurable offline.**
+  A deterministic probe cannot repair, so C can never exceed A under it and every condition
+  sits at floor. The study reports `PROBE_AT_FLOOR` rather than `PLAN_NOT_USEFUL` — the
+  distinction that control exists to protect. Measuring usefulness requires a probe that
+  can reason, which is a live component, which the Lead authorises separately.
+
+- **The leak threshold has never been exercised against a rate strictly between 0 and 1.**
+  Every measured B rate so far is exactly 0.0 or exactly 1.0, so `DEFAULT_LEAK_THRESHOLD`
+  has not yet discriminated a real borderline case.
 - **The class-level invariants in `teacher.CLASS_INVARIANT` are restatements**, one per
   error class, each annotated with the compiler location that enforces it. They are
   fallbacks used only when the code-specific table has no entry. They have not been
@@ -357,13 +426,15 @@ src/hamiltonian_lang/context_broker/
   broker.py     ContextStatus, RetrievalStage, DETERMINISTIC_FACETS, DiagnosticContextBroker
 
 src/hamiltonian_lang/repair/
-  plan.py       RepairPlan, NoPlan, plan_leak_reasons, assert_plan_non_leaking
+  plan.py       RepairPlan, NoPlan, plan_leak_reasons, assert_plan_non_leaking,
+                statement_lines, is_program_like
   teacher.py    RepairTeacher, DeterministicRepairTeacher, CLASS_* tables
   learner.py    RepairLearner, ScriptedRepairLearner
   arms.py       FeedbackArm, FeedbackPayload, build_payload, ArmContamination
   budget.py     RepairBudget, require_single_budget, assert_official
   record.py     RepairEndpoint, RepairRecord, run_repair_chain, summarise
-  leakage.py    LeakageCondition, ShuffleMode, run_leakage_study, LeakageVerdict
+  leakage.py    LeakageCondition, ShuffleMode, run_leakage_study, LeakageVerdict,
+                EvidenceGap, ScriptedLeakageProbe, ReconstructionProbe
 
 tests/repair/
   test_repair_taxonomy.py            the twelve classes; exact vs inferred classification
@@ -372,6 +443,7 @@ tests/repair/
   test_repair_teacher_learner.py     role separation and the chain
   test_repair_arms.py                arm exclusions and contamination
   test_repair_budget.py              budgets, pooling refusal, ACQ0/H3 discipline
-  test_repair_leakage.py             A/B/C/D, shuffling, verdicts
+  test_repair_leakage.py             A/B/C/D, shuffling, verdicts, the study's own
+                                     controls, and the real Teacher's plans measured
   test_repair_offline_guarantee.py   no network, no provider, no URL
 ```

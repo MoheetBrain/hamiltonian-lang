@@ -69,6 +69,7 @@ from evaluation.corpus.cso import (
     normalise_answer,
     parse_dimension,
 )
+
 from hamiltonian_lang import compile_source
 from hamiltonian_lang.ast.nodes import (
     Declaration,
@@ -435,7 +436,13 @@ def _answer_not_in_prose(
 
 def _distractors_distinct(answer_value: Any, distractors: Sequence[str]) -> CheckResult:
     if not distractors:
-        return _skip(
+        # NOT_APPLICABLE, not a pass: an item with no recorded distractor has no near-miss
+        # to be distinct *from*, so there is nothing here to decide. It is deliberately not
+        # INCONCLUSIVE -- the precondition is structurally absent rather than undecidable --
+        # and deliberately not PASS, because "nothing was checked" must not accumulate
+        # towards MIN_APPLICABLE_CHECKS. Every M3-Lite item does record a distractor; this
+        # branch exists for foreign candidates entering the funnel.
+        return _na(
             "distractors_distinct",
             "the item records no distractor, so no near-miss failure can be classified",
         )
