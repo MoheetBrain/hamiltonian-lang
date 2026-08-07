@@ -122,6 +122,13 @@ FROZEN_KEYWORDS: frozenset[str] = frozenset(
         "probability", "joint", "independent", "in",
         "limit", "derivative", "integral", "continuous",
         "associated", "correlated", "causes",
+        # -- scoped assumption frames (D-043) ------------------------------
+        # `scope ... end` is what makes "assume P *for the purposes of this argument*"
+        # expressible. Admitted deliberately: it reaches the refinement environment in
+        # `reasoning/refinement.py`, not the quarantined `v1/` layer, and the import
+        # barrier is untouched. It reuses `end`, so the block convention stays one
+        # convention rather than two.
+        "scope",
     }
 )
 
@@ -214,6 +221,8 @@ FROZEN_STATEMENT_KINDS: frozenset[str] = frozenset(
         "GoalStmt",
         "DeriveStmt",
         "ProvedStmt",
+        # -- scoped assumption frames (D-043) ------------------------------
+        "ScopeStmt",
     }
 )
 

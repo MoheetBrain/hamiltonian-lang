@@ -78,6 +78,7 @@ __all__ = [
     "DeriveStmt",
     "ProvedStmt",
     "RuleArg",
+    "ScopeStmt",
     "V2_STATEMENTS",
     "uses_v2",
 ]
@@ -733,9 +734,27 @@ class ProvedStmt(Statement):
     derivation_id: ClaimId | None = None
 
 
+@dataclass
+class ScopeStmt(Statement):
+    """``scope`` ... ``end`` -- a lexical assumption frame (D-035, D-043).
+
+    Everything assumed inside is discarded at ``end``. This is what makes "assume ``P``
+    *for the purposes of this argument*" expressible, which a flat environment cannot say
+    and which a case split, a bounded lemma and a proof by contradiction all need.
+
+    ``consistency`` is filled by the checker. A frame whose own assumptions contradict
+    each other is **not an error** -- assuming something false and deriving a
+    contradiction from it is how proof by contradiction works. What is contained is
+    *explosion*: nothing established inside an inconsistent frame may leave it.
+    """
+
+    body: list[Statement] = field(default_factory=list)
+    consistency: str = "CONSISTENT"
+
+
 #: Every statement form introduced by V2. A module containing none of these is a v1
 #: module and MUST serialise byte-identically to the way it did before V2 existed.
-V2_STATEMENTS: tuple[type, ...] = (GoalStmt, DeriveStmt, ProvedStmt)
+V2_STATEMENTS: tuple[type, ...] = (GoalStmt, DeriveStmt, ProvedStmt, ScopeStmt)
 
 #: Every EXPRESSION form introduced by V2 (D-026). Kept beside ``V2_STATEMENTS``
 #: because ``uses_v2`` must consult both.

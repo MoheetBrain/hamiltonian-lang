@@ -3051,3 +3051,47 @@ closed on evidence, and closed *against* the rewrite. The measured closure ceili
 accepted plan is 0.854.
 
 **Next intended step.** §4 scoped Γ, then §5 partiality contracts (which closes CT-038).
+
+---
+
+## 2026-08-07 (eighth entry) — scoped Γ (directive §3)
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `ae9a2a0`
+
+**Objective.** Make the frame stack load-bearing and give HML a construct for local
+assumptions.
+
+**Files and systems changed.** `reasoning/refinement.py` (Frame, Consistency, frame
+stack); `ast/nodes.py` (`ScopeStmt`); lexer, parser, resolver, type checker, canonical and
+`hml` backend; `tests/freeze/frozen_subset.py`; new `tests/reasoning/test_scoped_gamma.py`;
+`DECISIONS.md` D-043; new `docs/hml_v2/CURRENT_TRUTH.md`.
+
+**What was completed.** `scope … end`; facts confined to their frame in all four
+directions (after, before, sibling, nested); local inconsistency detected, warned and
+contained.
+
+**Tests and verification actually executed.**
+- `pytest` → **6299 passed, 5 skipped, 0 failed** (6279 before); 20 new
+- `ruff` clean; `mypy src/hamiltonian_lang` clean, 89 files
+- hash stability → **0 changed**; scope round-trips hash-stable through the `hml` backend
+- composition re-run → **STRICT 21/48 = 0.438**, FRAMEWORK 21/38 = 0.553
+
+**Failures and unresolved uncertainty.**
+- **Composition moved 0.417 → 0.438 only.** One specimen. The gate is 0.85 and the
+  remaining failures are 14 GRAMMAR and 8 TYPE, which scoped Γ was never going to touch.
+  Recorded plainly because the temptation is to present a completed subsystem as progress
+  toward a gate it barely moves.
+- Contradiction detection is syntactic and incomplete by design; it catches deliberate
+  contradictions, not all of them.
+- The assumption-discharge *rule* (concluding `not P` from a contradiction under `P`) is
+  **not implemented**. `pop()` returns the frame so it can be, but the proof-by-
+  contradiction pattern is not yet expressible end to end.
+- Quantifier and concept bodies do **not** yet push refinement frames — only `scope` does.
+  `assume` is a statement and cannot appear inside a quantifier body, so there is nothing
+  to leak today, but the frame kinds exist ahead of that.
+
+**Effect on the overall project.** Maturity criterion 3.3 (scoped assumption context) has
+an implementation for the first time. Measured maturity otherwise unchanged.
+
+**Next intended step.** §4 partiality contracts, which closes CT-038 and is the largest
+single remaining soundness gap.

@@ -2,7 +2,7 @@
   "hml_source": "/Users/moheet/hml_v2_worktree/src/hamiltonian_lang/__init__.py",
   "specimen_file": "/Users/moheet/hml_audit_worktree/audit/language_comparison/ontology/COMPOSITION_TESTS.json",
   "cross_check_problems": [],
-  "closed": 20,
+  "closed": 21,
   "total": 48,
   "framework_denominator": 38,
   "unsupported": [
@@ -31,14 +31,14 @@
   },
   "repair_histogram": {
     "GENERAL": 7,
-    "NONE": 20,
-    "LOCAL": 12,
+    "NONE": 21,
+    "LOCAL": 11,
     "ONE_NODE": 9
   },
   "prediction_accuracy": {
     "hits": 13,
-    "attempted": 28,
-    "value": 0.4643,
+    "attempted": 27,
+    "value": 0.4815,
     "surface_map": {
       "GRAMMAR": [
         "GRAMMAR"
@@ -100,14 +100,6 @@
       {
         "id": "CT-019",
         "observed": "GRAMMAR",
-        "predicted": [
-          "SEMANTIC_MODEL",
-          "TYPE_SYSTEM"
-        ]
-      },
-      {
-        "id": "CT-022",
-        "observed": "COMPILER",
         "predicted": [
           "SEMANTIC_MODEL",
           "TYPE_SYSTEM"
@@ -195,7 +187,9 @@
     "COMPOSES_DEGRADED": 6,
     "COMPOSES_SILENT_LOSS": 3
   },
-  "gate_disagreements": [],
+  "gate_disagreements": [
+    "CT-022"
+  ],
   "records": [
     {
       "id": "CT-001",
@@ -1060,11 +1054,13 @@
           "source": "module CT022b\nparam a : Real\nparam b : Real\nprior a ~ Normal(location := b, scale := 1.0)\nprior b ~ Normal(location := a, scale := 1.0)",
           "expect": "reject",
           "gate": true,
-          "ok": true,
-          "codes": [],
-          "diagnostics": "",
+          "ok": false,
+          "codes": [
+            "HML-S607"
+          ],
+          "diagnostics": "error HML-S607: circular probability law: a -> b -> a\n  --> <input>:4:1\n   4 | prior a ~ Normal(location := b, scale := 1.0)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  note: a set of mutually dependent laws specifies no joint distribution: there is no density to factor and nothing to infer from\n  note: detected because module scope is order-independent (D-008), which is exactly what makes such a cycle expressible\n  help: break the cycle -- give one of these symbols a law that does not depend on the others, or declare it as a 'param'",
           "crash": null,
-          "met": false,
+          "met": true,
           "why": "the specimen's stated requirement: 'must reject a cyclic variant'"
         }
       ],
@@ -1074,12 +1070,10 @@
       "repair": "LOCAL",
       "repair_note": "one acyclicity pass over the law graph, which is already present in LawStmt.given and the DistExpr role arguments.",
       "note": "The dual role composes -- `mu` is the variate of one law and a role argument of another, and the checker accepts it. But `a ~ Normal(mean := b)` together with `b ~ Normal(mean := a)` compiles clean: no acyclicity check exists anywhere. The dependency edges are already in `LawStmt.given` and in the DistExpr role arguments, so this is a missing pass, not a missing representation -- no AST change would be needed to fix it.",
-      "control_anomalies": [
-        "a CYCLIC variant must be rejected"
-      ],
+      "control_anomalies": [],
       "facts_held": true,
-      "closes": false,
-      "adjudication_agrees": true
+      "closes": true,
+      "adjudication_agrees": false
     },
     {
       "id": "CT-023",

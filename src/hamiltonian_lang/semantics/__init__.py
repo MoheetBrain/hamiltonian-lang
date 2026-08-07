@@ -53,6 +53,7 @@ from ..ast.nodes import (
     Ref,
     RelationExpr,
     RequireStmt,
+    ScopeStmt,
     SetComprehension,
     SolveStmt,
     Span,
@@ -565,6 +566,15 @@ class Resolver:
                     continue
                 self.visit_expr(a.value)
             return
+        if isinstance(st, ScopeStmt):
+            # A scope frames ASSUMPTIONS, not value bindings. Declarations keep module
+            # scope so that a name declared outside stays visible inside and a name is
+            # never silently rebound -- shadowing is already an error (D-006), and this
+            # construct must not become a back door to it.
+            for inner in st.body:
+                self.visit_statement(inner)
+            return
+
         if isinstance(st, ProvedStmt):
             return
         if isinstance(st, ObjectiveStmt):

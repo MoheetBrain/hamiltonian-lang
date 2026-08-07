@@ -50,6 +50,10 @@ KEYWORDS = frozenset(
         # have to guess whether `by` was meant as a name. Verified safe -- no .hml file
         # in the repository uses any of these five as an identifier.
         "derive", "goal", "proved", "from", "by",
+        # D-043: `scope ... end` opens a lexical assumption frame. Reuses the
+        # `end` terminator that `concept` already established, so the block
+        # convention is one convention rather than two.
+        "scope",
         # V2 mathematical expression heads (D-026). These are grammar, not library:
         # each one takes a structured argument list that no generic call can express --
         # a `|` conditioning tail, a typed binder, or a mandatory role label -- so they

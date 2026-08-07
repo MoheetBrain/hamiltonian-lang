@@ -58,6 +58,12 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
+**Scoped Γ is implemented (D-043):** `scope … end` opens a real assumption frame; facts
+do not survive it, precede it, cross to siblings, or escape nesting. Local contradiction
+is warned and contained rather than banned, so proof by contradiction stays expressible.
+Composition moved **0.417 → 0.438** — one specimen; the gate is 0.85 and the remaining
+failures are 14 GRAMMAR / 8 TYPE.
+
 **The AST fork is decided on measurement: no rewrite (D-041).** The 48 composition
 specimens were encoded and executed for the first time — STRICT closure **20/48 = 0.417**
 (the legacy 13-probe subset reads 0.692 at the same SHA; they are different instruments).

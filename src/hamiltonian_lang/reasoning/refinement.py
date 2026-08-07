@@ -27,12 +27,20 @@ The three cases the directive names, and why they come out as they do:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from enum import StrEnum
 
 from ..ast.nodes import Comparison, Expr, Literal, LogicalOp, Ref, SymbolId
 from ..types import ScalarType, Type
 
-__all__ = ["Fact", "RefinementEnv", "facts_from_proposition"]
+__all__ = [
+    "Fact",
+    "Frame",
+    "Consistency",
+    "RefinementEnv",
+    "facts_from_proposition",
+]
 
 
 #: Which relation entails which, for the SAME symbol and the SAME bound.
@@ -148,34 +156,121 @@ def facts_from_proposition(
     return out
 
 
+class Consistency(StrEnum):
+    """Whether a frame's own assumptions can all hold at once.
+
+    ``INCONSISTENT_LOCAL`` is deliberately *not* an error. Assuming something false and
+    deriving a contradiction from it is how proof by contradiction works, and a language
+    that globally banned contradictory contexts could not express it. What must be
+    contained is *explosion*: an inconsistent frame may not export conclusions to its
+    parent, because from a contradiction anything follows.
+    """
+
+    CONSISTENT = "CONSISTENT"
+    INCONSISTENT_LOCAL = "INCONSISTENT_LOCAL"
+
+
+#: Relation pairs that are jointly unsatisfiable for the same symbol and the same bound.
+#: Deliberately tiny and syntactic -- this detects the obvious contradiction an author
+#: writes on purpose, not every contradiction that exists.
+_CONTRADICTORY: frozenset[tuple[str, str]] = frozenset(
+    {("<", ">"), (">", "<"), ("=", "!="), ("!=", "="), ("<", "="), ("=", "<"),
+     (">", "="), ("=", ">")}
+)
+
+
+@dataclass
+class Frame:
+    """One lexical context. Facts live in exactly one frame and never leak outward."""
+
+    kind: str  # module | quantifier | concept | scope | derivation
+    depth: int
+    facts: list[Fact] = field(default_factory=list)
+    consistency: Consistency = Consistency.CONSISTENT
+    #: Which environment/version this frame's facts came from, for imported contexts.
+    environment: str | None = None
+
+
 class RefinementEnv:
-    """A scoped set of facts, plus the conservative decisions they license."""
+    """A lexical stack of frames, plus the conservative decisions they license.
+
+    The stack is the point. A flat set cannot express "assume `x > 0` *for the purposes
+    of this argument*", which is what a case split, a bounded lemma and a proof by
+    contradiction all need -- and it was the reason maturity criterion 3.3 failed.
+    """
 
     def __init__(self) -> None:
-        self._facts: list[Fact] = []
-        self._depth = 0
+        self._frames: list[Frame] = [Frame(kind="module", depth=0)]
 
     # -- scope ------------------------------------------------------------
-    def push(self) -> None:
-        self._depth += 1
+    @property
+    def depth(self) -> int:
+        return self._frames[-1].depth
 
-    def pop(self) -> None:
-        """Discard every fact introduced at the current depth.
+    def current(self) -> Frame:
+        return self._frames[-1]
 
-        Scoped assumptions must not leak: a fact asserted inside a quantifier body or a
-        concept is not available to the module around it. `tests/reasoning/` asserts
-        that an obligation outside the scope of its discharging assumption stays OPEN.
+    def push(self, kind: str = "scope", *, environment: str | None = None) -> Frame:
+        frame = Frame(kind=kind, depth=len(self._frames), environment=environment)
+        self._frames.append(frame)
+        return frame
+
+    def pop(self) -> Frame:
+        """Discard the innermost frame and every fact introduced in it.
+
+        Returns the popped frame so a caller can inspect its consistency -- which is what
+        an assumption-discharge rule needs in order to conclude ``not P`` from a
+        contradiction derived under ``P``.
         """
-        self._facts = [f for f in self._facts if f.depth < self._depth]
-        self._depth -= 1
+        if len(self._frames) == 1:
+            raise RuntimeError("cannot pop the module frame")
+        return self._frames.pop()
+
+    def frames(self) -> Sequence[Frame]:
+        return tuple(self._frames)
 
     def assume(self, prop: Expr, *, source_label: str | None = None) -> None:
-        self._facts.extend(
-            facts_from_proposition(prop, source_label=source_label, depth=self._depth)
+        """Add every atomic fact ``prop`` asserts to the CURRENT frame."""
+        frame = self._frames[-1]
+        new = facts_from_proposition(
+            prop, source_label=source_label, depth=frame.depth
         )
+        frame.facts.extend(new)
+        if frame.consistency is Consistency.CONSISTENT and self._contradicts(frame):
+            frame.consistency = Consistency.INCONSISTENT_LOCAL
+
+    def _contradicts(self, frame: Frame) -> bool:
+        """Whether this frame's own facts are jointly unsatisfiable.
+
+        Syntactic and deliberately incomplete: it catches ``x > 0`` with ``x < 0``, and
+        ``x = 0`` with ``x != 0``. It does not attempt arithmetic. An undetected
+        contradiction is not a soundness hole here -- it simply means the frame is not
+        flagged, and the facts still cannot leave the frame.
+        """
+        by_symbol: dict[SymbolId, list[Fact]] = {}
+        for f in frame.facts:
+            by_symbol.setdefault(f.symbol, []).append(f)
+        for facts in by_symbol.values():
+            for i, a in enumerate(facts):
+                for b in facts[i + 1 :]:
+                    if a.bound_literal is None or b.bound_literal is None:
+                        continue
+                    if a.bound_literal != b.bound_literal:
+                        continue
+                    if (a.relation, b.relation) in _CONTRADICTORY:
+                        return True
+        return False
 
     def facts_about(self, sid: SymbolId) -> list[Fact]:
-        return [f for f in self._facts if f.symbol == sid]
+        """Every fact about ``sid`` visible from the current frame.
+
+        Searches innermost outward. A sibling frame's facts are unreachable because it is
+        not on the stack -- which is the whole reason scoping is a stack and not a set.
+        """
+        out: list[Fact] = []
+        for frame in self._frames:
+            out.extend(f for f in frame.facts if f.symbol == sid)
+        return out
 
     # -- decisions --------------------------------------------------------
     def entails(self, obligation: Expr) -> Fact | None:

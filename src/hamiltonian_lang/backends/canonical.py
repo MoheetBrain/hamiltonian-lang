@@ -57,6 +57,7 @@ from ..ast.nodes import (
     Ref,
     RelationExpr,
     RequireStmt,
+    ScopeStmt,
     SetComprehension,
     SolveStmt,
     Statement,
@@ -422,6 +423,15 @@ def _statement(st: Statement) -> dict:
                 a.role: _expr(a.value) for a in sorted(st.rule_args, key=lambda x: x.role)
             },
             "conclusion": _expr(st.conclusion),
+        }
+
+    if isinstance(st, ScopeStmt):
+        # `consistency` is a VERDICT and is deliberately absent: evidence never enters
+        # semantic identity (D-034 E1). Two modules stating the same scoped argument are
+        # the same module whether or not one of them happens to be contradictory.
+        return {
+            "kind": "Scope",
+            "body": [_statement(inner) for inner in st.body],
         }
 
     if isinstance(st, ProvedStmt):

@@ -42,6 +42,7 @@ from ..ast.nodes import (
     Ref,
     RelationExpr,
     RequireStmt,
+    ScopeStmt,
     SetComprehension,
     SolveStmt,
     Statement,
@@ -294,6 +295,14 @@ def render_statement(st: Statement) -> str:
             else ""
         )
         return f"derive {st.label} : {render_expr(st.conclusion)}{premises} by {st.rule}{args}"
+
+    if isinstance(st, ScopeStmt):
+        inner = "\n".join(
+            "    " + line
+            for stmt in st.body
+            for line in render_statement(stmt).split("\n")
+        )
+        return f"scope\n{inner}\nend" if inner else "scope\nend"
 
     if isinstance(st, ProvedStmt):
         return f"proved {st.goal} by {st.derivation}"

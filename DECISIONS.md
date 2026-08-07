@@ -1666,3 +1666,58 @@ on a *deterministic* quantity yields a value — also correct, since conditionin
 degenerate variable returns a constant. And in both cases the **canonical identities
 differ**, so the two expressions are not conflated. This is therefore not a silent loss.
 CT-022 and CT-038 are real; CT-038 is exactly what D-036's precondition contracts close.
+
+---
+
+## D-043 — `scope … end`: scoped Γ becomes load-bearing
+
+**Date:** 2026-08-07 · **After:** `ae9a2a0` · **Implements:** D-035, directive §3
+
+**Problem.** Γ was flat. `assume x > 0.0` licensed `log(x)` for the entire module, and
+there was no way to say "assume this *for the purposes of this argument*".
+`RefinementEnv.push`/`pop` existed and **nothing called them** — the third instance in
+this project of a mechanism built and left unwired, after `assume` not reaching the type
+checker (D-028) and the premise-pool guard covering one of two channels (D-027 V2).
+
+**Decision.** Γ is a stack of `Frame`s, and `scope … end` is the surface form that opens
+one. The block reuses the `end` terminator `concept` already established, so HML keeps one
+block convention rather than two.
+
+**Semantics, all measured:**
+
+| | |
+|---|---|
+| inside the scope | `assume x > 0.0` licenses `log(x)` |
+| after `end` | it does not |
+| before the block | it does not |
+| sibling scopes | do not share |
+| nested scopes | expire innermost first |
+| outer facts | remain visible inside |
+| within a frame | order-independent (D-008, G5) |
+
+**Contradiction is contained, not banned.** A frame whose own assumptions are jointly
+unsatisfiable is marked `INCONSISTENT_LOCAL` and produces a **warning**, not an error.
+Globally rejecting contradictory contexts would make proof by contradiction inexpressible,
+which is the pattern this construct exists to enable. What is contained is *explosion*:
+nothing inside an inconsistent frame licenses anything outside it — verified.
+
+`pop()` returns the frame so that a future assumption-discharge rule can inspect its
+consistency, which is exactly what concluding `not P` from a contradiction under `P`
+requires.
+
+**Detection is deliberately syntactic and incomplete.** It catches `x > 0` with `x < 0`
+and `x = 0` with `x != 0`; it attempts no arithmetic. An undetected contradiction is not a
+soundness hole — the frame simply is not flagged, and its facts still cannot leave.
+
+**`consistency` is a verdict and is absent from the canonical form** (D-034 E1). Two
+modules stating the same scoped argument are the same module whether or not one is
+contradictory. Asserted by a test.
+
+**Verification.** `pytest`: **6299 passed, 0 failed** (6279 before), 20 of them new.
+`ruff`, `mypy` (89 files): clean. Hash stability: **0 changes**. Round-trip through the
+`hml` backend is faithful and hash-stable. The freeze guard fired on the new keyword and
+statement kind and was updated deliberately, not suppressed.
+
+**Composition effect: 20/48 → 21/48 (0.417 → 0.438).** The single SCOPE-class failure
+closed. This is the honest number: scoped Γ was never going to move a suite whose failures
+are 14 GRAMMAR and 8 TYPE.

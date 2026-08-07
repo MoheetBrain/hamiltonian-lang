@@ -91,6 +91,7 @@ from ..ast.nodes import (
     Ref,
     RelationExpr,
     RequireStmt,
+    ScopeStmt,
     SetComprehension,
     SolveStmt,
     Span,
@@ -379,6 +380,9 @@ class TypeChecker:
                 self.refinement.assume(
                     st.proposition, source_label=getattr(st, "label", None)
                 )
+            # A `scope` body is NOT hoisted. Its assumptions belong to its own frame and
+            # are added on entry by `check_statement`, so that they are unavailable both
+            # before the block and after it.
 
     def _check_no_unknown_types_survive(self) -> None:
         """Enforce the invariant that ``ast/nodes.py`` documents.
@@ -724,6 +728,39 @@ class TypeChecker:
                         a.value.type_ = self._function_reference_type(a.value.name)
                         continue
                     self.expr_type(a.value)
+            return
+
+        if isinstance(st, ScopeStmt):
+            self.refinement.push("scope")
+            # Assumptions inside the block are collected on entry, so that the block is
+            # internally order-independent exactly as the module is (D-008, G5) -- while
+            # remaining invisible outside it.
+            for inner in st.body:
+                if isinstance(inner, AssumeStmt):
+                    self.refinement.assume(
+                        inner.proposition, source_label=getattr(inner, "label", None)
+                    )
+            for inner in st.body:
+                self.check_statement(inner)
+            popped = self.refinement.pop()
+            st.consistency = str(popped.consistency)
+            if str(popped.consistency) == "INCONSISTENT_LOCAL":
+                # Not an error. Assuming something false and deriving a contradiction is
+                # how proof by contradiction works. The warning exists because an
+                # UNINTENDED contradiction silently makes everything in the block
+                # vacuous, and that is worth telling the author about.
+                self.diags.warn(
+                    "HML-T496",
+                    "this scope's assumptions contradict each other",
+                    st.span,
+                    notes=[
+                        "anything follows from a contradiction, so nothing established "
+                        "inside this block may be used outside it",
+                        "if the contradiction is deliberate, this is the shape a proof "
+                        "by contradiction takes",
+                    ],
+                    correction="check the assumptions, or discharge the block explicitly",
+                )
             return
 
         if isinstance(st, ProvedStmt):

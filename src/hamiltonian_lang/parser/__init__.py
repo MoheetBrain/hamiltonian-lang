@@ -52,6 +52,7 @@ from ..ast.nodes import (
     RelationExpr,
     RequireStmt,
     RuleArg,
+    ScopeStmt,
     SetComprehension,
     SolveStmt,
     Span,
@@ -286,6 +287,9 @@ class Parser:
         if t.is_kw("proved"):
             return self.parse_proved()
 
+        if t.is_kw("scope"):
+            return self.parse_scope()
+
         if t.is_kw("minimise", "minimize", "maximise", "maximize"):
             self.next()
             direction = "minimise" if t.value.startswith("mini") else "maximise"
@@ -449,6 +453,36 @@ class Parser:
             rule_args=rule_args,
             span=Span.merge(t.span, rule_tok.span),
         )
+
+    def parse_scope(self) -> ScopeStmt:
+        """``scope`` NEWLINE <statements> ``end`` -- a lexical assumption frame.
+
+        Block-structured, reusing the ``end`` terminator ``concept`` already
+        established, so HML has one block convention rather than two. Nesting is
+        permitted and is what makes a case split expressible.
+        """
+        t = self.next()
+        self.end_line("scope")
+        body: list[Statement] = []
+        while True:
+            while self.cur.kind is TokenKind.NEWLINE:
+                self.next()
+            if self.at_end():
+                self._err(
+                    "HML-P255",
+                    "unterminated 'scope' block",
+                    t.span,
+                    correction="close the block with 'end'",
+                    notes=["every 'scope' needs a matching 'end', as 'concept' does"],
+                )
+                raise ParseAbort
+            if self.cur.is_kw("end"):
+                end_tok = self.next()
+                self.end_line("scope")
+                return ScopeStmt(body=body, span=Span.merge(t.span, end_tok.span))
+            inner = self.parse_statement()
+            if inner is not None:
+                body.append(inner)
 
     def parse_proved(self) -> ProvedStmt:
         """``proved <goal> by <derivation>``"""
