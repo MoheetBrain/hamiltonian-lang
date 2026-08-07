@@ -1,0 +1,91 @@
+{
+  "protocol": "CAL-S (synthetic difficulty lab)",
+  "stage": "CAL_S3_L7",
+  "arm": "STRUCTURED_ENGLISH_ONLY",
+  "generator_version": "difficulty-lab-1.0.0",
+  "scorer_version": "difficulty-lab-scorer-1.0.0",
+  "model": "gemma4:31b",
+  "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.0,
+  "max_tokens": 8192,
+  "calls": 3,
+  "valid": 3,
+  "correct": 3,
+  "records": [
+    {
+      "task_id": "alge_L7_900031",
+      "family": "ALGEBRAIC_DEPENDENCY_GRAPH",
+      "generator_version": "difficulty-lab-1.0.0",
+      "seed": 900031,
+      "level": "L7",
+      "domain": "exact algebra",
+      "prompt": "All variables below are exact rational numbers. The definitions may be given in any order.\n\n  v9 = 5 * v13 - 4 * v22\n  v18 = 5 * v15 + 2 * v3\n  v3 = 2 * v13 + 1 * v7\n  v7 = 6\n  v16 = 4 * v1 + 3 * v0\n  v11 = 2 * v23 + 2 * v12\n  v5 = 3 * v15 - 1 * v3\n  v10 = 2 * v23 + 4 * v19\n  v23 = 4 * v9 + 2 * v7\n  v1 = 5 * v9 - 1 * v10\n  v20 = 5 * v8 + 1 * v13\n  v13 = 6\n  v6 = 3 * v8 + 2 * v4\n  v22 = 2 * v13 + 3 * v8\n  v8 = 3 * v3 - 2 * v0\n  v12 = 3 * v3 + 2 * v0\n  v2 = 5 * v1 + 4 * v9\n  v0 = 5 * v7 - 1 * v13\n  v15 = 4 * v0 - 2 * v22\n  v4 = 2 * v3 - 4 * v7\n  v21 = 3 * v3 - 2 * v0\n  v19 = 3 * v0 + 2 * v22\n  v17 = 4 * v5 - 4 * v3\n  v14 = 3 * v20 + 4 * v15\n\nDetermine the exact value of v21.\n\nReason concisely. Do not restate the problem. End with exactly one line of the form:\nFINAL: <answer>",
+      "answer": "6",
+      "answer_format": "an exact integer or fraction",
+      "metrics": {
+        "n_facts": 24,
+        "n_relevant_facts": 18,
+        "n_distractors": 6,
+        "dependency_depth": 16
+      },
+      "oracle": "exact Fraction arithmetic",
+      "final_answer": "6",
+      "correct": true,
+      "truncated": false,
+      "completion_tokens": 1429,
+      "latency_s": 69.4,
+      "finish_reason": "stop",
+      "full_response": "To find the value of v21, we identify its dependencies and calculate them step-by-step using the given equations:\n\n1.  **Identify constants:**\n    v7 = 6\n    v13 = 6\n\n2.  **Calculate v0:**\n    v0 = 5 * v7 - 1 * v13\n    v0 = 5(6) - 1(6)\n    v0 = 30 - 6 = 24\n\n3.  **Calculate v3:**\n    v3 = 2 * v13 + 1 * v7\n    v3 = 2(6) + 1(6)\n    v3 = 12 + 6 = 18\n\n4.  **Calculate v21:**\n    v21 = 3 * v3 - 2 * v0\n    v21 = 3(18) - 2(24)\n    v21 = 54 - 48 = 6\n\nFINAL: 6"
+    },
+    {
+      "task_id": "mixe_L7_900032",
+      "family": "MIXED_STATE_COMPOSITION",
+      "generator_version": "difficulty-lab-1.0.0",
+      "seed": 900032,
+      "level": "L7",
+      "domain": "algebra + logic composition",
+      "prompt": "All variables below are exact rational numbers.\n\n  a8 = 2 * a4 + 2 * a2\n  a6 = 2 * a4 + 2 * a5\n  a0 = 7\n  a13 = 4 * a0 + 2 * a11\n  a15 = 2 * a8 - 1 * a2\n  a1 = 9\n  a7 = 4 * a0 + 3 * a1\n  a5 = 2 * a1 - 2 * a2\n  a3 = 3 * a1 + 1 * a0\n  a14 = 4 * a7 + 3 * a5\n  a4 = 2 * a1 + 2 * a2\n  a2 = 2 * a1 + 1 * a0\n  a9 = 4 * a0 - 2 * a3\n  a12 = 3 * a5 + 2 * a2\n  a11 = 2 * a6 - 1 * a9\n  a10 = 3 * a1 + 3 * a7\n\nThree propositions are defined by these values:\n\n  Q1 holds exactly when a14 > 13.\n  Q2 holds exactly when a15 > 12.\n  Q3 holds exactly when a10 > 15.\n\nIs the following statement true or false?\n\n  Q1 or Q3\n\nAnswer with exactly one of: TRUE, FALSE.\n\nReason concisely. Do not restate the problem. End with exactly one line of the form:\nFINAL: <answer>",
+      "answer": "TRUE",
+      "answer_format": "TRUE or FALSE",
+      "metrics": {
+        "n_facts": 19,
+        "dependency_depth": 14,
+        "n_predicates": 3,
+        "feature_families": 2
+      },
+      "oracle": "exact Fraction arithmetic + boolean evaluation",
+      "final_answer": "TRUE",
+      "correct": true,
+      "truncated": false,
+      "completion_tokens": 2072,
+      "latency_s": 108.8,
+      "finish_reason": "stop",
+      "full_response": "To find the values of the variables, we calculate them step-by-step based on the given equations:\n\n1.  a0 = 7\n2.  a1 = 9\n3.  a2 = 2 * a1 + 1 * a0 = 2(9) + 7 = 18 + 7 = 25\n4.  a3 = 3 * a1 + 1 * a0 = 3(9) + 7 = 27 + 7 = 34\n5.  a4 = 2 * a1 + 2 * a2 = 2(9) + 2(25) = 18 + 50 = 68\n6.  a5 = 2 * a1 - 2 * a2 = 2(9) - 2(25) = 18 - 50 = -32\n7.  a6 = 2 * a4 + 2 * a5 = 2(68) + 2(-32) = 136 - 64 = 72\n8.  a7 = 4 * a0 + 3 * a1 = 4(7) + 3(9) = 28 + 27 = 55\n9.  a8 = 2 * a4 + 2 * a2 = 2(68) + 2(25) = 136 + 50 = 186\n10. a9 = 4 * a0 - 2 * a3 = 4(7) - 2(34) = 28 - 68 = -40\n11. a10 = 3 * a1 + 3 * a7 = 3(9) + 3(55) = 27 + 165 = 192\n12. a11 = 2 * a6 - 1 * a9 = 2(72) - (-40) = 144 + 40 = 184\n13. a12 = 3 * a5 + 2 * a2 = 3(-32) + 2(25) = -96 + 50 = -46\n14. a13 = 4 * a0 + 2 * a11 = 4(7) + 2(184) = 28 + 368 = 396\n15. a14 = 4 * a7 + 3 * a5 = 4(55) + 3(-32) = 220 - 96 = 124\n16. a15 = 2 * a8 - 1 * a2 = 2(186) - 25 = 372 - 25 = 347\n\nNow we evaluate the propositions:\n- Q1 holds if a14 > 13: 124 > 13 is TRUE.\n- Q2 holds if a15 > 12: 347 > 12 is TRUE.\n- Q3 holds if a10 > 15: 192 > 15 is TRUE.\n\nThe statement to evaluate is \"Q1 or Q3\". Since both Q1 and Q3 are true, the overall expression (TRUE or TRUE) is TRUE.\n\nFINAL: TRUE"
+    },
+    {
+      "task_id": "fini_L7_900033",
+      "family": "FINITE_LOGIC_WORLD",
+      "generator_version": "difficulty-lab-1.0.0",
+      "seed": 900033,
+      "level": "L7",
+      "domain": "propositional logic",
+      "prompt": "Consider the following statements about propositions P1, P2, P3, P4, P5, P6, P7, P8, P9, P10. All of them are true.\n\n  at least one of P5 and P6 holds.\n  if P2 then P4.\n  P6 implies P9.\n  P9 and P8 cannot both hold.\n  P7 and P10 cannot both hold.\n  P5 holds if and only if P10 holds.\n  P9 does not hold unless P2 holds.\n  P9 implies P4.\n  P2 implies P10.\n  if P10 then P4.\n  P2 does not hold.\n  P7 implies P2.\n  P3 holds if and only if P8 holds.\n  P9 and P7 cannot both hold.\n  P2 implies P5.\n  P9 does not hold.\n  P3 does not hold unless P8 holds.\n  P4 and P1 cannot both hold.\n  P9 does not hold unless P4 holds.\n  P3 does not hold unless P8 holds.\n  P10 and P8 cannot both hold.\n  P10 and P8 cannot both hold.\n  P2 implies P1.\n  P9 holds if and only if P8 holds.\n  P8 implies P3.\n  P8 holds if and only if P1 holds.\n  at least one of P4 and P8 holds.\n  if P3 then P4.\n\nIs P5 necessarily true, necessarily false, or is it not determined by these statements?\n\nAnswer with exactly one of: TRUE, FALSE, UNDETERMINED.\n\nReason concisely. Do not restate the problem. End with exactly one line of the form:\nFINAL: <answer>",
+      "answer": "TRUE",
+      "answer_format": "TRUE, FALSE or UNDETERMINED",
+      "metrics": {
+        "n_facts": 28,
+        "n_variables": 10,
+        "n_models": 1,
+        "n_constraints": 26
+      },
+      "oracle": "exhaustive enumeration over 2^10 assignments",
+      "final_answer": "TRUE",
+      "correct": true,
+      "truncated": false,
+      "completion_tokens": 2056,
+      "latency_s": 115.6,
+      "finish_reason": "stop",
+      "full_response": "To determine the truth value of P5, we analyze the given statements step-by-step:\n\n1.  **Identify direct facts:**\n    *   From statement 11: $\\neg P2$ is true.\n    *   From statement 16: $\\neg P9$ is true.\n\n2.  **Derive values from $P9$ and $P2$:**\n    *   Statement 24 says $P9 \\leftrightarrow P8$. Since $\\neg P9$, then $\\neg P8$ must be true.\n    *   Statement 13 (and 17, 20, 25) implies $P3 \\leftrightarrow P8$. Since $\\neg P8$, then $\\neg P3$ must be true.\n    *   Statement 26 says $P8 \\leftrightarrow P1$. Since $\\neg P8$, then $\\neg P1$ must be true.\n\n3.  **Determine the value of $P4$:**\n    *   Statement 27 states that at least one of $P4$ and $P8$ holds ($P4 \\lor P8$). Since we found $\\neg P8$, $P4$ must be TRUE. (This is consistent with statement 18: $\\neg(P4 \\land P1)$, as $T \\land F = F$).\n\n4.  **Determine the value of $P6$:**\n    *   Statement 3 says $P6 \\implies P9$. Since we know $\\neg P9$, by modus tollens, $\\neg P6$ must be true.\n\n5.  **Determine the value of $P5$:**\n    *   Statement 1 states that at least one of $P5$ and $P6$ holds ($P5 \\lor P6$). Since we found $\\neg P6$, $P5$ must be TRUE.\n\n6.  **Verify consistency with remaining statements (optional):**\n    *   From statement 6: $P5 \\leftrightarrow P10$. Since $P5$ is true, $P10$ is true.\n    *   Statement 10 ($P10 \\implies P4$) holds as $T \\implies T$.\n    *   Statement 21/22 ($\\neg(P10 \\land P8)$) holds as $\\neg(T \\land F)$.\n    *   Statement 12 ($P7 \\implies P2$) implies $\\neg P7$ because $\\neg P2$.\n    *   Statement 5 ($\\neg(P7 \\land P10)$) holds as $\\neg(F \\land T)$.\n\nAll statements are consistent, and $P5$ is necessarily true.\n\nFINAL: TRUE"
+    }
+  ]
+}

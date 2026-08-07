@@ -58,7 +58,15 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
-**SE CALIBRATION IS COMPLETE AND FOUND NO USABLE HEADROOM.** 13/13 calls used;
+**SYNTHETIC CALIBRATION ALSO SATURATED — `SYNTHETIC_STATE_COMPLEXITY_SATURATED`.** A
+neutral machine-generated difficulty lab (four families, deterministic oracles, validated
+offline with independent cross-checks) returned **9 valid / 9 correct / 0 truncations**
+across L3, L5 and L7 — L7 being depth-16 dependency chains with 6 distractors and
+10-variable logic worlds with 26 constraints. Two independent instruments have now failed
+to find headroom for this model. See `docs/evaluation/SYNTHETIC_CALIBRATION_REPORT.md`.
+Total local Gemma calls across all protocols: **22. HML calls: 0.**
+
+**THE EARLIER SE CALIBRATION ALSO FOUND NO USABLE HEADROOM.** 13/13 calls used;
 **10 valid observations, 10 correct**. The two apparent failures were `finish=length`
 truncations at 8192 tokens, one of them mid-way through a correct argument — recorded
 MEASUREMENT_INVALID rather than counted as difficulty. This is the third corpus in the

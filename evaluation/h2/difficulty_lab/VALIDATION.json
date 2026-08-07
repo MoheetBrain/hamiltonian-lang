@@ -1,0 +1,60 @@
+{
+  "generator_version": "difficulty-lab-1.0.0",
+  "scorer_version": "difficulty-lab-scorer-1.0.0",
+  "n_per_family": 120,
+  "families": {
+    "ALGEBRAIC_DEPENDENCY_GRAPH": {
+      "n": 119,
+      "deterministic": true,
+      "duplicate_prompts": 0,
+      "answer_distribution": {
+        "16": 2,
+        "48": 2,
+        "72": 2,
+        "120": 2,
+        "70": 2,
+        "-20": 2
+      },
+      "max_answer_share": 0.017,
+      "independent_cross_check": "40/40",
+      "ok": true
+    },
+    "FINITE_LOGIC_WORLD": {
+      "n": 119,
+      "deterministic": true,
+      "duplicate_prompts": 0,
+      "answer_distribution": {
+        "FALSE": 70,
+        "TRUE": 26,
+        "UNDETERMINED": 23
+      },
+      "max_answer_share": 0.588,
+      "independent_cross_check": "n/a",
+      "ok": true
+    },
+    "FINITE_QUANTIFIER_WORLD": {
+      "n": 119,
+      "deterministic": true,
+      "duplicate_prompts": 0,
+      "answer_distribution": {
+        "FALSE": 89,
+        "TRUE": 30
+      },
+      "max_answer_share": 0.748,
+      "independent_cross_check": "40/40",
+      "ok": true
+    },
+    "MIXED_STATE_COMPOSITION": {
+      "n": 119,
+      "deterministic": true,
+      "duplicate_prompts": 0,
+      "answer_distribution": {
+        "FALSE": 63,
+        "TRUE": 56
+      },
+      "max_answer_share": 0.529,
+      "independent_cross_check": "n/a",
+      "ok": true
+    }
+  }
+}

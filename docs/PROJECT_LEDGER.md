@@ -3306,3 +3306,61 @@ flagged as latent is closed, and the shared abstraction it recommended now exist
 
 **Next intended step.** Unchanged: the SE calibration gate did not pass, so scientific
 direction is with the user.
+
+---
+
+## 2026-08-07 (thirteenth entry) — synthetic difficulty lab; state complexity saturates
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `e7e5c3b`
+**Stage:** HML-SIGNAL-RESCUE-015 §2-§8
+
+**Objective.** Find a real SE difficulty region using novel, machine-generated,
+bounded-length, compositional mathematics — after canonical textbook traps saturated.
+
+**Files and systems changed.** New `evaluation/h2/difficulty_lab/` (four generator
+families, deterministic oracles, scorer, offline validation gate, CAL-S runner) and
+`docs/evaluation/SYNTHETIC_CALIBRATION_REPORT.md`. **No compiler source was touched**, as
+the directive requires while headroom is unresolved.
+
+**What was completed.** A neutral generator lab: structures built in Python, English
+rendered from them, never HML-first. Validated offline before any model call — 119
+instances per family, deterministic from seed, zero duplicate prompts, non-degenerate
+answers, and 40/40 independent cross-checks on the two families where a second
+implementation was practical (each re-parsing the rendered English, so a rendering bug
+would surface rather than be mirrored). Scorer and extraction self-tests passed first.
+
+**Result: 9 valid observations, 9 correct, 0 truncations.**
+
+| stage | level | valid | correct |
+|---|---|---|---|
+| CAL-S1 | L3 | 3 | 3 |
+| CAL-S2 | L5 | 3 | 3 |
+| CAL-S3 | **L7** | 3 | 3 |
+
+L7 = depth-16 dependency chains with 6 distractors; 10-variable propositional worlds with
+26 constraints. Completions 900-2400 tokens against an 8192 allowance.
+
+**Decisions made and why.** L6/L7 were added after L3 and L5 both returned 3/3. The
+protocol asks for levels tuned to the actual generators, and extending depth keeps the
+answer one line and the oracle cheap — it grows interacting state, not length. Stopped at
+9 of 12 calls rather than spending the remainder on an axis that had clearly saturated.
+
+**Failures and unresolved uncertainty.**
+- **`SYNTHETIC_STATE_COMPLEXITY_SATURATED`.** No headroom on this axis.
+- **A real limitation of my design:** difficulty here is *many easy steps*, not
+  *individually hard steps*. A depth-16 chain is tedious; each link is one multiply-add.
+  No family was generated where a single step is hard — non-linear systems, case-splitting
+  search, problems with no forward-chaining route. This model may be bounded by step
+  difficulty rather than step count, and these nine calls do not answer that.
+- **Not generated at all:** probability-with-dependence, geometry, multi-step optimisation.
+- The structural tension stands: the families where this model is plausibly weak are the
+  families where HML's own ontology coverage is near zero.
+- The two calibration protocols measure different things and **must not be pooled** into a
+  single accuracy estimate.
+
+**Effect on the overall project.** Two independent instruments have now failed to find
+headroom for this model. The bottleneck is not HML's completeness.
+
+**Next intended step.** Return to the user. Four options are costed in the report: weaker
+model, broader domain, different endpoint, or accept the negative finding. All are
+scientific-direction decisions.
