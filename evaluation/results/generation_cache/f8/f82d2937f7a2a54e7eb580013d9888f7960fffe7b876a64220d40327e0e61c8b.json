@@ -1,0 +1,22 @@
+{
+  "content": "<ANSWER>{\"location\": \"tau\", \"scale\": \"chi\"}</ANSWER>",
+  "reasoning": "*   Quantity Y is normally distributed.\n    *   Centre = tau ($\\tau$).\n    *   Spread (standard deviation) = chi ($\\chi$).\n\n    *   In a normal distribution:\n        *   The center (mean/median/mode) is the *location* parameter.\n        *   The spread (standard deviation) is the *scale* parameter.\n\n    *   Location role = tau ($\\tau$)\n    *   Scale role = chi ($\\chi$)\n\n    *   `{\"location\": \"tau\", \"scale\": \"chi\"}`",
+  "prompt_tokens": 272,
+  "completion_tokens": 141,
+  "total_tokens": 413,
+  "latency_s": 9.04,
+  "finish_reason": "stop",
+  "attempts": 1,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "f82d2937f7a2a54e7eb580013d9888f7960fffe7b876a64220d40327e0e61c8b",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.7,
+    "top_p": 1.0,
+    "max_tokens": 2400,
+    "seed": 303
+  },
+  "captured_utc": "2026-08-06T20:07:15Z"
+}

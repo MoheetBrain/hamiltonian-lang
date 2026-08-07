@@ -1,0 +1,22 @@
+{
+  "content": "",
+  "reasoning": "",
+  "prompt_tokens": 3323,
+  "completion_tokens": 1,
+  "total_tokens": 3324,
+  "latency_s": 0.297,
+  "finish_reason": "length",
+  "attempts": 3,
+  "from_cache": false,
+  "error": null,
+  "cache_key": "e7f651d6119b3531413aab96cff85db4832e69b79b6c674b16fdfa43754a7d67",
+  "model_digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "sampling": {
+    "model": "gemma4:31b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 1,
+    "seed": 0
+  },
+  "captured_utc": "2026-08-07T04:06:23Z"
+}

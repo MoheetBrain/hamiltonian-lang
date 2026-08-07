@@ -1,0 +1,66 @@
+{
+  "model": "gemma4:31b",
+  "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "per_call_completion_allowance": 4096,
+  "reserve_tokens": 256,
+  "per_slot_context": 16384,
+  "rule": "measured_prompt_tokens + allowance + reserve <= per_slot_context",
+  "note": "Call-two rows are upper bounds. The carried body is synthetic and sized as a completion that consumed the entire allowance, and the HML module filler is denser than the ratio used to size it, so the measured repair envelope stands for a module LARGER than the 4096-token allowance can produce. The bound is therefore conservative in the safe direction. Diagnostics are at the v1.2 cap.",
+  "english_chars_per_token": 4.4,
+  "hml_chars_per_token": 3.0,
+  "all_fit": true,
+  "rows": [
+    {
+      "arm": "HML-V1",
+      "stage": "initial",
+      "task_id": "v1b_23_knowledge_closure_choice",
+      "synthetic_carry": false,
+      "chars": 4400,
+      "measured_prompt_tokens": 1199,
+      "chars_per_token": 3.67,
+      "required_total": 5551,
+      "per_slot_context": 16384,
+      "headroom": 10833,
+      "fits": true
+    },
+    {
+      "arm": "HML-V1",
+      "stage": "repair",
+      "task_id": "v1b_23_knowledge_closure_choice",
+      "synthetic_carry": true,
+      "chars": 13688,
+      "measured_prompt_tokens": 6505,
+      "chars_per_token": 2.104,
+      "required_total": 10857,
+      "per_slot_context": 16384,
+      "headroom": 5527,
+      "fits": true
+    },
+    {
+      "arm": "SE",
+      "stage": "initial",
+      "task_id": "v1b_23_knowledge_closure_choice",
+      "synthetic_carry": false,
+      "chars": 1667,
+      "measured_prompt_tokens": 405,
+      "chars_per_token": 4.116,
+      "required_total": 4757,
+      "per_slot_context": 16384,
+      "headroom": 11627,
+      "fits": true
+    },
+    {
+      "arm": "SE",
+      "stage": "review",
+      "task_id": "v1b_23_knowledge_closure_choice",
+      "synthetic_carry": true,
+      "chars": 19273,
+      "measured_prompt_tokens": 3323,
+      "chars_per_token": 5.8,
+      "required_total": 7675,
+      "per_slot_context": 16384,
+      "headroom": 8709,
+      "fits": true
+    }
+  ]
+}

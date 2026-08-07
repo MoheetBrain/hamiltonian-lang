@@ -2307,3 +2307,132 @@ partial read.
 **Next intended step.** Arm E (structured English plus one unaided self-review) on the 24
 frozen tasks — the baseline headroom calibration, which doubles as the Arm-E half of the
 E-versus-H comparison.
+
+---
+
+## 2026-08-07 — Developmental protocol v1.2 committed; two pre-run defects fixed; the decisive run is armed
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** V1 benchmark, pre-run.
+
+**Objective.** Make the SE-versus-HML-V1 measurement runnable autonomously and honestly,
+and commit every protocol change **before** any scientific call, so that no budget decision
+can be taken after seeing a result.
+
+**Files and systems changed.**
+
+- new `docs/evaluation/V1_PROTOCOL_AMENDMENT_v1_2.md` — the amendment, in prose
+- new `evaluation/v1_benchmark/protocol_v1_2.py` — the amendment, machine-readable
+- new `evaluation/v1_benchmark/driver.py` — the crash-safe driver
+- new `evaluation/v1_benchmark/envelope.py` — offline envelope rendering
+- new `evaluation/v1_benchmark/calibrate_envelope.py` — measured envelope calibration
+- new `evaluation/v1_benchmark/diagnostics_budget.py` — the diagnostics cap
+- new `tests/evaluation/test_diagnostics_budget.py`, `tests/evaluation/test_v1_driver.py`
+- new `evaluation/results/v1_benchmark/ENVELOPE_CALIBRATION.json`
+- no change to `arms.py`, `tasks.py`, `scoring.py` — the frozen scientific inputs
+
+**What was completed.**
+
+The budget amendment: per-call completion allowance **1024 → 4096**, total per arm
+**2048 → 8192**, applied identically to both arms, with temperature, model digest, call
+count, task set, task order, scorer, matched information and matched revision opportunity
+all held exactly as frozen. This is **developmental protocol v1.2** and is never to be
+described as the untouched original configuration.
+
+**Two defects were found and fixed before any scientific call.**
+
+1. **Unbounded compiler diagnostics.** `classify_diagnostics()` renders the whole bag with
+   no ceiling. Measured: 200 unresolved names → 6.3×, 200 parse errors → 23.0×, **200 lines
+   of garbage → 389,426 characters, 121.7×**. That is ~130,000 tokens; it overflows a 16,384
+   slot eightfold and a 32,768 slot fourfold, so **no context size solves it**. An over-long
+   prompt truncates rather than raising, so the repair call would have been made against a
+   mutilated prompt — and worst **exactly where the model wrote the worst HML**, making the
+   artefact anti-correlated with the treatment. Capped at 6,000 chars / 40 diagnostics on
+   whole-line boundaries with an explicit omission notice. The cap can only *remove*
+   information from the treatment arm, so a positive HML result under it is a lower bound.
+2. **No crash safety, and arms interleaved.** `pipeline.run_benchmark` accumulated results in
+   memory and returned them at the end — the previous session died in exactly that window —
+   and `run_task` ran SE and HML per task, which makes an SE-first headroom gate impossible.
+   Replaced by `driver.py`.
+
+**A third finding was recorded rather than fixed:** neither arm re-supplies its format spec
+on the second call (`se_review_prompt` omits `SCHEMA_A_PRIME`, `hml_repair_prompt` accepts a
+`surface_spec` it never uses). Since calls carry no history, both arms repair without their
+specification in context. This is **matched**, so it is left exactly as frozen and noted as
+a handicap on the treatment arm.
+
+**A correction to my own tooling.** The first calibration attempt sized synthetic carried
+bodies in *characters* at an assumed 5.0 chars/token. HML-like source measures ~2.1–3.0, so
+a filler meant to represent 4,096 tokens measured ~6,800 — a bound that was not conservative
+but **incoherent**, modelling a completion the allowance forbids. It produced a false
+`EXCEEDS` verdict against the 16,384 slot. Fillers are now sized in tokens.
+
+**Tests and verification actually executed.**
+
+| check | command | result |
+|---|---|---|
+| diagnostics cap | `pytest tests/evaluation/test_diagnostics_budget.py -q` | **9 passed** |
+| driver guarantees | `pytest tests/evaluation/test_v1_driver.py -q` | **15 passed** |
+| existing v1 suite | `pytest -k "v1_benchmark or arms or scoring" -q` | **161 passed** |
+| envelope fit | `python -m evaluation.v1_benchmark.calibrate_envelope` | **all_fit=True** |
+| live model digest | `/api/tags` vs `MODEL_DIGEST` | **match** (`6316f0629137…`) |
+| lint (new modules) | `ruff check evaluation/v1_benchmark/ tests/evaluation/` | **clean** |
+
+Measured envelopes against the live tokeniser (`max_tokens=1` calls, which occupy different
+cache keys from run calls and cannot be replayed as scientific data):
+
+| arm | stage | prompt tokens | required | headroom vs 16,384 |
+|---|---|---:|---:|---:|
+| SE | initial | 405 | 4,757 | 11,627 |
+| SE | review | 3,323 | 7,675 | 8,709 |
+| HML-V1 | initial | 1,199 | 5,551 | 10,833 |
+| HML-V1 | repair | 6,505 | 10,857 | **5,527** |
+
+**Decisions made and why.**
+
+- **Runtime `2 x 16384`, not `4 x 8192`.** `arms.RUNTIME` is stale; the live server is
+  `OLLAMA_NUM_PARALLEL=2 OLLAMA_CONTEXT_LENGTH=16384`. Recorded as measured, and the driver
+  refuses to start on disagreement.
+- **No 32,768 single slot.** The mission permits escalating when the two-slot arrangement
+  cannot fit the largest matched envelope. It fits, with 5,527 tokens spare, so the server
+  is left alone — no restart, no 19 GB model reload, and the measured 1.54× throughput of
+  two slots is retained.
+- **Truncation halts the run** rather than being recorded. Under v1.2 a truncated completion
+  is a measurement defect, not a datum.
+
+**Failures and unresolved uncertainty.**
+
+- **No scientific call has been made.** Nothing here is evidence about HML.
+- The pre-run task audit (24 keys re-derived independently) was still running at commit time;
+  its findings may yet exclude tasks. The run requires ≥ 20 valid paired tasks.
+- 4 pre-existing `ruff` errors remain in `evaluation/h2_screen/` from the previous session.
+  Untouched — out of scope for this commit.
+
+**Independent key verification (pre-run, read-only).** All 24 answer keys were re-derived
+from the prose alone by an independent reviewer: **24/24 AGREE, zero disagreements, zero
+materially ambiguous**. All seven convention-traps (06 Simpson sign, 07 total variance,
+13 SI permittivity, 18 Frullani sign, 20 series order, 21 conditional independence,
+22 testimony double-counting) are on the correct side of their trap.
+
+**A scoring hazard found and deliberately NOT fixed.** The numeric extractor matches
+`-?\d+(\.\d+)?`, so an answer of `2/3` does not merely fail — it **silently extracts as
+`2.0`**, which is indistinguishable in the record from a model that genuinely answered 2.
+Seven of 24 tasks have fractional true values. Verified directly:
+`score_answer(v1b_03, "<ANSWER>2/3</ANSWER>") -> (False, '2.0')`.
+
+It is left exactly as frozen, for three reasons: the answer instruction explicitly demands
+"a single number ... e.g. 3.25", so a fraction disobeys a stated contract; the scorer is a
+**frozen scientific input** and changing it after the corpus is known is precisely the
+post-hoc adjustment this protocol forbids; and it applies to **both arms identically**, so
+it cannot bias the SE-versus-HML contrast. It can depress both arms together and so bears on
+the headroom gate reading. A per-arm count of fraction-formatted final answers is therefore
+computed post-hoc as a confound check, and is handed to the falsification reviewers.
+
+**Also preserved in this commit:** the 285 untracked `evaluation/results/generation_cache/`
+entries from the previous session's eval001 screen. The adapter's contract is that raw
+generations are written once and never overwritten, and 51 such entries were already
+tracked; leaving 285 untracked would have made the cache silently machine-local.
+
+**Effect.** The decisive measurement can now run unattended and crash-safe, and every
+protocol choice it depends on is committed and dated ahead of the first result.
+
+**Next intended step.** The 8-call operational probe, then the SE headroom gate.

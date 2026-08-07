@@ -28,7 +28,38 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**eval001 IS SATURATED AND UNUSABLE FOR H2 — HEADROOM_INSUFFICIENT (complete, 285/285).**
+**DEVELOPMENTAL PROTOCOL v1.2 COMMITTED; THE DECISIVE SE-vs-HML-V1 RUN IS ARMED BUT NOT YET
+RUN.** The 24-task benchmark has an amended runtime budget, a crash-safe driver, and two
+pre-run defects fixed. No scientific call has been made at the time of this commit.
+
+- **Amendment (`docs/evaluation/V1_PROTOCOL_AMENDMENT_v1_2.md`).** Per-call completion
+  allowance 1024 → **4096**; total per arm 2048 → **8192**; applied identically to both
+  arms. Everything else — temperature 0.0, model digest, two calls, task set and order,
+  scorer, matched information, matched revision — held exactly as frozen. 1024 was unsafe
+  because eval001 truncated 11 of 285 completions at a **2400** cap, and a truncated
+  completion is an *absent* answer scored as a failure of the representation. HML must emit
+  a module *in addition to* its reasoning, so it is the more verbose arm by construction and
+  the artefact would have been **anti-correlated with the treatment**.
+- **The recorded runtime was wrong.** `arms.RUNTIME` says `4 x 8192`; the live server runs
+  `OLLAMA_NUM_PARALLEL=2 OLLAMA_CONTEXT_LENGTH=16384` — a **`2 x 16384`** arrangement. The
+  measured value is now recorded and the driver refuses to start if the server disagrees.
+- **Context fit is measured, not estimated.** Ollama 0.32.5 has no tokenizer endpoint, so
+  envelopes were measured with `max_tokens=1` calls (which cannot collide with scientific
+  cache keys). Worst case is HML repair at **10,857 of 16,384**, leaving 5,527 tokens spare.
+  **The two-slot arrangement fits; the 32,768 single slot is not required.**
+- **Defect fixed — unbounded compiler diagnostics.** `classify_diagnostics()` renders without
+  bound: 200 lines of garbage HML produce **389,426 characters (~130,000 tokens), a 122×
+  blowup** that overflows *any* slot. It would have truncated the repair prompt hardest
+  exactly where the model wrote the worst HML — again anti-correlated with the treatment.
+  Capped at 6,000 chars / 40 diagnostics with an explicit omission notice. The cap can only
+  *remove* help from the treatment arm, so a positive HML result under it is a lower bound.
+- **Defect fixed — no crash safety.** `pipeline.run_benchmark` held all results in memory and
+  interleaved the arms, making the SE-first headroom gate impossible. Replaced by
+  `evaluation/v1_benchmark/driver.py`: write-once records, immediate save, resume-missing-only,
+  immutable manifest, source-level drift hashing over tasks/prompts/scorer/compiler/extraction,
+  halt on truncation and on transport error.
+
+Previously: **eval001 IS SATURATED AND UNUSABLE FOR H2 — HEADROOM_INSUFFICIENT (complete, 285/285).**
 The plain-English headroom screen (95 deduplicated problems x 3 seeds, temperature 0.7)
 returns **mean accuracy 0.961**: **90 of 95 tasks are 3/3 correct** and only **3** fall in
 the 1/3-2/3 headroom band against a required 30. **Three of five domains — algebraic,
@@ -477,8 +508,13 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Exact Next Actions
 
-0. Re-measure the prompt budget against the frozen runtime (`-c 32768 -np 2`), then run
-   Tranche A: 8 development tasks x 4 surfaces, `DIRECT_FORMAL`, one safe repair maximum.
+0. **The decisive run, in this order and no other.** (a) 8-call operational probe on the
+   largest-envelope and hardest predicted tasks; (b) **SE arm on all valid tasks as the
+   headroom gate** — 8–16 of 24 correct is ideal, 6–18 usable, 0–5 or 19–24 insufficient;
+   (c) HML-V1 only if the gate passes; (d) paired McNemar + bootstrap; (e) two read-only
+   falsification reviewers; (f) `DECISION.json`. The prompt budget re-measurement against
+   the frozen runtime is **done** — it is `2 x 16384`, recorded in
+   `evaluation/results/v1_benchmark/ENVELOPE_CALIBRATION.json`.
 
 1. Decide the D-003 cost/benefit question now that the token cost is measured at ~5.9%
    (D-014): is the explicitness worth it? This is H5 and is still open.
