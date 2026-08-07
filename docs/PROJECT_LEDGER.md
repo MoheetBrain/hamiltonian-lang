@@ -2946,3 +2946,50 @@ recommendation rather than by the reports' authority.
 
 **Next intended step.** §3 evidence-graph hardening (lead, confined to `reasoning/`), with
 full-ontology probing dispatched in parallel as it touches no source.
+
+---
+
+## 2026-08-07 (sixth entry) — explicit evidence graph (directive §3)
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `e435c77`
+
+**Objective.** Replace a narrow acyclicity argument with a real one, and give the
+established/provisional/not-evidence distinction a mechanical home.
+
+**Files and systems changed.** New `src/hamiltonian_lang/reasoning/evidence.py` and
+`tests/reasoning/test_evidence_graph.py`; `reasoning/check.py` builds and validates the
+graph; `DECISIONS.md` D-040.
+
+**What was completed.** An explicit claim graph with a cycle validator over all four edge
+kinds, a weakest-link `effective_class`, cycle-safe transitive obligation collection, and
+invariants E1/E2/E3/E4/E7/E8 checked by name. Wired into `check_reasoning` so it runs on
+every module, not just when asked.
+
+**Decisions made and why.** D-040. The load-bearing one: the textual-order rule is
+demoted from "the acyclicity argument" to "a cheap first line", because it is sound only
+for single-module source-order construction and never saw `proved` edges at all.
+
+**Tests and verification actually executed.**
+- `.venv/bin/python -m pytest` → **6270 passed, 5 skipped, 0 failed** (6252 before)
+- `tests/reasoning/` → 98 passed (18 new)
+- `.venv/bin/ruff check src tests` → clean; `.venv/bin/mypy src/hamiltonian_lang` → clean, 89 files
+- hash stability → **0 changed**
+- driven directly, the exploit shape yields E1 + E2 + E3 — the E1 hit is reachable only
+  because PROOF edges are walked
+
+**Failures and unresolved uncertainty.**
+- **The graph is a second check, not the primary one.** The incremental rules still do the
+  rejecting in practice; the validator has not yet caught anything the incremental rules
+  missed. Its value is for construction paths that do not exist yet (imports), so it is
+  currently insurance rather than demonstrated defence.
+- E8 has a field and a check but **no import mechanism to exercise it**. Untested against
+  a real cross-environment claim.
+- The `propositions` pool holds both ESTABLISHED and PROVISIONAL claims. Only the comment
+  was corrected; the dict was not split, so the distinction lives in `self.pending` and
+  the graph rather than in the pool's own shape.
+
+**Effect on the overall project.** Directive §3's E1, E2, E3, E4, E7, E9 now have named,
+executable checks. Measured maturity is unchanged.
+
+**Next intended step.** §4 scoped Γ, then §5 partiality contracts. The compositionality
+study and the 486-atom probe are running in parallel.

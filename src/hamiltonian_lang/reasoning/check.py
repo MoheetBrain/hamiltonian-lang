@@ -40,6 +40,13 @@ from ..ast.nodes import (
 )
 from ..diagnostics import DiagnosticBag
 from . import kernel
+from .evidence import (
+    INVARIANTS,
+    ClaimNode,
+    EdgeKind,
+    EvidenceClass,
+    EvidenceGraph,
+)
 from .refinement import RefinementEnv
 
 __all__ = [
@@ -115,9 +122,14 @@ class _ReasoningChecker:
         self.result = ReasoningResult()
         #: label -> (statement, ClaimId)
         self.claims: dict[str, tuple[Statement, ClaimId]] = {}
-        #: label -> the proposition that claim asserts, ONCE ESTABLISHED. Only
-        #: assumptions and successfully-checked derivations ever enter this pool; it is
-        #: what `_check_derivation` draws premises from.
+        #: label -> the proposition a claim asserts, for claims usable as premises.
+        #:
+        #: NOTE ON THE NAME. This pool holds both ESTABLISHED claims (assumptions, and
+        #: derivations the kernel VERIFIED) and PROVISIONAL ones (derivations that are
+        #: CHECKED with an open obligation). A CHECKED claim is **not** established, and
+        #: the earlier comment here called it that. It may be used, but only by passing
+        #: its unresolved obligations along -- which `self.pending` does and
+        #: `EvidenceGraph.effective_class` now states explicitly.
         self.propositions: dict[str, Expr] = {}
         #: label -> the statement, for claims that state something to be SHOWN
         #: (`goal`, `require`, `prove`). Kept only so a diagnostic can explain why
@@ -127,6 +139,10 @@ class _ReasoningChecker:
         self.pending: dict[str, list[ReasoningObligation]] = {}
         self.env = RefinementEnv()
         self._ob_counter = 0
+        #: The explicit evidence graph. The textual-order rule in `resolve_premises`
+        #: remains as a cheap first line; this is the one that survives imports and any
+        #: construction order that is not source order (directive E9).
+        self.graph = EvidenceGraph()
 
     # -- 1. claim resolution ----------------------------------------------
     def resolve_claims(self) -> None:
@@ -153,10 +169,15 @@ class _ReasoningChecker:
     def resolve_premises(self) -> None:
         """Resolve premise labels, rejecting forward and circular references.
 
-        A derivation may only cite claims established *earlier in the module*. That one
-        rule gives acyclicity for free -- a cycle needs a backward edge, and there are
-        none -- which is a great deal simpler and more obviously correct than detecting
-        cycles after the fact in a graph that already admits them.
+        A derivation may only cite claims declared *earlier in the module*.
+
+        **This is a first line of defence, not the acyclicity argument.** An earlier
+        version of this docstring claimed the ordering rule "gives acyclicity for free",
+        and that is only true for a single module built in one pass from source order. It
+        does not hold for imports, for batch graph construction, or for any assembly
+        whose order is not textual order -- and it never saw the ``proved`` edge at all,
+        which is the edge that closed the loop in the original goal-proves-itself
+        exploit. The real check is :meth:`_validate_graph`, which walks every edge kind.
         """
         established: dict[str, ClaimId] = {}
         for st in self.module.statements:
@@ -218,6 +239,9 @@ class _ReasoningChecker:
                 self.env.assume(st.proposition, source_label=st.label)
                 if st.label:
                     self.propositions[st.label] = st.proposition
+                    self.graph.add_claim(
+                        ClaimNode(st.label, EvidenceClass.ESTABLISHED)
+                    )
             elif isinstance(st, (RequireStmt, ProveStmt, GoalStmt)):
                 # `require`, `prove` and `goal` state things to be SHOWN. They are not
                 # facts and they are not established, so they enter neither Γ nor the
@@ -242,6 +266,9 @@ class _ReasoningChecker:
                 # Regression: tests/reasoning/test_circularity.py.
                 if st.label:
                     self.unestablished[st.label] = st
+                    self.graph.add_claim(
+                        ClaimNode(st.label, EvidenceClass.NOT_EVIDENCE)
+                    )
                 if isinstance(st, GoalStmt):
                     self.result.goal_status[st.label] = GoalStatus.OPEN
             elif isinstance(st, DeriveStmt):
@@ -251,11 +278,46 @@ class _ReasoningChecker:
             if isinstance(st, ProvedStmt):
                 self._adjudicate(st)
 
+        self._validate_graph()
+
         for label, (st, _) in self.claims.items():
             if isinstance(st, GoalStmt):
                 self.result.goal_status.setdefault(label, GoalStatus.OPEN)
                 st.status = self.result.goal_status[label]
         return self.result
+
+    def _validate_graph(self) -> None:
+        """Run the explicit evidence-graph validator and report any violation.
+
+        This is a **second, independent** check, not a replacement for the rules already
+        enforced during the sweep. If it ever fires, one of two things is true: a defect
+        exists in the incremental rules, or a construction path was added that those
+        rules do not cover (an import, a batch build). Both are worth an error rather
+        than a silent pass, which is why the diagnostic names the invariant.
+        """
+        verified = [
+            label
+            for label, status in self.result.derivation_status.items()
+            if status == DerivationStatus.VERIFIED
+        ]
+        for v in self.graph.validate(verified_labels=verified):
+            self.diags.error(
+                "HML-R714",
+                f"evidence-graph invariant {v.invariant} violated: {v.message}",
+                self._span_for(v.labels),
+                notes=[
+                    INVARIANTS.get(v.invariant, ""),
+                    "this is the independent graph validator, not the incremental rules; "
+                    "if it fires, the incremental rules missed a construction path",
+                ],
+            )
+
+    def _span_for(self, labels: tuple[str, ...]):
+        for label in labels:
+            entry = self.claims.get(label)
+            if entry is not None:
+                return entry[0].span
+        return self.module.span
 
     def _next_obligation_id(self) -> str:
         self._ob_counter += 1
@@ -448,6 +510,23 @@ class _ReasoningChecker:
         self.pending[st.label] = own + still_open
         self.result.derivation_status[st.label] = st.status
 
+        # Record this step in the explicit evidence graph. A VERIFIED derivation is
+        # ESTABLISHED; a CHECKED one is PROVISIONAL -- usable, but only by carrying its
+        # obligations forward, which `own` supplies to `transitive_open_obligations`.
+        self.graph.add_claim(
+            ClaimNode(
+                label=st.label,
+                evidence_class=(
+                    EvidenceClass.ESTABLISHED
+                    if st.status == DerivationStatus.VERIFIED
+                    else EvidenceClass.PROVISIONAL
+                ),
+                own_open_obligations=tuple(o.id for o in own),
+            )
+        )
+        for premise in st.premises:
+            self.graph.add_edge(st.label, premise, EdgeKind.PREMISE)
+
     def _reject(self, st: DeriveStmt, reason: str) -> None:
         st.status = DerivationStatus.REJECTED
         st.rejection_reason = reason
@@ -527,6 +606,11 @@ class _ReasoningChecker:
 
         self.result.goal_status[st.goal] = GoalStatus.PROVED
         goal_stmt.status = GoalStatus.PROVED
+        # Record the proof edge. This is the edge the premise-only view could not see,
+        # and it is the one that closes the loop when a goal is used to support the
+        # derivation that proves it: `d1 --premise--> g1` plus `g1 --proof--> d1` is a
+        # cycle, which E1 reports even if the incremental premise rule were ever bypassed.
+        self.graph.add_edge(st.goal, st.derivation, EdgeKind.PROOF)
 
 
 def check_reasoning(module: Module, diags: DiagnosticBag) -> ReasoningResult:

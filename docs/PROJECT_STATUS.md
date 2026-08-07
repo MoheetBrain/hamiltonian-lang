@@ -58,6 +58,12 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
+**An explicit evidence graph now backs the reasoning layer** (`reasoning/evidence.py`,
+D-040). Acyclicity previously rested on a single textual-order rule that was sound only
+for single-module source-order construction and never saw `proved` edges; there is now a
+validator walking all four edge kinds, a three-way ESTABLISHED / PROVISIONAL /
+NOT_EVIDENCE split, and named checks for E1/E2/E3/E4/E7/E8.
+
 **Research-integration decisions are recorded** in
 `docs/hml_v2/RESEARCH_INTEGRATION_DECISIONS.md`: 14 recommendations classified against
 measured state, with the generic Apply/Bind AST core explicitly DEFERRED pending failure

@@ -1493,3 +1493,60 @@ guard is worse than an absent test.
 (step 5's fork, being measured); the route to the 0.85 closure target; import syntax; and
 whether `prove` migrates to a goal (a real contract-vs-implementation divergence, deferred
 to step 6).
+
+---
+
+## D-040 — the explicit evidence graph
+
+**Date:** 2026-08-07 · **After:** `e435c77` · **Implements:** directive §3 (E1-E10)
+
+**Problem.** V2's acyclicity rested entirely on one rule: a derivation may cite only
+claims declared earlier in the module. Measured: `grep -rn "def .*cycle"` over
+`reasoning/` returned nothing.
+
+That rule is sound for a single module built in one pass from source order, and **only**
+for that. It does not hold for imports, batch graph construction, or any assembly whose
+order is not textual order. Worse, it never saw the `proved` edge at all — which is the
+edge that closed the loop in the original `goal g1 : 1.0 = 2.0` exploit.
+
+**Decision.** Add `reasoning/evidence.py`: an explicit graph with a real validator that
+walks **every** edge kind (PREMISE, OBLIGATION, PROOF, DISCHARGE). The ordering rule stays
+as a cheap first line; the graph is the argument.
+
+**The three-way evidence split**, which the previous code conflated:
+
+| class | may support a conclusion? |
+|---|---|
+| `ESTABLISHED` | yes — an in-scope `assume`, or a VERIFIED derivation |
+| `PROVISIONAL` | only by carrying its unresolved obligations forward — a CHECKED derivation |
+| `NOT_EVIDENCE` | never — `goal`, `require`, `prove` |
+
+**A naming correction.** The premise pool was called `propositions` and its comment called
+its contents "established". It holds PROVISIONAL claims too. The *behaviour* was already
+right — a step resting on a CHECKED premise inherits its obligation and stays CHECKED —
+but the label was wrong, and the directive is explicit that a CHECKED claim is not
+established. Comment corrected; no behavioural change.
+
+**Independent confirmation that the graph earns its place.** Driven directly with the
+exploit's shape — `d1 --premise--> g1` and `g1 --proof--> d1` — the validator reports
+**three** violations that the incremental rules would have to catch separately: E1 (cycle,
+found only because PROOF edges are walked), E2 (a not-evidence premise), E3 (a VERIFIED
+claim whose premise closure is not established).
+
+**Verification.**
+- `pytest`: **6270 passed, 0 failed** (6252 before)
+- `tests/reasoning/`: 98 passed, of which 18 are new evidence-graph tests
+- `ruff`: clean · `mypy src/hamiltonian_lang`: clean, 89 files
+- hash stability: **0 changes**
+- the original exploit remains blocked, now by two independent mechanisms
+
+**Deliberate design points.** `transitive_open_obligations` and `effective_class` are both
+cycle-safe (bounded by a visited set), because a soundness routine that can hang is one
+that will eventually be bypassed. `find_cycle` is iterative, because a RecursionError
+inside the soundness check would be a crash in exactly the wrong place.
+
+**Not done here.** E5/E6 (status changes cannot manufacture evidence; source cannot write
+VERIFIED) are already enforced elsewhere and pinned by
+`tests/reasoning/test_architecture_freeze.py`. E10 is D-034. E8 has a node field and a
+validator check but no import mechanism to exercise it yet — the field exists so the
+import work lands against a contract rather than inventing one.
