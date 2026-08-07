@@ -127,6 +127,31 @@ class SymbolTable:
         return list(self.root.by_name.values())
 
 
+#: Declaration kinds that are MATHEMATICAL BINDERS rather than value declarations.
+#:
+#: D-006 rejects shadowing so that a nested value declaration cannot silently change what
+#: a name means. That reasoning is right for values and **wrong for binders**, and
+#: applying it to binders removed most of calculus from the language:
+#:
+#:     var x : Real
+#:     require derivative(f, x : Real) = 0.0     -> HML-N302
+#:     require integral(f, x : Real, 0.0, 1.0)   -> HML-N302
+#:     require forall x : Real . x = x           -> HML-N302
+#:
+#: You could not differentiate with respect to a variable you had declared, write an ODE
+#: in one time variable, or take a gradient with respect to your own decision variable.
+#: Binding occurrences in a body is not an accident a binder might commit -- it is what a
+#: binder *is*, and `integral(f(x), x, 0, 1)` where `x` is also a global is ordinary
+#: mathematical notation, not an ambiguity.
+#:
+#: Shadowing here is safe for a reason the machinery already provides: `SymbolId` carries
+#: `(depth, ordinal)` and canonicalises to `sym:#depth.ordinal`, so the binder and the
+#: outer value have distinct identities regardless of spelling, alpha-equivalence holds,
+#: and resolution is lexical so capture cannot occur. The rule was protecting an invariant
+#: that was never at risk. (D-045.)
+_BINDER_KINDS: frozenset[str] = frozenset({"quantified"})
+
+
 def _levenshtein(a: str, b: str) -> int:
     if a == b:
         return 0
@@ -169,7 +194,7 @@ class Resolver:
             )
             return existing_local
         outer = self.scope.parent.lookup(name) if self.scope.parent is not None else None
-        if outer is not None:
+        if outer is not None and kind not in _BINDER_KINDS:
             self.diags.error(
                 "HML-N302",
                 f"{name!r} shadows an outer binding and would silently change scope",

@@ -2,7 +2,7 @@
   "hml_source": "/Users/moheet/hml_v2_worktree/src/hamiltonian_lang/__init__.py",
   "specimen_file": "/Users/moheet/hml_audit_worktree/audit/language_comparison/ontology/COMPOSITION_TESTS.json",
   "cross_check_problems": [],
-  "closed": 21,
+  "closed": 22,
   "total": 48,
   "framework_denominator": 38,
   "unsupported": [
@@ -30,15 +30,15 @@
     "CONSTRAINT": 2
   },
   "repair_histogram": {
-    "GENERAL": 7,
-    "NONE": 21,
+    "GENERAL": 6,
+    "NONE": 22,
     "LOCAL": 11,
     "ONE_NODE": 9
   },
   "prediction_accuracy": {
-    "hits": 13,
-    "attempted": 27,
-    "value": 0.4815,
+    "hits": 12,
+    "attempted": 26,
+    "value": 0.4615,
     "surface_map": {
       "GRAMMAR": [
         "GRAMMAR"
@@ -188,6 +188,7 @@
     "COMPOSES_SILENT_LOSS": 3
   },
   "gate_disagreements": [
+    "CT-009",
     "CT-022"
   ],
   "records": [
@@ -543,13 +544,11 @@
       "encoding": "module CT009\nparam theta : Real\nrv Z : RandomVariable[Real]\nlaw Z | theta ~ Normal(location := theta, scale := 1.0)\ndef f(z : Real) : Real := z * z\ndef obj := derivative(expectation(f(Z)), theta : Real)",
       "expect": "accept",
       "compiled": true,
-      "ok": false,
-      "codes": [
-        "HML-N302"
-      ],
-      "diagnostics": "error HML-N302: 'theta' shadows an outer binding and would silently change scope\n  --> <input>:6:12\n   6 | def obj := derivative(expectation(f(Z)), theta : Real)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  note: outer param 'theta' is bound at line 2\n  note: shadowing is rejected by design decision D-006\n  help: rename the inner binding, e.g. theta_inner",
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
       "crash": null,
-      "primary_met": false,
+      "primary_met": true,
       "controls": [
         {
           "label": "differentiating against a fresh name is accepted, and is not the statement",
@@ -572,8 +571,8 @@
       "note": "`derivative` always introduces a FRESH binder, and D-006 forbids shadowing, so differentiating with respect to a symbol that already exists is impossible: HML-N302. The only accepted spelling binds a name that does not occur in the body, which silently states the derivative of a constant. This is the clearest measured case of the binder design being the obstacle rather than the type rules.",
       "control_anomalies": [],
       "facts_held": true,
-      "closes": false,
-      "adjudication_agrees": true
+      "closes": true,
+      "adjudication_agrees": false
     },
     {
       "id": "CT-010",
@@ -2189,13 +2188,11 @@
           "source": "module CT045c\nparam k : Real\nrequire forall k : Real . k > 0.0",
           "expect": "reject",
           "gate": true,
-          "ok": false,
-          "codes": [
-            "HML-N302"
-          ],
-          "diagnostics": "error HML-N302: 'k' shadows an outer binding and would silently change scope\n  --> <input>:3:9\n   3 | require forall k : Real . k > 0.0\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  note: outer param 'k' is bound at line 2\n  note: shadowing is rejected by design decision D-006\n  help: rename the inner binding, e.g. k_inner",
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
           "crash": null,
-          "met": true,
+          "met": false,
           "why": "HML-N302: the capture the specimen is about cannot even be written"
         }
       ],
@@ -2206,7 +2203,8 @@
       "repair_note": "capture-avoiding substitution in the kernel. D-006's no-shadowing rule already guarantees the precondition, so this is an algorithm to write, not a representation to invent.",
       "note": "HML refuses rather than captures, in both places it could go wrong: the `substitute` kernel rule does not descend into quantifier bodies and reports exactly what it would have produced (HML-R706), and D-006 makes the capturing spelling unwritable in the first place (HML-N302). The capability is genuinely absent -- there is no alpha-renaming step -- but nothing unsound happens, which is what this specimen tests. Scored REJECTED_CORRECT with the capability gap recorded.",
       "control_anomalies": [
-        "substitution NOT under a binder succeeds"
+        "substitution NOT under a binder succeeds",
+        "shadowing a bound name is refused rather than silently captured"
       ],
       "facts_held": true,
       "closes": false,

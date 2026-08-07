@@ -1788,3 +1788,58 @@ the whole point. Found by the full-ontology probe among 32 enforcement gaps (7 c
 files): clean. Hash stability: **0 changes**. Composition unchanged at 21/48 — this was a
 soundness fix, not a coverage one, and it should not be reported as progress toward the
 composition gate.
+
+---
+
+## D-045 — D-006 governs value declarations, not mathematical binders
+
+**Date:** 2026-08-07 · **After:** `5888cd0` · **Severity:** high (coverage, not soundness)
+
+**The defect.** D-006 rejects shadowing so that a nested *value* declaration cannot
+silently change what a name means. That reasoning was applied to binders as well, and the
+consequence was that **you could not differentiate with respect to a variable you had
+declared**:
+
+```
+var x : Real
+require derivative(f, x : Real) = 0.0     -> HML-N302
+require integral(f, x : Real, 0.0, 1.0)   -> HML-N302
+require forall x : Real . x = x           -> HML-N302
+```
+
+An ODE could not be written in one time variable. A gradient could not be taken with
+respect to its own decision variable. The full-ontology probe traced 0% coverage in
+several whole families back to this one rule.
+
+**Decision.** Binder kinds are exempt from the shadowing rule. Values are not.
+
+**Why this is safe, rather than a weakened barrier.** The machinery that makes it safe
+already existed and was never at risk: `SymbolId` carries `(depth, ordinal)` and
+canonicalises to `sym:#depth.ordinal`, so a binder and an outer value have distinct
+identities regardless of spelling; resolution is lexical, so capture cannot occur.
+Measured after the change:
+
+| | |
+|---|---|
+| `derivative`/`integral`/`forall` over a declared name | accepted |
+| nested same-name binders | accepted |
+| body reference inside `forall x` where `x` is also a module var | resolves to `sym:#1.0`, **the binder** |
+| `derivative(f, x)` vs `derivative(f, z)` | **identical content hash** — alpha-equivalence holds |
+| a concept parameter shadowing a module `var` | **still HML-N302** |
+
+Binding occurrences in a body is not an accident a binder might commit — it is what a
+binder *is*. `integral(f(x), x, 0, 1)` where `x` is also a global is ordinary mathematical
+notation, not an ambiguity.
+
+**Eight tests asserted the old behaviour and were reversed deliberately**, each with the
+reason recorded in place. The constitutional test of D-006 was not deleted: it was
+re-pointed at a *value* declaration, which is what D-006 was always about.
+
+**Verification.** `pytest`: **6328 passed, 0 failed** (6322 before).
+**Composition: 21/48 → 22/48 (0.438 → 0.458).**
+
+**On that number, plainly.** This fix was expected to be high-leverage for composition and
+it moved one specimen. It is unambiguously right — it restores differentiation with respect
+to declared variables — but the prediction that it would unlock a large share of the 14
+GRAMMAR failures was **wrong**, and the remaining failures need their own diagnosis rather
+than another hopeful structural fix.

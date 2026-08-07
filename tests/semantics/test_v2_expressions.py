@@ -689,8 +689,13 @@ def test_integral_bounds_are_outside_the_binder():
     assert "HML-N301" in codes("def t := integral(x, x : Real, x, 1.0)\n")
 
 
-def test_the_new_binders_reject_shadowing_like_every_other_binder():
-    assert "HML-N302" in codes("def t := {x : Real | x > 0.0}\n", "param x : Real\n")
+def test_the_new_binders_may_reuse_a_declared_name_like_every_other_binder():
+    """D-045. Reversed deliberately, and the name still says "like every other binder"
+    because the point is uniformity: comprehension, integral, derivative, limit and
+    quantifier all bind, and all five are now treated the same way."""
+    assert "HML-N302" not in codes(
+        "def t := {x : Real | x > 0.0}\n", "param x : Real\n"
+    )
 
 
 def test_a_definition_cycle_through_a_new_form_is_detected():

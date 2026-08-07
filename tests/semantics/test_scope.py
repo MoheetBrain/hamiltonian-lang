@@ -50,12 +50,18 @@ def test_duplicate_declaration_rejected():
     assert "HML-N303" in codes("param a : Real\nparam a : Real")
 
 
-def test_shadowing_rejected():
-    assert "HML-N302" in codes("param x : Real\nrequire forall x : Real . x > 0")
+def test_a_binder_may_reuse_a_declared_name():
+    """D-045. Reversed deliberately: this used to assert HML-N302.
+
+    A binder binds occurrences in its body -- that is what a binder is. Rejecting it
+    made `derivative(f, x)` unwritable whenever `x` was declared, i.e. always.
+    """
+    assert "HML-N302" not in codes("param x : Real\nrequire forall x : Real . x > 0")
 
 
-def test_index_collision_rejected_as_shadowing():
-    assert "HML-N302" in codes(
+def test_a_binder_may_reuse_a_declared_index_name():
+    """D-045. `sum over i` where `i` is a declared index is the normal idiom."""
+    assert "HML-N302" not in codes(
         "index i : Natural\nrequire forall i : Natural . i > 0"
     )
 
@@ -64,8 +70,12 @@ def test_nested_quantifiers_do_not_collide_when_distinct():
     ok("require forall x : Real . exists y : Real . y > x")
 
 
-def test_nested_quantifier_reusing_a_name_rejected():
-    assert "HML-N302" in codes("require forall x : Real . exists x : Real . x > 0")
+def test_nested_quantifier_reusing_a_name_is_permitted():
+    """D-045. Legal and unambiguous: the inner binder wins, and the two carry distinct
+    SymbolIds, so canonical identity and alpha-equivalence are unaffected."""
+    assert "HML-N302" not in codes(
+        "require forall x : Real . exists x : Real . x > 0"
+    )
 
 
 def test_quantifier_variable_not_visible_outside_its_body():

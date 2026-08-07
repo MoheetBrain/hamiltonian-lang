@@ -58,6 +58,15 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
+**SE difficulty calibration is under way (signal-first directive).** Structured-English
+only, no HML. CAL-1 3/3 and CAL-2 5/5 against tasks built around the exact semantic traps
+HML targets; CAL-3 pending. 9 of the 13-call budget used. No truncation (877-2392 tokens of
+8192). This is the third corpus in the project's history to saturate.
+
+**The binder/shadowing defect is fixed (D-045).** D-006 was being applied to mathematical
+binders, so `derivative(f, x)` was rejected whenever `x` was declared. Composition moved
+0.438 -> 0.458 — one specimen, against a prediction of high leverage that was wrong.
+
 **A CRITICAL soundness exploit was found and closed (D-044).** Obligations were keyed on
 the inference rule, so `multiply_both_sides(by := 1.0 / 0.0)` reached VERIFIED and its goal
 reached PROVED with zero diagnostics. Definedness is now a property of TERMS: one contract

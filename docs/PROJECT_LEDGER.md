@@ -3141,3 +3141,63 @@ implementation for the first time.
 
 **Next intended step.** The remaining CONTRACTED operations, then the 28 measured
 composition failures (14 GRAMMAR, 8 TYPE) which are the only route to the 0.85 gate.
+
+---
+
+## 2026-08-07 (tenth entry) — SE difficulty calibration; binder/shadowing fix
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `5888cd0`
+**Stage:** signal-first directive §2 (calibration) and §3 (binder fix)
+
+**Objective.** Determine, before further engineering, whether a structured-English
+difficulty region with headroom exists for this model — and fix the binder defect.
+
+**SE-ONLY CALIBRATION (no HML involved).** Model `gemma4:31b`, digest verified against the
+pin `6316f0629137…`, temperature 0, 8192 completion allowance.
+
+| stage | tasks | correct |
+|---|---|---|
+| CAL-1 | 3 (screening / constrained min / domain trap) | **3/3** |
+| CAL-2 | 5 (urn conditional / quantifier order / two-constraint LP / units / extraneous roots) | **5/5** |
+| CAL-3 | 4 (combinatorics / reflecting walk / LP vertices / floor identity) | **running** |
+
+Answer keys verified independently — SymPy for CAL-2, exhaustive enumeration for CAL-3 —
+before any model call. A scorer self-test (14 synthetic cases for CAL-2, 10 for CAL-3) ran
+before the first scientific call and had to pass for the run to proceed.
+
+**Gemma calls used: 9 of the 13 cap** (CAL-1 consumed 4, not 3 — the first run crashed on a
+field-name error *after* the first completion; that wasted call is counted).
+
+**No truncation anywhere**: completions ran 877–2392 tokens against an 8192 allowance, every
+one `finish=stop`. The model is not budget-limited on these tasks.
+
+**Binder fix (D-045).** D-006's no-shadowing rule was being applied to mathematical binders,
+so `derivative(f, x)` was rejected whenever `x` was declared. Binder kinds are now exempt;
+value declarations are not.
+
+**Tests and verification actually executed.**
+- `pytest` → **6328 passed, 5 skipped, 0 failed** (6322 before)
+- binder body reference resolves to the binder (`sym:#1.0`), not the module variable
+- `derivative(f, x)` and `derivative(f, z)` produce an **identical content hash**
+- a concept parameter shadowing a module `var` is **still** HML-N302
+- composition → **22/48 = 0.458** (was 21/48 = 0.438)
+
+**Failures and unresolved uncertainty.**
+- **Eight of eight calibration tasks so far are correct.** This is the third consecutive
+  corpus to saturate (93%, 100%, now 8/8). The tasks were deliberately built around
+  semantic traps HML targets — base rates, quantifier order, extraneous roots, ignored
+  constraints — and the model handled all of them.
+- **My prediction about the binder fix was wrong.** It was argued as high-leverage for
+  composition and moved exactly one specimen. The fix is right on its own terms; the
+  leverage claim was not, and the remaining 26 failures need individual diagnosis rather
+  than another hopeful structural fix.
+- One calibration call was wasted on a preventable coding error and is counted against the
+  budget rather than quietly excluded.
+
+**Effect on the overall project.** The largest project-level risk — that no SE headroom
+region exists — is being measured directly for the first time, and the early evidence is
+not encouraging.
+
+**Next intended step.** Await CAL-3. If it also saturates, the calibration budget is
+exhausted at 13 and the honest return is `NO_USEFUL_SE_HEADROOM_REGION_FOUND` with an
+analysis, rather than another forty calls.

@@ -455,9 +455,21 @@ def test_a_binder_does_not_escape_its_scope():
 
 
 def test_shadowing_is_rejected_rather_than_warned_about():
-    """D-006. A warning does not prevent a silent scope change."""
+    """D-006, tested where it applies: VALUE declarations.
+
+    D-006 exists so a nested *value* declaration cannot silently change what a name
+    means. It was previously asserted here against a nested BINDER, which is a different
+    thing and a mathematically legitimate one -- `integral(f(x), x, 0, 1)` where `x` is
+    also a global is ordinary notation, not an ambiguity. Applying D-006 to binders
+    removed differentiation with respect to any declared variable from the language.
+    See D-045; the binder case is now covered by tests/semantics/test_binder_scope.py.
+    """
     assert "HML-N302" in rejected(
-        "require forall x : Real . forall x : Real . x > 0.0"
+        "concept C\n"
+        "    parameter x : Real\n"
+        "    invariant inv := x = x\n"
+        "end\n"
+        "var x : Real\n"
     )
 
 

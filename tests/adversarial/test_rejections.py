@@ -125,19 +125,23 @@ def test_unbound_law_target_is_rejected():
 
 
 @pytest.mark.adversarial
-def test_shadowed_index_is_rejected():
-    assert_rejected_with(
-        "module M\nindex i : Natural\nrequire forall i : Natural . i > 0\n",
-        "HML-N302",
-    )
+def test_shadowed_index_is_permitted_for_binders():
+    """D-045. Reversed deliberately. A binder over a declared index is the normal
+    idiom (`sum over i`), and rejecting it made indexed mathematics unwritable."""
+    from hamiltonian_lang import compile_source
+
+    r = compile_source("module M\nindex i : Natural\nrequire forall i : Natural . i > 0\n")
+    assert "HML-N302" not in [d.code for d in r.diagnostics.items]
 
 
 @pytest.mark.adversarial
-def test_nested_quantifier_shadowing_is_rejected():
-    assert_rejected_with(
-        "module M\nrequire forall x : Real . exists x : Real . x > 0.0\n",
-        "HML-N302",
-    )
+def test_nested_quantifier_shadowing_is_permitted():
+    """D-045. The inner binder wins; the two carry distinct SymbolIds, so canonical
+    identity and alpha-equivalence are unaffected."""
+    from hamiltonian_lang import compile_source
+
+    r = compile_source("module M\nrequire forall x : Real . exists x : Real . x > 0.0\n")
+    assert "HML-N302" not in [d.code for d in r.diagnostics.items]
 
 
 # ---------------------------------------------------------------------------

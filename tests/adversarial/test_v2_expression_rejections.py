@@ -252,9 +252,12 @@ def test_integral_bounds_are_evaluated_outside_the_binder():
     assert "HML-N301" in codes("", "def t := integral(x, x : Real, x, 1.0)")
 
 
-def test_a_new_binder_may_not_shadow(monkeypatch=None):
-    """D-006 applies to every binder, not only to quantifiers."""
-    assert "HML-N302" in codes("param x : Real\n", "def t := {x : Real | x > 0.0}")
+def test_a_new_binder_may_reuse_a_declared_name(monkeypatch=None):
+    """D-045. Reversed deliberately: D-006 governs VALUE declarations, not binders.
+
+    `{x : Real | x > 0}` where `x` is also declared is ordinary set-builder notation.
+    The comprehension binder carries its own SymbolId, so nothing is ambiguous."""
+    assert "HML-N302" not in codes("param x : Real\n", "def t := {x : Real | x > 0.0}")
 
 
 # ---------------------------------------------------------------------------
