@@ -3259,3 +3259,50 @@ zero HML.**
 **Next intended step.** Return to the user. The choice of difficulty axis, model, budget,
 or acceptance of the negative finding is a scientific-direction decision, not an
 engineering one.
+
+---
+
+## 2026-08-07 (twelfth entry) — binder protocol; `free_names` omission fixed
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `63df820`
+
+**Objective.** Fix the reported `free_names` binder omission, generally rather than by
+adding branches.
+
+**Files and systems changed.** `ast/nodes.py` (`binder_of`, `expr_children`,
+`BINDER_KINDS`); `verification/obligations/evaluate.py` (`free_names` rewritten onto the
+protocol with a structural fall-through); new
+`tests/verification/test_free_names_binders.py`; `DECISIONS.md` D-046.
+
+**What was completed.** Free variables inside all four D-026 binders and the seven
+non-binder V2 forms are now reported; bound variables still are not; an integral's limits
+and a limit's approach point are correctly treated as outside the binding.
+
+**Decisions made and why.** D-046. A protocol rather than eleven branches, because eleven
+branches rebuild the fragility the compositionality study measured (79 dispatch sites, 7
+handling only `Quantifier`).
+
+**Tests and verification actually executed.**
+- reproduced first: `free_names(integral(y, x, 0, 1) > 0)` → `[]`, `forall` → `['y']`
+- severity measured, not asserted: `ObligationTask.closed()` returned **True** for a
+  proposition with a free `y`; now returns False
+- `pytest` → **6342 passed, 5 skipped, 0 failed** (6328 before), 14 new
+- `ruff` clean; `mypy` clean, 90 files; hash stability **0 changed**
+
+**Failures and unresolved uncertainty.**
+- **This was wrong in the dangerous direction** — under-reporting free names means a name
+  the engine cannot see is a name it will not require to be pinned. End-to-end it was
+  masked by an unrelated "outside the symbolic subset" guard, so no wrong verdict was
+  delivered; the mask disappears when that subset is widened.
+- My first version of the recurrence guard assumed every binder has a `body` field;
+  `SetComprehension` uses `predicate`. The test failed, and was rewritten to read the
+  dataclass fields — assuming a spelling is how this class of bug arises in the first place.
+- **The protocol is used by `free_names` only.** The other ~78 binder dispatch sites are
+  untouched; they may carry the same class of omission and have not been audited.
+- Composition is unchanged; this was a soundness fix, not a coverage one.
+
+**Effect on the overall project.** One of the two defects the compositionality study
+flagged as latent is closed, and the shared abstraction it recommended now exists.
+
+**Next intended step.** Unchanged: the SE calibration gate did not pass, so scientific
+direction is with the user.

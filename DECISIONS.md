@@ -1843,3 +1843,64 @@ it moved one specimen. It is unambiguously right — it restores differentiation
 to declared variables — but the prediction that it would unlock a large share of the 14
 GRAMMAR failures was **wrong**, and the remaining failures need their own diagnosis rather
 than another hopeful structural fix.
+
+---
+
+## D-046 — the binder protocol, and the `free_names` omission it fixes
+
+**Date:** 2026-08-07 · **After:** `63df820` · **Severity:** latent-critical (see measurement)
+
+**The defect.** `verification/obligations/evaluate.py::free_names` dispatched by whitelist
+— a branch for `Quantifier` and five operator kinds — and **fell through silently** for
+everything else. D-026 added four binders and seven expression forms; none was added here.
+
+```
+free_names( integral(y, x : Real, 0.0, 1.0) > 0.0 )  ->  []       # y IS free
+free_names( forall x : Real . y > x )                ->  ['y']    # correct
+```
+
+No exception, no diagnostic — just a shorter set.
+
+**Measured consequence.** `free_names` feeds `ObligationTask.closed()`, which decides
+whether an obligation may be treated as a ground term:
+
+| | `free_names` | `closed()` |
+|---|---|---|
+| before | `[]` | **`True`** — claims fully pinned |
+| after | `['y']` | `False` |
+
+It also feeds the feasibility checker's domain construction, where an unseen name gets no
+sampling domain and the joint-satisfiability search silently omits a dimension.
+
+Both fail in the **dangerous** direction. End-to-end the wrong verdict is currently
+prevented by an unrelated "outside the symbolic subset" guard downstream — so this is a
+wrong answer produced and accidentally masked, not a wrong answer delivered. The mask
+disappears the moment that subset is widened, which is planned work.
+
+**The fix is a protocol, not eleven more branches.** Adding eleven branches would rebuild
+exactly the fragility the compositionality study measured — 79 binder dispatch sites across
+17 files, 7 of them handling only `Quantifier`. Instead `ast/nodes.py` gains:
+
+* `binder_of(e) -> (bound_name, scoped_children, unscoped_children)`
+* `expr_children(e)` — **structural**, so a node kind nobody has written a branch for still
+  reports its children
+* `BINDER_KINDS`
+
+and `free_names` walks those. The twelfth expression kind is handled the day it is written.
+
+**The part that must not be flattened.** The bound variable of an integral covers the
+integrand and **not the limits**: in the integral of `x` from `0` to `y`, that `y` is free.
+Same for a limit's approach point. A protocol reporting "all children are in scope" would
+be as wrong as no protocol, only less visibly — so `binder_of` returns the two groups
+separately and there are tests that fail on that specific over-correction.
+
+**Verification.** `pytest`: **6342 passed, 0 failed** (6328 before), 14 new.
+`ruff`, `mypy` (90 files): clean. Hash stability: **0 changes**.
+Measured: free names reported inside quantifier, integral, derivative and comprehension;
+bound names still not reported; an integral limit and a limit's approach point correctly
+reported as free.
+
+**Guard against recurrence.** `test_every_binder_kind_is_handled_by_the_protocol` iterates
+`BINDER_KINDS` and fails if a sixth binder is added without a `binder_of` branch, and
+`test_an_unknown_expression_kind_still_descends_structurally` pins the structural
+fall-through on a node type that does not exist in the language.

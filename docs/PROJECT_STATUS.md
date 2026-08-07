@@ -72,6 +72,14 @@ only, no HML. CAL-1 3/3 and CAL-2 5/5 against tasks built around the exact seman
 HML targets; CAL-3 pending. 9 of the 13-call budget used. No truncation (877-2392 tokens of
 8192). This is the third corpus in the project's history to saturate.
 
+**A binder protocol now exists (D-046),** added to fix `free_names`, which dispatched by
+whitelist and silently reported NO free variables inside an integral, derivative or
+comprehension. Measured: `ObligationTask.closed()` returned **True** for a proposition
+with a free variable. Masked end-to-end by an unrelated subset guard, so no wrong verdict
+was delivered — but wrong in the dangerous direction. `binder_of` / `expr_children` /
+`BINDER_KINDS` are structural, so an unknown node kind is descended into rather than
+skipped. Used by `free_names` only; the other ~78 binder dispatch sites are unaudited.
+
 **The binder/shadowing defect is fixed (D-045).** D-006 was being applied to mathematical
 binders, so `derivative(f, x)` was rejected whenever `x` was declared. Composition moved
 0.438 -> 0.458 — one specimen, against a prediction of high leverage that was wrong.

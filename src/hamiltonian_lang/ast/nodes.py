@@ -80,6 +80,9 @@ __all__ = [
     "RuleArg",
     "ScopeStmt",
     "V2_STATEMENTS",
+    "binder_of",
+    "expr_children",
+    "BINDER_KINDS",
     "uses_v2",
 ]
 
@@ -811,6 +814,88 @@ class Module(Node):
 
     def of_type(self, cls: type) -> list[Statement]:
         return [s for s in self.statements if isinstance(s, cls)]
+
+
+# ---------------------------------------------------------------------------
+# The binder protocol
+# ---------------------------------------------------------------------------
+#
+# Five expression forms bind a variable, and every consumer that cares about scope has
+# to know which children the binding covers. Before this existed each consumer
+# rediscovered that for itself, so a consumer written when `Quantifier` was the only
+# binder kept working, silently, after four more were added --
+# `verification/obligations/evaluate.py::free_names` did exactly that, reporting NO free
+# variables inside an integral because it had no branch for one.
+#
+# The scoped/unscoped split is the part that must not be flattened. In
+# `integral(f, x, lower, upper)` the binding covers `f` and **not** the limits: the `x`
+# in an upper limit is a different, free `x`. The same holds for the approach point of a
+# limit. A protocol that reported "all children are in scope" would be as wrong as having
+# no protocol, only less visibly.
+
+
+def expr_children(e: object) -> tuple[Expr, ...]:
+    """Every immediate sub-expression of ``e``, by structure rather than by whitelist.
+
+    Structural on purpose. A whitelist silently returns nothing for a node kind nobody
+    remembered to add, which is how a free variable inside an integral went unreported;
+    this returns the children of a node kind that does not exist yet.
+    """
+    if not isinstance(e, (Node, Arg, RuleArg)):
+        return ()
+    out: list[Expr] = []
+    for value in vars(e).values():
+        if isinstance(value, Expr):
+            out.append(value)
+        elif isinstance(value, (Arg, RuleArg)) and isinstance(value.value, Expr):
+            out.append(value.value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, Expr):
+                    out.append(item)
+                elif isinstance(item, (Arg, RuleArg)) and isinstance(item.value, Expr):
+                    out.append(item.value)
+    return tuple(out)
+
+
+def binder_of(e: object) -> tuple[str | None, tuple[Expr, ...], tuple[Expr, ...]]:
+    """``(bound_name, children_inside_the_binding, children_outside_it)``.
+
+    ``bound_name`` is None for a non-binder, in which case every child is outside.
+    """
+    if isinstance(e, Quantifier):
+        return e.var, tuple(c for c in (e.body,) if c is not None), ()
+    if isinstance(e, SetComprehension):
+        return e.var, tuple(c for c in (e.predicate,) if c is not None), ()
+    if isinstance(e, DerivativeExpr):
+        return e.var, tuple(c for c in (e.body,) if c is not None), ()
+    if isinstance(e, IntegralExpr):
+        # The limits are OUTSIDE the binding: in the integral of f from 0 to g(x),
+        # that x is free.
+        return (
+            e.var,
+            tuple(c for c in (e.body,) if c is not None),
+            tuple(c for c in (e.lower, e.upper) if c is not None),
+        )
+    if isinstance(e, LimitExpr):
+        # `point` is outside: in `limit(f(x), x -> a)`, `a` is free.
+        return (
+            e.var,
+            tuple(c for c in (e.body,) if c is not None),
+            tuple(c for c in (e.point,) if c is not None),
+        )
+    return None, (), expr_children(e)
+
+
+#: Every expression kind that binds a variable. Exported so a consumer can assert it
+#: handles all of them, and so a test fails when a sixth is added without review.
+BINDER_KINDS: tuple[type, ...] = (
+    Quantifier,
+    SetComprehension,
+    DerivativeExpr,
+    IntegralExpr,
+    LimitExpr,
+)
 
 
 def walk(node: object) -> Sequence[object]:

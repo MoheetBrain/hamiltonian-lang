@@ -45,6 +45,7 @@ from ...ast.nodes import (
     Quantifier,
     Ref,
     UnaryOp,
+    binder_of,
 )
 from ...semantics import SymbolTable
 from ...types import ScalarType, Type
@@ -693,10 +694,9 @@ def free_names(expr: Expr, env: Environment, *, bound: frozenset[str] = frozense
                 return
             out.add(e.name)
             return
-        if isinstance(e, Quantifier):
-            walk(e.body, scope | {e.var}, depth + 1)
-            return
         if isinstance(e, Call):
+            # Special-cased because a call may unfold a user definition, which the
+            # generic structural descent below knows nothing about.
             for arg in e.args:
                 walk(arg, scope, depth + 1)
             definition = env.functions.get(e.callee)
@@ -704,22 +704,32 @@ def free_names(expr: Expr, env: Environment, *, bound: frozenset[str] = frozense
                 inner = scope | {e.callee} | {n for n, _ in definition.params}
                 walk(definition.body, inner, depth + 1)
             return
-        if isinstance(e, BinOp):
-            walk(e.left, scope, depth + 1)
-            walk(e.right, scope, depth + 1)
-            return
-        if isinstance(e, (Comparison, LogicalOp)):
-            walk(e.left, scope, depth + 1)
-            walk(e.right, scope, depth + 1)
-            return
-        if isinstance(e, UnaryOp):
-            walk(e.operand, scope, depth + 1)
-            return
-        if isinstance(e, Index):
-            walk(e.base, scope, depth + 1)
-            for ix in e.indices:
-                walk(ix, scope, depth + 1)
-            return
+
+        # Everything else: the binder protocol plus a STRUCTURAL descent.
+        #
+        # This replaces a whitelist with a branch for `Quantifier` and five operator
+        # kinds that fell through **silently** for anything else. When D-026 added four
+        # more binders and seven more expression forms, none was added here, so free
+        # variables inside them were never reported:
+        #
+        #     free_names( integral(y, x : Real, 0.0, 1.0) > 0.0 )  ->  []   # y IS free
+        #
+        # An obligation engine that under-reports free names is not conservatively wrong,
+        # it is wrong in the dangerous direction: a name it cannot see is a name it will
+        # not require to be pinned before it decides the obligation.
+        #
+        # Structural descent means the twelfth expression kind is handled the day it is
+        # written rather than the day somebody notices.
+        bound_name, scoped, unscoped = binder_of(e)
+        if bound_name is not None:
+            inner = scope | {bound_name}
+            for child in scoped:
+                walk(child, inner, depth + 1)
+        # An integral's limits and a limit's approach point sit OUTSIDE the binding, so a
+        # name appearing there is free even when spelled like the bound variable.
+        for child in unscoped:
+            walk(child, scope, depth + 1)
+        return
 
     walk(expr, bound, 0)
     return out
