@@ -118,7 +118,14 @@ def test_a_derivation_is_a_valid_premise_for_a_later_derivation():
 
 
 def test_an_open_obligation_propagates_to_dependent_steps():
-    """A conclusion is no better established than the weakest premise it stands on."""
+    """A conclusion is no better established than the weakest premise it stands on.
+
+    The assertion is on STATUS, not on which diagnostic fires. Since D-036 made
+    definedness a property of terms, `d2`'s own conclusion `2.0 * x / k = y / k`
+    contains a division and so raises its *own* obligation (HML-R707) as well as
+    inheriting `d1`'s (HML-R713). Pinning the code here would have been pinning an
+    implementation detail; the property under test is that neither step is certified.
+    """
     r = _compile(
         "assume a1 : y = 2.0 * x\n"
         "derive d1 : y / k = 2.0 * x / k from a1 by divide_both_sides(by := k)\n"
@@ -128,7 +135,27 @@ def test_an_open_obligation_propagates_to_dependent_steps():
     assert _status(r, "d2") == DerivationStatus.CHECKED, (
         "d2 rests on d1's undischarged obligation and must not be VERIFIED"
     )
-    assert "HML-R713" in _codes(r)
+    codes = _codes(r)
+    assert "HML-R707" in codes or "HML-R713" in codes
+
+
+def test_propagation_holds_when_the_dependent_step_has_no_partial_term():
+    """Isolates propagation from term-level definedness.
+
+    `d2`'s conclusion mentions no partial operation, so its only reason not to be
+    certified is the obligation it inherits from `d1`. This is the case the previous
+    test was written to cover before terms carried their own obligations.
+    """
+    r = _compile(
+        "assume a1 : y = 2.0 * x\n"
+        "derive d1 : y / k = 2.0 * x / k from a1 by divide_both_sides(by := k)\n"
+        "derive d2 : y / k = 2.0 * x / k and y = 2.0 * x from d1, a1 by and_intro\n"
+        "derive d3 : y = 2.0 * x from d2 by and_elim_right\n"
+    )
+    # d3's conclusion mentions no partial operation at all, so the ONLY thing standing
+    # between it and VERIFIED is the obligation it inherits through d2 from d1.
+    assert _status(r, "d3") == DerivationStatus.CHECKED
+    assert "HML-R713" in _codes(r), "inheritance must be reported in its own right"
 
 
 def test_discharging_the_root_obligation_certifies_the_whole_chain():

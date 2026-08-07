@@ -2403,6 +2403,35 @@ class TypeChecker:
                         found=str(other.length),
                     )
                     return UnknownType("length mismatch")
+            if isinstance(shaped, MatrixType) and isinstance(other, MatrixType):
+                # Elementwise matrix operations need BOTH extents to agree. This was
+                # unchecked while the vector case above and `@` below were both checked,
+                # so `Matrix[2,3] + Matrix[4,5]` compiled clean -- a silent shape loss in
+                # the one family where shape is the whole point. Found by the
+                # full-ontology probe (32 enforcement gaps, 7 critical).
+                rows_clash = (
+                    shaped.rows is not None
+                    and other.rows is not None
+                    and shaped.rows != other.rows
+                )
+                cols_clash = (
+                    shaped.cols is not None
+                    and other.cols is not None
+                    and shaped.cols != other.cols
+                )
+                if rows_clash or cols_clash:
+                    self.diags.error(
+                        "HML-T435",
+                        "matrix shapes do not agree",
+                        e.span,
+                        expected=shaped.render(),
+                        found=other.render(),
+                        notes=[
+                            "elementwise operations require identical shapes; only the "
+                            "matrix product '@' relates differing extents"
+                        ],
+                    )
+                    return UnknownType("shape mismatch")
         return shaped
 
     def _matmul_type(self, e: BinOp, lt: Type, rt: Type) -> Type:

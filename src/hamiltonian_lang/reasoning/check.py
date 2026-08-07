@@ -47,6 +47,7 @@ from .evidence import (
     EvidenceClass,
     EvidenceGraph,
 )
+from .partiality import decides_false, preconditions_of
 from .refinement import RefinementEnv
 
 __all__ = [
@@ -416,21 +417,92 @@ class _ReasoningChecker:
             return
 
         # CHECKED. Now the obligations decide whether it reaches VERIFIED.
+        #
+        # Definedness obligations come FIRST and come from the TERMS, not from the rule.
+        # Keying them on the rule was a critical soundness hole: `divide_both_sides`
+        # declared `k != 0`, so writing the same step as
+        # `multiply_both_sides(by := 1.0 / 0.0)` reached VERIFIED with a literal division
+        # by zero in the certified statement. A rule cannot evade a requirement it does
+        # not know about, because the requirement is found in the expression.
         obligations: list[ReasoningObligation] = []
+        rule_arg_values = [a.value for a in st.rule_args]
+        for term in [st.conclusion, *rule_arg_values]:
+            for pre in preconditions_of(term):
+                obligations.append(
+                    ReasoningObligation(
+                        id=self._next_obligation_id(),
+                        proposition=pre.proposition,
+                        generated_by=st.label,
+                        reason=pre.reason,
+                        mandatory=pre.mandatory,
+                    )
+                )
+
         for prop, reason, mandatory in application.obligations:
-            ob = ReasoningObligation(
-                id=self._next_obligation_id(),
-                proposition=prop,
-                generated_by=st.label,
-                reason=reason,
-                mandatory=mandatory,
+            obligations.append(
+                ReasoningObligation(
+                    id=self._next_obligation_id(),
+                    proposition=prop,
+                    generated_by=st.label,
+                    reason=reason,
+                    mandatory=mandatory,
+                )
             )
-            hit = self.env.entails(prop)
+
+        # The same requirement stated twice is one requirement. `y / k = 2.0 * x / k`
+        # contains two divisions by `k`, and reporting `k != 0` three times (twice from
+        # the terms, once from the rule) is noise that trains authors to stop reading
+        # obligations. Deduplicated by canonical identity, which is the language's own
+        # notion of "the same proposition" rather than a second one.
+        deduped: list[ReasoningObligation] = []
+        seen_props: set[str] = set()
+        for ob in obligations:
+            key = expr_identity(ob.proposition)
+            if key in seen_props:
+                continue
+            seen_props.add(key)
+            deduped.append(ob)
+        obligations = deduped
+
+        # Discharge and refutation run over EVERY obligation, whichever channel produced
+        # it. Doing this per-channel is how the definedness obligations were left
+        # permanently OPEN on their first outing: they were appended to the list but the
+        # `entails` call lived inside the rule-obligation loop, so nothing ever asked Γ
+        # about them. One loop, one policy.
+        for ob in obligations:
+            hit = self.env.entails(ob.proposition)
             if hit is not None:
                 ob.status = ObligationStatus.DISCHARGED
                 ob.discharged_by = hit.source_label or "an assumption in scope"
-            obligations.append(ob)
+            elif decides_false(ob.proposition):
+                # An obligation decidably FALSE is FAILED, not OPEN. Reporting a known
+                # falsehood as ignorance is strictly worse than saying nothing, and it is
+                # what let `1.0 / 0.0` look merely unproven (D-038 V5).
+                ob.status = ObligationStatus.FAILED
         self.result.obligations.extend(obligations)
+
+        failed = [o for o in obligations if o.status is ObligationStatus.FAILED]
+        if failed:
+            from ..backends.hml import render_expr
+
+            for o in failed:
+                self.diags.error(
+                    "HML-R715",
+                    (
+                        f"derivation {st.label!r} is REJECTED: "
+                        f"{render_expr(o.proposition)} is false"
+                    ),
+                    st.span,
+                    notes=[
+                        f"obligation {o.id} ({o.reason}) is refuted, not merely open",
+                        "the step mentions an operation that is undefined on the value "
+                        "it is applied to",
+                    ],
+                    correction="the expression is not defined; it must be rewritten",
+                )
+            self._reject(st, "a definedness obligation is refuted")
+            self.pending[st.label] = failed
+            return
 
         self._finalise_status(st, obligations, inherited)
         self.propositions[st.label] = st.conclusion

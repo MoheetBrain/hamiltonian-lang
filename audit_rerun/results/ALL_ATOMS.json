@@ -3,7 +3,7 @@
   "ontology_sha256": "a10645a414296363b2a8206b4b5ad5331c2486f0531f40519f13bbb3837cf7c4",
   "ontology_path": "/Users/moheet/hml_v2_worktree/audit_rerun/runs/C_after_f0e3340/language_comparison/ontology/MATHEMATICAL_REASONING_ONTOLOGY_V1.json",
   "hml_source_tree": "/private/tmp/claude-501/-Users-moheet-hamiltonian-lang/a6e5ca02-4ce7-4a89-9ff3-3c550f6e4d49/scratchpad/atoms486/pinned_src/src",
-  "hml_source_sha": "ae9a2a0e9ede7bd334de886f015275651653a6e9",
+  "hml_source_sha": "987737933c9087ed8a8ffe3c3c355c23bfc271e7",
   "n_atoms": 486,
   "state_definitions": {
     "PASS": "representable AND enforced (faithful encoding accepted, misuse rejected)",
@@ -14,11 +14,11 @@
     "NOT_MEASURED": "no meaningful executable probe could be constructed"
   },
   "counts_all_486": {
-    "PASS": 161,
-    "PARTIAL": 67,
+    "PASS": 162,
+    "PARTIAL": 71,
     "BACKEND_ONLY": 1,
-    "LOSSY": 214,
-    "ABSENT": 19,
+    "LOSSY": 207,
+    "ABSENT": 21,
     "NOT_MEASURED": 24
   },
   "counts_critical_64": {
@@ -32,9 +32,9 @@
   "counts_by_domain": {
     "A_FOUNDATIONS_LOGIC": {
       "PASS": 30,
-      "PARTIAL": 5,
+      "PARTIAL": 6,
       "BACKEND_ONLY": 0,
-      "LOSSY": 16,
+      "LOSSY": 15,
       "ABSENT": 0,
       "NOT_MEASURED": 5
     },
@@ -42,24 +42,24 @@
       "PASS": 13,
       "PARTIAL": 1,
       "BACKEND_ONLY": 0,
-      "LOSSY": 16,
-      "ABSENT": 0,
+      "LOSSY": 12,
+      "ABSENT": 4,
       "NOT_MEASURED": 0
     },
     "C_ALGEBRA": {
-      "PASS": 9,
-      "PARTIAL": 4,
+      "PASS": 10,
+      "PARTIAL": 6,
       "BACKEND_ONLY": 0,
-      "LOSSY": 29,
-      "ABSENT": 2,
+      "LOSSY": 25,
+      "ABSENT": 3,
       "NOT_MEASURED": 2
     },
     "D_ANALYSIS": {
       "PASS": 5,
-      "PARTIAL": 11,
+      "PARTIAL": 12,
       "BACKEND_ONLY": 0,
-      "LOSSY": 21,
-      "ABSENT": 9,
+      "LOSSY": 26,
+      "ABSENT": 3,
       "NOT_MEASURED": 2
     },
     "E_PROBABILITY": {
@@ -74,8 +74,8 @@
       "PASS": 18,
       "PARTIAL": 5,
       "BACKEND_ONLY": 1,
-      "LOSSY": 19,
-      "ABSENT": 0,
+      "LOSSY": 16,
+      "ABSENT": 3,
       "NOT_MEASURED": 1
     },
     "G_DISCRETE": {
@@ -90,40 +90,40 @@
       "PASS": 6,
       "PARTIAL": 2,
       "BACKEND_ONLY": 0,
-      "LOSSY": 15,
-      "ABSENT": 1,
+      "LOSSY": 16,
+      "ABSENT": 0,
       "NOT_MEASURED": 6
     },
     "I_OPTIMIZATION": {
       "PASS": 9,
       "PARTIAL": 8,
       "BACKEND_ONLY": 0,
-      "LOSSY": 11,
-      "ABSENT": 2,
+      "LOSSY": 12,
+      "ABSENT": 1,
       "NOT_MEASURED": 2
     },
     "J_SCIENTIFIC_UNITS": {
       "PASS": 10,
       "PARTIAL": 3,
       "BACKEND_ONLY": 0,
-      "LOSSY": 9,
-      "ABSENT": 3,
+      "LOSSY": 10,
+      "ABSENT": 2,
       "NOT_MEASURED": 0
     },
     "K_NUMERICAL": {
       "PASS": 4,
       "PARTIAL": 6,
       "BACKEND_ONLY": 0,
-      "LOSSY": 16,
-      "ABSENT": 2,
+      "LOSSY": 14,
+      "ABSENT": 4,
       "NOT_MEASURED": 3
     },
     "L_REASONING_EPISTEMICS": {
       "PASS": 9,
       "PARTIAL": 7,
       "BACKEND_ONLY": 0,
-      "LOSSY": 9,
-      "ABSENT": 0,
+      "LOSSY": 8,
+      "ABSENT": 1,
       "NOT_MEASURED": 0
     },
     "M_TRANSFORMATIONS_INFERENCE": {
@@ -173,6 +173,7 @@
     ],
     "severities_within_closed_set": true,
     "lean_declares_loss_for_law_and_pvalue": true,
+    "all_five_targets_emit": true,
     "plain_module_compiles": true,
     "src_probe_compiles": true
   },
@@ -1049,17 +1050,17 @@
       "atom": "LOGIC.THEORY_SIGNATURE",
       "domain": "A_FOUNDATIONS_LOGIC",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P213: error HML-P213: a concept invariant must be named, then bound with ':='); the weakened encoding compiles but LOSES: the bundle. If `concept` does not compile, the axioms are loose statements in a module with no signature, no instantiation and no model relation.",
-      "accept_codes": [
-        "HML-P213"
+      "state": "PARTIAL",
+      "evidence": "faithful encoding compiles clean; misuse rejected with HML-T429 -- DOWNGRADED from PASS: a concept bundles parameters, transforms and invariants and MUST carry a testable consequence (HML-S603 rejects an invariant-free concept), and a concept instance does not unify with a scalar. What is absent is the MODEL relation: nothing exhibits a structure satisfying the axioms, so theory and model cannot be distinguished, which is the atom's second clause.",
+      "accept_codes": [],
+      "reject_codes": [
+        "HML-T429"
       ],
-      "reject_codes": [],
       "note": "",
       "judgement": "",
       "sources": {
-        "accept": "module M\nconcept Group\nparameter e : Real\ninvariant e = e\nend",
-        "weakened": "module M\nvar e : Real\nrequire e = e"
+        "accept": "module M\nconcept Group\nparameter e : Real\ninvariant identity := e = e\nend\nvar g : Group\nrequire g = g",
+        "reject": "module M\nconcept Group\nparameter e : Real\ninvariant identity := e = e\nend\nvar g : Group\nvar x : Real\nrequire g = x"
       }
     },
     {
@@ -1249,8 +1250,8 @@
       "atom": "NUM.EXTENDED_REAL",
       "domain": "B_NUMBER_SYSTEMS",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-T440: error HML-T440: unknown type 'ExtendedReal'); the weakened encoding compiles but LOSES: the two infinities. There is no +/-inf value, so `sup` of an unbounded set has nowhere to land and the indeterminate forms never arise to be left undefined.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-T440: error HML-T440: unknown type 'ExtendedReal'). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the two infinities. There is no +/-inf value, so `sup` of an unbounded set has nowhere to land and the indeterminate forms never arise to be left undefined.",
       "accept_codes": [
         "HML-T440"
       ],
@@ -1451,8 +1452,8 @@
       "atom": "NUM.ORDINAL",
       "domain": "B_NUMBER_SYSTEMS",
       "criticality": "LOW",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-T440: error HML-T440: unknown type 'Ordinal'); the weakened encoding compiles but LOSES: transfinite indexing. Natural indices are the only indices, so a hierarchy indexed by countable ordinals cannot be stated at all.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-T440: error HML-T440: unknown type 'Ordinal'). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: transfinite indexing. Natural indices are the only indices, so a hierarchy indexed by countable ordinals cannot be stated at all.",
       "accept_codes": [
         "HML-T440"
       ],
@@ -1468,8 +1469,8 @@
       "atom": "NUM.PADIC",
       "domain": "B_NUMBER_SYSTEMS",
       "criticality": "LOW",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P220: error HML-P220: expected a type); the weakened encoding compiles but LOSES: the non-archimedean absolute value and the completion; a Rational carries the ordinary metric and nothing marks a different notion of nearness",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-P220: error HML-P220: expected a type). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the non-archimedean absolute value and the completion; a Rational carries the ordinary metric and nothing marks a different notion of nearness",
       "accept_codes": [
         "HML-P220"
       ],
@@ -1604,8 +1605,8 @@
       "atom": "NUM.TRANSCENDENTAL_CONSTANT",
       "domain": "B_NUMBER_SYSTEMS",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-N301: error HML-N301: 'pi' is not bound); the weakened encoding compiles but LOSES: exactness and symbol-hood. A named constant bound to a decimal is the approximation the atom explicitly excludes.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-N301: error HML-N301: 'pi' is not bound). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: exactness and symbol-hood. A named constant bound to a decimal is the approximation the atom explicitly excludes.",
       "accept_codes": [
         "HML-N301"
       ],
@@ -1687,8 +1688,8 @@
       "atom": "ALG.CATEGORY",
       "domain": "C_ALGEBRA",
       "criticality": "LOW",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-T440 -- error HML-T440: unknown type 'Category'",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-T440: error HML-T440: unknown type 'Category'); the weakened encoding compiles but LOSES: objects, morphisms, composition and identities. Nothing in HML ranges over morphisms, so structural statements independent of elements are unreachable.",
       "accept_codes": [
         "HML-T440"
       ],
@@ -1697,15 +1698,15 @@
       "judgement": "",
       "sources": {
         "accept": "module M\nvar C : Category\nrequire C = C",
-        "weakened": "module M\nconcept Cat\nparameter f : Function[Real -> Real]\nend"
+        "weakened": "module M\nconcept Cat\nparameter f : Function[Real -> Real]\ninvariant identity := f = f\nend"
       }
     },
     {
       "atom": "ALG.DETERMINANT",
       "domain": "C_ALGEBRA",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-N306: error HML-N306: 'det' is not a known function); the weakened encoding compiles but LOSES: the determinant. A bare Real named `d` is not a matrix invariant; multiplicativity and the volume reading have no home.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-N306: error HML-N306: 'det' is not a known function). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the determinant. A bare Real named `d` is not a matrix invariant; multiplicativity and the volume reading have no home.",
       "accept_codes": [
         "HML-N306"
       ],
@@ -1801,16 +1802,14 @@
       "atom": "ALG.FIELD",
       "domain": "C_ALGEBRA",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P213: error HML-P213: a concept invariant must be named, then bound with ':='); the weakened encoding compiles but LOSES: the structure. Axioms become loose propositions about Real; there is no field object, no instantiation, and nothing says Z is not one.",
-      "accept_codes": [
-        "HML-P213"
-      ],
+      "state": "PARTIAL",
+      "evidence": "faithful encoding accepted; NO misuse probe was constructible, so enforcement is unestablished and PASS is withheld",
+      "accept_codes": [],
       "reject_codes": [],
       "note": "",
       "judgement": "",
       "sources": {
-        "accept": "module M\nconcept Field\nparameter e : Real\ninvariant e = e\nend",
+        "accept": "module M\nconcept Field\nparameter e : Real\ninvariant unit := e * e = e\nend",
         "weakened": "module M\nvar a : Real\nvar b : Real\nrequire a * b = b * a"
       }
     },
@@ -1847,17 +1846,17 @@
       "atom": "ALG.GROUP",
       "domain": "C_ALGEBRA",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P213: error HML-P213: a concept invariant must be named, then bound with ':='); the weakened encoding compiles but LOSES: the structure and, critically, the atom's requirement that commutativity be DECLARED not assumed: the weakened form inherits Real's commutative `*`",
-      "accept_codes": [
-        "HML-P213"
+      "state": "PASS",
+      "evidence": "faithful encoding compiles clean; misuse rejected with HML-S603",
+      "accept_codes": [],
+      "reject_codes": [
+        "HML-S603"
       ],
-      "reject_codes": [],
       "note": "",
       "judgement": "",
       "sources": {
-        "accept": "module M\nconcept Group\nparameter e : Real\ninvariant e = e\nend",
-        "weakened": "module M\nvar a : Real\nvar b : Real\nvar c : Real\nrequire (a * b) * c = a * (b * c)"
+        "accept": "module M\nconcept Group\nparameter e : Real\ninvariant associativity := (e * e) * e = e * (e * e)\nend",
+        "reject": "module M\nconcept Group\nparameter e : Real\nend"
       }
     },
     {
@@ -2099,8 +2098,8 @@
       "atom": "ALG.NORM",
       "domain": "C_ALGEBRA",
       "criticality": "HIGH",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-P232 -- error HML-P232: 'norm' mixes role-labelled and positional arguments",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-P232: error HML-P232: 'norm' mixes role-labelled and positional arguments); the weakened encoding compiles but LOSES: which norm, AND the ability to take it of an arbitrary real vector. The unfolding hard-codes the 2-norm, and even that only compiles when the elements are declared NonNegativeReal: sum(v * v) over Real elements widens to Real, which sqrt refuses (HML-T427). There is no norm object, no p parameter, no matrix norm, and homogeneity/subadditivity are unstated.",
       "accept_codes": [
         "HML-P232"
       ],
@@ -2109,7 +2108,7 @@
       "judgement": "",
       "sources": {
         "accept": "module M\nvar v : Vector[Real, 3]\ndef n := norm(v, p := 2)",
-        "weakened": "module M\nvar v : Vector[Real, 3]\ndef n := sqrt(sum(v * v))"
+        "weakened": "module M\nvar v : Vector[NonNegativeReal, 3]\ndef n := sqrt(sum(v * v))"
       }
     },
     {
@@ -2182,8 +2181,8 @@
       "atom": "ALG.RANK",
       "domain": "C_ALGEBRA",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-N306,HML-N301: error HML-N306: 'rank' is not a known function); the weakened encoding compiles but LOSES: rank. Full column rank -- an identifiability condition used constantly in STAT.LINEAR_MODEL -- cannot be stated.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-N306,HML-N301: error HML-N306: 'rank' is not a known function). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: rank. Full column rank -- an identifiability condition used constantly in STAT.LINEAR_MODEL -- cannot be stated.",
       "accept_codes": [
         "HML-N306",
         "HML-N301"
@@ -2217,16 +2216,14 @@
       "atom": "ALG.RING",
       "domain": "C_ALGEBRA",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P213: error HML-P213: a concept invariant must be named, then bound with ':='); the weakened encoding compiles but LOSES: the structure; commutativity and unity cannot be declared because there is nothing to declare them of",
-      "accept_codes": [
-        "HML-P213"
-      ],
+      "state": "PARTIAL",
+      "evidence": "faithful encoding accepted; NO misuse probe was constructible, so enforcement is unestablished and PASS is withheld",
+      "accept_codes": [],
       "reject_codes": [],
       "note": "",
       "judgement": "",
       "sources": {
-        "accept": "module M\nconcept Ring\nparameter e : Real\ninvariant e = e\nend",
+        "accept": "module M\nconcept Ring\nparameter e : Real\ninvariant distributivity := e * (e + e) = e * e + e * e\nend",
         "weakened": "module M\nvar a : Real\nvar b : Real\nvar c : Real\nrequire a * (b + c) = a * b + a * c"
       }
     },
@@ -2377,8 +2374,8 @@
       "atom": "ALG.TRACE",
       "domain": "C_ALGEBRA",
       "criticality": "LOW",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-N306: error HML-N306: 'trace' is not a known function); the weakened encoding compiles but LOSES: the trace; the cyclic property and basis-independence have nothing to attach to",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-N306: error HML-N306: 'trace' is not a known function). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the trace; the cyclic property and basis-independence have nothing to attach to",
       "accept_codes": [
         "HML-N306"
       ],
@@ -2522,8 +2519,8 @@
       "atom": "ANA.CONVERGENCE_MODES",
       "domain": "D_ANALYSIS",
       "criticality": "HIGH",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-P232 -- error HML-P232: 'converges' mixes role-labelled and positional arguments",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-P232: error HML-P232: 'converges' mixes role-labelled and positional arguments); the weakened encoding compiles but LOSES: the mode. There is exactly one convergence notion in the language -- the `limit` binder -- so pointwise, uniform, L^p and a.e. convergence are merged into one relation, which is what the atom forbids.",
       "accept_codes": [
         "HML-P232"
       ],
@@ -2532,7 +2529,7 @@
       "judgement": "",
       "sources": {
         "accept": "module M\nvar f : Function[Natural -> Real]\nvar g : Function[Real -> Real]\nrequire converges(f, to := g, mode := uniform)",
-        "weakened": "module M\nvar f : Function[Natural -> Real]\ndef l := limit(f(n), n : Natural -> 0.0)"
+        "weakened": "module M\nvar f : Function[Real -> Real]\ndef l := limit(f(x), x : Real -> 0.0)"
       }
     },
     {
@@ -2722,17 +2719,17 @@
       "atom": "ANA.HIGHER_DERIVATIVE",
       "domain": "D_ANALYSIS",
       "criticality": "MEDIUM",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-N302 -- error HML-N302: 'x' shadows an outer binding and would silently change scope",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-N302: error HML-N302: 'x' shadows an outer binding and would silently change scope); the weakened encoding compiles but LOSES: repeated differentiation with respect to THE SAME variable. The inner binder shadows the outer one and is rejected (HML-N302), so d^2f/dx^2 has no spelling; only a mixed second derivative in two distinct binders compiles, which is a different object. Smoothness classes (C^k, C^infinity, analytic) are absent too.",
       "accept_codes": [
         "HML-N302"
       ],
       "reject_codes": [],
       "note": "",
-      "judgement": "iterated differentiation is expressible. Smoothness CLASSES (C^k, C^infinity, analytic) are not, so an order-k hypothesis cannot be attached to a function -- the reject probe documents that absence rather than testing a misuse.",
+      "judgement": "",
       "sources": {
         "accept": "module M\nvar f : Function[Real -> Real]\ndef d2 := derivative(derivative(f(x), x : Real), x : Real)",
-        "reject": "module M\nvar f : Function[Real -> Real]\nrequire smooth(f, order := 2)"
+        "weakened": "module M\nvar f : Function[Real -> Real]\ndef d2 := derivative(derivative(f(u), u : Real), v : Real)"
       }
     },
     {
@@ -2799,8 +2796,8 @@
       "atom": "ANA.INTEGRAL_INDEFINITE",
       "domain": "D_ANALYSIS",
       "criticality": "MEDIUM",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-P201 -- error HML-P201: expected ')' to close the arguments of 'antiderivative'",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-P201: error HML-P201: expected ')' to close the arguments of 'antiderivative'); the weakened encoding compiles but LOSES: the family. The defining relation is statable for ONE antiderivative; the constant of integration is a declared symbol nothing uses, so 'a family of functions differing by a constant' is not what is represented.",
       "accept_codes": [
         "HML-P201"
       ],
@@ -2809,7 +2806,7 @@
       "judgement": "",
       "sources": {
         "accept": "module M\nvar f : Function[Real -> Real]\ndef F := antiderivative(f(x), x : Real)",
-        "weakened": "module M\nvar f : Function[Real -> Real]\nvar F : Function[Real -> Real]\nvar C : Real\nrequire derivative(F(x), x : Real) = f(x)"
+        "weakened": "module M\nvar f : Function[Real -> Real]\nvar F : Function[Real -> Real]\nvar C : Real\nrequire forall x : Real . derivative(F(u), u : Real) = f(x)"
       }
     },
     {
@@ -2980,70 +2977,68 @@
       "atom": "ANA.ODE",
       "domain": "D_ANALYSIS",
       "criticality": "HIGH",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-N301 -- error HML-N301: 't' is not bound",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-N302: error HML-N302: 't' shadows an outer binding and would silently change scope); the weakened encoding compiles but LOSES: the tie between the differentiation point and the independent variable. y'(t) = y(t) with ONE t is rejected (HML-N302: the binder shadows the declared t), so the two sides must use different symbols and nothing says they are the same point. The unknown function and the ORDER are not identified either, because there is no equation object.",
       "accept_codes": [
-        "HML-N301"
+        "HML-N302"
       ],
       "reject_codes": [],
       "note": "",
-      "judgement": "an ODE is statable as an equation between a derivative and a term, and the binder identifies the independent variable. The atom also wants the unknown function and the ORDER identified as part of one object; there is no equation object, so they are not.",
+      "judgement": "",
       "sources": {
-        "accept": "module M\nvar y : Function[Real -> Real]\nrequire derivative(y(t), t : Real) = y(t)",
-        "reject": "module M\nvar y : Function[Real -> Real]\nrequire derivative(y(t)) = y(t)"
+        "accept": "module M\nvar y : Function[Real -> Real]\nvar t : Real\nrequire derivative(y(t), t : Real) = y(t)",
+        "weakened": "module M\nvar y : Function[Real -> Real]\nvar t : Real\nrequire derivative(y(u), u : Real) = y(t)"
       }
     },
     {
       "atom": "ANA.PARTIAL_DERIVATIVE",
       "domain": "D_ANALYSIS",
       "criticality": "HIGH",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-N301 -- error HML-N301: 'y' is not bound",
-      "accept_codes": [
-        "HML-N301"
+      "state": "PASS",
+      "evidence": "faithful encoding compiles clean; misuse rejected with HML-P262",
+      "accept_codes": [],
+      "reject_codes": [
+        "HML-P262"
       ],
-      "reject_codes": [],
       "note": "",
       "judgement": "the differentiation variable is explicit, so d/dx of a two-argument function is distinguishable from d/dy. Which variables are HELD CONSTANT is only implicit in the argument list; there is no held-constant annotation, which is the half of the atom that thermodynamics actually needs.",
       "sources": {
-        "accept": "module M\nvar f : Function[Real, Real -> Real]\ndef d := derivative(f(x, y), x : Real)",
-        "reject": "module M\nvar f : Function[Real, Real -> Real]\ndef d := derivative(f(x, y), x)"
+        "accept": "module M\nvar f : Function[Real, Real -> Real]\nvar y : Real\ndef d := derivative(f(x, y), x : Real)",
+        "reject": "module M\nvar f : Function[Real, Real -> Real]\nvar y : Real\ndef d := derivative(f(x, y), x)"
       }
     },
     {
       "atom": "ANA.PARTIAL_FUNCTION",
       "domain": "D_ANALYSIS",
       "criticality": "HIGH",
-      "state": "PASS",
-      "evidence": "faithful encoding compiles clean; misuse rejected with HML-T427",
+      "state": "PARTIAL",
+      "evidence": "faithful encoding compiles clean, but the corresponding MISUSE also compiles clean -- representable, not enforced",
       "accept_codes": [],
-      "reject_codes": [
-        "HML-T427"
-      ],
-      "note": "the definedness set is carried by the domain refinement type and applying the function outside it is refused; this is partiality by typing rather than by a definedness predicate",
+      "reject_codes": [],
+      "note": "the definedness set is carried by the domain refinement type. Enforcement is SPLIT: applying a `def`-declared function outside its declared domain is refused (HML-T472) and a builtin's domain is refused (HML-T427), but applying a FUNCTION-TYPED VARIABLE outside its declared domain is not checked at all -- which is what the reject probe exercises. The same hole is recorded under EPIS.VALIDITY_DOMAIN.",
       "judgement": "",
       "sources": {
         "accept": "module M\nvar f : Function[PositiveReal -> Real]\nrequire forall s : PositiveReal . f(s) = log(s)",
-        "reject": "module M\nvar x : Real\ndef y := log(x)"
+        "reject": "module M\nvar f : Function[PositiveReal -> Real]\nvar x : Real\nrequire f(x) = 0.0"
       }
     },
     {
       "atom": "ANA.PDE",
       "domain": "D_ANALYSIS",
       "criticality": "MEDIUM",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-N301,HML-N302,HML-N301 -- error HML-N301: 'x' is not bound",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-N302,HML-N302,HML-N302: error HML-N302: 't' shadows an outer binding and would silently change scope); the weakened encoding compiles but LOSES: the identification of the differentiation variables with the function's own arguments. Every binder must be a FRESH symbol (HML-N302), so the heat equation compiles only when each partial is taken in a different invented name and nothing records that they are the same variable. There is no domain, no boundary and no PDE object either.",
       "accept_codes": [
-        "HML-N301",
         "HML-N302",
-        "HML-N301"
+        "HML-N302",
+        "HML-N302"
       ],
       "reject_codes": [],
       "note": "",
-      "judgement": "the heat equation really does compile: nested typed binders give the partial derivatives and the relation is an ordinary proposition. There is no domain, no boundary and no PDE object, so it is a sentence rather than a problem.",
+      "judgement": "",
       "sources": {
-        "accept": "module M\nvar u : Function[Real, Real -> Real]\nrequire derivative(u(t, x), t : Real) = derivative(derivative(u(t, x), x : Real), x : Real)",
-        "reject": "module M\nvar u : Function[Real, Real -> Real]\nrequire derivative(u(t, x)) = u(t, x)"
+        "accept": "module M\nvar u : Function[Real, Real -> Real]\nvar t : Real\nvar z : Real\nrequire derivative(u(t, z), t : Real) = derivative(derivative(u(t, z), z : Real), z : Real)",
+        "weakened": "module M\nvar u : Function[Real, Real -> Real]\nvar t : Real\nvar z : Real\nrequire derivative(u(a, z), a : Real) = derivative(derivative(u(t, b), b : Real), c : Real)"
       }
     },
     {
@@ -3950,16 +3945,16 @@
       "domain": "E_PROBABILITY",
       "criticality": "CRITICAL",
       "state": "PASS",
-      "evidence": "faithful encoding compiles clean; misuse rejected with HML-T480",
+      "evidence": "faithful encoding compiles clean; misuse rejected with HML-T403",
       "accept_codes": [],
       "reject_codes": [
-        "HML-T480"
+        "HML-T403"
       ],
-      "note": "a random variable is neither its distribution nor its value; both barriers hold",
+      "note": "a random variable is neither its distribution nor its value. The reject probe attempts to bind it to its support type and is refused (HML-T403); the distribution barrier is covered by PROB.DISTRIBUTED_AS.",
       "judgement": "",
       "sources": {
         "accept": "module M\nrv X : RandomVariable[Real]\nlaw X ~ Normal(location := 0.0, scale := 1.0)\nrequire probability(X = X) = 1.0",
-        "reject": "module M\nrv X : RandomVariable[Real]\nvar x : Real\nrequire x = X"
+        "reject": "module M\nrv X : RandomVariable[Real]\nlaw X ~ Normal(location := 0.0, scale := 1.0)\ndef v : Real := X"
       }
     },
     {
@@ -4213,8 +4208,8 @@
       "atom": "STAT.DATASET",
       "domain": "F_STATISTICS",
       "criticality": "HIGH",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P223: error HML-P223: unknown parameterised type 'Dataset'); the weakened encoding compiles but LOSES: everything the atom names: the unit of observation, variable names, per-variable measurement types and the index. `obs` declares ONE scalar observation with a literal value; there is no collection.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-P223: error HML-P223: unknown parameterised type 'Dataset'). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: everything the atom names: the unit of observation, variable names, per-variable measurement types and the index. `obs` declares ONE scalar observation with a literal value; there is no collection.",
       "accept_codes": [
         "HML-P223"
       ],
@@ -4435,8 +4430,8 @@
       "atom": "STAT.MEASUREMENT_SCALE",
       "domain": "F_STATISTICS",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P220: error HML-P220: expected a type); the weakened encoding compiles but LOSES: the scale. Nominal / ordinal / interval / ratio are not distinguished, so nothing prevents taking a mean of ordinal codes -- the atom's own example of the error it exists to prevent.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-P220: error HML-P220: expected a type). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the scale. Nominal / ordinal / interval / ratio are not distinguished, so nothing prevents taking a mean of ordinal codes -- the atom's own example of the error it exists to prevent.",
       "accept_codes": [
         "HML-P220"
       ],
@@ -4669,8 +4664,8 @@
       "atom": "STAT.SAMPLING_DESIGN",
       "domain": "F_STATISTICS",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P205: error HML-P205: 'design' does not begin a statement); the weakened encoding compiles but LOSES: the design. Randomisation, stratification, clustering and blocking have no representation, so how units were selected -- which determines what the data licenses -- is not part of the model.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-P205: error HML-P205: 'design' does not begin a statement). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the design. Randomisation, stratification, clustering and blocking have no representation, so how units were selected -- which determines what the data licenses -- is not part of the model.",
       "accept_codes": [
         "HML-P205"
       ],
@@ -5574,8 +5569,8 @@
       "atom": "GEO.MANIFOLD",
       "domain": "H_GEOMETRY_TOPOLOGY",
       "criticality": "LOW",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-P220 -- error HML-P220: expected a type",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-P220: error HML-P220: expected a type); the weakened encoding compiles but LOSES: local Euclidean structure, declared dimension and smoothness class. A comprehension carves out a subset of R^3 and says nothing about charts.",
       "accept_codes": [
         "HML-P220"
       ],
@@ -5584,7 +5579,7 @@
       "judgement": "",
       "sources": {
         "accept": "module M\nvar Mf : Manifold[2]\nrequire Mf = Mf",
-        "weakened": "module M\nvar S := { p : Vector[Real, 3] | sum(p * p) = 1.0 }\nrequire S = S"
+        "weakened": "module M\ndef S := { p : Vector[Real, 3] | sum(p * p) = 1.0 }\nrequire S = S"
       }
     },
     {
@@ -5807,8 +5802,8 @@
       "atom": "OPT.BELLMAN",
       "domain": "I_OPTIMIZATION",
       "criticality": "LOW",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-N306: error HML-N306: 'max' is not a known function); the weakened encoding compiles but LOSES: the whole equation: no indexed maximum over actions, no expectation over transitions, and no fixed-point status for the recursion",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-N306: error HML-N306: 'max' is not a known function). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the whole equation: no indexed maximum over actions, no expectation over transitions, and no fixed-point status for the recursion",
       "accept_codes": [
         "HML-N306"
       ],
@@ -6013,16 +6008,17 @@
       "atom": "OPT.GRADIENT_OF_OBJECTIVE",
       "domain": "I_OPTIMIZATION",
       "criticality": "HIGH",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-N302 -- error HML-N302: 'x' shadows an outer binding and would silently change scope",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-N302: error HML-N302: 'x' shadows an outer binding and would silently change scope); the weakened encoding compiles but LOSES: the connection to the decision variable. Differentiating with respect to the DECLARED param is rejected outright -- the binder shadows it (HML-N302) -- so the gradient must be taken in a fresh symbol that has no relationship to x, and 'with respect to the decision variables, holding data fixed' becomes unstatable.",
       "accept_codes": [
         "HML-N302"
       ],
       "reject_codes": [],
       "note": "",
-      "judgement": "differentiating the objective expression with respect to a typed binder compiles. Nothing ties the binder to the DECISION variables specifically, so 'holding data and parameters fixed' is a reading of the source, not a rule.",
+      "judgement": "",
       "sources": {
-        "accept": "module M\nparam x : Real\nvar d : Real\ndef g := derivative(x * x, x : Real)\nminimise g"
+        "accept": "module M\nparam x : Real\ndef g := derivative(x * x, x : Real)\nminimise g",
+        "weakened": "module M\nparam x : Real\ndef g := derivative(u * u, u : Real)\nminimise g"
       }
     },
     {
@@ -6061,17 +6057,17 @@
       "atom": "OPT.KKT",
       "domain": "I_OPTIMIZATION",
       "criticality": "MEDIUM",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-N302 -- error HML-N302: 'x' shadows an outer binding and would silently change scope",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-N302: error HML-N302: 'x' shadows an outer binding and would silently change scope); the weakened encoding compiles but LOSES: stationarity in the decision variable. Dual feasibility (lam typed NonNegativeReal) and complementary slackness are writable, but the gradient cannot be taken with respect to x itself (see OPT.GRADIENT_OF_OBJECTIVE), so the stationarity condition is about an unrelated symbol. Nothing derives or checks any of it, and no constraint qualification is expressible.",
       "accept_codes": [
         "HML-N302"
       ],
       "reject_codes": [],
       "note": "",
-      "judgement": "stationarity, dual feasibility (lam : NonNegativeReal) and complementary slackness can each be WRITTEN as ordinary constraints. They are not derived, not checked against the problem, and no constraint qualification is expressible.",
+      "judgement": "",
       "sources": {
         "accept": "module M\nparam x : Real\nparam lam : NonNegativeReal\nrequire derivative(x * x, x : Real) + lam = 0.0\nrequire lam * x = 0.0\nrequire x >= 0.0\ndef f := x * x\nminimise f",
-        "reject": "module M\nparam x : Real\nparam lam : NonNegativeReal\nrequire kkt(f, x)\ndef f := x * x\nminimise f"
+        "weakened": "module M\nparam x : Real\nparam lam : NonNegativeReal\nrequire derivative(u * u, u : Real) + lam = 0.0\nrequire lam * x = 0.0\nrequire x >= 0.0\ndef f := x * x\nminimise f"
       }
     },
     {
@@ -6464,25 +6460,25 @@
       "atom": "SCI.LOG_OF_RATIO",
       "domain": "J_SCIENTIFIC_UNITS",
       "criticality": "LOW",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-T427 -- error HML-T427: the argument of log has the wrong type",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-T427: error HML-T427: the argument of log has the wrong type); the weakened encoding compiles but LOSES: the dimensional guarantee that the argument IS a ratio. log demands a PositiveReal and a dimensionless Quantity is not one (HML-T427), so the ratio of two dimensionful quantities cannot be passed to log at all -- note that exp ACCEPTS the same ratio, so the two transcendental builtins disagree. Falling back to bare PositiveReal operands removes every unit check, and the reference value becomes a naming convention rather than recorded data.",
       "accept_codes": [
         "HML-T427"
       ],
       "reject_codes": [],
       "note": "",
-      "judgement": "the reference value is FORCED by the dimensionless-argument rule: log of a bare quantity is refused, so a log scale must be written as a log of a ratio. What the reference IS remains a naming convention, not recorded data.",
+      "judgement": "",
       "sources": {
         "accept": "module M\nvar p : Quantity[Mass]\nvar p0 : Quantity[Mass]\ndef db := 10.0 * log(p / p0)",
-        "reject": "module M\nvar p : Quantity[Mass]\ndef db := 10.0 * log(p)"
+        "weakened": "module M\nvar p : PositiveReal\nvar p0 : PositiveReal\ndef db := 10.0 * log(p / p0)"
       }
     },
     {
       "atom": "SCI.PHYSICAL_CONSTANT",
       "domain": "J_SCIENTIFIC_UNITS",
       "criticality": "LOW",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-T402: error HML-T402: the declared type of 'g' requires Quantity[Length / Time^2]); the weakened encoding compiles but LOSES: the unit on a literal. A Quantity-typed constant cannot be given a numeric literal (HML-T402: there is no unit-bearing literal form), so a physical constant must be declared dimensionless -- losing exactly the unit the atom requires, along with its uncertainty and provenance.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-T402: error HML-T402: the declared type of 'g' requires Quantity[Length / Time^2]). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the unit on a literal. A Quantity-typed constant cannot be given a numeric literal (HML-T402: there is no unit-bearing literal form), so a physical constant must be declared dimensionless -- losing exactly the unit the atom requires, along with its uncertainty and provenance.",
       "accept_codes": [
         "HML-T402"
       ],
@@ -6532,8 +6528,8 @@
       "atom": "SCI.SIGNIFICANT_FIGURES",
       "domain": "J_SCIENTIFIC_UNITS",
       "criticality": "LOW",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P204: error HML-P204: unexpected 'sigfigs' after const declaration); the weakened encoding compiles but LOSES: precision as information about the value. A literal carries no digit count, so arithmetic silently invents precision, which the atom explicitly forbids.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-P204: error HML-P204: unexpected 'sigfigs' after const declaration). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: precision as information about the value. A literal carries no digit count, so arithmetic silently invents precision, which the atom explicitly forbids.",
       "accept_codes": [
         "HML-P204"
       ],
@@ -6582,8 +6578,8 @@
       "atom": "SCI.UNCERTAINTY",
       "domain": "J_SCIENTIFIC_UNITS",
       "criticality": "MEDIUM",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-P204 -- error HML-P204: unexpected '+' after var declaration",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-P204: error HML-P204: unexpected '+' after var declaration); the weakened encoding compiles but LOSES: the attachment. An uncertainty can be declared as a second quantity of the same dimension but nothing binds it to the value, and its interpretation (standard, coverage) is unrecorded.",
       "accept_codes": [
         "HML-P204"
       ],
@@ -6592,15 +6588,15 @@
       "judgement": "",
       "sources": {
         "accept": "module M\nvar m : Quantity[Mass] +/- 0.01\nrequire m = m",
-        "weakened": "module M\nvar m : Quantity[Mass]\nvar sm : Quantity[Mass]\nrequire sm >= 0.0"
+        "weakened": "module M\nvar m : Quantity[Mass]\nvar sm : Quantity[Mass]\nrequire sm = sm"
       }
     },
     {
       "atom": "SCI.UNCERTAINTY_PROPAGATION",
       "domain": "J_SCIENTIFIC_UNITS",
       "criticality": "LOW",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-P204,HML-P204 -- error HML-P204: unexpected '+' after var declaration",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-P204,HML-P204: error HML-P204: unexpected '+' after var declaration); the weakened encoding compiles but LOSES: propagation, and the square root that the linearised formula needs -- sqrt demands a NonNegativeReal and refuses a Quantity (HML-T427), so only the sum of squares survives. The linearised formula can be written by hand for one operation; nothing carries an uncertainty through arithmetic automatically and no assumption is recorded.",
       "accept_codes": [
         "HML-P204",
         "HML-P204"
@@ -6610,7 +6606,7 @@
       "judgement": "",
       "sources": {
         "accept": "module M\nvar a : Quantity[Length] +/- 0.1\nvar b : Quantity[Length] +/- 0.1\ndef c := a + b",
-        "weakened": "module M\nvar sa : Quantity[Length]\nvar sb : Quantity[Length]\ndef sc := sqrt(sa * sa + sb * sb)"
+        "weakened": "module M\nvar sa : Quantity[Length]\nvar sb : Quantity[Length]\ndef sc := sa * sa + sb * sb"
       }
     },
     {
@@ -6734,18 +6730,18 @@
       "atom": "NUMER.ABSOLUTE_ERROR",
       "domain": "K_NUMERICAL",
       "criticality": "MEDIUM",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-T427,HML-D502 -- error HML-T427: the argument of abs has the wrong type",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-T427,HML-D502: error HML-T427: the argument of abs has the wrong type); the weakened encoding compiles but LOSES: the units the atom says the error must carry. `abs` is typed Real -> NonNegativeReal and refuses a Quantity (HML-T427), so a dimensionful absolute error cannot be written and the operands must be demoted to bare Reals. There is no computed/exact distinction either -- see NUMER.EXACT_VS_NUMERIC_DISPATCH.",
       "accept_codes": [
         "HML-T427",
         "HML-D502"
       ],
       "reject_codes": [],
       "note": "",
-      "judgement": "an absolute error is a difference and it carries the quantity's dimension, which the dimension system enforces. There is no computed/exact distinction in the language, so the two operands are indistinguishable in kind -- see NUMER.EXACT_VS_NUMERIC_DISPATCH.",
+      "judgement": "",
       "sources": {
         "accept": "module M\nvar xh : Quantity[Length]\nvar xe : Quantity[Length]\nvar tol : Quantity[Length]\nrequire abs(xh - xe) <= tol",
-        "reject": "module M\nvar xh : Quantity[Length]\nvar xe : Quantity[Length]\nvar tol : Quantity[Time]\nrequire abs(xh - xe) <= tol"
+        "weakened": "module M\nvar xh : Real\nvar xe : Real\nvar tol : PositiveReal\nrequire abs(xh - xe) <= tol"
       }
     },
     {
@@ -6906,8 +6902,8 @@
       "atom": "NUMER.FLOATING_POINT",
       "domain": "K_NUMERICAL",
       "criticality": "HIGH",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-T440: error HML-T440: unknown type 'Float64'); the weakened encoding compiles but LOSES: the distinction from the real. There is no finite-precision type and no format declaration, so a floating-point value and a mathematical real are the same object -- exactly the conflation the atom names.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-T440: error HML-T440: unknown type 'Float64'). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the distinction from the real. There is no finite-precision type and no format declaration, so a floating-point value and a mathematical real are the same object -- exactly the conflation the atom names.",
       "accept_codes": [
         "HML-T440"
       ],
@@ -6988,8 +6984,8 @@
       "atom": "NUMER.MACHINE_EPSILON",
       "domain": "K_NUMERICAL",
       "criticality": "LOW",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-N301: error HML-N301: 'machine_epsilon' is not bound); the weakened encoding compiles but LOSES: the relationship to a format. A hard-coded literal is not the relative spacing of a representable set, and overflow/underflow range has no expression.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-N301: error HML-N301: 'machine_epsilon' is not bound). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the relationship to a format. A hard-coded literal is not the relative spacing of a representable set, and overflow/underflow range has no expression.",
       "accept_codes": [
         "HML-N301"
       ],
@@ -7039,8 +7035,8 @@
       "atom": "NUMER.OVERFLOW_UNDERFLOW",
       "domain": "K_NUMERICAL",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-N301: error HML-N301: 'nan' is not bound); the weakened encoding compiles but LOSES: special values. There is no NaN, no infinity and no subnormal, so their propagation rules cannot be stated and an overflowing computation is indistinguishable from a finite one.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-N301: error HML-N301: 'nan' is not bound). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: special values. There is no NaN, no infinity and no subnormal, so their propagation rules cannot be stated and an overflowing computation is indistinguishable from a finite one.",
       "accept_codes": [
         "HML-N301"
       ],
@@ -7056,8 +7052,8 @@
       "atom": "NUMER.PRECISION_FORMAT",
       "domain": "K_NUMERICAL",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P220: error HML-P220: expected a type); the weakened encoding compiles but LOSES: the format. Width and representation are not part of any numeric type, so binary32, binary64 and arbitrary precision are the same declaration.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-P220: error HML-P220: expected a type). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the format. Width and representation are not part of any numeric type, so binary32, binary64 and arbitrary precision are the same declaration.",
       "accept_codes": [
         "HML-P220"
       ],
@@ -7090,18 +7086,18 @@
       "atom": "NUMER.RELATIVE_ERROR",
       "domain": "K_NUMERICAL",
       "criticality": "MEDIUM",
-      "state": "ABSENT",
-      "evidence": "no faithful encoding: HML-T427,HML-T427 -- error HML-T427: the argument of abs has the wrong type",
+      "state": "LOSSY",
+      "evidence": "faithful spelling refused (HML-T427,HML-T427: error HML-T427: the argument of abs has the wrong type); the weakened encoding compiles but LOSES: the dimensional derivation of dimensionlessness. `abs` refuses a Quantity (HML-T427), so the ratio must be formed from bare Reals and its dimensionlessness is an accident of the operand types rather than a computed fact. Undefinedness at a zero true value raises a division obligation that nothing can discharge for an unbounded symbol.",
       "accept_codes": [
         "HML-T427",
         "HML-T427"
       ],
       "reject_codes": [],
       "note": "",
-      "judgement": "the ratio is writable and the dimension system makes it dimensionless, which is the atom's typing requirement, and refuses to equate it with a dimensionful quantity. Undefinedness at a zero true value raises a division obligation but no zero-check is possible on an unbounded symbol.",
+      "judgement": "",
       "sources": {
         "accept": "module M\nvar xh : Quantity[Length]\nvar xe : Quantity[Length]\ndef r := abs(xh - xe) / abs(xe)",
-        "reject": "module M\nvar xh : Quantity[Length]\nvar xe : Quantity[Length]\nvar t : Quantity[Time]\ndef r := abs(xh - xe) / abs(xe)\nrequire r = t"
+        "weakened": "module M\nvar xh : Real\nvar xe : Real\ndef r := abs(xh - xe) / abs(xe)"
       }
     },
     {
@@ -7232,8 +7228,8 @@
       "atom": "EPIS.AMBIGUITY_FLAG",
       "domain": "L_REASONING_EPISTEMICS",
       "criticality": "MEDIUM",
-      "state": "LOSSY",
-      "evidence": "faithful spelling refused (HML-P205: error HML-P205: 'ambiguous' does not begin a statement); the weakened encoding compiles but LOSES: the flag. There is no way to mark a statement as ambiguous or underspecified, so the alternative to silence is silence.",
+      "state": "ABSENT",
+      "evidence": "no faithful encoding (HML-P205: error HML-P205: 'ambiguous' does not begin a statement). The fallback compiles but is VACUOUS by the mechanical test in _is_vacuous -- it declares only plain scalars and states only self-identities, so it encodes nothing about the atom. What would have been lost: the flag. There is no way to mark a statement as ambiguous or underspecified, so the alternative to silence is silence.",
       "accept_codes": [
         "HML-P205"
       ],
@@ -7284,16 +7280,16 @@
       "domain": "L_REASONING_EPISTEMICS",
       "criticality": "CRITICAL",
       "state": "PASS",
-      "evidence": "faithful encoding compiles clean; misuse rejected with HML-R701",
+      "evidence": "faithful encoding compiles clean; misuse rejected with HML-R709",
       "accept_codes": [],
       "reject_codes": [
-        "HML-R701"
+        "HML-R709"
       ],
-      "note": "assumptions are marked, labelled, enumerable and -- since the refinement environment landed -- actually DISCHARGE obligations rather than merely being recorded",
+      "note": "assumptions are marked, labelled, enumerable, and DISCHARGE obligations. The reject probe is the atom's real test -- an assumption is taken as given, not established, so it cannot prove a goal (HML-R709).",
       "judgement": "",
       "sources": {
         "accept": "module M\nvar x : Real\nvar y : Real\nvar k : Real\nassume a1 : k != 0.0\ndef z := y / k",
-        "reject": "module M\nvar x : Real\nvar y : Real\nvar k : Real\nassume a1 : k != 0.0\nassume a1 : k > 0.0"
+        "reject": "module M\nvar x : Real\nvar y : Real\nvar k : Real\ngoal g : k != 0.0\nassume a1 : k != 0.0\nproved g by a1"
       }
     },
     {
@@ -7703,7 +7699,7 @@
       "domain": "M_TRANSFORMATIONS_INFERENCE",
       "criticality": "HIGH",
       "state": "PASS",
-      "evidence": "faithful encoding compiles clean; enforcement established by the executed structural check backend_checks.plain_module_compiles = True",
+      "evidence": "faithful encoding compiles clean; enforcement established by the executed structural check backend_checks.all_five_targets_emit = True",
       "accept_codes": [],
       "reject_codes": [],
       "note": "MEASURED BY BACKEND: the same module is emitted to latex, lean, stan, sympy and english, each a faithful view of one semantic object. backend_checks() below asserts that all five emit non-empty text for one module and that the content hash is unchanged by the emission.",

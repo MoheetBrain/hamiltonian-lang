@@ -3095,3 +3095,49 @@ an implementation for the first time. Measured maturity otherwise unchanged.
 
 **Next intended step.** §4 partiality contracts, which closes CT-038 and is the largest
 single remaining soundness gap.
+
+---
+
+## 2026-08-07 (ninth entry) — term-level partiality closes a CRITICAL exploit
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `9877379`
+
+**Objective.** Close the division-by-zero exploit found by the rule audit, and unify
+definedness under one contract registry (D-036).
+
+**Files and systems changed.** New `reasoning/partiality.py` and
+`tests/reasoning/test_partiality.py`; `reasoning/check.py` (term-level obligations,
+dedup, refutation); `reasoning/kernel.py` (`divide_both_sides` loses its redundant
+ObligationSpec); `type_system/__init__.py` (`HML-T435`); `DECISIONS.md` D-044.
+
+**What was completed.** Definedness moved from rule-keyed to term-keyed. Refuted
+obligations now REJECT rather than sit OPEN. Matrix elementwise shape conformance checked.
+
+**Tests and verification actually executed.**
+- the exploit: `VERIFIED`/`PROVED` before → **REJECTED, HML-R715** after
+- `pytest` → **6322 passed, 5 skipped, 0 failed** (6299 before)
+- `ruff` clean; `mypy` clean, 90 files; hash stability **0 changed**
+- composition re-run → **21/48 = 0.438, unchanged**
+
+**Failures and unresolved uncertainty.**
+- **This was a CRITICAL soundness blocker that shipped in the V2 spine and survived two
+  red-team rounds.** It was found only when a third agent audited the rules for a
+  different purpose. The previous red team attacked obligation *evasion* and did not try
+  respelling the operation.
+- **Two self-inflicted defects while fixing it**: the new obligations were never passed to
+  Γ (permanently OPEN), and the same obligation was raised three times. Both caught by the
+  existing suite, both recorded.
+- Composition is **unchanged at 0.438**. This fix bought soundness, not coverage, and must
+  not be reported as movement toward the 0.85 gate.
+- The registry covers `/`, `^`, `tan` as CONTRACTED. **Matrix inverse, indexing,
+  normalisation, conditional probability, expectation and argmin/argmax are NOT yet
+  contracted** — D-036 names them and they remain outstanding.
+- 32 enforcement gaps from the ontology probe: **one fixed** (HML-T435), 31 outstanding,
+  6 of them critical.
+
+**Effect on the overall project.** The single largest known soundness hole is closed, and
+closed generically rather than per-rule. Maturity criterion 3.4 has a partial
+implementation for the first time.
+
+**Next intended step.** The remaining CONTRACTED operations, then the 28 measured
+composition failures (14 GRAMMAR, 8 TYPE) which are the only route to the 0.85 gate.

@@ -1721,3 +1721,70 @@ statement kind and was updated deliberately, not suppressed.
 **Composition effect: 20/48 → 21/48 (0.417 → 0.438).** The single SCOPE-class failure
 closed. This is the honest number: scoped Γ was never going to move a suite whose failures
 are 14 GRAMMAR and 8 TYPE.
+
+---
+
+## D-044 — definedness is a property of TERMS, not of rules (closes a CRITICAL exploit)
+
+**Date:** 2026-08-07 · **After:** `9877379` · **Implements:** D-036 · **Severity:** CRITICAL
+
+**The exploit.** Found by adversarial review of the trusted-rule kernel, reproduced before
+fixing:
+
+```hml
+assume p1 : a = b
+goal   g1 : a * (1.0 / 0.0) = b * (1.0 / 0.0)
+derive d1 : a * (1.0 / 0.0) = b * (1.0 / 0.0) from p1 by multiply_both_sides(by := 1.0 / 0.0)
+proved g1 by d1
+```
+→ `d1 VERIFIED`, `g1 PROVED`, **0 obligations, 0 diagnostics, exit 0** — a literal
+division by zero inside a certified statement.
+
+**Root cause.** `ObligationSpec` was keyed on the **rule name**. `divide_both_sides`
+declared `k != 0`; `multiply_both_sides` declared nothing, so the identical step spelled
+differently walked past the guard. The rule was blameless — multiplying both sides by
+anything really is valid. Nobody asked whether the thing being multiplied by was *defined*.
+
+**Decision.** Definedness is a property of a **term**. `reasoning/partiality.py` holds one
+contract registry (TOTAL / GUARDED / CONTRACTED / PARTIAL_UNDECIDABLE) and a pass that
+walks every expression a derivation touches — conclusion and rule arguments alike —
+generating a precondition for each CONTRACTED operation it finds, at any depth.
+**A rule cannot evade a requirement it does not know about.**
+
+**Measured after the fix:**
+
+| | |
+|---|---|
+| `multiply_both_sides(by := 1.0 / 0.0)` | **REJECTED** |
+| the same via `add_`/`subtract_both_sides` | **REJECTED** |
+| nested `1.0 + (2.0 * (3.0 / 0.0))` | **REJECTED** |
+| `1.0 / k`, nothing assumed | CHECKED |
+| `1.0 / k` with `assume k != 0.0` | **VERIFIED** |
+| `1.0 / k` with `assume k >= 0.0` | CHECKED — `>=` admits 0 |
+| `x * 2.0` | VERIFIED |
+
+**Refutation (D-038 V5).** An obligation decidably false by closed-literal inspection is
+`FAILED`, not `OPEN`, and makes the derivation `REJECTED`. Reporting a known falsehood as
+ignorance is strictly worse than saying nothing, and it is what let `1.0 / 0.0` look merely
+unproven.
+
+**The one genuine TCB reduction.** `divide_both_sides` lost its `ObligationSpec` — the term
+pass covers it, and keeping it was worse than redundant, because it made the guard *look*
+complete. Predicted by the rule audit as available only after this pass existed.
+
+**Two defects introduced and caught while building this**, recorded because both were
+self-inflicted:
+1. The definedness obligations were appended to the list but the `entails` call lived
+   inside the rule-obligation loop, so **nothing ever asked Γ about them** and they were
+   permanently OPEN. One loop, one policy now.
+2. `y / k = 2.0 * x / k` generated the same `k != 0` three times. Deduplicated by canonical
+   identity — the language's own notion of "the same proposition", not a second one.
+
+**Also fixed: `HML-T435`.** `Matrix[2,3] + Matrix[4,5]` compiled clean, while vector `+`
+and matrix `@` were both checked — a silent shape loss in the one family where shape is
+the whole point. Found by the full-ontology probe among 32 enforcement gaps (7 critical).
+
+**Verification.** `pytest`: **6322 passed, 0 failed** (6299 before). `ruff`, `mypy` (90
+files): clean. Hash stability: **0 changes**. Composition unchanged at 21/48 — this was a
+soundness fix, not a coverage one, and it should not be reported as progress toward the
+composition gate.

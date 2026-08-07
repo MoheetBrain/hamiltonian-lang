@@ -196,6 +196,54 @@ def _emit(src: str, target: str) -> tuple[bool, str]:
     return bool(res.text.strip()), f"{len(res.unsupported)} losses declared"
 
 
+_DECL_KEYWORDS = frozenset({"var", "param", "const", "obs", "index", "rv"})
+
+_COMPOUND_TYPES = (
+    "Set[", "Function[", "Product[", "Vector[", "Matrix[", "Tensor[", "Quantity[",
+    "Distribution[", "RandomVariable[", "Predicate[",
+)
+
+
+def _is_vacuous(src: str) -> bool:
+    """Does this weakened encoding actually encode anything?
+
+    LOSSY is only an honest verdict when the weakened source still WRITES THE OBJECT
+    DOWN and the compiler still checks something about it. A great many natural
+    fallbacks do not: `var c : PositiveReal` + `require c >= 1.0` beside a matrix is not
+    an encoding of a condition number, it is an unrelated scalar. Scoring those LOSSY
+    would launder ABSENT into something that sounds partial.
+
+    The test, stated so it can be re-run rather than argued about: an encoding is
+    VACUOUS when it declares only plain scalars (no type constructor carries structure)
+    AND every proposition in it is a syntactic self-identity `t = t`. Anything that
+    declares a structured type, or states a non-trivial proposition, or binds a
+    definition body, is NOT vacuous -- Set[Set[Real]] for a sigma-algebra is a real if
+    lossy carrier, and so is a quantified least-upper-bound condition.
+    """
+    body = [ln.strip() for ln in src.strip().splitlines()[1:] if ln.strip()]
+    if not body:
+        return True
+    decls = [ln for ln in body if ln.split(" ", 1)[0] in _DECL_KEYWORDS]
+    # The STAND-IN is the last thing declared: in a fallback encoding that is the symbol
+    # standing where the atom's object should be. `var A : Matrix[...]` + `var t : Real`
+    # for a trace stands in with a bare scalar and encodes nothing about A.
+    stand_in_structured = bool(decls) and any(c in decls[-1] for c in _COMPOUND_TYPES)
+    substantive = False
+    for ln in body:
+        head = ln.split(" ", 1)[0]
+        if head in _DECL_KEYWORDS:
+            continue
+        if head == "require":
+            prop = ln[len("require") :].strip()
+            lhs, sep, rhs = prop.partition("=")
+            if sep and lhs.strip() and lhs.strip() == rhs.strip():
+                continue
+            substantive = True
+            continue
+        substantive = True
+    return not (stand_in_structured or substantive)
+
+
 def classify(spec: Spec, checks: dict[str, dict[str, Any]]) -> tuple[
     str, str, list[str], list[str]
 ]:
@@ -273,11 +321,22 @@ def classify(spec: Spec, checks: dict[str, dict[str, Any]]) -> tuple[
     # The faithful spelling was refused.
     if spec.weakened is not None:
         w_ok, w_codes, _ = _compile(spec.weakened)
-        if w_ok:
+        if w_ok and not _is_vacuous(spec.weakened):
             return (
                 "LOSSY",
                 f"faithful spelling refused ({','.join(a_codes) or 'error'}: "
                 f"{a_first[:120]}); the weakened encoding compiles but LOSES: {spec.lost}",
+                a_codes,
+                w_codes,
+            )
+        if w_ok:
+            return (
+                "ABSENT",
+                f"no faithful encoding ({','.join(a_codes) or 'error'}: "
+                f"{a_first[:120]}). The fallback compiles but is VACUOUS by the "
+                f"mechanical test in _is_vacuous -- it declares only plain scalars and "
+                f"states only self-identities, so it encodes nothing about the atom. "
+                f"What would have been lost: {spec.lost}",
                 a_codes,
                 w_codes,
             )
@@ -1157,9 +1216,12 @@ add(
 add(
     "ALG.NORM",
     accept=M + "var v : Vector[Real, 3]\ndef n := norm(v, p := 2)",
-    weakened=M + "var v : Vector[Real, 3]\ndef n := sqrt(sum(v * v))",
-    lost="which norm. The unfolding hard-codes the 2-norm; there is no norm object, no "
-    "p parameter, no matrix norm, and homogeneity/subadditivity are unstated.",
+    weakened=M + "var v : Vector[NonNegativeReal, 3]\ndef n := sqrt(sum(v * v))",
+    lost="which norm, AND the ability to take it of an arbitrary real vector. The "
+    "unfolding hard-codes the 2-norm, and even that only compiles when the elements are "
+    "declared NonNegativeReal: sum(v * v) over Real elements widens to Real, which sqrt "
+    "refuses (HML-T427). There is no norm object, no p parameter, no matrix norm, and "
+    "homogeneity/subadditivity are unstated.",
 )
 add(
     "ALG.ORDER_STRUCTURE",
@@ -1366,8 +1428,8 @@ add(
     "ANA.CONVERGENCE_MODES",
     accept=M + "var f : Function[Natural -> Real]\nvar g : Function[Real -> Real]\n"
     "require converges(f, to := g, mode := uniform)",
-    weakened=M + "var f : Function[Natural -> Real]\n"
-    "def l := limit(f(n), n : Natural -> 0.0)",
+    weakened=M + "var f : Function[Real -> Real]\n"
+    "def l := limit(f(x), x : Real -> 0.0)",
     lost="the mode. There is exactly one convergence notion in the language -- the "
     "`limit` binder -- so pointwise, uniform, L^p and a.e. convergence are merged into "
     "one relation, which is what the atom forbids.",
@@ -1515,7 +1577,7 @@ add(
     "ANA.INTEGRAL_INDEFINITE",
     accept=M + "var f : Function[Real -> Real]\ndef F := antiderivative(f(x), x : Real)",
     weakened=M + "var f : Function[Real -> Real]\nvar F : Function[Real -> Real]\n"
-    "var C : Real\nrequire derivative(F(x), x : Real) = f(x)",
+    "var C : Real\nrequire forall x : Real . derivative(F(u), u : Real) = f(x)",
     lost="the family. The defining relation is statable for ONE antiderivative; the "
     "constant of integration is a declared symbol nothing uses, so 'a family of "
     "functions differing by a constant' is not what is represented.",
@@ -1619,13 +1681,15 @@ add(
 )
 add(
     "ANA.ODE",
-    accept=M + "var y : Function[Real -> Real]\n"
+    accept=M + "var y : Function[Real -> Real]\nvar t : Real\n"
     "require derivative(y(t), t : Real) = y(t)",
-    reject=M + "var y : Function[Real -> Real]\nrequire derivative(y(t)) = y(t)",
-    judgement="an ODE is statable as an equation between a derivative and a term, and "
-    "the binder identifies the independent variable. The atom also wants the unknown "
-    "function and the ORDER identified as part of one object; there is no equation "
-    "object, so they are not.",
+    weakened=M + "var y : Function[Real -> Real]\nvar t : Real\n"
+    "require derivative(y(u), u : Real) = y(t)",
+    lost="the tie between the differentiation point and the independent variable. "
+    "y'(t) = y(t) with ONE t is rejected (HML-N302: the binder shadows the declared t), "
+    "so the two sides must use different symbols and nothing says they are the same "
+    "point. The unknown function and the ORDER are not identified either, because there "
+    "is no equation object.",
 )
 add(
     "ANA.PARTIAL_DERIVATIVE",
@@ -1642,21 +1706,28 @@ add(
     "ANA.PARTIAL_FUNCTION",
     accept=M + "var f : Function[PositiveReal -> Real]\n"
     "require forall s : PositiveReal . f(s) = log(s)",
-    reject=M + "var x : Real\ndef y := log(x)",
-    note="the definedness set is carried by the domain refinement type and applying the "
-    "function outside it is refused; this is partiality by typing rather than by a "
-    "definedness predicate",
+    reject=M + "var f : Function[PositiveReal -> Real]\nvar x : Real\n"
+    "require f(x) = 0.0",
+    note="the definedness set is carried by the domain refinement type. Enforcement is "
+    "SPLIT: applying a `def`-declared function outside its declared domain is refused "
+    "(HML-T472) and a builtin's domain is refused (HML-T427), but applying a "
+    "FUNCTION-TYPED VARIABLE outside its declared domain is not checked at all -- which "
+    "is what the reject probe exercises. The same hole is recorded under "
+    "EPIS.VALIDITY_DOMAIN.",
 )
 add(
     "ANA.PDE",
-    accept=M + "var u : Function[Real, Real -> Real]\n"
-    "require derivative(u(t, x), t : Real) = derivative(derivative(u(t, x), x : Real), "
-    "x : Real)",
-    reject=M + "var u : Function[Real, Real -> Real]\n"
-    "require derivative(u(t, x)) = u(t, x)",
-    judgement="the heat equation really does compile: nested typed binders give the "
-    "partial derivatives and the relation is an ordinary proposition. There is no "
-    "domain, no boundary and no PDE object, so it is a sentence rather than a problem.",
+    accept=M + "var u : Function[Real, Real -> Real]\nvar t : Real\nvar z : Real\n"
+    "require derivative(u(t, z), t : Real) = "
+    "derivative(derivative(u(t, z), z : Real), z : Real)",
+    weakened=M + "var u : Function[Real, Real -> Real]\nvar t : Real\nvar z : Real\n"
+    "require derivative(u(a, z), a : Real) = "
+    "derivative(derivative(u(t, b), b : Real), c : Real)",
+    lost="the identification of the differentiation variables with the function's own "
+    "arguments. Every binder must be a FRESH symbol (HML-N302), so the heat equation "
+    "compiles only when each partial is taken in a different invented name and nothing "
+    "records that they are the same variable. There is no domain, no boundary and no "
+    "PDE object either.",
 )
 add(
     "ANA.PIECEWISE",
@@ -2114,8 +2185,10 @@ add(
 add(
     "PROB.RANDOM_VARIABLE",
     accept=RVX + "require probability(X = X) = 1.0",
-    reject=M + "rv X : RandomVariable[Real]\nvar x : Real\nrequire x = X",
-    note="a random variable is neither its distribution nor its value; both barriers hold",
+    reject=RVX + "def v : Real := X",
+    note="a random variable is neither its distribution nor its value. The reject probe "
+    "attempts to bind it to its support type and is refused (HML-T403); the "
+    "distribution barrier is covered by PROB.DISTRIBUTED_AS.",
 )
 add(
     "PROB.REALIZATION",
@@ -3002,7 +3075,7 @@ add(
 add(
     "GEO.MANIFOLD",
     accept=M + "var Mf : Manifold[2]\nrequire Mf = Mf",
-    weakened=M + "var S := { p : Vector[Real, 3] | sum(p * p) = 1.0 }\nrequire S = S",
+    weakened=M + "def S := { p : Vector[Real, 3] | sum(p * p) = 1.0 }\nrequire S = S",
     lost="local Euclidean structure, declared dimension and smoothness class. A "
     "comprehension carves out a subset of R^3 and says nothing about charts.",
 )
@@ -3231,12 +3304,12 @@ add(
 )
 add(
     "OPT.GRADIENT_OF_OBJECTIVE",
-    accept=M + "param x : Real\nvar d : Real\n"
-    "def g := derivative(x * x, x : Real)\nminimise g",
-    reject=None,
-    judgement="differentiating the objective expression with respect to a typed binder "
-    "compiles. Nothing ties the binder to the DECISION variables specifically, so "
-    "'holding data and parameters fixed' is a reading of the source, not a rule.",
+    accept=M + "param x : Real\ndef g := derivative(x * x, x : Real)\nminimise g",
+    weakened=M + "param x : Real\ndef g := derivative(u * u, u : Real)\nminimise g",
+    lost="the connection to the decision variable. Differentiating with respect to the "
+    "DECLARED param is rejected outright -- the binder shadows it (HML-N302) -- so the "
+    "gradient must be taken in a fresh symbol that has no relationship to x, and "
+    "'with respect to the decision variables, holding data fixed' becomes unstatable.",
 )
 add(
     "OPT.INEQUALITY_CONSTRAINT",
@@ -3259,11 +3332,14 @@ add(
     accept=M + "param x : Real\nparam lam : NonNegativeReal\n"
     "require derivative(x * x, x : Real) + lam = 0.0\nrequire lam * x = 0.0\n"
     "require x >= 0.0\ndef f := x * x\nminimise f",
-    reject=M + "param x : Real\nparam lam : NonNegativeReal\n"
-    "require kkt(f, x)\ndef f := x * x\nminimise f",
-    judgement="stationarity, dual feasibility (lam : NonNegativeReal) and complementary "
-    "slackness can each be WRITTEN as ordinary constraints. They are not derived, not "
-    "checked against the problem, and no constraint qualification is expressible.",
+    weakened=M + "param x : Real\nparam lam : NonNegativeReal\n"
+    "require derivative(u * u, u : Real) + lam = 0.0\nrequire lam * x = 0.0\n"
+    "require x >= 0.0\ndef f := x * x\nminimise f",
+    lost="stationarity in the decision variable. Dual feasibility (lam typed "
+    "NonNegativeReal) and complementary slackness are writable, but the gradient cannot "
+    "be taken with respect to x itself (see OPT.GRADIENT_OF_OBJECTIVE), so the "
+    "stationarity condition is about an unrelated symbol. Nothing derives or checks any "
+    "of it, and no constraint qualification is expressible.",
 )
 add(
     "OPT.LAGRANGIAN",
@@ -3473,10 +3549,14 @@ add(
     "SCI.LOG_OF_RATIO",
     accept=M + "var p : Quantity[Mass]\nvar p0 : Quantity[Mass]\n"
     "def db := 10.0 * log(p / p0)",
-    reject=M + "var p : Quantity[Mass]\ndef db := 10.0 * log(p)",
-    judgement="the reference value is FORCED by the dimensionless-argument rule: "
-    "log of a bare quantity is refused, so a log scale must be written as a log of a "
-    "ratio. What the reference IS remains a naming convention, not recorded data.",
+    weakened=M + "var p : PositiveReal\nvar p0 : PositiveReal\n"
+    "def db := 10.0 * log(p / p0)",
+    lost="the dimensional guarantee that the argument IS a ratio. log demands a "
+    "PositiveReal and a dimensionless Quantity is not one (HML-T427), so the ratio of "
+    "two dimensionful quantities cannot be passed to log at all -- note that exp "
+    "ACCEPTS the same ratio, so the two transcendental builtins disagree. Falling back "
+    "to bare PositiveReal operands removes every unit check, and the reference value "
+    "becomes a naming convention rather than recorded data.",
 )
 add(
     "SCI.PHYSICAL_CONSTANT",
@@ -3529,7 +3609,7 @@ add(
 add(
     "SCI.UNCERTAINTY",
     accept=M + "var m : Quantity[Mass] +/- 0.01\nrequire m = m",
-    weakened=M + "var m : Quantity[Mass]\nvar sm : Quantity[Mass]\nrequire sm >= 0.0",
+    weakened=M + "var m : Quantity[Mass]\nvar sm : Quantity[Mass]\nrequire sm = sm",
     lost="the attachment. An uncertainty can be declared as a second quantity of the "
     "same dimension but nothing binds it to the value, and its interpretation "
     "(standard, coverage) is unrecorded.",
@@ -3539,8 +3619,10 @@ add(
     accept=M + "var a : Quantity[Length] +/- 0.1\nvar b : Quantity[Length] +/- 0.1\n"
     "def c := a + b",
     weakened=M + "var sa : Quantity[Length]\nvar sb : Quantity[Length]\n"
-    "def sc := sqrt(sa * sa + sb * sb)",
-    lost="propagation. The linearised formula can be written by hand for one operation; "
+    "def sc := sa * sa + sb * sb",
+    lost="propagation, and the square root that the linearised formula needs -- sqrt "
+    "demands a NonNegativeReal and refuses a Quantity (HML-T427), so only the sum of "
+    "squares survives. The linearised formula can be written by hand for one operation; "
     "nothing carries an uncertainty through arithmetic automatically and no assumption "
     "is recorded.",
 )
@@ -3615,12 +3697,12 @@ add(
     "NUMER.ABSOLUTE_ERROR",
     accept=M + "var xh : Quantity[Length]\nvar xe : Quantity[Length]\n"
     "var tol : Quantity[Length]\nrequire abs(xh - xe) <= tol",
-    reject=M + "var xh : Quantity[Length]\nvar xe : Quantity[Length]\n"
-    "var tol : Quantity[Time]\nrequire abs(xh - xe) <= tol",
-    judgement="an absolute error is a difference and it carries the quantity's "
-    "dimension, which the dimension system enforces. There is no computed/exact "
-    "distinction in the language, so the two operands are indistinguishable in kind -- "
-    "see NUMER.EXACT_VS_NUMERIC_DISPATCH.",
+    weakened=M + "var xh : Real\nvar xe : Real\nvar tol : PositiveReal\n"
+    "require abs(xh - xe) <= tol",
+    lost="the units the atom says the error must carry. `abs` is typed Real -> "
+    "NonNegativeReal and refuses a Quantity (HML-T427), so a dimensionful absolute "
+    "error cannot be written and the operands must be demoted to bare Reals. There is "
+    "no computed/exact distinction either -- see NUMER.EXACT_VS_NUMERIC_DISPATCH.",
 )
 add(
     "NUMER.APPROXIMATION_MARKER",
@@ -3807,12 +3889,12 @@ add(
     "NUMER.RELATIVE_ERROR",
     accept=M + "var xh : Quantity[Length]\nvar xe : Quantity[Length]\n"
     "def r := abs(xh - xe) / abs(xe)",
-    reject=M + "var xh : Quantity[Length]\nvar xe : Quantity[Length]\n"
-    "var t : Quantity[Time]\ndef r := abs(xh - xe) / abs(xe)\nrequire r = t",
-    judgement="the ratio is writable and the dimension system makes it dimensionless, "
-    "which is the atom's typing requirement, and refuses to equate it with a "
-    "dimensionful quantity. Undefinedness at a zero true value raises a division "
-    "obligation but no zero-check is possible on an unbounded symbol.",
+    weakened=M + "var xh : Real\nvar xe : Real\ndef r := abs(xh - xe) / abs(xe)",
+    lost="the dimensional derivation of dimensionlessness. `abs` refuses a Quantity "
+    "(HML-T427), so the ratio must be formed from bare Reals and its dimensionlessness "
+    "is an accident of the operand types rather than a computed fact. Undefinedness at "
+    "a zero true value raises a division obligation that nothing can discharge for an "
+    "unbounded symbol.",
 )
 add(
     "NUMER.REPRODUCIBILITY",
@@ -3915,10 +3997,10 @@ add(
 add(
     "EPIS.ASSUMPTION",
     accept=REALS + "assume a1 : k != 0.0\ndef z := y / k",
-    reject=REALS + "assume a1 : k != 0.0\nassume a1 : k > 0.0",
-    note="assumptions are marked, labelled, enumerable and -- since the refinement "
-    "environment landed -- actually DISCHARGE obligations rather than merely being "
-    "recorded",
+    reject=REALS + "goal g : k != 0.0\nassume a1 : k != 0.0\nproved g by a1",
+    note="assumptions are marked, labelled, enumerable, and DISCHARGE obligations. The "
+    "reject probe is the atom's real test -- an assumption is taken as given, not "
+    "established, so it cannot prove a goal (HML-R709).",
 )
 add(
     "EPIS.CAUSAL_CLAIM",
@@ -4142,7 +4224,7 @@ add(
 add(
     "XFORM.CHANGE_OF_REPRESENTATION",
     accept=M + "var x : Real\nrequire x > 0.0",
-    structural=("backend_checks", "plain_module_compiles"),
+    structural=("backend_checks", "all_five_targets_emit"),
     note="MEASURED BY BACKEND: the same module is emitted to latex, lean, stan, sympy "
     "and english, each a faithful view of one semantic object. backend_checks() below "
     "asserts that all five emit non-empty text for one module and that the content hash "
@@ -4515,6 +4597,9 @@ def backend_checks() -> dict[str, Any]:
         out["lean_declares_loss_for_law_and_pvalue"] = (
             isinstance(emitted.get("lean"), dict) and emitted["lean"]["losses"] > 0
         )
+        out["all_five_targets_emit"] = all(
+            isinstance(v, dict) and v["chars"] > 0 for v in emitted.values()
+        ) and len(emitted) == 5
         out["plain_module_compiles"] = H.compile_source(plain).ok()
         out["src_probe_compiles"] = H.compile_source(src).ok()
     except Exception as e:  # noqa: BLE001

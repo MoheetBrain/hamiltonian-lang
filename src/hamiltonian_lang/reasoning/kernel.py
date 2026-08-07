@@ -415,11 +415,21 @@ RULES: dict[str, RuleSpec] = {
         arity=1,
         params=("by",),
         apply=_both_sides("/"),
-        obligations=(
-            ObligationSpec(build=_ne_zero, reason="divide_domain", mandatory=True),
-        ),
+        # No ObligationSpec. The conclusion this rule builds *contains* `a / k`, and
+        # `reasoning/partiality.py` generates `k != 0` from the term itself -- so a
+        # rule-level copy would be a duplicate of a check that now runs whether or not
+        # the rule declares it.
+        #
+        # Keeping it was worse than redundant: it was the reason the guard looked
+        # complete while `multiply_both_sides(by := 1.0 / 0.0)` walked straight past it.
+        # A per-rule obligation can only ever cover the rules somebody remembered to
+        # annotate. This is the one genuine TCB reduction the rule audit found, and it
+        # became available only after the term-level pass existed.
         shape="a = b  |-  a / k = b / k   [requires k != 0]",
-        doc="Dividing both sides is sound only for a non-zero divisor.",
+        doc=(
+            "Dividing both sides is sound only for a non-zero divisor. The obligation "
+            "comes from the term, not from this spec -- see reasoning/partiality.py."
+        ),
     ),
     "substitute": RuleSpec(
         name="substitute",

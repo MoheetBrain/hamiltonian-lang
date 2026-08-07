@@ -58,6 +58,16 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
+**A CRITICAL soundness exploit was found and closed (D-044).** Obligations were keyed on
+the inference rule, so `multiply_both_sides(by := 1.0 / 0.0)` reached VERIFIED and its goal
+reached PROVED with zero diagnostics. Definedness is now a property of TERMS: one contract
+registry, and a pass over every expression a derivation touches. Refuted obligations REJECT
+rather than sit OPEN. Also closed: `Matrix[2,3] + Matrix[4,5]` compiled clean (HML-T435).
+
+**The full 486-atom ontology is now classified with executed states:** PASS 162, PARTIAL 71,
+LOSSY 207, ABSENT 21, BACKEND_ONLY 1, NOT_MEASURED 24. Of the 64 CRITICAL: PASS 47,
+PARTIAL 15, LOSSY 2, **ABSENT 0**. Whole-ontology PASS+PARTIAL is 233/486 = 47.9%.
+
 **Scoped Γ is implemented (D-043):** `scope … end` opens a real assumption frame; facts
 do not survive it, precede it, cross to siblings, or escape nesting. Local contradiction
 is warned and contained rather than banned, so proof by contradiction stays expressible.
