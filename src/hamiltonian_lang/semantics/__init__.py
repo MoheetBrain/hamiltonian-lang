@@ -26,8 +26,10 @@ from ..ast.nodes import (
     ConceptDecl,
     Declaration,
     DefineStmt,
+    DeriveStmt,
     DistExpr,
     Expr,
+    GoalStmt,
     Index,
     InferStmt,
     LawStmt,
@@ -36,6 +38,7 @@ from ..ast.nodes import (
     Module,
     ModuleDecl,
     ObjectiveStmt,
+    ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
@@ -419,8 +422,37 @@ class Resolver:
             if st.distribution is not None:
                 self.visit_expr(st.distribution)
             return
-        if isinstance(st, (AssumeStmt, RequireStmt, ProveStmt)):
+        if isinstance(st, (AssumeStmt, RequireStmt, ProveStmt, GoalStmt)):
             self.visit_expr(st.proposition)
+            return
+        if isinstance(st, DeriveStmt):
+            # Only the *expressions* are resolved here. Premise labels live in the
+            # claim namespace, which is disjoint from the value namespace and is
+            # resolved by reasoning.resolve_claims -- so `derive d2 : ... from d1`
+            # cannot accidentally bind `d1` to a variable, and `d1 + 1` cannot
+            # accidentally bind a derivation.
+            self.visit_expr(st.conclusion)
+            for a in st.rule_args:
+                # A rule argument in the `fn` role names a FUNCTION, not a value, so it
+                # is resolved against the function namespace rather than the value one.
+                # Without this, `congruence(fn := exp)` fails with "'exp' is not bound"
+                # -- correct for a value position and wrong here, since `exp` is a
+                # builtin and has no binding occurrence to point at.
+                if a.role == "fn" and isinstance(a.value, Ref):
+                    if (
+                        a.value.name not in _BUILTIN_FUNCTIONS
+                        and self.scope.lookup(a.value.name) is None
+                    ):
+                        self.diags.error(
+                            "HML-N306",
+                            f"{a.value.name!r} is not a known function",
+                            a.value.span,
+                            correction=self._suggest(a.value.name),
+                        )
+                    continue
+                self.visit_expr(a.value)
+            return
+        if isinstance(st, ProvedStmt):
             return
         if isinstance(st, ObjectiveStmt):
             self.visit_expr(st.expression)

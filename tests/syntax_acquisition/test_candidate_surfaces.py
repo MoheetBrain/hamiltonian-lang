@@ -84,10 +84,22 @@ def test_every_specification_states_what_the_surface_cannot_express(candidate_id
 # -- candidate B ---------------------------------------------------------
 
 
+#: HML-L1 reserved exactly 47 keywords when the candidate-surface study was run.
+#:
+#: This is a *recorded measurement*, not a live property, and it is pinned as a literal
+#: so the study's comparison stays reproducible after the grammar moves on. The V2
+#: reasoning spine (D-025) added five keywords, so the live set is now larger; rebasing
+#: the assertion onto `len(KEYWORDS)` would have silently rewritten the number the
+#: study reported.
+HML_L1_KEYWORD_COUNT = 47
+
+
 def test_candidate_b_reserves_fewer_words_than_hml_l1():
     """The claim B is built on, stated as a number rather than an impression."""
     assert len(B_RESERVED_WORDS) == 17
-    assert len(KEYWORDS) == 47
+    assert HML_L1_KEYWORD_COUNT == 47
+    assert len(B_RESERVED_WORDS) < HML_L1_KEYWORD_COUNT
+    # The claim also has to survive the grammar it was measured against growing.
     assert len(B_RESERVED_WORDS) < len(KEYWORDS)
 
 

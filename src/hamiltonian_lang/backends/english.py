@@ -22,8 +22,10 @@ from ..ast.nodes import (
     ConceptDecl,
     Declaration,
     DefineStmt,
+    DeriveStmt,
     DistExpr,
     Expr,
+    GoalStmt,
     Index,
     InferStmt,
     LawStmt,
@@ -31,6 +33,7 @@ from ..ast.nodes import (
     LogicalOp,
     ModuleDecl,
     ObjectiveStmt,
+    ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
@@ -177,13 +180,51 @@ class EnglishBackend(Backend):
             return sentence
 
         if isinstance(st, AssumeStmt):
-            return f"Assume that {self.expr(st.proposition)}."
+            tag = f" Call this {st.label}." if st.label else ""
+            return f"Assume that {self.expr(st.proposition)}.{tag}"
         if isinstance(st, RequireStmt):
-            return f"It is required that {self.expr(st.proposition)}."
+            tag = f" Call this {st.label}." if st.label else ""
+            return f"It is required that {self.expr(st.proposition)}.{tag}"
         if isinstance(st, ProveStmt):
+            tag = f" Call this {st.label}." if st.label else ""
             return (
                 f"It is claimed, and not yet proved, that "
-                f"{self.expr(st.proposition)}."
+                f"{self.expr(st.proposition)}.{tag}"
+            )
+
+        # -- V2 reasoning spine ------------------------------------------
+        #
+        # These are rendered rather than dropped. Omitting them left English claiming
+        # `faithful=True` on a module whose entire argument it had discarded -- a
+        # reading aid that silently loses the reasoning is worse than no reading aid,
+        # and `backends/base.py` names that the worst failure mode in the codebase.
+        #
+        # The wording never asserts that a step holds. A derivation is described as
+        # what was *claimed*, because the English backend does not know the verdict:
+        # it renders the module, not the check.
+        if isinstance(st, GoalStmt):
+            return f"The goal {st.label} is to establish that {self.expr(st.proposition)}."
+
+        if isinstance(st, DeriveStmt):
+            premises = (
+                " from " + " and ".join(st.premises) if st.premises else " from no premise"
+            )
+            args = (
+                " with "
+                + ", ".join(f"{a.role} = {self.expr(a.value)}" for a in st.rule_args)
+                if st.rule_args
+                else ""
+            )
+            rule = st.rule.replace("_", " ")
+            return (
+                f"Step {st.label}: applying {rule}{args}{premises} is claimed to give "
+                f"{self.expr(st.conclusion)}."
+            )
+
+        if isinstance(st, ProvedStmt):
+            return (
+                f"The goal {st.goal} is claimed to follow from step {st.derivation}; "
+                f"whether it does is decided by the checker, not by this claim."
             )
 
         if isinstance(st, ObjectiveStmt):

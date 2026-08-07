@@ -91,6 +91,46 @@ class Backend:
     def weaken(self, construct: str, reason: str, line: int = 0) -> None:
         self.unsupported.append(Unsupported(construct, reason, line, "weakened"))
 
+    def report_reasoning_loss(self) -> None:
+        """Declare every V2 reasoning construct this backend cannot carry.
+
+        Lives on the base class on purpose. When V2 landed, four backends dropped
+        ``derive``/``goal``/``proved`` and reported nothing about them, because each
+        backend's statement dispatch simply had no branch for the new node types and
+        fell through silently. A per-backend fix would have to be remembered five times
+        and again for the next construct; this is remembered once.
+
+        A backend that *can* represent a construct should render it and not call this
+        for that node. A backend that cannot must call this, so the loss is machine-
+        readable rather than invisible -- the discipline ``BackendResult.faithful``
+        exists to enforce.
+        """
+        from ..ast.nodes import DeriveStmt, GoalStmt, ProvedStmt
+
+        for st in self.module.statements:
+            if isinstance(st, GoalStmt):
+                self.drop(
+                    f"goal {st.label}",
+                    f"{self.target} has no goal state; the proposition is not carried "
+                    f"and its OPEN/PROVED status is erased",
+                    st.span.line,
+                )
+            elif isinstance(st, DeriveStmt):
+                self.drop(
+                    f"derive {st.label}",
+                    f"{self.target} has no derivation form; the inference "
+                    f"({st.rule} from {', '.join(st.premises) or 'no premise'}), its "
+                    f"generated obligations and its verification status are all erased",
+                    st.span.line,
+                )
+            elif isinstance(st, ProvedStmt):
+                self.drop(
+                    f"proved {st.goal}",
+                    f"{self.target} cannot express that a goal was adjudicated; the "
+                    f"proof claim and the checker's verdict are erased",
+                    st.span.line,
+                )
+
     def emit(self) -> str:  # pragma: no cover - abstract
         raise NotImplementedError
 

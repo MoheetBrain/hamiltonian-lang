@@ -24,8 +24,10 @@ from ..ast.nodes import (
     Declaration,
     DeclKind,
     DefineStmt,
+    DeriveStmt,
     DistExpr,
     Expr,
+    GoalStmt,
     Index,
     InferStmt,
     LawStmt,
@@ -34,10 +36,12 @@ from ..ast.nodes import (
     Module,
     ModuleDecl,
     ObjectiveStmt,
+    ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
     RequireStmt,
+    RuleArg,
     SolveStmt,
     Span,
     Statement,
@@ -230,21 +234,33 @@ class Parser:
 
         if t.is_kw("assume"):
             self.next()
+            label = self._optional_claim_label()
             e = self.parse_expr()
             self.end_line("assume")
-            return AssumeStmt(proposition=e, span=Span.merge(t.span, e.span))
+            return AssumeStmt(proposition=e, label=label, span=Span.merge(t.span, e.span))
 
         if t.is_kw("require"):
             self.next()
+            label = self._optional_claim_label()
             e = self.parse_expr()
             self.end_line("require")
-            return RequireStmt(proposition=e, span=Span.merge(t.span, e.span))
+            return RequireStmt(proposition=e, label=label, span=Span.merge(t.span, e.span))
 
         if t.is_kw("prove"):
             self.next()
+            label = self._optional_claim_label()
             e = self.parse_expr()
             self.end_line("prove")
-            return ProveStmt(proposition=e, span=Span.merge(t.span, e.span))
+            return ProveStmt(proposition=e, label=label, span=Span.merge(t.span, e.span))
+
+        if t.is_kw("goal"):
+            return self.parse_goal()
+
+        if t.is_kw("derive"):
+            return self.parse_derive()
+
+        if t.is_kw("proved"):
+            return self.parse_proved()
 
         if t.is_kw("minimise", "minimize", "maximise", "maximize"):
             self.next()
@@ -275,10 +291,163 @@ class Parser:
             correction=(
                 "statements begin with one of: module var param const obs index rv def "
                 "law prior likelihood assume require prove minimise maximise solve "
-                "infer check concept"
+                "infer check concept goal derive proved"
             ),
         )
         raise ParseAbort
+
+    # -- V2 reasoning spine -----------------------------------------------
+    #
+    # Three statement forms, all single-line, all LL(2). The block form the directive
+    # sketched (`derive d1:` / newline / `from ...`) was rejected: HML-L1 is
+    # line-oriented everywhere except `concept ... end`, and a second block convention
+    # would cost a grammar rule, an indentation policy and a recovery strategy to buy
+    # nothing a model needs. One line per inference is also the cheaper thing to emit.
+
+    def _optional_claim_label(self) -> str | None:
+        """Accept a leading ``name :`` claim label.
+
+        LL(2) and unambiguous: no proposition can begin with IDENT followed by ':',
+        because ':' is not an expression operator. The unlabelled v1 forms therefore
+        keep parsing exactly as before.
+        """
+        if self.cur.kind is TokenKind.IDENT and self.peek().is_op(":"):
+            name = self.next().value
+            self.next()  # ':'
+            return name
+        return None
+
+    def _require_claim_label(self, ctx: str) -> str:
+        name = self.expect_ident(f"to label the {ctx}")
+        if not self.accept_op(":"):
+            self._err(
+                "HML-P250",
+                f"expected ':' after the {ctx} label {name.value!r}",
+                correction=f"{ctx} {name.value} : <proposition>",
+            )
+            raise ParseAbort
+        return name.value
+
+    def parse_goal(self) -> GoalStmt:
+        t = self.next()
+        label = self._require_claim_label("goal")
+        prop = self.parse_expr()
+        self.end_line("goal")
+        return GoalStmt(
+            label=label, proposition=prop, span=Span.merge(t.span, prop.span)
+        )
+
+    def parse_derive(self) -> DeriveStmt:
+        """``derive <id> : <conclusion> [from <id>, ...] by <rule>[(<role> := e, ...)]``
+
+        The conclusion comes before ``from``/``by`` and is parsed by the ordinary
+        expression parser, which stops cleanly at the first non-operator token. Since
+        ``from`` and ``by`` are keywords, they can never be absorbed into the
+        conclusion by mistake.
+        """
+        t = self.next()
+        label = self._require_claim_label("derivation")
+        conclusion = self.parse_expr()
+
+        premises: list[str] = []
+        if self.accept_kw("from"):
+            while True:
+                premises.append(self.expect_ident("as a premise of the derivation").value)
+                if not self.accept_op(","):
+                    break
+
+        if not self.accept_kw("by"):
+            self._err(
+                "HML-P251",
+                "a derivation must name the rule it applies",
+                correction=(
+                    "derive d1 : <conclusion> from <premise> by <rule>(<role> := ...)"
+                ),
+                notes=[
+                    "an inference without a named rule is an assertion, not a "
+                    "derivation; HML has no syntax for 'this follows somehow'"
+                ],
+            )
+            raise ParseAbort
+
+        rule_tok = self.expect_ident("to name the inference rule")
+        rule_args: list[RuleArg] = []
+        if self.accept_op("("):
+            if not self.cur.is_op(")"):
+                while True:
+                    if not (
+                        self.cur.kind in (TokenKind.IDENT, TokenKind.KEYWORD)
+                        and self.peek().is_op(":=")
+                    ):
+                        bad = self.cur
+                        self._err(
+                            "HML-P252",
+                            f"positional arguments are not permitted for rule "
+                            f"{rule_tok.value!r}",
+                            bad.span,
+                            correction=(
+                                f"label each argument by its role, e.g. "
+                                f"{rule_tok.value}(by := k)"
+                            ),
+                            notes=[
+                                "role labels are mandatory for the same reason they are "
+                                "mandatory on distributions (D-003): "
+                                "'multiply_both_sides(2.0)' does not say what 2.0 is"
+                            ],
+                        )
+                        raise ParseAbort
+                    role_tok = self.next()
+                    self.next()  # ':='
+                    value = self.parse_expr()
+                    rule_args.append(
+                        RuleArg(role=role_tok.value, value=value, span=role_tok.span)
+                    )
+                    if not self.accept_op(","):
+                        break
+            self.expect_op(")", f"to close the arguments of {rule_tok.value!r}")
+
+        seen: set[str] = set()
+        for a in rule_args:
+            if a.role in seen:
+                self.diags.error(
+                    "HML-P253",
+                    f"role {a.role!r} is given more than once to {rule_tok.value!r}",
+                    a.span,
+                )
+            seen.add(a.role)
+
+        self.end_line("derivation")
+        return DeriveStmt(
+            label=label,
+            conclusion=conclusion,
+            premises=premises,
+            rule=rule_tok.value,
+            rule_args=rule_args,
+            span=Span.merge(t.span, rule_tok.span),
+        )
+
+    def parse_proved(self) -> ProvedStmt:
+        """``proved <goal> by <derivation>``"""
+        t = self.next()
+        goal = self.expect_ident("to name the goal being claimed proved")
+        if not self.accept_kw("by"):
+            self._err(
+                "HML-P254",
+                "a proof claim must name the derivation it rests on",
+                correction="proved g1 by d1",
+                notes=[
+                    "'proved g1' alone would be an unsupported assertion; the whole "
+                    "point of the form is that the checker can adjudicate it"
+                ],
+            )
+            raise ParseAbort
+        derivation = self.expect_ident("to name the supporting derivation")
+        self.end_line("proof claim")
+        return ProvedStmt(
+            goal=goal.value,
+            derivation=derivation.value,
+            span=Span.merge(t.span, derivation.span),
+        )
 
     def parse_declaration(self) -> Declaration:
         t = self.next()

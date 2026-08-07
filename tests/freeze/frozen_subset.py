@@ -78,6 +78,17 @@ FROZEN_KEYWORDS: frozenset[str] = frozenset(
         "counterexample",
         # literals
         "true", "false",
+        # -- V2 reasoning spine (D-025) ------------------------------------
+        # Admitted deliberately, not by drift. These five open the derivation
+        # statement forms described in docs/hml_v2/REASONING_MODEL.md.
+        #
+        # Note that the V1_KERNEL surface forms in QUARANTINED_SURFACE_FORMS below
+        # remain REJECTED: `goal g1 := ...` and `derive e3 from [...] via s1` are
+        # different syntax from V2's `goal g1 : ...` and
+        # `derive d1 : ... from ... by ...`. The quarantine of the L2/L3/L5 *layers*
+        # is unaffected -- V2 reaches its own kernel in `reasoning/`, not `v1/`, and
+        # the import barrier in test_quarantine.py still forbids that edge.
+        "derive", "goal", "proved", "from", "by",
     }
 )
 
@@ -89,6 +100,9 @@ NON_STATEMENT_KEYWORDS: frozenset[str] = frozenset(
         "dimension", "forall", "exists", "unique", "and", "or", "not", "implies",
         "iff", "parameter", "transform", "invariant", "property", "example",
         "counterexample", "true", "false",
+        # V2: `from` and `by` are separators inside `derive`/`proved`, not statement
+        # heads. `derive`, `goal` and `proved` ARE statement heads and so are absent.
+        "from", "by",
     }
 )
 
@@ -156,6 +170,10 @@ FROZEN_STATEMENT_KINDS: frozenset[str] = frozenset(
         "InferStmt",
         "CheckStmt",
         "ConceptDecl",
+        # -- V2 reasoning spine (D-025) ------------------------------------
+        "GoalStmt",
+        "DeriveStmt",
+        "ProvedStmt",
     }
 )
 

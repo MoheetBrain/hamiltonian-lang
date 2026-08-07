@@ -20,6 +20,7 @@ Typical use::
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from .ast.nodes import Module
 from .diagnostics import DiagnosticBag, HamiltonianError
@@ -28,6 +29,9 @@ from .semantics import SymbolTable
 from .semantics import resolve as _resolve
 from .type_system import CheckResult, ProofObligation
 from .type_system import check as _check
+
+if TYPE_CHECKING:  # pragma: no cover - import cycle guard
+    from .reasoning import ReasoningResult
 
 __version__ = "0.1.0"
 __all__ = [
@@ -48,6 +52,10 @@ class CompileResult:
     symbols: SymbolTable | None = None
     obligations: list[ProofObligation] = field(default_factory=list)
     source: str = ""
+    #: V2 reasoning verdicts. ``None`` when the reasoning stage did not run (an earlier
+    #: stage failed). A v1 module runs the stage and gets an empty result, which keeps
+    #: consumers from having to special-case the language version.
+    reasoning: ReasoningResult | None = None
 
     def ok(self) -> bool:
         """Did **every** stage accept this source: lex, parse, resolve and type-check.
@@ -99,10 +107,15 @@ def parse(source: str, file: str = "<input>"):
 
 
 def compile_source(source: str, file: str = "<input>") -> CompileResult:
-    """Full pipeline: lex, parse, resolve, type-check.
+    """Full pipeline: lex, parse, resolve, type-check, check reasoning.
 
     Always returns a result; inspect ``.ok()`` and ``.diagnostics``. Later stages are
     skipped when an earlier stage failed, so diagnostics do not cascade.
+
+    The reasoning stage runs **last**, and only when type checking succeeded, because
+    the kernel compares conclusions under canonical identity and canonical identity
+    includes each node's resolved type. Running it on an untyped tree would compare
+    the wrong things.
     """
     bag = DiagnosticBag(source, file)
     module, bag = _parse(source, file, bag)
@@ -114,7 +127,13 @@ def compile_source(source: str, file: str = "<input>") -> CompileResult:
         return CompileResult(module, bag, symbols, [], source)
 
     result: CheckResult = _check(module, symbols, bag)
-    return CompileResult(module, bag, symbols, result.obligations, source)
+    if not bag.ok():
+        return CompileResult(module, bag, symbols, result.obligations, source)
+
+    from .reasoning import check_reasoning
+
+    reasoning = check_reasoning(module, bag)
+    return CompileResult(module, bag, symbols, result.obligations, source, reasoning)
 
 
 def canonical_json(source: str) -> str:

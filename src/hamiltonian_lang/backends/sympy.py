@@ -201,6 +201,7 @@ class SympyBackend(Backend):
     # -- entry point ------------------------------------------------------
 
     def emit(self) -> str:
+        self.report_reasoning_loss()
         head: list[str] = [
             '"""SymPy translation of Hamiltonian Lang module '
             f'{self.module.name}.',

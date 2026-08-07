@@ -64,8 +64,10 @@ from ..ast.nodes import (
     ConceptDecl,
     Declaration,
     DefineStmt,
+    DeriveStmt,
     DistExpr,
     Expr,
+    GoalStmt,
     Index,
     InferStmt,
     LawStmt,
@@ -74,6 +76,7 @@ from ..ast.nodes import (
     Module,
     ModuleDecl,
     ObjectiveStmt,
+    ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
@@ -597,6 +600,41 @@ class TypeChecker:
             self._obligate(kind, _render_proposition(st.proposition), st.span, st.proposition)
             return
 
+        if isinstance(st, (GoalStmt, DeriveStmt)):
+            # V2 propositions are type-checked on exactly the same terms as v1 ones.
+            # Without this the reasoning kernel would be comparing untyped trees, and
+            # an ill-typed conclusion -- `metre + second`, an RV where a value belongs --
+            # would reach the kernel and be certified on structure alone.
+            prop = st.proposition if isinstance(st, GoalStmt) else st.conclusion
+            pt = self.expr_type(prop)
+            if not (isinstance(pt, PropositionType) or is_subtype(pt, BOOL)):
+                self.diags.error(
+                    "HML-T404",
+                    (
+                        "a goal requires a proposition"
+                        if isinstance(st, GoalStmt)
+                        else "a derivation must conclude a proposition"
+                    ),
+                    prop.span,
+                    expected="Proposition",
+                    found=pt.render(),
+                    correction="write a comparison or logical formula, e.g. 'x + y >= 10'",
+                )
+            if isinstance(st, DeriveStmt):
+                for a in st.rule_args:
+                    if a.role == "fn" and isinstance(a.value, Ref):
+                        # A function *name*, not a value. Resolution has already
+                        # confirmed it names something callable; give it the callable's
+                        # type so HML-T450 does not see an Unknown survive.
+                        a.value.type_ = self._function_reference_type(a.value.name)
+                        continue
+                    self.expr_type(a.value)
+            return
+
+        if isinstance(st, ProvedStmt):
+            # Nothing to type: both operands are claim labels, not expressions.
+            return
+
         if isinstance(st, ObjectiveStmt):
             et = self.expr_type(st.expression)
             if dimension_of(et) is None:
@@ -685,6 +723,24 @@ class TypeChecker:
         return f"declare it as '{kind} {name} : {found.render()}', or correct the value"
 
     # -- law --------------------------------------------------------------
+    def _function_reference_type(self, name: str) -> Type:
+        """The type of a bare function name used as a rule argument.
+
+        Resolution has already confirmed the name is callable; this only supplies a
+        type so that ``HML-T450`` does not see an ``Unknown`` survive a clean check.
+        """
+        sig = _BUILTIN_SIGNATURES.get(name)
+        if sig is not None:
+            domain, codomain = sig
+            return FunctionType(domain=domain, codomain=codomain)
+        user = self.signatures.get(name)
+        if user is not None:
+            return FunctionType(
+                domain=tuple(user.param_types),
+                codomain=user.return_type or REAL,
+            )
+        return FunctionType(domain=(REAL,), codomain=REAL)
+
     def check_law(self, st: LawStmt) -> None:
         if st.distribution is None:
             return

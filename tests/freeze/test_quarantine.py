@@ -70,9 +70,21 @@ from .frozen_subset import (
     quarantined_rows,
 )
 
+#: Words the V2 reasoning spine (D-025) claimed as statement heads in its own right.
+#:
+#: `goal` and `derive` lead a quarantined V1_KERNEL form *and* a V2 form, but they are
+#: different grammars: V1_KERNEL wrote `goal g1 := 1 > 0` and
+#: `derive e3 from [e1, e2] via s1`; V2 writes `goal g1 : 1 > 0` and
+#: `derive d1 : c from p by rule(...)`. The V1_KERNEL spellings are still rejected --
+#: `test_a_quarantined_surface_form_does_not_compile` proves it for every form in the
+#: table -- so what is quarantined is the *layer*, and the word being spoken for by V2
+#: does not unquarantine it. Subtracting these two here keeps the advertisement check
+#: meaningful for the fifteen forms that remain genuinely unreachable.
+V2_CLAIMED_HEADS = frozenset({"goal", "derive"})
+
 #: The leading token of every quarantined surface form, i.e. the keyword each would need.
 QUARANTINED_SURFACE_FORMS_HEADS = tuple(
-    sorted({form.split()[0] for form in QUARANTINED_SURFACE_FORMS})
+    sorted({form.split()[0] for form in QUARANTINED_SURFACE_FORMS} - V2_CLAIMED_HEADS)
 )
 
 
@@ -236,7 +248,11 @@ def test_a_quarantined_surface_form_does_not_compile(form):
 def test_the_parser_advertises_only_the_frozen_statement_keywords():
     """HML-P205's correction text is what a repair loop reads. It enumerates the gate,
     so it must never come to advertise a quarantined construct."""
-    result = compile_source("module M\ngoal g := 1 > 0\n", "<freeze-probe>")
+    # The probe must be a word that heads no statement at all. `goal` used to serve,
+    # and stopped when V2 claimed it (D-025); `discharge` is still unreachable and
+    # still belongs to the quarantined L5 discourse layer, so it exercises exactly the
+    # path this test is about.
+    result = compile_source("module M\ndischarge g1 by p1\n", "<freeze-probe>")
     text = result.diagnostics.render()
     assert "HML-P205" in text
 

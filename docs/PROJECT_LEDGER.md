@@ -2613,3 +2613,89 @@ still no valid measurement of whether a model can write HML at all.
 run budget, admit only tasks the control gets wrong at that allowance, and select until the
 control lands inside the 8-15 band. Two corpora designed from intuitions about difficulty
 have now failed; difficulty must be measured before a task is admitted.
+
+---
+
+## 2026-08-07 — V2 reasoning spine: derivations, obligations, assumption discharge
+
+**Branch:** `feature/hml-reasoning-kernel-v2` (worktree `/Users/moheet/hml_v2_worktree`)
+**Base:** `3dd4216` · **Stage:** HML V2 reasoning kernel, phase I / I-B / I-C
+
+**Objective.** Close the language audit's central finding — that HML can represent
+mathematical state but not reasoning transitions (0/19 transformation forms representable
+in `.hml` source) — by adding the smallest surface form for an inference, together with
+the machinery that makes it enforceable rather than decorative.
+
+**Protection of the active experiment.** Inspected first: three worktrees, no running
+Python/Ollama evaluation process, audit worktree untouched for 3+ hours. All work done in
+a separate worktree on a separate branch. `/Users/moheet/hml_audit_worktree` was read
+only and not modified. No model was called.
+
+**Files and systems changed.**
+- new `src/hamiltonian_lang/reasoning/` — `kernel.py` (16 trusted rules), `refinement.py`
+  (the environment Γ), `check.py` (claim resolution, rule checking, adjudication)
+- `ast/nodes.py` — `GoalStmt`, `DeriveStmt`, `ProvedStmt`, `ClaimId`, `RuleArg`,
+  `DerivationStatus`, `GoalStatus`, `uses_v2()`; `claim_id`/`label` on the three
+  labellable v1 forms
+- `lexer/__init__.py` — 5 keywords; `parser/__init__.py` — 3 productions + optional labels
+- `backends/canonical.py` — V2 serializers, `expr_identity()`, version-aware schema tag
+- `backends/hml.py`, `backends/english.py` — V2 rendering; `backends/base.py` —
+  `report_reasoning_loss()`
+- `type_system/__init__.py`, `semantics/__init__.py` — V2 statements type-checked and resolved
+- `tests/freeze/frozen_subset.py`, `tests/freeze/test_quarantine.py`,
+  `tests/syntax_acquisition/test_candidate_surfaces.py` — freeze updated deliberately
+- new `tests/reasoning/` — 44 tests
+- `DECISIONS.md` — D-025
+
+**What was completed.** A derivation now has stable identity, explicit premises, explicit
+rule identity, explicit output, role-labelled parameters, generated obligations,
+provenance and a computed verification status. `assume x != 0` discharges the
+`divide_both_sides` obligation; `assume x >= 0` does not. `proved g by d` is adjudicated
+against the checker's verdict rather than accepted.
+
+**Decisions and why.** Recorded in full as D-025. The load-bearing one: the trusted
+kernel builds the conclusion a rule licenses *without seeing the author's claim*, and the
+two are compared under canonical identity. Rejected reusing `v1/transformation.py` as the
+kernel on evidence — its obligations are format strings, not `Expr`, so every obligation
+would be UNKNOWN by construction.
+
+**Tests and verification actually executed.**
+- `.venv/bin/python -m pytest` → **5787 passed, 5 skipped, 7 xfailed, 7 xpassed, 0 failed**
+  (baseline at `3dd4216`, same command: 5743 passed, 4 skipped, 0 failed)
+- `.venv/bin/ruff check src tests` → **All checks passed**
+- `.venv/bin/mypy src/hamiltonian_lang/reasoning src/hamiltonian_lang/ast` → **clean, 6 files**
+- v1 canonical-hash stability: all 43 `examples/**/*.hml` hashed under the v1 compiler
+  (main worktree) and the V2 compiler; `diff` → **43/43 byte-identical**
+- all 18 quarantined V1_KERNEL surface forms → still **REJECTED**
+- V2 round-trip `hml` backend → reparses, **content hash matches**
+
+**Failures and unresolved uncertainty.**
+- Two silent-loss defects were **introduced by this change and found by inspection, not by
+  the suite**: `hml` reported `faithful=True` while emitting `# <unrenderable DeriveStmt>`,
+  and four lowering backends dropped all three V2 nodes silently. Both are fixed and
+  regression-tested, but the suite did not catch them — the gap was that no test asserted
+  loss reporting for a *new* construct. `tests/reasoning/test_backend_loss.py` now does.
+- A scripted edit orphaned five statement branches in the type checker (`ObjectiveStmt`,
+  `SolveStmt`, `InferStmt`, `CheckStmt`, `ConceptDecl` stopped being type-checked). Caught
+  by 33 failing tests and fixed. Recorded because the near-miss was real: a hand edit into
+  a 1700-line function is not safe to script.
+- Substitution does not descend into quantifier bodies; such steps are REJECTED, not
+  performed. Conservative but incomplete.
+- The refinement environment decides only syntactic facts about a symbol against a literal
+  bound. It cannot chain, do arithmetic, or case-split. Everything it cannot establish
+  stays OPEN.
+- **Scope delivered is phase I/I-B/I-C only.** The directive's phases II–IV (probability
+  algebra, sets, analysis operators, causal relations, compositional-closure work,
+  extension/module mechanism, synthetic generator, audit rerun) are **not** in this commit.
+
+**Effect on the overall project.** The audit's finding 1 ("there are zero transformation
+forms in the surface language") no longer holds, and finding 2 is half closed: `assume` is
+now load-bearing, while `prove` retains its v1 meaning by design. The maturity-ladder
+criteria 3.4 and 3.5 — obligations generated from operations, and transformations that
+check their own preservation — have implementations for the first time. No claim is made
+here about the ladder placement; that requires the audit rerun, which has not been done.
+
+**Next intended step.** Phase II — close the 11 critical coverage zeros (expectation as an
+expression, conditional/joint probability, independence, set membership and comprehension,
+limit/derivative/integral/continuity, causal vs associational relations), then rerun the
+486-atom capability audit unchanged and report before/after.

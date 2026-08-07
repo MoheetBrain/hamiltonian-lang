@@ -44,6 +44,12 @@ KEYWORDS = frozenset(
         # logical / constraint
         "assume", "require", "prove", "check", "dimension", "solve",
         "minimise", "maximise", "minimize", "maximize",
+        # V2 reasoning spine. `from` and `by` are full keywords rather than
+        # contextual identifiers: contextual keywords would parse, but `var by : Real`
+        # would then be legal and every diagnostic about a malformed `derive` would
+        # have to guess whether `by` was meant as a name. Verified safe -- no .hml file
+        # in the repository uses any of these five as an identifier.
+        "derive", "goal", "proved", "from", "by",
         # quantifiers and connectives
         "forall", "exists", "unique", "and", "or", "not", "implies", "iff",
         # concept members

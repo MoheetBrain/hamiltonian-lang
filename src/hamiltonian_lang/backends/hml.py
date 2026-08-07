@@ -15,8 +15,10 @@ from ..ast.nodes import (
     ConceptDecl,
     Declaration,
     DefineStmt,
+    DeriveStmt,
     DistExpr,
     Expr,
+    GoalStmt,
     Index,
     InferStmt,
     LawStmt,
@@ -25,6 +27,7 @@ from ..ast.nodes import (
     Module,
     ModuleDecl,
     ObjectiveStmt,
+    ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
@@ -176,12 +179,40 @@ def render_statement(st: Statement) -> str:
         dist = render_expr(st.distribution) if st.distribution is not None else "?"
         return f"{st.role} {st.target}{given} ~ {dist}"
 
+    # A claim label is part of the statement, not decoration: dropping it would break
+    # every `derive ... from <label>` that cites it, so the module would no longer
+    # round-trip. Rendered only when present, so v1 output is byte-identical.
     if isinstance(st, AssumeStmt):
-        return f"assume {render_expr(st.proposition)}"
+        label = f"{st.label} : " if st.label else ""
+        return f"assume {label}{render_expr(st.proposition)}"
     if isinstance(st, RequireStmt):
-        return f"require {render_expr(st.proposition)}"
+        label = f"{st.label} : " if st.label else ""
+        return f"require {label}{render_expr(st.proposition)}"
     if isinstance(st, ProveStmt):
-        return f"prove {render_expr(st.proposition)}"
+        label = f"{st.label} : " if st.label else ""
+        return f"prove {label}{render_expr(st.proposition)}"
+
+    if isinstance(st, GoalStmt):
+        return f"goal {st.label} : {render_expr(st.proposition)}"
+
+    if isinstance(st, DeriveStmt):
+        # `status` is deliberately NOT rendered. It is a verdict the checker computes,
+        # and emitting it would make the surface language able to *state* VERIFIED --
+        # which is precisely the property the reasoning model exists to deny. The
+        # round-trip therefore restores the derivation and lets the checker re-decide
+        # it, which is the correct behaviour: a status is evidence, not source.
+        premises = f" from {', '.join(st.premises)}" if st.premises else ""
+        args = (
+            "("
+            + ", ".join(f"{a.role} := {render_expr(a.value)}" for a in st.rule_args)
+            + ")"
+            if st.rule_args
+            else ""
+        )
+        return f"derive {st.label} : {render_expr(st.conclusion)}{premises} by {st.rule}{args}"
+
+    if isinstance(st, ProvedStmt):
+        return f"proved {st.goal} by {st.derivation}"
 
     if isinstance(st, ObjectiveStmt):
         return f"{st.direction} {render_expr(st.expression)}"

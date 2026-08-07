@@ -232,6 +232,7 @@ class LeanBackend(Backend):
     # -- entry point ------------------------------------------------------
 
     def emit(self) -> str:
+        self.report_reasoning_loss()
         ns = _lean_name(self.module.name)
         out: list[str] = [
             "/-",

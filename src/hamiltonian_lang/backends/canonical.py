@@ -24,13 +24,16 @@ from ..ast.nodes import (
     BinOp,
     Call,
     CheckStmt,
+    ClaimId,
     Comparison,
     ConceptDecl,
     ConceptMember,
     Declaration,
     DefineStmt,
+    DeriveStmt,
     DistExpr,
     Expr,
+    GoalStmt,
     Index,
     InferStmt,
     LawStmt,
@@ -39,6 +42,7 @@ from ..ast.nodes import (
     Module,
     ModuleDecl,
     ObjectiveStmt,
+    ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
@@ -47,12 +51,30 @@ from ..ast.nodes import (
     Statement,
     SymbolId,
     UnaryOp,
+    uses_v2,
 )
 from ..types import Type
 
-__all__ = ["CANONICAL_VERSION", "to_canonical", "canonical_json", "content_hash"]
+__all__ = [
+    "CANONICAL_VERSION",
+    "CANONICAL_VERSION_V2",
+    "to_canonical",
+    "canonical_json",
+    "content_hash",
+    "expr_identity",
+]
 
 CANONICAL_VERSION = "hml-canonical-0.1.0"
+
+#: Emitted **only** for modules that actually use a V2 reasoning construct.
+#:
+#: This is the mechanism that satisfies directive §28. A v1 module's canonical document
+#: is byte-for-byte what it was before V2 existed -- same schema tag, same keys, same
+#: hash -- so every ACQ0/H2 record stays reconstructible under its original language
+#: version. The version is a property of the *document*, not of the compiler that
+#: produced it. A blanket bump would have invalidated the existing scientific evidence
+#: for no semantic reason, which is the failure §28 exists to prevent.
+CANONICAL_VERSION_V2 = "hml-canonical-0.2.0"
 
 
 #: When False, declaration names are omitted entirely so that a consistent renaming
@@ -93,6 +115,21 @@ def _params(params: list) -> Any:
 
 def _type(t: Type | None) -> Any:
     return None if t is None else t.render()
+
+
+def _claim(cid: ClaimId | None) -> Any:
+    """Serialise a claim label by ordinal, never by spelling.
+
+    Exactly the treatment ``_sym`` gives value symbols, and for the same reason:
+    renaming ``d1`` to ``step_one`` throughout must not change what the module means.
+    Alpha-equivalence has to hold for the reasoning graph too, or the canonical hash
+    would report two identical proofs as different.
+    """
+    if cid is None:
+        return None
+    if _INCLUDE_NAMES.get():
+        return {"id": cid.canonical(), "name": cid.name}
+    return cid.canonical()
 
 
 def _expr(e: Expr | None) -> Any:
@@ -206,7 +243,48 @@ def _statement(st: Statement) -> dict:
         }
 
     if isinstance(st, AssumeStmt):
-        return {"kind": "Assumption", "proposition": _expr(st.proposition)}
+        doc: dict[str, Any] = {"kind": "Assumption", "proposition": _expr(st.proposition)}
+        # The key is absent, not null, when there is no label: an unlabelled v1
+        # assumption must serialise to exactly the document it always did.
+        if st.label is not None:
+            doc["label"] = _claim(st.claim_id) if st.claim_id is not None else st.label
+        return doc
+
+    if isinstance(st, GoalStmt):
+        # `status` is deliberately ABSENT from the canonical form. It is evidence about
+        # the module, not part of the mathematics the module states -- see the
+        # SEMANTIC IDENTITY / EVIDENCE METADATA split in docs/hml_v2/SEMANTICS.md.
+        # Two modules stating the same goal are the same module whether or not one of
+        # them happens to have been proved in this run.
+        return {
+            "kind": "Goal",
+            "label": _claim(st.claim_id),
+            "proposition": _expr(st.proposition),
+        }
+
+    if isinstance(st, DeriveStmt):
+        # Premise ORDER is part of identity: `transitivity` on (a=b, b=c) is a different
+        # inference from the same rule on (b=c, a=b), and modus ponens distinguishes the
+        # antecedent from the implication. Sorting them -- as `law.given` does, where
+        # order genuinely is meaningless -- would silently identify distinct derivations.
+        return {
+            "kind": "Derivation",
+            "label": _claim(st.claim_id),
+            "rule": st.rule,
+            "premises": [_claim(p) for p in st.premise_ids],
+            "arguments": {
+                a.role: _expr(a.value) for a in sorted(st.rule_args, key=lambda x: x.role)
+            },
+            "conclusion": _expr(st.conclusion),
+        }
+
+    if isinstance(st, ProvedStmt):
+        return {
+            "kind": "ProofClaim",
+            "goal": _claim(st.goal_id),
+            "derivation": _claim(st.derivation_id),
+        }
+
     if isinstance(st, RequireStmt):
         return {"kind": "Constraint", "proposition": _expr(st.proposition)}
     if isinstance(st, ProveStmt):
@@ -256,7 +334,7 @@ def to_canonical(
 
 def _to_canonical(module: Module, obligations: list | None) -> dict:
     doc: dict[str, Any] = {
-        "canonical_version": CANONICAL_VERSION,
+        "canonical_version": CANONICAL_VERSION_V2 if uses_v2(module) else CANONICAL_VERSION,
         "module": module.name,
         "statements": [_statement(s) for s in module.statements
                        if not isinstance(s, ModuleDecl)],
@@ -275,6 +353,56 @@ def canonical_json(
         separators=(",", ":"),
         ensure_ascii=True,
     )
+
+
+def _strip_types(doc: Any) -> Any:
+    """Recursively drop every ``type`` annotation from a serialised expression."""
+    if isinstance(doc, dict):
+        return {k: _strip_types(v) for k, v in doc.items() if k != "type"}
+    if isinstance(doc, list):
+        return [_strip_types(v) for v in doc]
+    return doc
+
+
+def expr_identity(e: Expr, *, with_types: bool = False) -> str:
+    """The canonical identity of a single expression, independent of its module.
+
+    The reasoning kernel uses this to decide whether the conclusion an author claimed
+    *is* the conclusion a rule licenses. It deliberately reuses ``_expr`` -- the very
+    serializer that defines module identity -- rather than introducing a second notion
+    of "the same expression". Two notions would agree until the day they did not, and
+    on that day the kernel would certify a step the rest of the compiler considers a
+    different statement.
+
+    Names are excluded, so alpha-equivalent conclusions are identical here, matching
+    :func:`content_hash`.
+
+    **Why types are excluded by default.** The kernel builds its conclusion by
+    assembling sub-trees taken from the premises under fresh ``BinOp``/``Comparison``
+    wrappers. Those wrappers have never been through the type checker, so they carry
+    ``type_ = None`` while the author's conclusion -- which has -- carries real types.
+    Comparing with types would then report every correct derivation as a mismatch,
+    which is what the first end-to-end run of the spine actually did.
+
+    Dropping types loses no discriminating power *here*, and that is a claim worth
+    being precise about: a node's type is a function of its structure and the resolved
+    types of the symbols beneath it, and ``symbol`` (a ``SymbolId``, not a spelling) is
+    still compared. Two expressions with identical type-free canonical forms therefore
+    have identical types. What excluding types would lose is the ability to catch an
+    *ill-typed* conclusion -- so that is caught separately and earlier, by the type
+    checker visiting ``DeriveStmt.conclusion`` before this ever runs.
+
+    ``with_types=True`` keeps the annotations, for callers comparing two expressions
+    that have both been type-checked.
+    """
+    token = _INCLUDE_NAMES.set(False)
+    try:
+        doc = _expr(e)
+    finally:
+        _INCLUDE_NAMES.reset(token)
+    if not with_types:
+        doc = _strip_types(doc)
+    return json.dumps(doc, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 
 def content_hash(module: Module) -> str:

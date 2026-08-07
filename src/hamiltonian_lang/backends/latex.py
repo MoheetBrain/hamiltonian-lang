@@ -85,6 +85,7 @@ class LatexBackend(Backend):
     )
 
     def emit(self) -> str:
+        self.report_reasoning_loss()
         lines = [rf"% module {self.module.name}", r"\begin{align}"]
         body: list[str] = []
         for st in self.module.statements:

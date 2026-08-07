@@ -307,6 +307,7 @@ class StanBackend(Backend):
     # -- entry point ------------------------------------------------------
 
     def emit(self) -> str:
+        self.report_reasoning_loss()
         self._classify()
 
         header: list[str] = [

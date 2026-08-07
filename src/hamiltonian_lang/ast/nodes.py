@@ -56,6 +56,16 @@ __all__ = [
     "ConceptDecl",
     "ConceptMember",
     "Module",
+    # -- V2 reasoning spine ------------------------------------------------
+    "ClaimId",
+    "DerivationStatus",
+    "GoalStatus",
+    "GoalStmt",
+    "DeriveStmt",
+    "ProvedStmt",
+    "RuleArg",
+    "V2_STATEMENTS",
+    "uses_v2",
 ]
 
 
@@ -281,6 +291,10 @@ class LawStmt(Statement):
 @dataclass
 class AssumeStmt(Statement):
     proposition: Expr = field(default=None)  # type: ignore[assignment]
+    #: Optional V2 claim label. ``None`` for every v1 module, and the canonical
+    #: serializer omits the key entirely in that case, so v1 hashes are unchanged.
+    label: str | None = None
+    claim_id: ClaimId | None = None
 
 
 @dataclass
@@ -289,6 +303,7 @@ class RequireStmt(Statement):
 
     proposition: Expr = field(default=None)  # type: ignore[assignment]
     label: str | None = None
+    claim_id: ClaimId | None = None
 
 
 @dataclass
@@ -321,6 +336,7 @@ class CheckStmt(Statement):
 class ProveStmt(Statement):
     proposition: Expr = field(default=None)  # type: ignore[assignment]
     label: str | None = None
+    claim_id: ClaimId | None = None
 
 
 @dataclass
@@ -356,6 +372,168 @@ class ConceptDecl(Statement):
         return [m for m in self.members if m.kind == kind]
 
 
+# ---------------------------------------------------------------------------
+# V2 reasoning spine
+# ---------------------------------------------------------------------------
+#
+# The v1 language represents mathematical *state*. These three statement forms are
+# the whole of what it takes to represent a reasoning *transition*, and they are
+# deliberately the smallest set that closes the audit's central finding:
+#
+#     goal   g : P               -- something we intend to establish
+#     derive d : Q from p1,p2 by rule(...)   -- one inference, with its inputs named
+#     proved g by d              -- a claim that d establishes g, which the checker adjudicates
+#
+# What makes this more than vocabulary is that ``status`` on a derivation is
+# **computed by the checker and cannot be written in source**. There is no surface
+# syntax for VERIFIED. A model can assert a derivation; it cannot assert that the
+# derivation is correct. See docs/hml_v2/REASONING_MODEL.md.
+
+
+@dataclass(frozen=True, order=True)
+class ClaimId:
+    """Identity of a labelled claim: assumption, requirement, goal, or derivation.
+
+    Claims live in a namespace **disjoint** from values. ``d1`` names an inference,
+    not a number, and writing ``d1 + 1`` is a scope error rather than a type error.
+    Keeping the namespaces apart is what stops a derivation being smuggled into an
+    expression, which would let provenance leak into mathematical identity.
+    """
+
+    name: str
+    ordinal: int
+
+    def render(self) -> str:
+        return f"claim:{self.name}"
+
+    def canonical(self) -> str:
+        """Spelling-independent identity, mirroring :meth:`SymbolId.canonical`."""
+        return f"claim:#{self.ordinal}"
+
+
+class DerivationStatus:
+    """The lifecycle of one inference. Assigned by the checker, never by source.
+
+    PROPOSED  -- parsed and well-scoped; the rule has not been applied.
+    CHECKED   -- the trusted kernel applied the rule to the premises and the stated
+                 output is canonically identical to what the rule produces.
+    VERIFIED  -- CHECKED **and** every mandatory obligation is DISCHARGED.
+    REJECTED  -- the kernel applied the rule and the stated output is *not* what the
+                 rule produces, or a premise is missing/ill-formed.
+
+    VERIFIED is unreachable except through the kernel: nothing in the parser or the
+    surface grammar can produce it.
+    """
+
+    PROPOSED = "PROPOSED"
+    CHECKED = "CHECKED"
+    VERIFIED = "VERIFIED"
+    REJECTED = "REJECTED"
+
+    ALL = (PROPOSED, CHECKED, VERIFIED, REJECTED)
+
+
+class GoalStatus:
+    """OPEN until a ``proved`` claim is adjudicated against a VERIFIED derivation."""
+
+    OPEN = "OPEN"
+    PROVED = "PROVED"
+    REFUTED = "REFUTED"
+    UNSUBSTANTIATED = "UNSUBSTANTIATED"
+
+    ALL = (OPEN, PROVED, REFUTED, UNSUBSTANTIATED)
+
+
+@dataclass
+class RuleArg:
+    """A role-labelled rule parameter, e.g. ``by := k`` in ``divide_both_sides``.
+
+    Role labels are mandatory here for the same reason they are mandatory on
+    distributions (D-003): ``multiply_both_sides(2.0)`` does not say whether 2.0 is
+    the multiplier or the side.
+    """
+
+    role: str
+    value: Expr
+    span: Span = field(default_factory=Span)
+
+
+@dataclass
+class GoalStmt(Statement):
+    """``goal g1 : x > 0.0`` -- a proposition we intend to establish.
+
+    Stating a goal asserts nothing. ``status`` starts OPEN and only an adjudicated
+    ``proved`` statement can move it.
+    """
+
+    label: str = ""
+    proposition: Expr = field(default=None)  # type: ignore[assignment]
+    claim_id: ClaimId | None = None
+    status: str = GoalStatus.OPEN
+
+
+@dataclass
+class DeriveStmt(Statement):
+    """``derive d1 : y = 2.0 * x from a1 by multiply_both_sides(by := 2.0)``
+
+    ``conclusion`` is what the author claims follows. ``premises`` are claim labels,
+    resolved against the claim namespace. ``rule`` names an entry in the trusted rule
+    kernel. ``obligations`` and ``status`` are filled by the checker.
+    """
+
+    label: str = ""
+    conclusion: Expr = field(default=None)  # type: ignore[assignment]
+    premises: list[str] = field(default_factory=list)
+    premise_ids: list[ClaimId | None] = field(default_factory=list)
+    rule: str = ""
+    rule_args: list[RuleArg] = field(default_factory=list)
+    claim_id: ClaimId | None = None
+    #: Computed by the checker. Source cannot set this.
+    status: str = DerivationStatus.PROPOSED
+    #: Human-readable reason attached when status is REJECTED, for the repair loop.
+    rejection_reason: str | None = None
+
+
+@dataclass
+class ProvedStmt(Statement):
+    """``proved g1 by d1`` -- a *claim*, which the checker adjudicates.
+
+    Writing this does not make the goal proved. The checker requires that ``d1`` is
+    VERIFIED and that its conclusion is canonically identical to the goal's
+    proposition; otherwise the goal becomes UNSUBSTANTIATED and a diagnostic is
+    raised.
+    """
+
+    goal: str = ""
+    goal_id: ClaimId | None = None
+    derivation: str = ""
+    derivation_id: ClaimId | None = None
+
+
+#: Every statement form introduced by V2. A module containing none of these is a v1
+#: module and MUST serialise byte-identically to the way it did before V2 existed.
+V2_STATEMENTS: tuple[type, ...] = (GoalStmt, DeriveStmt, ProvedStmt)
+
+
+def uses_v2(module: Module) -> bool:
+    """True when ``module`` uses any V2 reasoning construct.
+
+    This is the switch that keeps historical canonical identity intact: the canonical
+    serializer only emits the v0.2 schema tag for modules where this is True, so every
+    ACQ0/H2 record remains reconstructible under its original language version
+    (directive §28).
+    """
+    for st in module.statements:
+        if isinstance(st, V2_STATEMENTS):
+            return True
+        # A label on a v1 statement is itself V2 syntax: `assume a1 : P` does not
+        # parse under v1. All three labellable forms must be checked, or a module
+        # using only `require r1 : P` would be mis-tagged as v1.
+        if isinstance(st, (AssumeStmt, RequireStmt, ProveStmt)) and st.label is not None:
+            return True
+    return False
+
+
 @dataclass
 class Module(Node):
     name: str = "Main"
@@ -367,18 +545,18 @@ class Module(Node):
 
 
 def walk(node: object) -> Sequence[object]:
-    """Yield ``node`` and every nested Node/Arg/ConceptMember beneath it."""
+    """Yield ``node`` and every nested Node/Arg/ConceptMember/RuleArg beneath it."""
     out: list[object] = []
 
     def rec(n: object) -> None:
         out.append(n)
-        if isinstance(n, (Node, Arg, ConceptMember)):
+        if isinstance(n, (Node, Arg, ConceptMember, RuleArg)):
             for value in vars(n).values():
-                if isinstance(value, (Node, Arg, ConceptMember)):
+                if isinstance(value, (Node, Arg, ConceptMember, RuleArg)):
                     rec(value)
                 elif isinstance(value, list):
                     for item in value:
-                        if isinstance(item, (Node, Arg, ConceptMember)):
+                        if isinstance(item, (Node, Arg, ConceptMember, RuleArg)):
                             rec(item)
 
     rec(node)

@@ -937,3 +937,87 @@ valid Tranche A aggregate.
 **Reversal.** Treat the truncated conditions as legitimate failures and report A and C as
 non-viable. Reversal publishes a confidently wrong claim about two notations on the strength
 of a harness parameter.
+
+---
+
+## D-025 — the V2 reasoning spine: `goal`, `derive`, `proved`
+
+**Date:** 2026-08-07 · **Branch:** `feature/hml-reasoning-kernel-v2` · **Base:** `3dd4216`
+
+**Context.** The language audit (`audit/language_comparison/report/EXECUTIVE_VERDICT.md`,
+audited SHA `b1ac7bf`) found that HML represents mathematical *state* but has no surface
+form for a reasoning *transition*: 0 of 19 transformation forms were representable in
+`.hml` source. Verified independently before acting — `prove 1.0 = 2.0` compiles clean
+(exit 0), and `assume x > 0.0` does not discharge `log`'s `PositiveReal` domain
+(`HML-T427`).
+
+**Decision.** Add three statement forms and five keywords:
+
+```
+goal   g1 : <proposition>
+derive d1 : <conclusion> [from c1, c2] by <rule>[(<role> := <expr>, ...)]
+proved g1 by d1
+```
+plus an optional `<label> :` on `assume` / `require` / `prove`.
+
+**What makes this more than vocabulary.** `DeriveStmt.status` is computed by the checker
+and **has no surface syntax**. A model can assert a derivation; it cannot assert that the
+derivation is correct. `PROPOSED → CHECKED → VERIFIED` is reachable only through
+`reasoning/check.py::_finalise_status`, which requires that the trusted kernel reproduced
+the conclusion *and* that every mandatory obligation is DISCHARGED.
+
+**The soundness argument.** `reasoning/kernel.py::apply` constructs the conclusion a rule
+licenses without ever seeing the author's claimed conclusion; the checker then demands
+`expr_identity(kernel_conclusion) == expr_identity(claimed)`. A step is certified only
+when the author's conclusion *is* the kernel's conclusion, up to alpha-equivalence.
+
+**Alternatives rejected.**
+
+- *A tactic language.* Cloning Lean onto a system where `prove 1 = 2` compiled clean
+  would produce authoritative-looking output with nothing behind it. The audit scored a
+  general rewriting engine with a **negative** safety delta.
+- *Reusing `v1/transformation.py` as the kernel.* Considered and rejected on evidence.
+  Its 30 operation specs are a sound *taxonomy*, but their obligations are Python format
+  strings (`"{by} != 0"`) and its edges relate names, not `Expr`. Every checker in
+  `verification/obligations/` consumes `Expr`, so reusing the templates verbatim would
+  make every generated obligation UNKNOWN by construction and no derivation could ever
+  reach CHECKED. The module says so itself: *"Nothing here claims to check a side
+  condition."* The taxonomy informed the rule set; the code is not on the path.
+- *A block syntax* (`derive d1:` / newline / `from ...`). HML-L1 is line-oriented
+  everywhere except `concept ... end`; a second block convention costs an indentation
+  policy and a recovery strategy to buy nothing a model needs.
+
+**Backward compatibility.** Strictly additive. `backends/canonical.py` emits the v0.2
+schema tag **only** for modules where `ast.nodes.uses_v2()` is true. Measured: all 43
+`.hml` files under `examples/` produce byte-identical content hashes under the V2
+compiler and the v1 compiler (cross-worktree `diff`, 43/43 identical). ACQ0/H2 records
+therefore remain reconstructible under their original language version.
+
+`prove` keeps its v1 meaning exactly — it states an obligation and proves nothing.
+V2 does not reinterpret historical files; it adds `goal`/`derive`/`proved`, where the
+claim *is* adjudicated. `tests/reasoning/test_kernel.py::test_prove_still_does_not_prove`
+pins the distinction.
+
+**Freeze manifest.** `tests/freeze/frozen_subset.py` was updated deliberately, not
+suppressed: 5 keywords and 3 statement kinds admitted. The V1_KERNEL surface forms
+(`goal g1 := ...`, `derive e3 from [...] via s1`) remain **rejected** — verified for all
+18 quarantined forms — because V2 uses different syntax and reaches its own kernel in
+`reasoning/`, not the quarantined `v1/` layer. The import barrier is untouched.
+
+**Verification.** `pytest`: 5787 passed, 0 failed (baseline 3dd4216: 5743 passed).
+`ruff check src tests`: clean. `mypy src/hamiltonian_lang/reasoning src/hamiltonian_lang/ast`:
+clean.
+
+**Two defects this change introduced and closed.** Both were silent backend losses, the
+failure mode `backends/base.py` calls the worst in the codebase:
+1. `backends/hml.py` emitted `# <unrenderable DeriveStmt>` while reporting
+   `faithful=True`. Fixed by rendering the forms; the round-trip is now hash-stable.
+2. `latex`/`lean`/`sympy`/`stan` dropped all three V2 nodes and reported nothing about
+   them. Fixed by `Backend.report_reasoning_loss()` on the base class — placed there so
+   the next construct is remembered once rather than five times.
+`tests/reasoning/test_backend_loss.py` locks both.
+
+**Known limitation.** `RuleSpec.apply` does not descend into quantifier bodies during
+substitution, so a step requiring capture-avoiding substitution is REJECTED rather than
+performed. The conservative direction is deliberate; lifting it needs a real
+capture-avoiding implementation, not a loosened comparison.

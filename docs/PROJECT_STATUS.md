@@ -28,6 +28,23 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**HML V2 REASONING KERNEL — PHASE I LANDED (branch `feature/hml-reasoning-kernel-v2`).**
+The language now has a surface form for a reasoning *transition*, which the language
+audit found it entirely lacked (0/19 transformation forms representable in `.hml`).
+Three statement forms — `goal`, `derive`, `proved` — plus a 16-rule trusted kernel,
+generated proof obligations, and a scoped refinement environment that makes `assume`
+load-bearing. `DeriveStmt.status` is computed by the checker and has no surface syntax,
+so a model can assert a derivation but cannot assert that it is correct. See `D-025` and
+`docs/hml_v2/`.
+
+Strictly additive: all 43 `examples/**/*.hml` hash byte-identically under the V2 and v1
+compilers, so ACQ0/H2 records stay reconstructible under their original language version.
+
+**Phases II-IV of the V2 directive are NOT done** — probability/set/analysis coverage,
+compositional-closure work, the extension mechanism, the synthetic generator and the
+capability-audit rerun all remain. No new maturity-ladder claim is made until the audit
+is rerun.
+
 **THE 24-TASK V1 BENCHMARK IS RETIRED FOR H2 — `HML_BENCHMARK_FAILED_NO_SIGNAL`.**
 The SE control scored **23/23 (100%)** against a usable headroom band of 6-17, so the gate
 returned INSUFFICIENT and **no HML-V1 call was made**. See
@@ -308,7 +325,11 @@ structured English, LaTeX, or an existing formal representation.
 
 ## Current Branch
 
-`integration/m1.5-paper-derived-closeout`. V0 preserved on `main` at tag
+Active development: `feature/hml-reasoning-kernel-v2` (worktree
+`/Users/moheet/hml_v2_worktree`, based on `3dd4216`). The scientific integration branch
+`integration/m1.5-paper-derived-closeout` is unchanged and was not merged into.
+The language-audit worktree `/Users/moheet/hml_audit_worktree` is read-only evidence.
+V0 preserved on `main` at tag
 `hml-v0-baseline`; the interrupted state is preserved on
 `recovery/session-limit-2026-08-05`. Repository is private.
 
@@ -574,7 +595,16 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Exact Next Actions
 
-0. **The decisive run, in this order and no other.** (a) 8-call operational probe on the
+0. **HML V2 phase II — close the 11 critical coverage zeros.** Expectation as an
+   expression, conditional and joint probability, independence, set membership and
+   comprehension, limit/derivative/integral/continuity, causal vs associational
+   relations. Then rerun the 486-atom capability audit **unchanged** (do not edit the
+   ontology) and report BEFORE/AFTER for critical coverage, critical zeros,
+   compositional closure, transformation representability and backend silent loss.
+   Do not run any HML-vs-English model experiment until V2 is frozen: V1 and V2
+   conclusions must not be mixed.
+
+1. **The decisive run, in this order and no other.** (a) 8-call operational probe on the
    largest-envelope and hardest predicted tasks; (b) **SE arm on all valid tasks as the
    headroom gate** — 8–16 of 24 correct is ideal, 6–18 usable, 0–5 or 19–24 insufficient;
    (c) HML-V1 only if the gate passes; (d) paired McNemar + bootstrap; (e) two read-only
