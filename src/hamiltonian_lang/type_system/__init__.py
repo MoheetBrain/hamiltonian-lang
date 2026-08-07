@@ -265,6 +265,12 @@ class TypeChecker:
         self.symbols = symbols
         self.diags = diags
         self.obligations: list[ProofObligation] = []
+        #: Γ -- the facts the module's assumptions establish, consulted by `_sym_type`
+        #: so that `assume x > 0.0` actually narrows `x` to `PositiveReal`. Populated by
+        #: `_collect_assumptions` before checking starts.
+        from ..reasoning.refinement import RefinementEnv
+
+        self.refinement = RefinementEnv()
         self._likelihood_cache: set[str] | None = None
         self.concepts: dict[str, ConceptDecl] = {
             s.name: s for s in module.statements if isinstance(s, ConceptDecl)
@@ -332,18 +338,47 @@ class TypeChecker:
         sym = self.symbols.get(sid)
         if sym is None or sym.declared_type is None:
             return UnknownType("no declared type")
-        return sym.declared_type
+        # The refinement environment narrows a symbol's type from the assumptions in
+        # scope: `assume x > 0.0` makes `x : PositiveReal`, which is what licenses
+        # `log(x)`. Without this the epistemic layer and the type layer stay
+        # disconnected -- the audit's second critical finding, and the pathological
+        # example the V2 directive names in §7.
+        #
+        # Narrowing only ever moves DOWN the refinement lattice (Real -> PositiveReal),
+        # never up, so nothing that was previously an error becomes accepted for the
+        # wrong reason: `RefinementEnv.refine` returns the declared type unchanged
+        # unless an assumption strictly justifies a narrower one.
+        return self.refinement.refine(sid, sym.declared_type)
 
     def _obligate(self, kind: str, desc: str, span: Span, expr: Expr | None = None) -> None:
         self.obligations.append(ProofObligation(kind, desc, span, expr))
 
     # -- driver -----------------------------------------------------------
     def run(self) -> CheckResult:
+        self._collect_assumptions()
         for st in self.module.statements:
             self.check_statement(st)
         self._check_positivity_obligations()
         self._check_no_unknown_types_survive()
         return CheckResult(self.module, self.symbols, self.diags, self.obligations)
+
+    def _collect_assumptions(self) -> None:
+        """Populate Γ from every module-level ``assume`` before checking begins.
+
+        Order-independent, matching the resolver's treatment of binders (D-008): a
+        declarative model should not depend on statement order, so an assumption stated
+        below a use still constrains it. This is the same policy the rest of the module
+        scope already follows, not a new one.
+
+        Only module-level assumptions are collected. An assumption nested inside a
+        quantifier body or a concept is scoped to that body, and hoisting it here would
+        leak it -- the one direction that would be unsound.
+        """
+        for st in self.module.statements:
+            if isinstance(st, AssumeStmt):
+                self.refinement.assume(
+                    st.proposition, source_label=getattr(st, "label", None)
+                )
 
     def _check_no_unknown_types_survive(self) -> None:
         """Enforce the invariant that ``ast/nodes.py`` documents.

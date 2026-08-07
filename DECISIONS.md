@@ -1356,3 +1356,62 @@ Cross-compiler hash diff over `examples/`: identical.
   `docs/hml_v2/SEMANTICS.md` §1.3, and D-026 does not claim to close it.
 - `variance` of a vector-valued random variable is refused rather than typed: the answer
   is a covariance matrix, which v2 does not represent.
+
+---
+
+## D-028 — wire the refinement environment into the type checker
+
+**Date:** 2026-08-07 · **Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `f0e3340`
+
+**Context.** D-025 shipped `reasoning/refinement.py` with a working `refine()` and
+claimed that `assume` had become load-bearing. The capability-audit rerun measured
+otherwise: Γ was consumed only by `reasoning/check.py`, so an assumption could discharge
+a kernel-generated obligation while the **type checker never saw it**. The V2 directive's
+§7 pathological example still failed:
+
+```
+var x : Real
+assume x > 0.0
+require log(x) = log(x)     -> HML-T427: expected PositiveReal, found Real
+```
+
+**This was a half-fix reported as a whole one**, and the claim in D-025 and in the
+`7a98427` commit message that "`assume` is load-bearing against the type/domain checker"
+was not true as written. It is true now.
+
+**Decision.** `TypeChecker` owns a `RefinementEnv`, populated by `_collect_assumptions()`
+before checking starts, and `_sym_type()` returns `refine(sid, declared)` rather than the
+declared type raw.
+
+**Order-independence.** Assumptions are collected in one pass up front, so an assumption
+stated below a use still constrains it. This matches the resolver's existing treatment of
+binders (D-008) rather than introducing a second, contradictory scoping policy. Only
+*module-level* assumptions are collected: one nested in a quantifier body or a concept is
+scoped to that body, and hoisting it would leak it — the one direction that is unsound.
+
+**Why this is safe.** Narrowing only ever moves DOWN the refinement lattice
+(`Real -> PositiveReal`), and `RefinementEnv.refine` returns the declared type unchanged
+unless an assumption strictly justifies a narrower one. Nothing that was an error becomes
+accepted for the wrong reason. The negative cases are the point and are all pinned in
+`tests/reasoning/test_type_refinement.py`:
+
+| program | verdict |
+|---|---|
+| `assume x > 0.0` then `log(x)` | **accepted** |
+| `assume x >= 0.0` then `log(x)` | **rejected** — 0 is admitted and log(0) is undefined |
+| `assume x >= 0.0` then `sqrt(x)` | accepted |
+| `assume x > 5.0` then `log(x)` | accepted — a stronger bound entails a weaker one |
+| assumption about another symbol | rejected |
+| `assume x > 0.0 or x < 0.0` | rejected — a disjunction asserts neither disjunct |
+| `require x > 0.0` then `log(x)` | rejected — a requirement is not a fact |
+| `prove x > 0.0` then `log(x)` | rejected |
+| `assume p > 0.0` widening `Probability` to `PositiveReal` | rejected |
+| an assumption defeating a dimension check | rejected |
+
+**Verification.** `pytest`: 6240 passed, 0 failed (6226 before). Hash stability: **every
+example hash byte-identical**, 0 changed and 0 added — the change is invisible to any
+module that states no assumption.
+
+**What this does NOT fix.** Maturity criterion 3.4 remains FAIL: `1/x`, `1/0`, `tan` and
+`0^-1` still compile with zero obligations. Narrowing a symbol's type is not the same as
+a coherent partiality policy, which the directive's §8 asks for and which is not built.

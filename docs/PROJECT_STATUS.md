@@ -49,6 +49,15 @@ limit/derivative/integral/continuity, and correlation-vs-causation. Four ship as
 could prove itself with zero diagnostics. Premises must now be ESTABLISHED, and
 obligations propagate along derivation chains.
 
+**The capability audit has been rerun (`docs/hml_v2/AUDIT_RERUN.md`).** Critical zeros
+11 → 0 and critical faithful 79.7% → 96.9% under corrected probes (8 zeros / 82.8% under
+unmodified probes; both readings published). Transformation representability 0/19 → 7/19
+and verifiability 0/19 → 7/19. Backend silent loss held at 0. **Maturity is still
+LEVEL 1 — DOMAIN DSL**: compositional closure measured 0.692 against a Level 2 threshold
+of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3.5 —
+transformations that check their own preservation, which the ladder names as the
+distinguishing Level 3 capability — moved FAIL → PASS.
+
 **Phases III-IV are NOT done** — compositional-closure measurement, the extension/module
 mechanism, the synthetic trajectory generator, the 100+ specimen suite and the
 capability-audit rerun all remain. **No maturity-ladder claim is made until the audit is

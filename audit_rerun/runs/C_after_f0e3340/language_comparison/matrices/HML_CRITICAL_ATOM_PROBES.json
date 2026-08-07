@@ -1,0 +1,1209 @@
+{
+  "hml_source_sha": "f0e334060fa2e615f9779c3779f6d1f515490c56",
+  "summary": {
+    "n": 64,
+    "by_verdict": {
+      "PASS": 43,
+      "FAIL": 2,
+      "OBSERVED": 19,
+      "CRASH": 0
+    },
+    "by_group": {
+      "critical_atom": {
+        "PASS": 43,
+        "FAIL": 2,
+        "OBSERVED": 19
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "LOGIC.PROPOSITION",
+      "group": "critical_atom",
+      "capability": "LOGIC.PROPOSITION",
+      "mode": "accept",
+      "expectation": "Proposition is a type",
+      "source": "module M\nvar p : Proposition\nrequire p",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "0f7d95ac45155795ecf98d79e0c5d6e4c1ac640543931c1e4af89457c55642f9",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='p', span=Span(line=3, col=0, end_line=3, end_col=9, file='<input>'), expression=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=PropositionType(), name='p', symbol_id=SymbolId(name='p', ordinal=0, depth=0)), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "Proposition is a type"
+    },
+    {
+      "id": "LOGIC.NEGATION",
+      "group": "critical_atom",
+      "capability": "LOGIC.NEGATION",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.NEGATION",
+      "source": "module M\nvar x : Real\nrequire not (x > 0.0)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "f89bf9bd9bfd39ca4d6228cdc0987dcf8d452de68a58bfc1a6b969b97577fbc9",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='not (x > 0.0)', span=Span(line=3, col=0, end_line=3, end_col=21, file='<input>'), expression=UnaryOp(span=Span(line=3, col=8, end_line=3, end_col=21, file='<input>'), type_=PropositionType(), op='not', operand=Comparison(span=Span(line=3, col=12, end_line=3, end_col=21, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=13, end_line=3, end_col=14, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=17, end_line=3, end_col=20, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0'))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.CONJUNCTION",
+      "group": "critical_atom",
+      "capability": "LOGIC.CONJUNCTION",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.CONJUNCTION",
+      "source": "module M\nvar x : Real\nrequire x > 0.0 and x < 1.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "3a1b1553bc371d27217985f30c74b13adea5ca57e6ca27100ffd97ab45003df5",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x > 0.0 and x < 1.0', span=Span(line=3, col=0, end_line=3, end_col=27, file='<input>'), expression=LogicalOp(span=Span(line=3, col=8, end_line=3, end_col=27, file='<input>'), type_=PropositionType(), op='and', left=Comparison(span=Span(line=3, col=8, end_line=3, end_col=15, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=12, end_line=3, end_col=15, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), right=Comparison(span=Span(line=3, col=20, end_line=3, end_col=27, file='<input>'), type_=PropositionType(), op='<', left=Ref(span=Span(line=3, col=20, end_line=3, end_col=21, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=24, end_line=3, end_col=27, file='<input>'), type_=ScalarType(name='PositiveReal'), value=1.0, raw='1.0'))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.DISJUNCTION",
+      "group": "critical_atom",
+      "capability": "LOGIC.DISJUNCTION",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.DISJUNCTION",
+      "source": "module M\nvar x : Real\nrequire x > 0.0 or x < 1.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "8b785778b11fad9f936ce3f78f6f3e64c05a3562903e761b95dbfff74499bf65",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x > 0.0 or x < 1.0', span=Span(line=3, col=0, end_line=3, end_col=26, file='<input>'), expression=LogicalOp(span=Span(line=3, col=8, end_line=3, end_col=26, file='<input>'), type_=PropositionType(), op='or', left=Comparison(span=Span(line=3, col=8, end_line=3, end_col=15, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=12, end_line=3, end_col=15, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), right=Comparison(span=Span(line=3, col=19, end_line=3, end_col=26, file='<input>'), type_=PropositionType(), op='<', left=Ref(span=Span(line=3, col=19, end_line=3, end_col=20, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=23, end_line=3, end_col=26, file='<input>'), type_=ScalarType(name='PositiveReal'), value=1.0, raw='1.0'))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.IMPLICATION",
+      "group": "critical_atom",
+      "capability": "LOGIC.IMPLICATION",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.IMPLICATION",
+      "source": "module M\nvar x : Real\nrequire x > 1.0 => x > 0.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "349969b1e7b99b414a6f024af4b775ee55a48427321586c2e0851029282fc304",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x > 1.0 => x > 0.0', span=Span(line=3, col=0, end_line=3, end_col=26, file='<input>'), expression=LogicalOp(span=Span(line=3, col=8, end_line=3, end_col=26, file='<input>'), type_=PropositionType(), op='implies', left=Comparison(span=Span(line=3, col=8, end_line=3, end_col=15, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=12, end_line=3, end_col=15, file='<input>'), type_=ScalarType(name='PositiveReal'), value=1.0, raw='1.0')), right=Comparison(span=Span(line=3, col=19, end_line=3, end_col=26, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=19, end_line=3, end_col=20, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=23, end_line=3, end_col=26, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0'))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.PREDICATE",
+      "group": "critical_atom",
+      "capability": "LOGIC.PREDICATE",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.PREDICATE",
+      "source": "module M\nvar P : Predicate[Real]\nrequire forall x : Real . P(x)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T470"
+      ],
+      "content_hash": "b7849e1b31c7180321bec9b391b3d23e2a749237202b477ff235c85bd44fc80a",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall x : Real . P(x)', span=Span(line=3, col=0, end_line=3, end_col=30, file='<input>'), expression=Quantifier(span=Span(line=3, col=8, end_line=3, end_col=30, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Call(span=Span(line=3, col=26, end_line=3, end_col=30, file='<input>'), type_=UnknownType(reason='P is not callable'), callee='P', args=[Ref(span=Span(line=3, col=28, end_line=3, end_col=29, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1))])), discharged_by=None)"
+      ],
+      "verdict": "FAIL",
+      "diagnostics": "error HML-T470: 'P' is not callable\n  --> <input>:3:27\n   3 | require forall x : Real . P(x)\n                                 ^^^^\n  found:    var P : Predicate[Real]\n  expected: a definition taking parameters\n  note: 'P' binds a value, not a function\n  note: a definition with no parameter list is a value; applying it is a category error, not a missing argument\n  help: give 'P' a parameter list where it is defined, or drop the argument list and refer to it as P",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.FORALL",
+      "group": "critical_atom",
+      "capability": "LOGIC.FORALL",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.FORALL",
+      "source": "module M\nrequire forall x : Real . x = x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "50d30d7636e8304c327a6f2642d153fd2d7bac9d159bac822d83de4af1a1df90",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall x : Real . x = x', span=Span(line=2, col=0, end_line=2, end_col=31, file='<input>'), expression=Quantifier(span=Span(line=2, col=8, end_line=2, end_col=31, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Comparison(span=Span(line=2, col=26, end_line=2, end_col=31, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=2, col=26, end_line=2, end_col=27, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)), right=Ref(span=Span(line=2, col=30, end_line=2, end_col=31, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.EXISTS",
+      "group": "critical_atom",
+      "capability": "LOGIC.EXISTS",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.EXISTS",
+      "source": "module M\nrequire exists x : Real . x = x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "7b57b974bb7ead8acb74531da0a9ed24953cb3420e310fc043d330b28e806f9d",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='exists x : Real . x = x', span=Span(line=2, col=0, end_line=2, end_col=31, file='<input>'), expression=Quantifier(span=Span(line=2, col=8, end_line=2, end_col=31, file='<input>'), type_=PropositionType(), kind='exists', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Comparison(span=Span(line=2, col=26, end_line=2, end_col=31, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=2, col=26, end_line=2, end_col=27, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)), right=Ref(span=Span(line=2, col=30, end_line=2, end_col=31, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.NESTED_QUANTIFIER_ORDER",
+      "group": "critical_atom",
+      "capability": "LOGIC.NESTED_QUANTIFIER_ORDER",
+      "mode": "accept",
+      "expectation": "order sensitivity separately verified by content hash",
+      "source": "module M\nrequire forall x : Real . exists y : Real . y > x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "2da3c409de3875043fce5f082ef27feaa1a135e6f9acf37cf5264cedca276115",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall x : Real . exists y : Real . y > x', span=Span(line=2, col=0, end_line=2, end_col=49, file='<input>'), expression=Quantifier(span=Span(line=2, col=8, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Quantifier(span=Span(line=2, col=26, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), kind='exists', var='y', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='y', ordinal=0, depth=2), body=Comparison(span=Span(line=2, col=44, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=2, col=44, end_line=2, end_col=45, file='<input>'), type_=ScalarType(name='Real'), name='y', symbol_id=SymbolId(name='y', ordinal=0, depth=2)), right=Ref(span=Span(line=2, col=48, end_line=2, end_col=49, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1))))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "order sensitivity separately verified by content hash"
+    },
+    {
+      "id": "LOGIC.VARIABLE_BINDING",
+      "group": "critical_atom",
+      "capability": "LOGIC.VARIABLE_BINDING",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.VARIABLE_BINDING",
+      "source": "module M\nrequire forall x : Real . x = x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "50d30d7636e8304c327a6f2642d153fd2d7bac9d159bac822d83de4af1a1df90",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall x : Real . x = x', span=Span(line=2, col=0, end_line=2, end_col=31, file='<input>'), expression=Quantifier(span=Span(line=2, col=8, end_line=2, end_col=31, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Comparison(span=Span(line=2, col=26, end_line=2, end_col=31, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=2, col=26, end_line=2, end_col=27, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)), right=Ref(span=Span(line=2, col=30, end_line=2, end_col=31, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.FREE_VS_BOUND",
+      "group": "critical_atom",
+      "capability": "LOGIC.FREE_VS_BOUND",
+      "mode": "accept",
+      "expectation": "x bound, y free in the same proposition",
+      "source": "module M\nvar y : Real\nrequire forall x : Real . x = y",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "584781d46a3d7ec0afd0ff6a98054cd6f11e3cf90be99dff4a8ef851d49ac3db",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall x : Real . x = y', span=Span(line=3, col=0, end_line=3, end_col=31, file='<input>'), expression=Quantifier(span=Span(line=3, col=8, end_line=3, end_col=31, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Comparison(span=Span(line=3, col=26, end_line=3, end_col=31, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=26, end_line=3, end_col=27, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)), right=Ref(span=Span(line=3, col=30, end_line=3, end_col=31, file='<input>'), type_=ScalarType(name='Real'), name='y', symbol_id=SymbolId(name='y', ordinal=0, depth=0)))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "x bound, y free in the same proposition"
+    },
+    {
+      "id": "LOGIC.SUBSTITUTION",
+      "group": "critical_atom",
+      "capability": "LOGIC.SUBSTITUTION",
+      "mode": "accept",
+      "expectation": "substitution via application; there is no substitution STATEMENT",
+      "source": "module M\nvar x : Real\ndef f(u : Real) : Real := u * u\nrequire f(x) = x * x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "6a52554dece7b9d6563142b4a455725d1be2282e1130b1cded19884693e4f430",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='f(x) = x * x', span=Span(line=4, col=0, end_line=4, end_col=20, file='<input>'), expression=Comparison(span=Span(line=4, col=8, end_line=4, end_col=20, file='<input>'), type_=PropositionType(), op='=', left=Call(span=Span(line=4, col=8, end_line=4, end_col=12, file='<input>'), type_=ScalarType(name='Real'), callee='f', args=[Ref(span=Span(line=4, col=10, end_line=4, end_col=11, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0))]), right=BinOp(span=Span(line=4, col=15, end_line=4, end_col=20, file='<input>'), type_=ScalarType(name='Real'), op='*', left=Ref(span=Span(line=4, col=15, end_line=4, end_col=16, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Ref(span=Span(line=4, col=19, end_line=4, end_col=20, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "substitution via application; there is no substitution STATEMENT"
+    },
+    {
+      "id": "LOGIC.EQUALITY",
+      "group": "critical_atom",
+      "capability": "LOGIC.EQUALITY",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.EQUALITY",
+      "source": "module M\nvar x : Real\nrequire x = x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "37ea2e32e3e5cb46b87300f132c2d1ce42bc55059d8b3a67d985027aa32d5870",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x = x', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=13, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.DEFINITIONAL_EQUALITY",
+      "group": "critical_atom",
+      "capability": "LOGIC.DEFINITIONAL_EQUALITY",
+      "mode": "accept",
+      "expectation": ":= definition vs = assertion are distinct forms",
+      "source": "module M\nconst c : Real = 2.0\ndef d := c + 1.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "c6f5ad32ccd24512fccead15b96140918383ea3d6747614c4bfa1acb4063a975",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ":= definition vs = assertion are distinct forms"
+    },
+    {
+      "id": "LOGIC.SET_MEMBERSHIP",
+      "group": "critical_atom",
+      "capability": "LOGIC.SET_MEMBERSHIP",
+      "mode": "observe",
+      "expectation": "critical ontology atom LOGIC.SET_MEMBERSHIP",
+      "source": "module M\nvar S : Set[Real]\nvar x : Real\nrequire x in S",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "cf73263e22d48589da757e51e592e12ed300564a3192715ac03974ca57f3d084",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x in S', span=Span(line=4, col=0, end_line=4, end_col=14, file='<input>'), expression=MembershipExpr(span=Span(line=4, col=8, end_line=4, end_col=14, file='<input>'), type_=PropositionType(), element=Ref(span=Span(line=4, col=8, end_line=4, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=1, depth=0)), collection=Ref(span=Span(line=4, col=13, end_line=4, end_col=14, file='<input>'), type_=SetType(element=ScalarType(name='Real')), name='S', symbol_id=SymbolId(name='S', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.SET_COMPREHENSION",
+      "group": "critical_atom",
+      "capability": "LOGIC.SET_COMPREHENSION",
+      "mode": "observe",
+      "expectation": "critical ontology atom LOGIC.SET_COMPREHENSION",
+      "source": "module M\nvar S : Set[Real]\ndef T := { x : Real . x > 0.0 }",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P264"
+      ],
+      "content_hash": "478b0e9a9854390ae8eac00a1c85e82b1987a7d8e393811b10ac22833f3bef3d",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P264: a set comprehension requires '|' between the binder and its predicate\n  --> <input>:3:21\n   3 | def T := { x : Real . x > 0.0 }\n                           ^\n  note: the set of every value of a type is written as the type itself; a comprehension without a predicate selects nothing new\n  help: {x : Real | <proposition>}",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.INDEXED_FAMILY",
+      "group": "critical_atom",
+      "capability": "LOGIC.INDEXED_FAMILY",
+      "mode": "observe",
+      "expectation": "critical ontology atom LOGIC.INDEXED_FAMILY",
+      "source": "module M\nindex i : Natural\nvar x : Real",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "8a7f051c220dae374a00200ab14f215fef17bb7979c82c0dccc432dfbc72b919",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.FUNCTION_AS_OBJECT",
+      "group": "critical_atom",
+      "capability": "LOGIC.FUNCTION_AS_OBJECT",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.FUNCTION_AS_OBJECT",
+      "source": "module M\nvar f : Function[Real -> Real]\nrequire f = f",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "08d14fccb57d94ee484eadfffb777bff3526b63d1c4e318ef88112c5eb387c72",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='f = f', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=13, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=FunctionType(domain=(ScalarType(name='Real'),), codomain=ScalarType(name='Real')), name='f', symbol_id=SymbolId(name='f', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=FunctionType(domain=(ScalarType(name='Real'),), codomain=ScalarType(name='Real')), name='f', symbol_id=SymbolId(name='f', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.APPLICATION",
+      "group": "critical_atom",
+      "capability": "LOGIC.APPLICATION",
+      "mode": "accept",
+      "expectation": "critical ontology atom LOGIC.APPLICATION",
+      "source": "module M\ndef f(u : Real) : Real := u * u\nrequire f(2.0) = 4.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "e83833c160fd760fc7b8a23c62c40ecfac963c533ef1e4621339afee5b5ca559",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='f(2.0) = 4.0', span=Span(line=3, col=0, end_line=3, end_col=20, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=20, file='<input>'), type_=PropositionType(), op='=', left=Call(span=Span(line=3, col=8, end_line=3, end_col=14, file='<input>'), type_=ScalarType(name='Real'), callee='f', args=[Literal(span=Span(line=3, col=10, end_line=3, end_col=13, file='<input>'), type_=ScalarType(name='PositiveReal'), value=2.0, raw='2.0')]), right=Literal(span=Span(line=3, col=17, end_line=3, end_col=20, file='<input>'), type_=ScalarType(name='PositiveReal'), value=4.0, raw='4.0')), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "LOGIC.TYPE_JUDGEMENT",
+      "group": "critical_atom",
+      "capability": "LOGIC.TYPE_JUDGEMENT",
+      "mode": "accept",
+      "expectation": "x : T is the declaration form",
+      "source": "module M\nvar x : Real",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "552c666f0d37fe8f88a60f500115c5d5084079a8c5d52e09a53e77ff19a67d27",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "x : T is the declaration form"
+    },
+    {
+      "id": "LOGIC.THEOREM_STATEMENT",
+      "group": "critical_atom",
+      "capability": "LOGIC.THEOREM_STATEMENT",
+      "mode": "accept",
+      "expectation": "statable; NOT provable -- see C-6",
+      "source": "module M\nprove forall x : Real . x > 0.0 => x >= 0.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "f8779aba58a5efe9c4095b3a65f41fccbb38e09b6ff78e06e96fcc311376865a",
+      "obligations": [
+        "ProofObligation(kind='theorem', description='forall x : Real . x > 0.0 => x >= 0.0', span=Span(line=2, col=0, end_line=2, end_col=43, file='<input>'), expression=Quantifier(span=Span(line=2, col=6, end_line=2, end_col=43, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=LogicalOp(span=Span(line=2, col=24, end_line=2, end_col=43, file='<input>'), type_=PropositionType(), op='implies', left=Comparison(span=Span(line=2, col=24, end_line=2, end_col=31, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=2, col=24, end_line=2, end_col=25, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)), right=Literal(span=Span(line=2, col=28, end_line=2, end_col=31, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), right=Comparison(span=Span(line=2, col=35, end_line=2, end_col=43, file='<input>'), type_=PropositionType(), op='>=', left=Ref(span=Span(line=2, col=35, end_line=2, end_col=36, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)), right=Literal(span=Span(line=2, col=40, end_line=2, end_col=43, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "statable; NOT provable -- see C-6"
+    },
+    {
+      "id": "NUM.NATURAL",
+      "group": "critical_atom",
+      "capability": "NUM.NATURAL",
+      "mode": "accept",
+      "expectation": "critical ontology atom NUM.NATURAL",
+      "source": "module M\nconst n : Natural = 3",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "f5d462bd033058ec5cad55696eda4089e34bc4da62e0da44329c1eae36361180",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "NUM.INTEGER",
+      "group": "critical_atom",
+      "capability": "NUM.INTEGER",
+      "mode": "accept",
+      "expectation": "critical ontology atom NUM.INTEGER",
+      "source": "module M\nconst n : Integer = -3",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "5fc9ae28c42de499dc845122273c28594d548fa3f2e16402b51a9656821a7897",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "NUM.REAL",
+      "group": "critical_atom",
+      "capability": "NUM.REAL",
+      "mode": "accept",
+      "expectation": "critical ontology atom NUM.REAL",
+      "source": "module M\nconst x : Real = 1.5",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "c32c8d92520c80e1d2de6908d4abbbdeb799fe82ff5acf7789b374a5a070a976",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "NUM.ORDER_RELATION",
+      "group": "critical_atom",
+      "capability": "NUM.ORDER_RELATION",
+      "mode": "accept",
+      "expectation": "critical ontology atom NUM.ORDER_RELATION",
+      "source": "module M\nvar x : Real\nrequire x <= x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "5029c93541fdf0e3382e5e9d0bb900ef1f27a93b532f52a6c231efb3beba0b2a",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x <= x', span=Span(line=3, col=0, end_line=3, end_col=14, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=14, file='<input>'), type_=PropositionType(), op='<=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=13, end_line=3, end_col=14, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "NUM.VECTOR_OF_SCALARS",
+      "group": "critical_atom",
+      "capability": "NUM.VECTOR_OF_SCALARS",
+      "mode": "accept",
+      "expectation": "critical ontology atom NUM.VECTOR_OF_SCALARS",
+      "source": "module M\nvar v : Vector[Real, 3]\nrequire v = v",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "6024fdc12a4cacc0de2e41b733714bad7bde2f6359e2139924cea36936aeaf63",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='v = v', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=13, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), name='v', symbol_id=SymbolId(name='v', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), name='v', symbol_id=SymbolId(name='v', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ALG.SYMBOLIC_VARIABLE",
+      "group": "critical_atom",
+      "capability": "ALG.SYMBOLIC_VARIABLE",
+      "mode": "accept",
+      "expectation": "unbound indeterminate",
+      "source": "module M\nvar x : Real",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "552c666f0d37fe8f88a60f500115c5d5084079a8c5d52e09a53e77ff19a67d27",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "unbound indeterminate"
+    },
+    {
+      "id": "ALG.EQUATION",
+      "group": "critical_atom",
+      "capability": "ALG.EQUATION",
+      "mode": "accept",
+      "expectation": "critical ontology atom ALG.EQUATION",
+      "source": "module M\nvar x : Real\nrequire x + 1.0 = 2.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "772d751d801544941e1f4ec02e863548006c8b71985acd2b1f78ba5b882b6278",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x + 1.0 = 2.0', span=Span(line=3, col=0, end_line=3, end_col=21, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=21, file='<input>'), type_=PropositionType(), op='=', left=BinOp(span=Span(line=3, col=8, end_line=3, end_col=15, file='<input>'), type_=ScalarType(name='Real'), op='+', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=12, end_line=3, end_col=15, file='<input>'), type_=ScalarType(name='PositiveReal'), value=1.0, raw='1.0')), right=Literal(span=Span(line=3, col=18, end_line=3, end_col=21, file='<input>'), type_=ScalarType(name='PositiveReal'), value=2.0, raw='2.0')), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ALG.INEQUALITY",
+      "group": "critical_atom",
+      "capability": "ALG.INEQUALITY",
+      "mode": "accept",
+      "expectation": "critical ontology atom ALG.INEQUALITY",
+      "source": "module M\nvar x : Real\nrequire x + 1.0 > 2.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "4e89167df1dec12a55cd74bb65b5e38e9fb1a7261b4e61815e92ebe83ce6cec1",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x + 1.0 > 2.0', span=Span(line=3, col=0, end_line=3, end_col=21, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=21, file='<input>'), type_=PropositionType(), op='>', left=BinOp(span=Span(line=3, col=8, end_line=3, end_col=15, file='<input>'), type_=ScalarType(name='Real'), op='+', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=12, end_line=3, end_col=15, file='<input>'), type_=ScalarType(name='PositiveReal'), value=1.0, raw='1.0')), right=Literal(span=Span(line=3, col=18, end_line=3, end_col=21, file='<input>'), type_=ScalarType(name='PositiveReal'), value=2.0, raw='2.0')), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ALG.MATRIX",
+      "group": "critical_atom",
+      "capability": "ALG.MATRIX",
+      "mode": "accept",
+      "expectation": "critical ontology atom ALG.MATRIX",
+      "source": "module M\nvar A : Matrix[Real, 3, 3]\nrequire A = A",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "d631e2c18f585c5ea76905dba5b51955ad8420716fe885b24f666ef5ecaefe11",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='A = A', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=13, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=MatrixType(element=ScalarType(name='Real'), rows=3, cols=3), name='A', symbol_id=SymbolId(name='A', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=MatrixType(element=ScalarType(name='Real'), rows=3, cols=3), name='A', symbol_id=SymbolId(name='A', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ALG.MATRIX_SHAPE_TYPING",
+      "group": "critical_atom",
+      "capability": "ALG.MATRIX_SHAPE_TYPING",
+      "mode": "reject",
+      "expectation": "non-conformable product must be rejected",
+      "source": "module M\nvar A : Matrix[Real, 2, 3]\nvar B : Matrix[Real, 2, 3]\ndef C := A @ B",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T434"
+      ],
+      "content_hash": "6aee038c561f4f05e77dedba4541ac0c176bb294c3052871161a9ec23b0cfaca",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "error HML-T434: inner dimensions do not agree in a matrix product\n  --> <input>:4:10\n   4 | def C := A @ B\n                ^^^^^\n  found:    Matrix[Real, 2, 3]\n  expected: Matrix[..., 3, ...]",
+      "error": null,
+      "notes": "non-conformable product must be rejected"
+    },
+    {
+      "id": "ALG.MATRIX_ARITHMETIC",
+      "group": "critical_atom",
+      "capability": "ALG.MATRIX_ARITHMETIC",
+      "mode": "accept",
+      "expectation": "critical ontology atom ALG.MATRIX_ARITHMETIC",
+      "source": "module M\nvar A : Matrix[Real, 3, 3]\nvar B : Matrix[Real, 3, 3]\ndef C := A @ B\ndef D := A + B",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "4cefac493a65f0037ef2d6fe2cc77a350fb8ec57143feaf052f0762d5a4eef99",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ANA.DOMAIN_CODOMAIN",
+      "group": "critical_atom",
+      "capability": "ANA.DOMAIN_CODOMAIN",
+      "mode": "accept",
+      "expectation": "critical ontology atom ANA.DOMAIN_CODOMAIN",
+      "source": "module M\nvar f : Function[Real -> NonNegativeReal]\nrequire f = f",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "69bddf120c7d1f43f36f6965ab6a782ce8eda3a2f3834a271f53a5704712e15d",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='f = f', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=13, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=FunctionType(domain=(ScalarType(name='Real'),), codomain=ScalarType(name='NonNegativeReal')), name='f', symbol_id=SymbolId(name='f', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=FunctionType(domain=(ScalarType(name='Real'),), codomain=ScalarType(name='NonNegativeReal')), name='f', symbol_id=SymbolId(name='f', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ANA.FUNCTION_REAL",
+      "group": "critical_atom",
+      "capability": "ANA.FUNCTION_REAL",
+      "mode": "accept",
+      "expectation": "critical ontology atom ANA.FUNCTION_REAL",
+      "source": "module M\ndef f(u : Real) : Real := u * u",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "4e3603b94e5cb7e1c164a1ef2c7d0990b880b1b90b74ef4952dc73f4cdee063b",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ANA.LIMIT",
+      "group": "critical_atom",
+      "capability": "ANA.LIMIT",
+      "mode": "observe",
+      "expectation": "critical ontology atom ANA.LIMIT",
+      "source": "module M\nvar f : Function[Real -> Real]\ndef l := limit(f, 0.0)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P203"
+      ],
+      "content_hash": "aa6d93883e8245597d976f7f78e10c5a074e5afc7afa019726a6dbd5d3a457e6",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P203: expected an identifier to bind the variable of a limit\n  --> <input>:3:19\n   3 | def l := limit(f, 0.0)\n                         ^^^\n  found:    '0.0'",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ANA.CONTINUITY",
+      "group": "critical_atom",
+      "capability": "ANA.CONTINUITY",
+      "mode": "observe",
+      "expectation": "critical ontology atom ANA.CONTINUITY",
+      "source": "module M\nvar f : Function[Real -> Real]\nrequire continuous(f)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P201"
+      ],
+      "content_hash": "aa6d93883e8245597d976f7f78e10c5a074e5afc7afa019726a6dbd5d3a457e6",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P201: expected ',' between the function and its domain\n  --> <input>:3:21\n   3 | require continuous(f)\n                           ^\n  found:    ')'",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ANA.DERIVATIVE",
+      "group": "critical_atom",
+      "capability": "ANA.DERIVATIVE",
+      "mode": "observe",
+      "expectation": "critical ontology atom ANA.DERIVATIVE",
+      "source": "module M\nvar f : Function[Real -> Real]\ndef d := derivative(f, x)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P262"
+      ],
+      "content_hash": "aa6d93883e8245597d976f7f78e10c5a074e5afc7afa019726a6dbd5d3a457e6",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P262: the variable bound by a derivative requires an explicit type\n  --> <input>:3:25\n   3 | def d := derivative(f, x)\n                               ^\n  note: every object has a type (governing principle 1); an untyped binder would take its domain implicitly from its neighbours\n  help: x : Real",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "ANA.INTEGRAL_DEFINITE",
+      "group": "critical_atom",
+      "capability": "ANA.INTEGRAL_DEFINITE",
+      "mode": "observe",
+      "expectation": "critical ontology atom ANA.INTEGRAL_DEFINITE",
+      "source": "module M\nvar f : Function[Real -> Real]\ndef a := integral(f, x, 0.0, 1.0)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P262"
+      ],
+      "content_hash": "aa6d93883e8245597d976f7f78e10c5a074e5afc7afa019726a6dbd5d3a457e6",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P262: the variable bound by an integral requires an explicit type\n  --> <input>:3:23\n   3 | def a := integral(f, x, 0.0, 1.0)\n                             ^\n  note: every object has a type (governing principle 1); an untyped binder would take its domain implicitly from its neighbours\n  help: x : Real",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "PROB.PROBABILITY_MEASURE",
+      "group": "critical_atom",
+      "capability": "PROB.PROBABILITY_MEASURE",
+      "mode": "observe",
+      "expectation": "no primitive probability space; encoded as a set function",
+      "source": "module M\nvar P : Function[Set[Real] -> Probability]\nrequire P = P",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "6685cfbbf12f967eab4a101b8a440ec32b24c75bbd45d9093b8e7371da6668c5",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='P = P', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=13, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=FunctionType(domain=(SetType(element=ScalarType(name='Real')),), codomain=ScalarType(name='Probability')), name='P', symbol_id=SymbolId(name='P', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=FunctionType(domain=(SetType(element=ScalarType(name='Real')),), codomain=ScalarType(name='Probability')), name='P', symbol_id=SymbolId(name='P', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": "no primitive probability space; encoded as a set function"
+    },
+    {
+      "id": "PROB.RANDOM_VARIABLE",
+      "group": "critical_atom",
+      "capability": "PROB.RANDOM_VARIABLE",
+      "mode": "accept",
+      "expectation": "critical ontology atom PROB.RANDOM_VARIABLE",
+      "source": "module M\nrv X : RandomVariable[Real]\nrequire X = X",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T480"
+      ],
+      "content_hash": "2cd148b4f8f0f7cbf54b0bcd9be15dd7b4379401280b5f45c87b224b3849531f",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='X = X', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=13, file='<input>'), type_=EventType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='X', symbol_id=SymbolId(name='X', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='X', symbol_id=SymbolId(name='X', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "FAIL",
+      "diagnostics": "error HML-T480: require requires a proposition, not an event\n  --> <input>:3:9\n   3 | require X = X\n               ^^^^^\n  found:    Event\n  expected: Proposition\n  note: an event has a probability, not a truth value; asserting it directly would claim it holds on every draw without saying so\n  note: use 'probability(...)' to speak about how likely it is, or compare fixed quantities to state something that is simply true\n  help: require probability(X = X) = 1.0",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "PROB.DISTRIBUTION_OBJECT",
+      "group": "critical_atom",
+      "capability": "PROB.DISTRIBUTION_OBJECT",
+      "mode": "accept",
+      "expectation": "distribution as a first-class value",
+      "source": "module M\ndef d : Distribution[Real] := Normal(location := 0.0, scale := 1.0)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "5ebbea29e60ad000de773fb6f9d8034dd34f5d8d1a988f4c51911511f153d3dd",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "distribution as a first-class value"
+    },
+    {
+      "id": "PROB.DISTRIBUTED_AS",
+      "group": "critical_atom",
+      "capability": "PROB.DISTRIBUTED_AS",
+      "mode": "accept",
+      "expectation": "critical ontology atom PROB.DISTRIBUTED_AS",
+      "source": "module M\nrv X : RandomVariable[Real]\nlaw X ~ Normal(location := 0.0, scale := 1.0)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "9e6f56f127951c3b771ac3ad1b37beac4a6946c7d98a1dd17f0b0f30459ed0e1",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "PROB.EXPECTATION",
+      "group": "critical_atom",
+      "capability": "PROB.EXPECTATION",
+      "mode": "observe",
+      "expectation": "expectation as a TERM; `infer expectation X` exists as a statement",
+      "source": "module M\nrv X : RandomVariable[Real]\nrequire E[X] = 0.0",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-N301"
+      ],
+      "content_hash": "fbb1fc5af88a134b7cfc4774557dda97695f2860d2f77b164ffa8a382acf015d",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-N301: 'E' is not bound\n  --> <input>:3:9\n   3 | require E[X] = 0.0\n               ^\n  found:    E\n  help: did you mean 'X'?",
+      "error": null,
+      "notes": "expectation as a TERM; `infer expectation X` exists as a statement"
+    },
+    {
+      "id": "PROB.JOINT",
+      "group": "critical_atom",
+      "capability": "PROB.JOINT",
+      "mode": "observe",
+      "expectation": "critical ontology atom PROB.JOINT",
+      "source": "module M\nrv X : RandomVariable[Real]\nrv Y : RandomVariable[Real]\nlaw X ~ Normal(location := 0.0, scale := 1.0)\nlaw Y ~ Normal(location := 0.0, scale := 1.0)\nrequire joint(X, Y) = joint(X, Y)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T428"
+      ],
+      "content_hash": "6dbc027663d52fccb93b209b23c553106100f3f9d1b86b74d2193dab7dc9184d",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='joint(X, Y) = joint(X, Y)', span=Span(line=6, col=0, end_line=6, end_col=33, file='<input>'), expression=Comparison(span=Span(line=6, col=8, end_line=6, end_col=33, file='<input>'), type_=PropositionType(), op='=', left=JointExpr(span=Span(line=6, col=8, end_line=6, end_col=19, file='<input>'), type_=DistributionType(support=ProductType(components=(ScalarType(name='Real'), ScalarType(name='Real')))), parts=[Ref(span=Span(line=6, col=14, end_line=6, end_col=15, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='X', symbol_id=SymbolId(name='X', ordinal=0, depth=0)), Ref(span=Span(line=6, col=17, end_line=6, end_col=18, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='Y', symbol_id=SymbolId(name='Y', ordinal=1, depth=0))]), right=JointExpr(span=Span(line=6, col=22, end_line=6, end_col=33, file='<input>'), type_=DistributionType(support=ProductType(components=(ScalarType(name='Real'), ScalarType(name='Real')))), parts=[Ref(span=Span(line=6, col=28, end_line=6, end_col=29, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='X', symbol_id=SymbolId(name='X', ordinal=0, depth=0)), Ref(span=Span(line=6, col=31, end_line=6, end_col=32, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='Y', symbol_id=SymbolId(name='Y', ordinal=1, depth=0))])), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T428: a distribution cannot be compared with a value\n  --> <input>:6:9\n   6 | require joint(X, Y) = joint(X, Y)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    Distribution[Product[Real, Real]] = Distribution[Product[Real, Real]]\n  note: compare a random variable's realisations or a summary such as its expectation, not the law itself",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "PROB.CONDITIONAL_PROBABILITY",
+      "group": "critical_atom",
+      "capability": "PROB.CONDITIONAL_PROBABILITY",
+      "mode": "observe",
+      "expectation": "critical ontology atom PROB.CONDITIONAL_PROBABILITY",
+      "source": "module M\nvar A : Proposition\nvar B : Proposition\nrequire Pr(A | B) = 0.5",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P201"
+      ],
+      "content_hash": "e2850bf6a71e0bfcead5ac442cc4173f66a03e67dada8584f955a3f55c94844e",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P201: expected ')' to close the arguments of 'Pr'\n  --> <input>:4:14\n   4 | require Pr(A | B) = 0.5\n                    ^\n  found:    '|'",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "PROB.CONDITIONAL_DISTRIBUTION",
+      "group": "critical_atom",
+      "capability": "PROB.CONDITIONAL_DISTRIBUTION",
+      "mode": "accept",
+      "expectation": "conditional law via the `|` given-list -- HML's own idiom",
+      "source": "module M\nparam t : Probability\nrv X : RandomVariable[Bool]\nlikelihood X | t ~ Bernoulli(prob := t)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "6dd830a416368fee0e8f9fc86b2820bc766cd37413bd1948cef09dfe8a4c6071",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='0 <= t <= 1', span=Span(line=2, col=0, end_line=2, end_col=7, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "conditional law via the `|` given-list -- HML's own idiom"
+    },
+    {
+      "id": "PROB.INDEPENDENCE",
+      "group": "critical_atom",
+      "capability": "PROB.INDEPENDENCE",
+      "mode": "observe",
+      "expectation": "critical ontology atom PROB.INDEPENDENCE",
+      "source": "module M\nrv X : RandomVariable[Real]\nrv Y : RandomVariable[Real]\nrequire independent(X, Y)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "388ee8e214fab02094bbf20ff5e0907a1e83ae5f924642a6e19d7e637b6b74f5",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='independent(X, Y)', span=Span(line=4, col=0, end_line=4, end_col=25, file='<input>'), expression=IndependenceExpr(span=Span(line=4, col=8, end_line=4, end_col=25, file='<input>'), type_=PropositionType(), parts=[Ref(span=Span(line=4, col=20, end_line=4, end_col=21, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='X', symbol_id=SymbolId(name='X', ordinal=0, depth=0)), Ref(span=Span(line=4, col=23, end_line=4, end_col=24, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='Y', symbol_id=SymbolId(name='Y', ordinal=1, depth=0))], given=[]), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "PROB.INDEXED_FAMILY_RV",
+      "group": "critical_atom",
+      "capability": "PROB.INDEXED_FAMILY_RV",
+      "mode": "observe",
+      "expectation": "no way to say X_i depends on i",
+      "source": "module M\nindex i : Natural\nrv X : RandomVariable[Real]\nlaw X ~ Normal(location := 0.0, scale := 1.0)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "42669461dc9215a4dffcb93dacaee5ab6c72f9222161e131298f5b4ee87fab28",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": "no way to say X_i depends on i"
+    },
+    {
+      "id": "PROB.FUNCTION_RETURNING_DISTRIBUTION",
+      "group": "critical_atom",
+      "capability": "PROB.FUNCTION_RETURNING_DISTRIBUTION",
+      "mode": "accept",
+      "expectation": "Markov kernel",
+      "source": "module M\ndef kern(s : PositiveReal) : Distribution[Real] := Normal(location := 0.0, scale := s)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "a9b5f254a5889650566c5b9355f57c5400553d0efdedce89afc8e75958e116c3",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "Markov kernel"
+    },
+    {
+      "id": "STAT.POPULATION_VS_SAMPLE",
+      "group": "critical_atom",
+      "capability": "STAT.POPULATION_VS_SAMPLE",
+      "mode": "accept",
+      "expectation": "param vs obs is a genuine population/sample distinction",
+      "source": "module M\nparam theta : Real\nobs y : Real = 1.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "ee06c414c5c26fab0d37c1e3d07f3f52f07ec371fd6f02298f829049b4e11123",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "param vs obs is a genuine population/sample distinction"
+    },
+    {
+      "id": "STAT.ESTIMATOR",
+      "group": "critical_atom",
+      "capability": "STAT.ESTIMATOR",
+      "mode": "observe",
+      "expectation": "an estimator is a function OF DATA; no dataset type exists",
+      "source": "module M\nobs y : Real = 1.0\ndef theta_hat := y",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "3d26d0454f6e57c8647d2bbf81e69fa8289a6fcb0c5857305159dcb89579d8bc",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": "an estimator is a function OF DATA; no dataset type exists"
+    },
+    {
+      "id": "STAT.LIKELIHOOD_FUNCTION",
+      "group": "critical_atom",
+      "capability": "STAT.LIKELIHOOD_FUNCTION",
+      "mode": "accept",
+      "expectation": "critical ontology atom STAT.LIKELIHOOD_FUNCTION",
+      "source": "module M\nparam t : Probability\nobs y : Bool = true\nlikelihood y | t ~ Bernoulli(prob := t)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "bb9240cd6a559253214fad3167822bc75726aa5534cf943aae175f7d4d3dd993",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='0 <= t <= 1', span=Span(line=2, col=0, end_line=2, end_col=7, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DISC.SUMMATION",
+      "group": "critical_atom",
+      "capability": "DISC.SUMMATION",
+      "mode": "observe",
+      "expectation": "critical ontology atom DISC.SUMMATION",
+      "source": "module M\nindex i : Natural\ndef s := sum(i, 1, 10, i)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T426"
+      ],
+      "content_hash": "7ebe1e3afe5d8a097301a1d9afc734880246560259c3f280b7f62f269e215b84",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T426: sum takes 1 argument, 4 given\n  --> <input>:3:10\n   3 | def s := sum(i, 1, 10, i)\n                ^^^^^^^^^^^^^^^^",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "OPT.DECISION_VARIABLE",
+      "group": "critical_atom",
+      "capability": "OPT.DECISION_VARIABLE",
+      "mode": "accept",
+      "expectation": "critical ontology atom OPT.DECISION_VARIABLE",
+      "source": "module M\nparam x : Real\ndef f := x * x\nminimise f",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "f22f05a7689882ac837165ee86938b8887c51a4746d448a7e67a76b28c48da55",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "OPT.OBJECTIVE",
+      "group": "critical_atom",
+      "capability": "OPT.OBJECTIVE",
+      "mode": "accept",
+      "expectation": "critical ontology atom OPT.OBJECTIVE",
+      "source": "module M\nparam x : Real\ndef f := x * x\nminimise f",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "f22f05a7689882ac837165ee86938b8887c51a4746d448a7e67a76b28c48da55",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "OPT.FEASIBLE_SET",
+      "group": "critical_atom",
+      "capability": "OPT.FEASIBLE_SET",
+      "mode": "observe",
+      "expectation": "is `require` scoped to the optimisation, or a global assertion?",
+      "source": "module M\nparam x : Real\nrequire x >= 0.0\ndef f := x * x\nminimise f",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "9f14b4e9c5a0b3a06463b9aa2809442481928303551e9d0ec047817de1bb8a39",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x >= 0.0', span=Span(line=3, col=0, end_line=3, end_col=16, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=16, file='<input>'), type_=PropositionType(), op='>=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=13, end_line=3, end_col=16, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": "is `require` scoped to the optimisation, or a global assertion?"
+    },
+    {
+      "id": "OPT.EQUALITY_CONSTRAINT",
+      "group": "critical_atom",
+      "capability": "OPT.EQUALITY_CONSTRAINT",
+      "mode": "observe",
+      "expectation": "critical ontology atom OPT.EQUALITY_CONSTRAINT",
+      "source": "module M\nparam x : Real\nparam y : Real\nrequire x + y = 1.0\ndef f := x * x\nminimise f",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "e2b9df14b4b2aa2bbe8a97b1c268a52d0bfd44d9a29ad424ef60e4afd5c32b5f",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x + y = 1.0', span=Span(line=4, col=0, end_line=4, end_col=19, file='<input>'), expression=Comparison(span=Span(line=4, col=8, end_line=4, end_col=19, file='<input>'), type_=PropositionType(), op='=', left=BinOp(span=Span(line=4, col=8, end_line=4, end_col=13, file='<input>'), type_=ScalarType(name='Real'), op='+', left=Ref(span=Span(line=4, col=8, end_line=4, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Ref(span=Span(line=4, col=12, end_line=4, end_col=13, file='<input>'), type_=ScalarType(name='Real'), name='y', symbol_id=SymbolId(name='y', ordinal=1, depth=0))), right=Literal(span=Span(line=4, col=16, end_line=4, end_col=19, file='<input>'), type_=ScalarType(name='PositiveReal'), value=1.0, raw='1.0')), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "OPT.INEQUALITY_CONSTRAINT",
+      "group": "critical_atom",
+      "capability": "OPT.INEQUALITY_CONSTRAINT",
+      "mode": "observe",
+      "expectation": "critical ontology atom OPT.INEQUALITY_CONSTRAINT",
+      "source": "module M\nparam x : Real\nrequire x >= 0.0\ndef f := x * x\nminimise f",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "9f14b4e9c5a0b3a06463b9aa2809442481928303551e9d0ec047817de1bb8a39",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x >= 0.0', span=Span(line=3, col=0, end_line=3, end_col=16, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=16, file='<input>'), type_=PropositionType(), op='>=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=13, end_line=3, end_col=16, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPIS.ASSERTION_VS_DEFINITION",
+      "group": "critical_atom",
+      "capability": "EPIS.ASSERTION_VS_DEFINITION",
+      "mode": "accept",
+      "expectation": "def/const := is definition; require = is assertion. Distinct statement forms.",
+      "source": "module M\nconst c : Real = 2.0\nvar x : Real\nrequire x = 3.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "0e583c0b6fecea1d0068dac6fce798088ca53fcddbc9425041986282c771635f",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x = 3.0', span=Span(line=4, col=0, end_line=4, end_col=15, file='<input>'), expression=Comparison(span=Span(line=4, col=8, end_line=4, end_col=15, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=4, col=8, end_line=4, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=1, depth=0)), right=Literal(span=Span(line=4, col=12, end_line=4, end_col=15, file='<input>'), type_=ScalarType(name='PositiveReal'), value=3.0, raw='3.0')), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "def/const := is definition; require = is assertion. Distinct statement forms."
+    },
+    {
+      "id": "EPIS.ASSUMPTION",
+      "group": "critical_atom",
+      "capability": "EPIS.ASSUMPTION",
+      "mode": "accept",
+      "expectation": "expressible; NOT enforced -- does not discharge a domain restriction (C-1)",
+      "source": "module M\nvar x : Real\nassume x > 0.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "c595163cefe0a68fff2fa53dbf8a4f53c7b9f167af1ef498881386b2a02bcdf0",
+      "obligations": [
+        "ProofObligation(kind='assumption', description='x > 0.0', span=Span(line=3, col=0, end_line=3, end_col=14, file='<input>'), expression=Comparison(span=Span(line=3, col=7, end_line=3, end_col=14, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=7, end_line=3, end_col=8, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=11, end_line=3, end_col=14, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "expressible; NOT enforced -- does not discharge a domain restriction (C-1)"
+    },
+    {
+      "id": "EPIS.CONSISTENCY_CHECK",
+      "group": "critical_atom",
+      "capability": "EPIS.CONSISTENCY_CHECK",
+      "mode": "reject",
+      "expectation": "an undeclared symbol must be rejected",
+      "source": "module M\nvar x : Real\nrequire y > 0.0",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-N301"
+      ],
+      "content_hash": "9f742c1baa4e780aa98badedb27c32cbf03beec61daea52bf34479ea1b690d62",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "error HML-N301: 'y' is not bound\n  --> <input>:3:9\n   3 | require y > 0.0\n               ^\n  found:    y\n  help: did you mean 'x'?",
+      "error": null,
+      "notes": "an undeclared symbol must be rejected"
+    },
+    {
+      "id": "EPIS.CORRELATION_VS_CAUSATION",
+      "group": "critical_atom",
+      "capability": "EPIS.CORRELATION_VS_CAUSATION",
+      "mode": "observe",
+      "expectation": "the project forbids conflating implication with causation; is causation SAYABLE?",
+      "source": "module M\nvar x : Real\nvar y : Real\nrequire x causes y",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P204"
+      ],
+      "content_hash": "666d6efaf266a51a8f412ca37669056f94ebff14b5c626d59424871ad9d75097",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P204: unexpected 'causes' after require\n  --> <input>:4:11\n   4 | require x causes y\n                 ^^^^^^\n  help: HML-L1 permits one statement per line",
+      "error": null,
+      "notes": "the project forbids conflating implication with causation; is causation SAYABLE?"
+    },
+    {
+      "id": "XFORM.CANONICALIZATION",
+      "group": "critical_atom",
+      "capability": "XFORM.CANONICALIZATION",
+      "mode": "accept",
+      "expectation": "canonical form exists; order-sensitivity checked separately by content hash",
+      "source": "module M\nrequire forall x : Real . exists y : Real . y > x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "2da3c409de3875043fce5f082ef27feaa1a135e6f9acf37cf5264cedca276115",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall x : Real . exists y : Real . y > x', span=Span(line=2, col=0, end_line=2, end_col=49, file='<input>'), expression=Quantifier(span=Span(line=2, col=8, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Quantifier(span=Span(line=2, col=26, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), kind='exists', var='y', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='y', ordinal=0, depth=2), body=Comparison(span=Span(line=2, col=44, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=2, col=44, end_line=2, end_col=45, file='<input>'), type_=ScalarType(name='Real'), name='y', symbol_id=SymbolId(name='y', ordinal=0, depth=2)), right=Ref(span=Span(line=2, col=48, end_line=2, end_col=49, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1))))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "canonical form exists; order-sensitivity checked separately by content hash"
+    },
+    {
+      "id": "XFORM.TYPE_INFERENCE",
+      "group": "critical_atom",
+      "capability": "XFORM.TYPE_INFERENCE",
+      "mode": "accept",
+      "expectation": "inferred type of a compound expression",
+      "source": "module M\nparam mu : Real\nparam sigma : PositiveReal\nvar z : Real\ndef v := mu + sigma * z",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "76b658bb43a4ca77afb3f10a77e0810e23e68f6c4c9d50cb94ea45a6f196abc7",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='sigma > 0', span=Span(line=3, col=0, end_line=3, end_col=11, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": "inferred type of a compound expression"
+    }
+  ]
+}

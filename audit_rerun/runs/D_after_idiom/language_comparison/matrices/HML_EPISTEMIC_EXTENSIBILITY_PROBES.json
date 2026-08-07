@@ -1,0 +1,505 @@
+{
+  "hml_source_sha": "f0e334060fa2e615f9779c3779f6d1f515490c56",
+  "summary": {
+    "n": 26,
+    "by_verdict": {
+      "PASS": 13,
+      "FAIL": 0,
+      "OBSERVED": 13,
+      "CRASH": 0
+    },
+    "by_group": {
+      "epistemic": {
+        "PASS": 11,
+        "OBSERVED": 6
+      },
+      "extensibility": {
+        "PASS": 2,
+        "OBSERVED": 7
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "EPI.DECLARED",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.DECLARED",
+      "mode": "accept",
+      "expectation": "A symbol declared with a type and no value.",
+      "source": "module M\nvar x : Real",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "552c666f0d37fe8f88a60f500115c5d5084079a8c5d52e09a53e77ff19a67d27",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.DEFINED",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.DEFINED",
+      "mode": "accept",
+      "expectation": "A defined quantity with a defining expression.",
+      "source": "module M\nconst c : Real = 2.0\ndef d := c + 1.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "c6f5ad32ccd24512fccead15b96140918383ea3d6747614c4bfa1acb4063a975",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.ASSUMED",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.ASSUMED",
+      "mode": "accept",
+      "expectation": "An assumption: taken as true without proof.",
+      "source": "module M\nvar x : Real\nassume x > 0.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "c595163cefe0a68fff2fa53dbf8a4f53c7b9f167af1ef498881386b2a02bcdf0",
+      "obligations": [
+        "ProofObligation(kind='assumption', description='x > 0.0', span=Span(line=3, col=0, end_line=3, end_col=14, file='<input>'), expression=Comparison(span=Span(line=3, col=7, end_line=3, end_col=14, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=7, end_line=3, end_col=8, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=11, end_line=3, end_col=14, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.REQUIRED",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.REQUIRED",
+      "mode": "accept",
+      "expectation": "A requirement: must hold, generates an obligation.",
+      "source": "module M\nvar x : Real\nrequire x > 0.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "b514d032ebf4c18a8ec53074934dbe9ab75895b0ea6d7e20706d9aca121fd980",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x > 0.0', span=Span(line=3, col=0, end_line=3, end_col=15, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=15, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=12, end_line=3, end_col=15, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.OBSERVED",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.OBSERVED",
+      "mode": "accept",
+      "expectation": "Observed data, distinct from a parameter or a constant.",
+      "source": "module M\nobs n : Natural = 10",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "01ef717a189801caadbf979603f9e787b1614d9bd77c4ca8fe2bc8a49beeca33",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.PARAMETER",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.PARAMETER",
+      "mode": "accept",
+      "expectation": "An unknown parameter, distinct from observed data.",
+      "source": "module M\nparam theta : Probability",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "6d0a5d8d67324af7ab360f99c3a1cbfe9e91238c52360ac26e0a940f06aece75",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='0 <= theta <= 1', span=Span(line=2, col=0, end_line=2, end_col=11, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.GOAL_PROVE",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.GOAL / PROOF_OBLIGATION",
+      "mode": "accept",
+      "expectation": "A goal to be proved.",
+      "source": "module M\nprove forall x : Real . x = x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "b4a2ae3e516fced3dbd3fb38080fbbb56e9f8830692d58a6f422926040ac841e",
+      "obligations": [
+        "ProofObligation(kind='theorem', description='forall x : Real . x = x', span=Span(line=2, col=0, end_line=2, end_col=29, file='<input>'), expression=Quantifier(span=Span(line=2, col=6, end_line=2, end_col=29, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Comparison(span=Span(line=2, col=24, end_line=2, end_col=29, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=2, col=24, end_line=2, end_col=25, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)), right=Ref(span=Span(line=2, col=28, end_line=2, end_col=29, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.OBJECTIVE",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.OBJECTIVE",
+      "mode": "accept",
+      "expectation": "An optimisation objective as a distinct epistemic act.",
+      "source": "module M\nparam x : Real\ndef f := x * x\nminimise f",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "f22f05a7689882ac837165ee86938b8887c51a4746d448a7e67a76b28c48da55",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.CONJECTURED",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.CONJECTURED",
+      "mode": "observe",
+      "expectation": "A conjecture: believed, not assumed, not proved. Distinct from both `assume` and `prove`. Probing whether the state exists.",
+      "source": "module M\nconjecture forall x : Real . x = x",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P205"
+      ],
+      "content_hash": "31cbfe7805f3abacd8c8fcd8b7fd4d452ae30c00838deb1d5f7c0b2668e86485",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P205: 'conjecture' does not begin a statement\n  --> <input>:2:1\n   2 | conjecture forall x : Real . x = x\n       ^^^^^^^^^^\n  help: statements begin with one of: module var param const obs index rv def law prior likelihood assume require prove minimise maximise solve infer check concept goal derive proved",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.REFUTED",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.REFUTED",
+      "mode": "observe",
+      "expectation": "An explicitly refuted proposition. Probing whether the state exists.",
+      "source": "module M\nrefute forall x : Real . x > 0.0",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P205"
+      ],
+      "content_hash": "31cbfe7805f3abacd8c8fcd8b7fd4d452ae30c00838deb1d5f7c0b2668e86485",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P205: 'refute' does not begin a statement\n  --> <input>:2:1\n   2 | refute forall x : Real . x > 0.0\n       ^^^^^^\n  help: statements begin with one of: module var param const obs index rv def law prior likelihood assume require prove minimise maximise solve infer check concept goal derive proved",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.APPROXIMATE",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.APPROXIMATE",
+      "mode": "observe",
+      "expectation": "An approximate equality, distinct from exact `=`. The project forbids conflating `=` with approximation; probing whether approximation is sayable.",
+      "source": "module M\nconst pi_a : Real ~= 3.14159",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P204"
+      ],
+      "content_hash": "3ddf2699e38bb1f58aeaa0982824a36e0f6098d993875b82275d4659f6efd453",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P204: unexpected '~' after const declaration\n  --> <input>:2:19\n   2 | const pi_a : Real ~= 3.14159\n                         ^\n  help: HML-L1 permits one statement per line",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.UNCERTAIN",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.UNCERTAIN",
+      "mode": "observe",
+      "expectation": "A measured value with uncertainty. Central to scientific mathematics; probing whether uncertainty is representable at the value level.",
+      "source": "module M\nconst m : Real = 9.81 +- 0.02",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "ac1ff09bfad910cda7b8a55bc59173d5603885aff5dd6a254d811fba3b8985e0",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.PROHIBITED_ASSUMPTION",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.PROHIBITED_ASSUMPTION",
+      "mode": "observe",
+      "expectation": "Marking an assumption as forbidden -- 'do not assume normality'. Probing whether the state exists.",
+      "source": "module M\nvar x : Real\nprohibit assume x > 0.0",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P205"
+      ],
+      "content_hash": "8ebf95dd849dc01028a2c878a1ebc1ea67d4fc967d3986d3ca83ffb661690615",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P205: 'prohibit' does not begin a statement\n  --> <input>:3:1\n   3 | prohibit assume x > 0.0\n       ^^^^^^^^\n  help: statements begin with one of: module var param const obs index rv def law prior likelihood assume require prove minimise maximise solve infer check concept goal derive proved",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.ENFORCE.OBS_VS_PARAM",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.ENFORCEMENT",
+      "mode": "observe",
+      "expectation": "Mixing observed data and an unknown parameter in one expression. If this is accepted with no distinction recorded downstream, the epistemic tags are syntax only. (Accepting it is arguably CORRECT -- the question is whether the distinction survives into the canonical form, checked separately.)",
+      "source": "module M\nobs n : Natural = 10\nparam k : Natural\ndef total := n + k",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "f287c85259bf7b4c6c9bfe40c79eb38a280d5f57b60af65e436bf550d75651b0",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.ENFORCE.INFER_WITHOUT_LAW",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.ENFORCEMENT",
+      "mode": "reject",
+      "expectation": "Asking for a posterior for a symbol with no law. SPEC says this is HML-S604. A genuine epistemic consistency check.",
+      "source": "module M\nparam theta : Probability\ninfer posterior theta",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-S604"
+      ],
+      "content_hash": "40dc29d7d07d3c20600f95bb2fe52c00f6a68a38997a62aa11ea20adc5c6bec2",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='0 <= theta <= 1', span=Span(line=2, col=0, end_line=2, end_col=11, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "error HML-S604: cannot infer posterior for 'theta': it has no probability law\n  --> <input>:3:17\n   3 | infer posterior theta\n                       ^^^^^\n  note: a posterior requires a prior on the target; without one this query is not well posed\n  help: add 'prior theta ~ <Distribution>' or 'likelihood <data> | theta ~ <Distribution>' first",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.ENFORCE.TWO_LAWS",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.ENFORCEMENT",
+      "mode": "reject",
+      "expectation": "A symbol has at most one law (HML-S601). Contradictory priors.",
+      "source": "module M\nparam t : Probability\nprior t ~ Beta(alpha := 1, beta := 1)\nprior t ~ Beta(alpha := 2, beta := 2)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-S601"
+      ],
+      "content_hash": "e8d51222a79309c1ce610e0e9d399528ed32014d6b5b729483148ded709bb668",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "error HML-S601: 't' already has a probability law (Beta)\n  --> <input>:4:1\n   4 | prior t ~ Beta(alpha := 2, beta := 2)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  note: a symbol has at most one probability law in v0\n  help: remove the duplicate law, or introduce a distinct symbol",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EPI.ENFORCE.CONCEPT_WITHOUT_CONTENT",
+      "group": "epistemic",
+      "capability": "EPISTEMIC.ENFORCEMENT",
+      "mode": "reject",
+      "expectation": "A concept with no invariant and no example must be rejected (HML-S603): 'sounds plausible' is not a definition. A distinctive HML check.",
+      "source": "module M\nconcept Vague\n  parameter x : Real\nend",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-S603"
+      ],
+      "content_hash": "de45f838ec9195c7cfcf048810c109a46dbf2f715836997e9f13e120be6d7551",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "error HML-S603: concept 'Vague' declares no invariant and no example\n  --> <input>:2:1\n   2 | concept Vague\n       ^^^^^^^^^^^^^\n  note: a minted concept must have testable consequences; plausibility is not a definition (CLAUDE.md rule 4)\n  help: add at least one 'invariant' or 'example' member",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT.NEW_FUNCTION",
+      "group": "extensibility",
+      "capability": "EXTENSIBILITY.USER_FUNCTION",
+      "mode": "accept",
+      "expectation": "A user-defined function, in-language.",
+      "source": "module M\ndef square(u : Real) : Real := u * u",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "4e3603b94e5cb7e1c164a1ef2c7d0990b880b1b90b74ef4952dc73f4cdee063b",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT.NEW_CONCEPT",
+      "group": "extensibility",
+      "capability": "EXTENSIBILITY.USER_ABSTRACTION",
+      "mode": "accept",
+      "expectation": "A new mathematical abstraction defined in-language via `concept`.",
+      "source": "module M\nconcept Metric\n  parameter d : Function[Real, Real -> NonNegativeReal]\n  invariant nonneg := forall a : Real . a = a\n  example euclidean := d = d\nend",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "a20a222bef8c6207701eac066cd76380a692fba09244fc4199aa7040b384ea20",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='Metric.nonneg: forall a : Real . a = a', span=Span(line=4, col=2, end_line=4, end_col=18, file='<input>'), expression=Quantifier(span=Span(line=4, col=22, end_line=4, end_col=45, file='<input>'), type_=PropositionType(), kind='forall', var='a', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='a', ordinal=0, depth=2), body=Comparison(span=Span(line=4, col=40, end_line=4, end_col=45, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=4, col=40, end_line=4, end_col=41, file='<input>'), type_=ScalarType(name='Real'), name='a', symbol_id=SymbolId(name='a', ordinal=0, depth=2)), right=Ref(span=Span(line=4, col=44, end_line=4, end_col=45, file='<input>'), type_=ScalarType(name='Real'), name='a', symbol_id=SymbolId(name='a', ordinal=0, depth=2)))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT.NEW_TYPE",
+      "group": "extensibility",
+      "capability": "EXTENSIBILITY.USER_TYPE",
+      "mode": "observe",
+      "expectation": "A user-defined type alias or new type. If absent, every new type requires a compiler edit -- a hard ceiling on growth.",
+      "source": "module M\ntype Complexish := Real\nvar z : Complexish",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P205"
+      ],
+      "content_hash": "da8bdacd2127f731fe5da899f9ba894a43b928adf567e70c579a68833de7e0a9",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P205: 'type' does not begin a statement\n  --> <input>:2:1\n   2 | type Complexish := Real\n       ^^^^\n  help: statements begin with one of: module var param const obs index rv def law prior likelihood assume require prove minimise maximise solve infer check concept goal derive proved",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT.NEW_DISTRIBUTION",
+      "group": "extensibility",
+      "capability": "EXTENSIBILITY.USER_DISTRIBUTION",
+      "mode": "observe",
+      "expectation": "Declaring a new distribution family in-language. With only 7 built-in families, this determines whether statistics can grow without compiler edits.",
+      "source": "module M\ndistribution Gamma(shape : PositiveReal, rate : PositiveReal)\nrv X : RandomVariable[PositiveReal]\nlaw X ~ Gamma(shape := 1.0, rate := 1.0)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P205"
+      ],
+      "content_hash": "e45e7c6246b8c33c3774c79b5233e0a2941e689cb7c7b909fb6ffb134eb60727",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P205: 'distribution' does not begin a statement\n  --> <input>:2:1\n   2 | distribution Gamma(shape : PositiveReal, rate : PositiveReal)\n       ^^^^^^^^^^^^\n  help: statements begin with one of: module var param const obs index rv def law prior likelihood assume require prove minimise maximise solve infer check concept goal derive proved",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT.USE_UNDECLARED_DISTRIBUTION",
+      "group": "extensibility",
+      "capability": "EXTENSIBILITY.USER_DISTRIBUTION",
+      "mode": "observe",
+      "expectation": "Using a distribution family that is not built in. Confirms the closed-world family set.",
+      "source": "module M\nrv X : RandomVariable[PositiveReal]\nlaw X ~ Gamma(shape := 1.0, rate := 1.0)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "b7f5dde84c0b1c36ee02069655092b3772049f56f0f3986a8c34a81f0c7d20ea",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT.NEW_OPERATOR",
+      "group": "extensibility",
+      "capability": "EXTENSIBILITY.USER_OPERATOR",
+      "mode": "observe",
+      "expectation": "A user-defined operator. Probing whether the grammar is extensible.",
+      "source": "module M\noperator <*> (a : Real, b : Real) : Real := a * b",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P205"
+      ],
+      "content_hash": "31cbfe7805f3abacd8c8fcd8b7fd4d452ae30c00838deb1d5f7c0b2668e86485",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P205: 'operator' does not begin a statement\n  --> <input>:2:1\n   2 | operator <*> (a : Real, b : Real) : Real := a * b\n       ^^^^^^^^\n  help: statements begin with one of: module var param const obs index rv def law prior likelihood assume require prove minimise maximise solve infer check concept goal derive proved",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT.NEW_DIMENSION",
+      "group": "extensibility",
+      "capability": "EXTENSIBILITY.USER_DIMENSION",
+      "mode": "observe",
+      "expectation": "A new base dimension beyond the seven SI bases. Probing whether the dimension system is closed.",
+      "source": "module M\ndimension Information\nparam h : Quantity[Information]",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P205",
+        "HML-D501"
+      ],
+      "content_hash": "31cbfe7805f3abacd8c8fcd8b7fd4d452ae30c00838deb1d5f7c0b2668e86485",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P205: 'dimension' does not begin a statement\n  --> <input>:2:1\n   2 | dimension Information\n       ^^^^^^^^^\n  help: statements begin with one of: module var param const obs index rv def law prior likelihood assume require prove minimise maximise solve infer check concept goal derive proved\n\nerror HML-D501: 'Information' is not a base dimension\n  --> <input>:3:20\n   3 | param h : Quantity[Information]\n                          ^^^^^^^^^^^\n  found:    Information\n  expected: Mass, Length, Time, Temperature, Current, Amount, Luminosity\n  help: use a base dimension, or a single capital letter for an unknown dimension variable",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT.NEW_INFERENCE_RULE",
+      "group": "extensibility",
+      "capability": "EXTENSIBILITY.USER_INFERENCE_RULE",
+      "mode": "observe",
+      "expectation": "A user-declared inference rule. Determines whether the reasoning layer is extensible or fixed by the compiler.",
+      "source": "module M\nrule modus_ponens(p : Proposition, q : Proposition) := (p and (p => q)) => q",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P205"
+      ],
+      "content_hash": "31cbfe7805f3abacd8c8fcd8b7fd4d452ae30c00838deb1d5f7c0b2668e86485",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P205: 'rule' does not begin a statement\n  --> <input>:2:1\n   2 | rule modus_ponens(p : Proposition, q : Proposition) := (p and (p => q)) => q\n       ^^^^\n  help: statements begin with one of: module var param const obs index rv def law prior likelihood assume require prove minimise maximise solve infer check concept goal derive proved",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT.IMPORT_MODULE",
+      "group": "extensibility",
+      "capability": "EXTENSIBILITY.MODULE_SYSTEM",
+      "mode": "observe",
+      "expectation": "Importing another module. Without it there is no library layer at all and every file is closed-world.",
+      "source": "module M\nimport OtherModule",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P205"
+      ],
+      "content_hash": "31cbfe7805f3abacd8c8fcd8b7fd4d452ae30c00838deb1d5f7c0b2668e86485",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P205: 'import' does not begin a statement\n  --> <input>:2:1\n   2 | import OtherModule\n       ^^^^^^\n  help: statements begin with one of: module var param const obs index rv def law prior likelihood assume require prove minimise maximise solve infer check concept goal derive proved",
+      "error": null,
+      "notes": ""
+    }
+  ]
+}

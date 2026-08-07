@@ -1,0 +1,585 @@
+{
+  "suite_id": "COMPOSITION_TESTS",
+  "version": "1.0.0",
+  "governed_by": "../methodology/COMPOSITIONAL_CLOSURE_FRAMEWORK.md",
+  "purpose": "Specimens that require two or more ontology atoms to hold simultaneously in one expression. Each is a statement an ordinary working mathematician, statistician, physicist or engineer would write. They test whether standalone capability survives composition.",
+  "failure_surface_vocabulary": ["GRAMMAR", "TYPE_SYSTEM", "SEMANTIC_MODEL", "CANONICALIZATION", "COMPILER", "BACKEND", "UNSUPPORTED"],
+  "specimens": [
+    {
+      "id": "CT-001",
+      "title": "quantifier over a family of random variables",
+      "atoms_involved": ["LOGIC.FORALL", "PROB.RANDOM_VARIABLE", "PROB.DISTRIBUTED_AS", "LOGIC.INDEXED_FAMILY"],
+      "canonical_statement": {
+        "prose": "For every index i between 1 and n, the random variable X_i is distributed normally with mean mu and variance sigma squared.",
+        "standard_notation": "∀ i ∈ {1,…,n} : X_i ~ Normal(μ, σ²)"
+      },
+      "why_hard": "The quantifier must bind the index of a family whose members are random variables, not values. A system that treats X_i as a number will accept the statement while meaning something else; a system whose quantifier ranges only over values cannot bind the family index at all.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "TYPE_SYSTEM"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-002",
+      "title": "quantifier over matrices with a shape hypothesis",
+      "atoms_involved": ["LOGIC.FORALL", "ALG.MATRIX", "ALG.MATRIX_SHAPE_TYPING", "ALG.INEQUALITY"],
+      "canonical_statement": {
+        "prose": "For every real symmetric matrix A of size n by n and every nonzero vector x of length n, the quadratic form x transpose A x is positive.",
+        "standard_notation": "∀ A ∈ Sym(n,ℝ) ∀ x ∈ ℝⁿ, x ≠ 0 : xᵀ A x > 0"
+      },
+      "why_hard": "The bound variables carry a shape that must agree with each other and with a symbolic dimension n that is itself bound. Shape checking must run under the binder, on symbolic rather than literal dimensions.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-003",
+      "title": "quantifier over a dimensionful domain",
+      "atoms_involved": ["LOGIC.FORALL", "SCI.QUANTITY", "SCI.DIMENSIONAL_HOMOGENEITY", "NUM.INTERVAL_DOMAIN"],
+      "canonical_statement": {
+        "prose": "For every length L between zero and ten metres, the period T equals two pi times the square root of L divided by g.",
+        "standard_notation": "∀ L ∈ [0 m, 10 m] : T(L) = 2π √(L/g)"
+      },
+      "why_hard": "The quantification domain is an interval of a dimensionful quantity, so the bound variable carries a unit that must propagate through a square root (halving the dimension exponents) into the conclusion.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL", "GRAMMAR"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-004",
+      "title": "distribution parameters carrying units",
+      "atoms_involved": ["PROB.DISTRIBUTED_AS", "SCI.UNITFUL_RANDOM_VARIABLE", "PROB.PARAMETER_ROLE", "NUM.POSITIVE_REAL"],
+      "canonical_statement": {
+        "prose": "Adult height H is normally distributed with mean 1.7 metres and standard deviation 0.1 metres, where the standard deviation is strictly positive; the variance is therefore in square metres.",
+        "standard_notation": "H ~ Normal(μ = 1.7 m, σ = 0.1 m), σ > 0, Var(H) = 0.01 m²"
+      },
+      "why_hard": "The location and scale parameters must share the variate's unit, the variance must acquire the squared unit automatically, and the positivity refinement must apply to a dimensionful quantity. Three type facets must hold on the same parameter at once.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-005",
+      "title": "minimising an expectation",
+      "atoms_involved": ["OPT.OBJECTIVE", "OPT.EXPECTED_VALUE_OBJECTIVE", "PROB.EXPECTATION", "OPT.DECISION_VARIABLE"],
+      "canonical_statement": {
+        "prose": "Choose the action a in the feasible set A that minimises the expected loss, where the expectation is taken over the random state S distributed according to p.",
+        "standard_notation": "minimise over a ∈ A : E_{S ~ p}[ ℓ(a, S) ]"
+      },
+      "why_hard": "Two binders of different kinds nest: the optimisation binds a, the expectation binds S against a named distribution. The system must keep straight which variable each operator owns and that a is not integrated over.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "TYPE_SYSTEM"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-006",
+      "title": "matrix with a symbolic structural constraint",
+      "atoms_involved": ["ALG.MATRIX", "ALG.POSITIVE_DEFINITE", "ALG.SYMBOLIC_VARIABLE", "ALG.EQUATION"],
+      "canonical_statement": {
+        "prose": "Let Sigma be an unknown n by n symmetric positive definite matrix satisfying Sigma times x equals b.",
+        "standard_notation": "Σ ∈ S₊₊ⁿ, unknown, with Σ x = b"
+      },
+      "why_hard": "The matrix is simultaneously an unknown to solve for, shape-typed, and constrained by a structural property that is itself a universally quantified statement (zᵀΣz > 0 for all z ≠ 0). The constraint must be attached to the unknown, not checked against a value.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL", "BACKEND"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-007",
+      "title": "a function whose value is a distribution",
+      "atoms_involved": ["PROB.FUNCTION_RETURNING_DISTRIBUTION", "PROB.DISTRIBUTION_OBJECT", "LOGIC.FUNCTION_AS_OBJECT", "ANA.FUNCTION_REAL"],
+      "canonical_statement": {
+        "prose": "Define the kernel k which maps a real number x to the normal distribution with mean f of x and variance sigma squared. k is a function into distributions, not into numbers.",
+        "standard_notation": "k : ℝ → Dist(ℝ),  k(x) = Normal(f(x), σ²)"
+      },
+      "why_hard": "The return type is a distribution. Systems that make sampling implicit collapse k(x) to a draw, which type-checks and is wrong. The test is whether Dist(ℝ) exists as a type distinct from ℝ.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-008",
+      "title": "indexed family of random variables with index-dependent parameters",
+      "atoms_involved": ["PROB.INDEXED_FAMILY_RV", "LOGIC.INDEXED_FAMILY", "PROB.INDEPENDENCE", "PROB.DISTRIBUTED_AS"],
+      "canonical_statement": {
+        "prose": "The random variables Y_1 through Y_n are independent, and Y_i is normally distributed with mean beta times x_i and common variance sigma squared.",
+        "standard_notation": "Y_i ⫫ Y_j (i ≠ j),  Y_i ~ Normal(β x_i, σ²),  i = 1,…,n"
+      },
+      "why_hard": "Independence is a property of the whole family, while the distributional statement is per index. The system must attach a family-level property and an index-level property to the same object without one overwriting the other.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "TYPE_SYSTEM"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-009",
+      "title": "gradient of an expectation whose distribution depends on the parameter",
+      "atoms_involved": ["OPT.GRADIENT_OF_OBJECTIVE", "PROB.EXPECTATION", "ANA.DERIVATIVE", "OPT.EXPECTED_VALUE_OBJECTIVE"],
+      "canonical_statement": {
+        "prose": "Take the derivative with respect to theta of the expectation of f of Z, where Z is distributed according to q sub theta, so the distribution itself depends on theta.",
+        "standard_notation": "∇_θ E_{Z ~ q_θ}[ f(Z) ]"
+      },
+      "why_hard": "The differentiation variable appears in the measure, not only in the integrand, so the derivative cannot be moved inside the expectation without a score-function or reparameterisation step. A representation must be able to see that dependence to know the naive interchange is invalid.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "CANONICALIZATION", "BACKEND"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-010",
+      "title": "definite integral carrying units",
+      "atoms_involved": ["ANA.INTEGRAL_DEFINITE", "SCI.UNIT_OF_INTEGRAL", "SCI.QUANTITY", "NUM.INTERVAL_DOMAIN"],
+      "canonical_statement": {
+        "prose": "The energy delivered between times zero and T is the integral of the power P of t with respect to t; power is in watts, time in seconds, so the energy is in joules.",
+        "standard_notation": "E = ∫₀^T P(t) dt,  [P] = W, [t] = s, [E] = J"
+      },
+      "why_hard": "The differential contributes a unit factor. A unit system integrated only with arithmetic will produce watts rather than joules, or drop units entirely at the integral boundary.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-011",
+      "title": "local assumption inside a function body",
+      "atoms_involved": ["EPIS.LOCAL_ASSUMPTION_SCOPE", "LOGIC.HYPOTHESIS_CONTEXT", "LOGIC.PARTIAL_DEFINEDNESS", "ANA.SPECIAL_FUNCTIONS"],
+      "canonical_statement": {
+        "prose": "Define g of x for x strictly positive as the logarithm of x. Inside the body of g, positivity of x may be assumed and discharges the definedness obligation of the logarithm; outside g, nothing is assumed about x.",
+        "standard_notation": "g : ℝ₊ → ℝ,  g(x) = log x   [assumption x > 0 in force only inside g]"
+      },
+      "why_hard": "The assumption must be available exactly within the body and must discharge an obligation raised there, while not leaking to any sibling scope. Systems with a global assumption store either leak it or cannot use it.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "TYPE_SYSTEM"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-012",
+      "title": "constraint scoped to a subset of an index set",
+      "atoms_involved": ["OPT.CONSTRAINT_SCOPE", "LOGIC.BOUNDED_QUANTIFIER", "OPT.INEQUALITY_CONSTRAINT", "LOGIC.INDEXED_FAMILY"],
+      "canonical_statement": {
+        "prose": "Subject to: for every i in the active set, x_i is at most its capacity c_i; no such bound is imposed for i outside the active set.",
+        "standard_notation": "s.t. ∀ i ∈ A ⊆ I : x_i ≤ c_i"
+      },
+      "why_hard": "The constraint is generated per index over a guarded subset. Systems with a flat constraint list either materialise the constraint for all i or cannot express the guard; either way the feasible set changes.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "GRAMMAR"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-013",
+      "title": "objective over derived state",
+      "atoms_involved": ["OPT.OBJECTIVE", "EPIS.GIVEN_VS_DERIVED", "ANA.FUNCTION_REAL", "OPT.DECISION_VARIABLE"],
+      "canonical_statement": {
+        "prose": "Minimise the total cost, where the cost depends on the state y, and y is itself defined as a function of the decision variable x through the model equation y equals M of x. y is derived, not chosen.",
+        "standard_notation": "minimise over x : C(y)  where  y = M(x)"
+      },
+      "why_hard": "y must be a derived quantity, not a second decision variable, so the optimiser must not treat y = M(x) as an ordinary constraint over a free y unless that reformulation is declared. The given/derived distinction changes the problem.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "CANONICALIZATION"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-014",
+      "title": "tensor appearing inside a proposition",
+      "atoms_involved": ["ALG.TENSOR", "LOGIC.PROPOSITION", "ALG.TENSOR_INDEX_NOTATION", "LOGIC.FORALL"],
+      "canonical_statement": {
+        "prose": "For all indices i, j and k, the tensor T with components T_ijk is symmetric in its first two indices.",
+        "standard_notation": "∀ i,j,k : T_{ijk} = T_{jik}"
+      },
+      "why_hard": "A proposition ranges over tensor components, so the index variables are simultaneously logical binders and tensor indices. A system that treats indices as integer subscripts of an array cannot state a component-level property universally.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "GRAMMAR", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-015",
+      "title": "quantifier alternation order: uniform versus pointwise",
+      "atoms_involved": ["LOGIC.NESTED_QUANTIFIER_ORDER", "LOGIC.FORALL", "LOGIC.EXISTS", "ANA.UNIFORM_CONTINUITY"],
+      "canonical_statement": {
+        "prose": "Uniform continuity says: for every epsilon greater than zero there exists a delta greater than zero such that for all x and y, if the distance between x and y is less than delta then the distance between f of x and f of y is less than epsilon. Pointwise continuity moves the 'for all x' outside the 'there exists delta'. The two statements are different.",
+        "standard_notation": "∀ε>0 ∃δ>0 ∀x,y : |x−y|<δ ⟹ |f(x)−f(y)|<ε   versus   ∀x ∀ε>0 ∃δ>0 ∀y : …"
+      },
+      "why_hard": "The two statements use the same atoms in a different order and are not equivalent. Any canonicaliser that sorts or hoists quantifiers, or any encoding that Skolemises without recording it, identifies two different theorems.",
+      "expected_failure_modes": ["CANONICALIZATION", "SEMANTIC_MODEL"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-016",
+      "title": "approximate value inside a proof obligation",
+      "atoms_involved": ["NUMER.APPROXIMATION_MARKER", "LOGIC.PROOF_OBLIGATION", "EPIS.APPROXIMATION_CLAIM", "ALG.INVERSE"],
+      "canonical_statement": {
+        "prose": "The determinant of A is approximately 1e-14. The obligation that A is invertible is therefore not discharged: an approximate nonzero value is not a proof of nonzeroness.",
+        "standard_notation": "det(A) ≈ 1×10⁻¹⁴  ⊬  det(A) ≠ 0"
+      },
+      "why_hard": "An approximate value must not be allowed to discharge an exact obligation. Systems that treat ≈ as = will silently discharge the invertibility condition and proceed to compute A inverse.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "CANONICALIZATION"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-017",
+      "title": "matrix-valued random variable with a structural constraint",
+      "atoms_involved": ["PROB.RANDOM_MATRIX", "ALG.POSITIVE_DEFINITE", "PROB.DISTRIBUTED_AS", "ALG.MATRIX_SHAPE_TYPING"],
+      "canonical_statement": {
+        "prose": "The covariance matrix Sigma of size p by p is distributed as an inverse Wishart with nu degrees of freedom and scale matrix Psi; every draw is symmetric positive definite.",
+        "standard_notation": "Σ ~ InverseWishart(ν, Ψ),  Σ ∈ S₊₊^p"
+      },
+      "why_hard": "Randomness, shape and a structural constraint must all hold on one object. The support of the distribution is a manifold of constrained matrices, so the constraint is a property of the distribution, not only of a realisation.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL", "BACKEND"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-018",
+      "title": "conditional expectation given a sigma-algebra",
+      "atoms_involved": ["PROB.CONDITIONING_ON_SIGMA_ALGEBRA", "ANA.SIGMA_ALGEBRA", "PROB.CONDITIONAL_EXPECTATION", "ANA.ALMOST_EVERYWHERE"],
+      "canonical_statement": {
+        "prose": "The conditional expectation of X given the sub-sigma-algebra G is the almost-surely unique G-measurable random variable whose integral agrees with that of X over every set in G.",
+        "standard_notation": "E[X | 𝒢] : 𝒢-measurable, ∫_G E[X|𝒢] dP = ∫_G X dP  ∀G ∈ 𝒢,  a.s. unique"
+      },
+      "why_hard": "Requires sigma-algebras as first-class objects, a defining property rather than a formula, and an almost-sure uniqueness qualifier. It is the hardest routine object in measure-theoretic probability.",
+      "expected_failure_modes": ["UNSUPPORTED", "SEMANTIC_MODEL", "TYPE_SYSTEM"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-019",
+      "title": "piecewise function with a domain partition",
+      "atoms_involved": ["ANA.PIECEWISE", "XFORM.CASE_ANALYSIS", "ANA.DOMAIN_CODOMAIN", "LOGIC.DISJUNCTION"],
+      "canonical_statement": {
+        "prose": "Define f of x as x squared when x is at least zero, and as minus x when x is negative. The cases are exhaustive and mutually exclusive over the reals.",
+        "standard_notation": "f(x) = x² if x ≥ 0;  −x if x < 0"
+      },
+      "why_hard": "Exhaustiveness and disjointness of the guards must be checkable, and each branch must carry its guard as a local assumption. Continuity at the break point is a separate claim that must not be assumed.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "TYPE_SYSTEM"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-020",
+      "title": "statement quantifying over functions",
+      "atoms_involved": ["LOGIC.SECOND_ORDER_QUANTIFICATION", "ANA.CONTINUITY", "LOGIC.FUNCTION_AS_OBJECT", "LOGIC.EXISTS"],
+      "canonical_statement": {
+        "prose": "For every continuous function f from the closed unit interval to itself, there exists a point c in that interval with f of c equal to c.",
+        "standard_notation": "∀ f ∈ C([0,1],[0,1]) ∃ c ∈ [0,1] : f(c) = c"
+      },
+      "why_hard": "The universal quantifier ranges over a function space with a continuity restriction, and the existential ranges over the domain. Systems whose quantifiers range only over values cannot state it at all.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "GRAMMAR", "UNSUPPORTED"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-021",
+      "title": "probability of a quantified event",
+      "atoms_involved": ["PROB.PROBABILITY_MEASURE", "PROB.EVENT", "LOGIC.EXISTS", "PROB.INDEXED_FAMILY_RV"],
+      "canonical_statement": {
+        "prose": "The probability that there exists an index i for which X_i exceeds the threshold t is at most alpha.",
+        "standard_notation": "P( ∃ i ≤ n : X_i > t ) ≤ α"
+      },
+      "why_hard": "The quantifier lives inside the probability operator, so its body must denote an event (a measurable set) rather than a truth value. The union bound only applies because the quantified body is a union of events.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-022",
+      "title": "hierarchical model with an acyclic dependency structure",
+      "atoms_involved": ["PROB.HIERARCHICAL_MODEL", "PROB.CONDITIONAL_DISTRIBUTION", "DISC.DAG", "XFORM.TOPOLOGICAL_ORDER"],
+      "canonical_statement": {
+        "prose": "Let mu be normally distributed with mean zero and standard deviation ten; conditional on mu, each X_i is normally distributed with mean mu and standard deviation one. The dependency graph must be acyclic.",
+        "standard_notation": "μ ~ Normal(0,10);  X_i | μ ~ Normal(μ, 1),  i = 1,…,n"
+      },
+      "why_hard": "A parameter of one statement is the variate of another. The system must recognise mu as a random variable in one role and a parameter in another, and must reject a cyclic variant.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "TYPE_SYSTEM"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-023",
+      "title": "conditioning versus intervening",
+      "atoms_involved": ["STAT.CAUSAL_INTERVENTION", "PROB.CONDITIONAL_DISTRIBUTION", "EPIS.CORRELATION_VS_CAUSATION", "DISC.DAG"],
+      "canonical_statement": {
+        "prose": "The probability of recovery given that treatment was administered by intervention is not in general equal to the probability of recovery given that treatment was observed.",
+        "standard_notation": "P(R | do(T = 1))  ≠  P(R | T = 1)"
+      },
+      "why_hard": "Two operators that look identical in notation must be distinct objects with different semantics. A representation with only one conditioning construct silently identifies them, which is the central error causal inference exists to prevent.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "GRAMMAR", "UNSUPPORTED"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-024",
+      "title": "chance constraint",
+      "atoms_involved": ["OPT.CHANCE_CONSTRAINT", "PROB.PROBABILITY_MEASURE", "OPT.INEQUALITY_CONSTRAINT", "PROB.RANDOM_VARIABLE"],
+      "canonical_statement": {
+        "prose": "Choose x minimising cost, subject to the requirement that the constraint g of x and the random demand D is satisfied with probability at least 0.95.",
+        "standard_notation": "min c(x)  s.t.  P( g(x, D) ≤ 0 ) ≥ 0.95"
+      },
+      "why_hard": "The constraint is not a deterministic proposition: a probability operator sits between the optimiser and the inequality, and the random variable is not a decision variable. Systems that evaluate the inner inequality on a sample silently replace the chance constraint with a scenario constraint.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "TYPE_SYSTEM", "BACKEND"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-025",
+      "title": "robust minimax with alternating quantifiers",
+      "atoms_involved": ["OPT.ROBUST_WORST_CASE", "LOGIC.NESTED_QUANTIFIER_ORDER", "OPT.OBJECTIVE", "OPT.FEASIBLE_SET"],
+      "canonical_statement": {
+        "prose": "Minimise over x in X the maximum over u in the uncertainty set U of f of x and u. Swapping the order of the two operators generally changes the value.",
+        "standard_notation": "min_{x∈X} max_{u∈U} f(x,u)   ≠   max_{u∈U} min_{x∈X} f(x,u)"
+      },
+      "why_hard": "Two optimisation binders nest with opposite senses and the order is semantic. Any flattening or reordering during canonicalisation changes the problem.",
+      "expected_failure_modes": ["CANONICALIZATION", "SEMANTIC_MODEL"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-026",
+      "title": "unit-carrying derivative in a differential equation",
+      "atoms_involved": ["ANA.ODE", "SCI.UNIT_OF_DERIVATIVE", "SCI.QUANTITY", "ANA.INITIAL_CONDITION"],
+      "canonical_statement": {
+        "prose": "The velocity is the derivative of position with respect to time, and the acceleration is the second derivative; with position in metres and time in seconds these are metres per second and metres per second squared. The initial position is 3 metres.",
+        "standard_notation": "v = dx/dt [m/s],  a = d²x/dt² [m/s²],  x(0) = 3 m"
+      },
+      "why_hard": "Units must be derived through repeated differentiation and must agree with the initial condition. A unit system not integrated with the calculus produces metres for the velocity or drops units at the derivative.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-027",
+      "title": "non-commutative matrix product under a transformation",
+      "atoms_involved": ["ALG.MATRIX_ARITHMETIC", "XFORM.CANONICALIZATION", "ALG.TRANSPOSE_ADJOINT", "XFORM.SIMPLIFICATION"],
+      "canonical_statement": {
+        "prose": "The transpose of A times B equals the transpose of B times the transpose of A. In general A times B is not B times A.",
+        "standard_notation": "(AB)ᵀ = BᵀAᵀ,   AB ≠ BA"
+      },
+      "why_hard": "A canonicaliser that sorts multiplicative operands — a common optimisation for scalars — produces a false identity here. This is a direct test of whether commutativity is assumed globally.",
+      "expected_failure_modes": ["CANONICALIZATION", "SEMANTIC_MODEL"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-028",
+      "title": "density with reciprocal units",
+      "atoms_involved": ["PROB.PDF", "SCI.QUANTITY", "SCI.UNIT_OF_INTEGRAL", "ANA.MEASURE"],
+      "canonical_statement": {
+        "prose": "If H is a height in metres, its probability density f_H of h has units of one per metre, so that the integral of the density over an interval of metres is a dimensionless probability.",
+        "standard_notation": "[f_H(h)] = m⁻¹,  ∫ f_H(h) dh is dimensionless"
+      },
+      "why_hard": "The density is not a probability and carries the reciprocal unit of the variate. Almost every representation stores a density as a plain number, losing both facts, and the error only surfaces when the variate's unit changes.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-029",
+      "title": "sum over an index of a unitful family",
+      "atoms_involved": ["DISC.SUMMATION", "SCI.QUANTITY", "LOGIC.INDEXED_FAMILY", "SCI.DIMENSIONAL_HOMOGENEITY"],
+      "canonical_statement": {
+        "prose": "The total mass is the sum over i from one to n of the individual masses m_i, each in kilograms; the sum is in kilograms and the empty sum is zero kilograms.",
+        "standard_notation": "M = Σ_{i=1}^{n} m_i,  [m_i] = kg,  [M] = kg"
+      },
+      "why_hard": "The summation binder must preserve the unit of its summands, and the empty-sum identity must itself be dimensionful. Systems that treat the empty sum as the dimensionless zero break homogeneity at n = 0.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-030",
+      "title": "log-likelihood as a product over independent observations",
+      "atoms_involved": ["STAT.LOG_LIKELIHOOD", "DISC.PRODUCT_NOTATION", "PROB.IID", "STAT.LIKELIHOOD_FUNCTION"],
+      "canonical_statement": {
+        "prose": "Under independence, the likelihood of theta given the data is the product over i of the density of x_i at theta, and the log-likelihood is the corresponding sum. The additive form is valid only under the independence assumption.",
+        "standard_notation": "L(θ) = Π_i p(x_i | θ),  ℓ(θ) = Σ_i log p(x_i | θ)"
+      },
+      "why_hard": "The argument roles reverse (data fixed, parameter varying) at the same time as an independence assumption licenses the factorisation. Both facts must be attached to the same object, and the assumption must remain visible after the transformation to log form.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "CANONICALIZATION"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-031",
+      "title": "argmax over a constrained parameter space",
+      "atoms_involved": ["STAT.MLE", "OPT.ARGMIN_ARGMAX", "OPT.CONSTRAINT_SCOPE", "NUM.POSITIVE_REAL"],
+      "canonical_statement": {
+        "prose": "The maximum likelihood estimate is the set of parameter pairs mu and sigma maximising the log-likelihood, subject to sigma strictly positive. The maximiser need not be unique.",
+        "standard_notation": "argmax_{(μ,σ) : σ > 0} ℓ(μ, σ)"
+      },
+      "why_hard": "The domain restriction is part of the binder, the result is a set rather than a point, and the estimate is a function of the data. Returning a single point asserts uniqueness that has not been established.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "TYPE_SYSTEM"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-032",
+      "title": "confidence interval as a statement about a random interval",
+      "atoms_involved": ["STAT.CONFIDENCE_INTERVAL", "PROB.PROBABILITY_MEASURE", "STAT.ESTIMATOR", "EPIS.CONFIDENCE_QUALIFIER"],
+      "canonical_statement": {
+        "prose": "The interval whose endpoints are functions of the data covers the true parameter with probability 0.95 under repeated sampling. It is not a statement that the parameter lies in a particular computed interval with probability 0.95.",
+        "standard_notation": "P( θ ∈ [L(X), U(X)] ) = 0.95,  probability over X"
+      },
+      "why_hard": "The randomness is in the interval, not the parameter, and the probability is over the sampling distribution. A representation storing only two numbers has lost the entire quantifier structure and invites the standard misinterpretation.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "UNSUPPORTED"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-033",
+      "title": "expectation of a matrix-valued function of a random vector",
+      "atoms_involved": ["PROB.EXPECTATION", "ALG.MATRIX_SHAPE_TYPING", "PROB.RANDOM_VARIABLE", "ALG.KRONECKER_OUTER"],
+      "canonical_statement": {
+        "prose": "The covariance matrix of the random vector X is the expectation of the outer product of X minus its mean with itself; it is p by p, symmetric and positive semidefinite.",
+        "standard_notation": "Cov(X) = E[ (X − E X)(X − E X)ᵀ ] ∈ S₊^p"
+      },
+      "why_hard": "The expectation operator must be shape-polymorphic: applied to a p by p matrix expression it yields a p by p matrix, and the result inherits a structural property that is not derivable from the shape alone.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-034",
+      "title": "transformation of a random variable with a Jacobian factor",
+      "atoms_involved": ["PROB.CHANGE_OF_VARIABLES_JACOBIAN", "ANA.JACOBIAN", "PROB.PDF", "ALG.DETERMINANT"],
+      "canonical_statement": {
+        "prose": "If Y is g of X for an invertible differentiable g, the density of Y at y is the density of X at the inverse image times the absolute determinant of the Jacobian of the inverse.",
+        "standard_notation": "f_Y(y) = f_X(g⁻¹(y)) · |det D g⁻¹(y)|"
+      },
+      "why_hard": "Three capabilities compose: transforming a distribution, differentiating a vector map, and taking a determinant, with an invertibility precondition. Omitting the Jacobian is a silent, well-documented error class.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "BACKEND", "TYPE_SYSTEM"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-035",
+      "title": "almost-everywhere qualifier surviving a transformation",
+      "atoms_involved": ["ANA.ALMOST_EVERYWHERE", "ANA.MEASURE", "XFORM.SEMANTICS_PRESERVING_CHECK", "LOGIC.FORALL"],
+      "canonical_statement": {
+        "prose": "The functions f and g are equal almost everywhere with respect to Lebesgue measure. They are not equal everywhere, and any transformation must not upgrade the qualifier.",
+        "standard_notation": "f = g  λ-a.e.,   but ¬(∀x : f(x) = g(x))"
+      },
+      "why_hard": "A qualifier attached to a universally quantified statement must survive simplification, canonicalisation and printing. Dropping 'a.e.' strengthens the claim, which is the most dangerous direction of error.",
+      "expected_failure_modes": ["CANONICALIZATION", "SEMANTIC_MODEL"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-036",
+      "title": "Taylor expansion with an explicit remainder",
+      "atoms_involved": ["ANA.TAYLOR_EXPANSION", "NUMER.APPROXIMATION_MARKER", "EPIS.VALIDITY_DOMAIN", "ANA.HIGHER_DERIVATIVE"],
+      "canonical_statement": {
+        "prose": "Near a, f of x equals f of a plus f prime of a times x minus a plus a remainder bounded by M over two times x minus a squared, valid for x within the interval where the second derivative is bounded by M.",
+        "standard_notation": "f(x) = f(a) + f′(a)(x−a) + R,  |R| ≤ (M/2)(x−a)²  for |x−a| ≤ r"
+      },
+      "why_hard": "A truncated expansion is an approximation with a remainder and a validity region, not an equality. Systems that write the truncation with '=' overstate the claim and lose the region.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "CANONICALIZATION"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-037",
+      "title": "series rearrangement blocked by conditional convergence",
+      "atoms_involved": ["ANA.SERIES", "ANA.CONVERGENCE_MODES", "XFORM.SIMPLIFICATION", "DISC.SUMMATION"],
+      "canonical_statement": {
+        "prose": "The alternating harmonic series converges conditionally; rearranging its terms can change its sum, so term reordering is not a valid simplification.",
+        "standard_notation": "Σ (−1)^{n+1}/n converges, but is not absolutely convergent"
+      },
+      "why_hard": "A simplifier that treats an infinite sum like a finite one may reorder terms. The validity of reordering depends on a convergence property that must be attached to the series object.",
+      "expected_failure_modes": ["CANONICALIZATION", "SEMANTIC_MODEL"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-038",
+      "title": "simplification that narrows the domain",
+      "atoms_involved": ["ALG.SYMBOLIC_SIMPLIFICATION", "LOGIC.PARTIAL_DEFINEDNESS", "XFORM.SIMPLIFICATION", "ALG.RATIONAL_FUNCTION"],
+      "canonical_statement": {
+        "prose": "The expression x squared minus one over x minus one equals x plus one for every x other than one; at x equal to one the left side is undefined while the right side is two.",
+        "standard_notation": "(x²−1)/(x−1) = x+1  for x ≠ 1"
+      },
+      "why_hard": "The rewrite is valid only with a side condition. A simplifier that applies it unconditionally changes the function's domain, and the change is invisible unless definedness is tracked.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "CANONICALIZATION"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-039",
+      "title": "mixed-unit state vector",
+      "atoms_involved": ["SCI.TENSOR_UNITS", "NUM.VECTOR_OF_SCALARS", "SCI.QUANTITY", "ALG.MATRIX_SHAPE_TYPING"],
+      "canonical_statement": {
+        "prose": "The state vector holds a position in metres and a velocity in metres per second; the state transition matrix must therefore have entries of differing dimensions for the product to be dimensionally homogeneous.",
+        "standard_notation": "s = (x [m], v [m/s])ᵀ,  s' = F s  with [F_{12}] = s"
+      },
+      "why_hard": "Units vary per component, so a per-array unit tag is insufficient and matrix multiplication must check dimensions entrywise. Almost all unit systems attach one unit to an array.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL", "UNSUPPORTED"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-040",
+      "title": "dimensionless argument requirement inside a model",
+      "atoms_involved": ["SCI.UNIT_IN_TRANSCENDENTAL_ARG", "STAT.GLM", "SCI.DIMENSIONLESS", "ANA.SPECIAL_FUNCTIONS"],
+      "canonical_statement": {
+        "prose": "In a log-linear model the logarithm may only be applied to a dimensionless ratio: log of the dose divided by a reference dose, not log of the dose.",
+        "standard_notation": "log( d / d₀ ) is well formed;  log( d ) with [d] = mg is not"
+      },
+      "why_hard": "The rule is a cross-cutting constraint between the unit system and the function library, applied inside a statistical model where the link function is applied to the mean rather than the response.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-041",
+      "title": "assumption discharged by a refinement carried through a call",
+      "atoms_involved": ["XFORM.CONSTRAINT_PROPAGATION", "LOGIC.SUBTYPING_REFINEMENT", "LOGIC.PROOF_OBLIGATION", "LOGIC.APPLICATION"],
+      "canonical_statement": {
+        "prose": "Given that sigma is a strictly positive real, calling a function that requires a positive argument must not generate an unproven obligation; calling it with an unconstrained real must.",
+        "standard_notation": "σ : {r ∈ ℝ | r > 0} ⊢ log σ : ℝ  with no residual obligation"
+      },
+      "why_hard": "Refinement information must flow across an application boundary and discharge a precondition. Systems that store refinements without propagating them either raise spurious obligations or discharge them unsoundly.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-042",
+      "title": "epistemic status preserved through a derivation",
+      "atoms_involved": ["EPIS.PROOF_STATUS", "EPIS.ASSUMPTION", "XFORM.EQUATIONAL_REASONING", "EPIS.APPROXIMATION_CLAIM"],
+      "canonical_statement": {
+        "prose": "A conclusion derived from an assumed premise and an approximate step is itself conditional and approximate; it must not be recorded as an established exact result.",
+        "standard_notation": "assumed(A), A ⟹ B, B ≈ C  ⊢  conditional-and-approximate(C)"
+      },
+      "why_hard": "Status must be combined across a chain of steps by a defined rule, with the weakest status propagating. Systems that attach status only to leaves lose it at the first derivation.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "UNSUPPORTED"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-043",
+      "title": "translation to a backend that lacks a constraint",
+      "atoms_involved": ["XFORM.COMPILATION_TO_BACKEND", "XFORM.LOSS_ANNOTATION", "EPIS.TRANSLATION_LOSS_DECLARATION", "LOGIC.SUBTYPING_REFINEMENT"],
+      "canonical_statement": {
+        "prose": "A model with the constraint sigma strictly positive is compiled to a target that has only unconstrained reals. The constraint must be reported as dropped, not silently omitted.",
+        "standard_notation": "σ > 0  ⟼  σ : ℝ   [loss: constraint dropped]"
+      },
+      "why_hard": "The test is not whether the translation succeeds but whether the loss is emitted in a machine-readable form. Silent omission produces a target model that is wrong in a way no downstream consumer can detect.",
+      "expected_failure_modes": ["BACKEND", "SEMANTIC_MODEL"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-044",
+      "title": "round trip through the printer with a qualifier",
+      "atoms_involved": ["XFORM.ROUND_TRIP", "XFORM.CANONICALIZATION", "NUMER.APPROXIMATION_MARKER", "LOGIC.ALPHA_EQUIVALENCE"],
+      "canonical_statement": {
+        "prose": "Parsing, printing and re-parsing a statement containing an approximation marker and a bound variable must yield the same canonical form, with the approximation still an approximation and the binder still a binder.",
+        "standard_notation": "parse ∘ print ∘ parse = parse   (up to α-equivalence, preserving ≈)"
+      },
+      "why_hard": "Printers commonly lose annotations that the parser cannot restore. This is the cheapest mechanical detector of information loss in the whole pipeline.",
+      "expected_failure_modes": ["CANONICALIZATION", "SEMANTIC_MODEL"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-045",
+      "title": "capture-avoiding substitution under two binders",
+      "atoms_involved": ["LOGIC.SUBSTITUTION", "XFORM.ALPHA_RENAMING", "LOGIC.VARIABLE_BINDING", "DISC.SUMMATION"],
+      "canonical_statement": {
+        "prose": "Substituting the term involving j into a summation whose index is also named j must rename the bound index first; otherwise the substituted j is captured.",
+        "standard_notation": "( Σ_j a_{ij} )[ i := j ]  requires renaming the bound j"
+      },
+      "why_hard": "The two binders are of different kinds — a summation index and a substitution target — and capture across kinds is the case implementations most often miss.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "COMPILER"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-046",
+      "title": "optimisation over a distribution",
+      "atoms_involved": ["OPT.VARIATIONAL_OBJECTIVE", "PROB.DIVERGENCE", "STAT.VARIATIONAL_INFERENCE", "PROB.DISTRIBUTION_OBJECT"],
+      "canonical_statement": {
+        "prose": "Choose the distribution q within a family Q that minimises the Kullback-Leibler divergence from q to p. The decision variable is a measure, and the divergence is not symmetric.",
+        "standard_notation": "min_{q ∈ 𝒬} KL(q ‖ p)"
+      },
+      "why_hard": "The decision variable is infinite-dimensional and is itself a distribution object; the objective's asymmetry means an accidental argument swap silently changes the optimum.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL", "UNSUPPORTED"],
+      "adversarial": false
+    },
+    {
+      "id": "CT-047",
+      "title": "sup versus max in an optimisation conclusion",
+      "atoms_involved": ["ANA.SUP_INF", "OPT.OPTIMAL_VALUE", "GEO.COMPACTNESS", "OPT.ARGMIN_ARGMAX"],
+      "canonical_statement": {
+        "prose": "The infimum of x over the open interval from zero to one is zero, but there is no minimiser. Asserting a minimum requires an attainment hypothesis such as compactness of the feasible set.",
+        "standard_notation": "inf_{x ∈ (0,1)} x = 0,  argmin = ∅"
+      },
+      "why_hard": "The system must distinguish an infimum from a minimum and must not report an optimiser when none exists. Openness of the feasible set is the deciding fact and is easy to discard.",
+      "expected_failure_modes": ["SEMANTIC_MODEL", "TYPE_SYSTEM"],
+      "adversarial": true
+    },
+    {
+      "id": "CT-048",
+      "title": "triple composition: quantifier, units and a random variable in one statement",
+      "atoms_involved": ["LOGIC.FORALL", "SCI.UNITFUL_RANDOM_VARIABLE", "PROB.INDEXED_FAMILY_RV", "SCI.DIMENSIONAL_HOMOGENEITY", "NUM.POSITIVE_REAL"],
+      "canonical_statement": {
+        "prose": "For every subject i, the measured height H_i is a random variable in metres, normally distributed with mean mu metres and standard deviation sigma metres, where sigma is strictly positive; the residual H_i minus mu is also in metres.",
+        "standard_notation": "∀ i : H_i ~ Normal(μ [m], σ [m]), σ > 0,  [H_i − μ] = m"
+      },
+      "why_hard": "Four capabilities must hold at once: quantification over an index, randomness, units on both the variate and the parameters, and a refinement on a dimensionful parameter. This is the canonical statement that distinguishes systems whose features compose from those whose features merely coexist.",
+      "expected_failure_modes": ["TYPE_SYSTEM", "SEMANTIC_MODEL", "GRAMMAR"],
+      "adversarial": false
+    }
+  ]
+}

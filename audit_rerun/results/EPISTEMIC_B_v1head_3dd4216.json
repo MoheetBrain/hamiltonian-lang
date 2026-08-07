@@ -1,0 +1,499 @@
+{
+  "summary": {
+    "src": "/Users/moheet/hamiltonian_lang/src/hamiltonian_lang/__init__.py",
+    "expressible": "8/13",
+    "enforced": "4/13",
+    "rules_in_catalogue": 0,
+    "rules_probed": 16,
+    "rules_passing_sound_check": 0,
+    "catalogue": []
+  },
+  "states": [
+    {
+      "state": "DECLARED",
+      "expressible": "YES",
+      "expressibility_codes": [],
+      "falsifier": "module M\nvar x : Real\nconst n : Natural = x",
+      "falsifier_meaning": "a declared symbol's type must constrain its uses",
+      "falsifier_accepted": false,
+      "falsifier_codes": [
+        "HML-T402"
+      ],
+      "enforced": "YES"
+    },
+    {
+      "state": "DEFINED",
+      "expressible": "YES",
+      "expressibility_codes": [],
+      "falsifier": "module M\nconst c : Real = 2.0\nconst c : Real = 3.0",
+      "falsifier_meaning": "a definition must be unique",
+      "falsifier_accepted": false,
+      "falsifier_codes": [
+        "HML-N303"
+      ],
+      "enforced": "YES"
+    },
+    {
+      "state": "ASSUMED",
+      "expressible": "YES",
+      "expressibility_codes": [],
+      "falsifier": "module M\nvar x : Real\nassume a0 : x > 0.0\nvar k : Real\nassume a1 : k = 2.0 * x\nderive d1 : k / x = 2.0 * x / x from a1 by divide_both_sides(by := x)\ngoal g : k / x = 2.0 * x / x\nproved g by d1",
+      "falsifier_meaning": "ENFORCEMENT TEST IS INVERTED HERE: this program must be ACCEPTED, because an assumption that discharges the x != 0 obligation is the only way the goal can reach PROVED. Scored separately below.",
+      "falsifier_accepted": false,
+      "falsifier_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205",
+        "HML-P205",
+        "HML-P205"
+      ],
+      "enforced": "NO"
+    },
+    {
+      "state": "REQUIRED",
+      "expressible": "YES",
+      "expressibility_codes": [],
+      "falsifier": "module M\nrequire 1.0 = 2.0",
+      "falsifier_meaning": "a false requirement should not pass silently if `require` is load-bearing",
+      "falsifier_accepted": true,
+      "falsifier_codes": [],
+      "enforced": "NO"
+    },
+    {
+      "state": "OBSERVED",
+      "expressible": "YES",
+      "expressibility_codes": [],
+      "falsifier": "module M\nobs n : Natural = 10\nparam k : Natural\ndef total := n + k",
+      "falsifier_meaning": "mixing observed data with an unknown parameter -- accepting this is arguably CORRECT, so a PASS here is not evidence of enforcement either way",
+      "falsifier_accepted": true,
+      "falsifier_codes": [],
+      "enforced": "INCONCLUSIVE"
+    },
+    {
+      "state": "PARAMETER",
+      "expressible": "YES",
+      "expressibility_codes": [],
+      "falsifier": "module M\nparam theta : Probability\ninfer posterior theta",
+      "falsifier_meaning": "a posterior for a symbol with no law must be rejected (HML-S604)",
+      "falsifier_accepted": false,
+      "falsifier_codes": [
+        "HML-S604"
+      ],
+      "enforced": "YES"
+    },
+    {
+      "state": "GOAL",
+      "expressible": "YES",
+      "expressibility_codes": [],
+      "falsifier": "module M\nprove 1.0 = 2.0",
+      "falsifier_meaning": "a false goal must not pass silently if the goal state is load-bearing",
+      "falsifier_accepted": true,
+      "falsifier_codes": [],
+      "enforced": "NO"
+    },
+    {
+      "state": "OBJECTIVE",
+      "expressible": "YES",
+      "expressibility_codes": [],
+      "falsifier": "module M\nparam x : Real\nminimise undeclared_thing",
+      "falsifier_meaning": "an objective over an unresolved name must be rejected",
+      "falsifier_accepted": false,
+      "falsifier_codes": [
+        "HML-N301"
+      ],
+      "enforced": "YES"
+    },
+    {
+      "state": "CONJECTURED",
+      "expressible": "NO",
+      "expressibility_codes": [
+        "HML-P205"
+      ],
+      "falsifier": null,
+      "falsifier_meaning": "state absent",
+      "enforced": "N/A (not expressible)"
+    },
+    {
+      "state": "REFUTED",
+      "expressible": "NO",
+      "expressibility_codes": [
+        "HML-P205"
+      ],
+      "falsifier": null,
+      "falsifier_meaning": "state absent",
+      "enforced": "N/A (not expressible)"
+    },
+    {
+      "state": "APPROXIMATE",
+      "expressible": "NO",
+      "expressibility_codes": [
+        "HML-P204"
+      ],
+      "falsifier": null,
+      "falsifier_meaning": "state absent",
+      "enforced": "N/A (not expressible)"
+    },
+    {
+      "state": "UNCERTAIN",
+      "expressible": "NO",
+      "expressibility_codes": [],
+      "falsifier": null,
+      "falsifier_meaning": "state absent: this COMPILES, but it parses as 9.81 + (-0.02) and therefore expresses subtraction, not uncertainty. Forced to NO.",
+      "enforced": "N/A (not expressible)"
+    },
+    {
+      "state": "PROHIBITED_ASSUMPTION",
+      "expressible": "NO",
+      "expressibility_codes": [
+        "HML-P205"
+      ],
+      "falsifier": null,
+      "falsifier_meaning": "state absent",
+      "enforced": "N/A (not expressible)"
+    }
+  ],
+  "v2_only_reasoning_path": {
+    "GOAL_VIA_PROVED_false_step": {
+      "source": "module M\nvar x : Real\nvar y : Real\nassume a1 : y = 2.0 * x\nderive d1 : y = 2.0 * x + 1.0 from a1 by symmetry\ngoal g : y = 2.0 * x + 1.0\nproved g by d1",
+      "accepted": false,
+      "codes": [
+        "HML-P204",
+        "HML-P205",
+        "HML-P205",
+        "HML-P205"
+      ],
+      "expected_rejected": true,
+      "behaves_as_required": true
+    },
+    "GOAL_VIA_PROVED_open_obligation": {
+      "source": "module M\nvar x : Real\nvar y : Real\nvar k : Real\nassume a1 : y = 2.0 * x\nderive d1 : y / k = 2.0 * x / k from a1 by divide_both_sides(by := k)\ngoal g : y / k = 2.0 * x / k\nproved g by d1",
+      "accepted": false,
+      "codes": [
+        "HML-P204",
+        "HML-P205",
+        "HML-P205",
+        "HML-P205"
+      ],
+      "expected_rejected": true,
+      "behaves_as_required": true
+    },
+    "GOAL_VIA_PROVED_sound_step": {
+      "source": "module M\nvar x : Real\nvar y : Real\nassume a1 : y = 2.0 * x\nderive d1 : 2.0 * x = y from a1 by symmetry\ngoal g : 2.0 * x = y\nproved g by d1",
+      "accepted": false,
+      "codes": [
+        "HML-P204",
+        "HML-P205",
+        "HML-P205",
+        "HML-P205"
+      ],
+      "expected_rejected": false,
+      "behaves_as_required": false
+    },
+    "GOAL_IS_NOT_ITS_OWN_PREMISE": {
+      "source": "module M\nvar x : Real\nvar y : Real\ngoal g : y = 2.0 * x\nderive d1 : 2.0 * x = y from g by symmetry\nproved g by d1",
+      "accepted": false,
+      "codes": [
+        "HML-P205",
+        "HML-P205",
+        "HML-P205"
+      ],
+      "expected_rejected": true,
+      "behaves_as_required": true
+    },
+    "PROVE_STILL_PROVES_NOTHING": {
+      "source": "module M\nprove 1.0 = 2.0",
+      "accepted": true,
+      "codes": [],
+      "expected_rejected": true,
+      "behaves_as_required": false
+    }
+  },
+  "rules": [
+    {
+      "rule": "add_both_sides",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "add_inequality",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "and_elim_left",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "and_elim_right",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "and_intro",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "congruence",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "divide_both_sides",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "modus_ponens",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "modus_tollens",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "multiply_both_sides",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "multiply_inequality",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "substitute",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "subtract_both_sides",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "symmetry",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "transitivity",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    },
+    {
+      "rule": "weaken_inequality",
+      "in_catalogue": false,
+      "correct_ok": false,
+      "correct_status": null,
+      "correct_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "broken_ok": false,
+      "broken_status": null,
+      "broken_codes": [
+        "HML-P204",
+        "HML-P205"
+      ],
+      "sound_check": false
+    }
+  ]
+}

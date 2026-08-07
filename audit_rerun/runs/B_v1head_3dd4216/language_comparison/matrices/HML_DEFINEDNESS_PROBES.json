@@ -1,0 +1,375 @@
+{
+  "hml_source_sha": "f0e334060fa2e615f9779c3779f6d1f515490c56",
+  "summary": {
+    "n": 19,
+    "by_verdict": {
+      "PASS": 7,
+      "FAIL": 0,
+      "OBSERVED": 12,
+      "CRASH": 0
+    },
+    "by_group": {
+      "definedness": {
+        "OBSERVED": 12,
+        "PASS": 7
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "DEF.DIV.LITERAL_ZERO",
+      "group": "definedness",
+      "capability": "NUM.DIVISION / DEFINEDNESS.DIVISION_BY_ZERO",
+      "mode": "observe",
+      "expectation": "Division by a literal zero is undefined. An adequate system rejects it or records an unsatisfiable side condition; it must not accept silently.",
+      "source": "module M\nconst x : Real = 1.0 / 0.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "233388da7d6adcd625598c8a76403959cb2b6e72e9d75dcf448809e0657c4b1b",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.DIV.UNCONSTRAINED_VAR",
+      "group": "definedness",
+      "capability": "DEFINEDNESS.DIVISION_BY_ZERO",
+      "mode": "observe",
+      "expectation": "1/x with x : Real unconstrained requires the side condition x != 0. Ideally a proof obligation is emitted.",
+      "source": "module M\nvar x : Real\ndef y := 1.0 / x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "c473d5621eb0520047bc2ed7798fac130923d00a2e4331079363f984c7415861",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.DIV.GUARDED_BY_ASSUME",
+      "group": "definedness",
+      "capability": "DEFINEDNESS.DISCHARGE_BY_ASSUMPTION",
+      "mode": "observe",
+      "expectation": "An explicit assumption should discharge the side condition. Tests whether assumptions participate in definedness at all.",
+      "source": "module M\nvar x : Real\nassume x != 0\ndef y := 1.0 / x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "8d3aa87b19c66f15ad4688daa60148f2519d33d3640a89a53393a21655b05f0a",
+      "obligations": [
+        "ProofObligation(kind='assumption', description='x != 0', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=7, end_line=3, end_col=13, file='<input>'), type_=PropositionType(), op='!=', left=Ref(span=Span(line=3, col=7, end_line=3, end_col=8, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=ScalarType(name='Natural'), value=0, raw='0')), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.DIV.GUARDED_BY_TYPE",
+      "group": "definedness",
+      "capability": "DEFINEDNESS.DOMAIN_FROM_TYPE",
+      "mode": "observe",
+      "expectation": "x : PositiveReal makes 1/x total. If the system reports the same thing here as for unconstrained Real, the refinement type is not doing definedness work.",
+      "source": "module M\nvar x : PositiveReal\ndef y := 1.0 / x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "c2049187741453b0496f8b9bae011f790d7733f76ef577b7837f0532f733dbbf",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='x > 0', span=Span(line=2, col=0, end_line=2, end_col=5, file='<input>'), expression=None, discharged_by=None)",
+        "ProofObligation(kind='parameter_positivity', description='y > 0', span=Span(line=3, col=0, end_line=3, end_col=16, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.SQRT.NEGATIVE_DOMAIN",
+      "group": "definedness",
+      "capability": "DEFINEDNESS.SQRT",
+      "mode": "observe",
+      "expectation": "sqrt over unconstrained Real needs x >= 0 (or a complex codomain).",
+      "source": "module M\nvar x : Real\ndef y := sqrt(x)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T427"
+      ],
+      "content_hash": "28a1bfd51082c334d11c393449d865ac9b715c50621b2e39ac977dd18e56d91e",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='y >= 0', span=Span(line=3, col=0, end_line=3, end_col=16, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T427: the argument of sqrt has the wrong type\n  --> <input>:3:15\n   3 | def y := sqrt(x)\n                     ^\n  found:    Real\n  expected: NonNegativeReal",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.LOG.NONPOSITIVE",
+      "group": "definedness",
+      "capability": "DEFINEDNESS.LOG",
+      "mode": "observe",
+      "expectation": "log needs x > 0.",
+      "source": "module M\nvar x : Real\ndef y := log(x)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T427"
+      ],
+      "content_hash": "888f14ce14da2f23ea317b05777e03b755acb62ecc878a199ccd398290631157",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T427: the argument of log has the wrong type\n  --> <input>:3:14\n   3 | def y := log(x)\n                    ^\n  found:    Real\n  expected: PositiveReal",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.POW.ZERO_NEGATIVE",
+      "group": "definedness",
+      "capability": "DEFINEDNESS.POWER",
+      "mode": "observe",
+      "expectation": "0^(-1) is undefined.",
+      "source": "module M\nconst y : Real = 0.0 ^ -1.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "2dc67ac8e57309c3f5611d8ce7ae2c0ce77f48bd84d539e165c9b3c606e345b7",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.TAN.POLE",
+      "group": "definedness",
+      "capability": "DEFINEDNESS.TAN",
+      "mode": "observe",
+      "expectation": "tan has poles at pi/2 + k*pi. The builtin table types it (Real,) -> Real, so the poles are unmodelled -- inconsistent with sqrt/log, which ARE domain-restricted.",
+      "source": "module M\nvar x : Real\ndef y := tan(x)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "a5a760c95bb39bddf0c4e472e7b13eeee1c397f95dccdab13602fdd171dc70e0",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.MATRIX.INVERSE",
+      "group": "definedness",
+      "capability": "ALG.MATRIX.INVERSE / DEFINEDNESS.SINGULAR",
+      "mode": "observe",
+      "expectation": "Matrix inversion requires non-singularity (det A != 0).",
+      "source": "module M\nvar A : Matrix[Real, 3, 3]\ndef B := inverse(A)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-N306"
+      ],
+      "content_hash": "f4e0ca02148d36b8bdadca4f0cf059b3e2da45048aef356595f5d13c58143a0b",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-N306: 'inverse' is not a known function\n  --> <input>:3:10\n   3 | def B := inverse(A)\n                ^^^^^^^^^^\n  help: declare it first, e.g. 'param inverse : Real'",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.MATRIX.SHAPE_MISMATCH",
+      "group": "definedness",
+      "capability": "ALG.MATRIX.PRODUCT / TYPE.SHAPE",
+      "mode": "reject",
+      "expectation": "A 2x3 @ 2x3 product is undefined. A shape-aware type system MUST reject this. This is the single clearest test of whether Matrix dimensions are checked.",
+      "source": "module M\nvar A : Matrix[Real, 2, 3]\nvar B : Matrix[Real, 2, 3]\ndef C := A @ B",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T434"
+      ],
+      "content_hash": "6aee038c561f4f05e77dedba4541ac0c176bb294c3052871161a9ec23b0cfaca",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "error HML-T434: inner dimensions do not agree in a matrix product\n  --> <input>:4:10\n   4 | def C := A @ B\n                ^^^^^\n  found:    Matrix[Real, 2, 3]\n  expected: Matrix[..., 3, ...]",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.MATRIX.SHAPE_OK",
+      "group": "definedness",
+      "capability": "ALG.MATRIX.PRODUCT",
+      "mode": "accept",
+      "expectation": "A conformable product must be accepted (control for the probe above).",
+      "source": "module M\nvar A : Matrix[Real, 2, 3]\nvar B : Matrix[Real, 3, 4]\ndef C := A @ B",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "e805951994722ec7941d7491199b0948e412b3839277b82ec6602f194af2c4f9",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.COND_PROB.ZERO_CONDITION",
+      "group": "definedness",
+      "capability": "PROB.CONDITIONAL / DEFINEDNESS.CONDITIONING",
+      "mode": "observe",
+      "expectation": "Conditioning on a probability-zero event is undefined without a density argument. Tests whether conditioning carries any definedness side condition.",
+      "source": "module M\nparam p : Probability\nassume p = 0.0\nrv X : RandomVariable[Real]\nlikelihood X | p ~ Bernoulli(prob := p)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T411"
+      ],
+      "content_hash": "f446a2a6f5689cb4b20f2908ec30b621f8c7d6b74e08dc906b94972b74e188cd",
+      "obligations": [
+        "ProofObligation(kind='assumption', description='p = 0.0', span=Span(line=3, col=0, end_line=3, end_col=14, file='<input>'), expression=Comparison(span=Span(line=3, col=7, end_line=3, end_col=14, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=7, end_line=3, end_col=8, file='<input>'), type_=ScalarType(name='Probability'), name='p', symbol_id=SymbolId(name='p', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=11, end_line=3, end_col=14, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), discharged_by=None)",
+        "ProofObligation(kind='parameter_positivity', description='0 <= p <= 1', span=Span(line=2, col=0, end_line=2, end_col=7, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T411: the support of Bernoulli does not inhabit the declared type of 'X'\n  --> <input>:5:1\n   5 | likelihood X | p ~ Bernoulli(prob := p)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    support Bool\n  expected: Real\n  note: Bernoulli is supported on Bool\n  help: declare 'X : Bool', or choose a family whose support is Real",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.EMPTY_DOMAIN.QUANTIFIER",
+      "group": "definedness",
+      "capability": "LOGIC.VACUOUS_TRUTH",
+      "mode": "observe",
+      "expectation": "Not empty-domain, but tests whether a plainly false universal is accepted as a requirement without complaint.",
+      "source": "module M\nrequire forall x : PositiveNatural . x > 1000000",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "04c08fe12f23fdcfcc42a02f225ba4d4cf965780539b7d0f97fafe97c5743f0e",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall x : PositiveNatural . x > 1000000', span=Span(line=2, col=0, end_line=2, end_col=48, file='<input>'), expression=Quantifier(span=Span(line=2, col=8, end_line=2, end_col=48, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='PositiveNatural'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Comparison(span=Span(line=2, col=37, end_line=2, end_col=48, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=2, col=37, end_line=2, end_col=38, file='<input>'), type_=ScalarType(name='PositiveNatural'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1)), right=Literal(span=Span(line=2, col=41, end_line=2, end_col=48, file='<input>'), type_=ScalarType(name='PositiveNatural'), value=1000000, raw='1000000'))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.DIMENSION.ADD_MISMATCH",
+      "group": "definedness",
+      "capability": "SCI.DIMENSIONAL_EQUALITY",
+      "mode": "reject",
+      "expectation": "Adding a length to a time is dimensionally invalid and MUST be rejected. This is the flagship claim of a dimension system.",
+      "source": "module M\nparam a : Quantity[Length]\nparam b : Quantity[Time]\ndef c := a + b",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-D502"
+      ],
+      "content_hash": "05c3c09cf2b9252e4ebe8571b0da25b327ed4a0d7f9d520828542dd1fabf787f",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "error HML-D502: cannot add quantities with different dimensions\n  --> <input>:4:10\n   4 | def c := a + b\n                ^^^^^\n  found:    Time\n  expected: Length\n  help: convert one operand so both sides share a dimension",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.DIMENSION.MUL_OK",
+      "group": "definedness",
+      "capability": "SCI.DIMENSIONAL_ALGEBRA",
+      "mode": "accept",
+      "expectation": "Length/Time is well formed and should yield a velocity dimension.",
+      "source": "module M\nparam a : Quantity[Length]\nparam b : Quantity[Time]\ndef c := a / b",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "224b2800d579e7ca9f52833e1cce80809a90285b965ffa4c942d879afd5215ca",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.PROB.OUT_OF_RANGE_LITERAL",
+      "group": "definedness",
+      "capability": "NUM.REFINEMENT.PROBABILITY",
+      "mode": "reject",
+      "expectation": "1.5 is not a probability. The spec says literals are checked by VALUE against refinements (D-009), so this must be rejected.",
+      "source": "module M\nconst p : Probability = 1.5",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T402"
+      ],
+      "content_hash": "7f910816705d50fc2b2487bb08a9617e14338e505fb7a8c4450e59c4d4f20f08",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='0 <= p <= 1', span=Span(line=2, col=0, end_line=2, end_col=27, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "error HML-T402: the declared type of 'p' requires Probability\n  --> <input>:2:25\n   2 | const p : Probability = 1.5\n                               ^^^\n  found:    PositiveReal\n  expected: Probability\n  help: supply a value in Probability; 1.5 is not one",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.PROB.IN_RANGE_LITERAL",
+      "group": "definedness",
+      "capability": "NUM.REFINEMENT.PROBABILITY",
+      "mode": "accept",
+      "expectation": "The spec explicitly states this is well typed (D-009). Control probe.",
+      "source": "module M\nconst p : Probability = 1",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "e29f5e12df4693c2371bcfbec9a874c2bc649600b7eda4b259cd0c84c68b4f37",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='0 <= p <= 1', span=Span(line=2, col=0, end_line=2, end_col=25, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.NEGATIVE_INTO_NATURAL",
+      "group": "definedness",
+      "capability": "NUM.REFINEMENT.NATURAL",
+      "mode": "reject",
+      "expectation": "A negative literal is not a Natural.",
+      "source": "module M\nconst n : Natural = -3",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T402"
+      ],
+      "content_hash": "d944ef61d3ef59fa92e9513c1a8cbbbab18c70d1da1df93f7b6f577f2e714118",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "error HML-T402: the declared type of 'n' requires Natural\n  --> <input>:2:21\n   2 | const n : Natural = -3\n                           ^^\n  found:    Integer\n  expected: Natural\n  help: supply a value in Natural; -3 is not one",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "DEF.INDEX.OUT_OF_RANGE",
+      "group": "definedness",
+      "capability": "ALG.INDEXING / DEFINEDNESS.INDEX",
+      "mode": "observe",
+      "expectation": "Index 10 into a length-3 vector is out of range and statically known.",
+      "source": "module M\nvar v : Vector[Real, 3]\ndef y := v[10]",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "d4909f883267dc883dbfa7dc901454fd722859461c2d89da17c9cac1a711ce11",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    }
+  ]
+}

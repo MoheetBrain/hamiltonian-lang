@@ -1,0 +1,685 @@
+{
+  "hml_source_sha": "f0e334060fa2e615f9779c3779f6d1f515490c56",
+  "summary": {
+    "n": 35,
+    "by_verdict": {
+      "PASS": 7,
+      "FAIL": 0,
+      "OBSERVED": 28,
+      "CRASH": 0
+    },
+    "by_group": {
+      "baseline": {
+        "PASS": 4
+      },
+      "composition": {
+        "OBSERVED": 13
+      },
+      "redteam": {
+        "OBSERVED": 15,
+        "PASS": 3
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "BASE.QUANTIFIER_NESTED",
+      "group": "baseline",
+      "capability": "LOGIC.FORALL + LOGIC.EXISTS (order)",
+      "mode": "accept",
+      "expectation": "Nested quantifiers alone. Documented as working.",
+      "source": "module M\nrequire forall x : Real . exists y : Real . y > x",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "2da3c409de3875043fce5f082ef27feaa1a135e6f9acf37cf5264cedca276115",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall x : Real . exists y : Real . y > x', span=Span(line=2, col=0, end_line=2, end_col=49, file='<input>'), expression=Quantifier(span=Span(line=2, col=8, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), kind='forall', var='x', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='x', ordinal=0, depth=1), body=Quantifier(span=Span(line=2, col=26, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), kind='exists', var='y', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='y', ordinal=0, depth=2), body=Comparison(span=Span(line=2, col=44, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=2, col=44, end_line=2, end_col=45, file='<input>'), type_=ScalarType(name='Real'), name='y', symbol_id=SymbolId(name='y', ordinal=0, depth=2)), right=Ref(span=Span(line=2, col=48, end_line=2, end_col=49, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=1))))), discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "BASE.RANDOM_VARIABLE",
+      "group": "baseline",
+      "capability": "PROB.RANDOM_VARIABLE",
+      "mode": "accept",
+      "expectation": "A random variable with a law, alone.",
+      "source": "module M\nrv X : RandomVariable[Real]\nlaw X ~ Normal(location := 0.0, scale := 1.0)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "9e6f56f127951c3b771ac3ad1b37beac4a6946c7d98a1dd17f0b0f30459ed0e1",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "BASE.MATRIX",
+      "group": "baseline",
+      "capability": "ALG.MATRIX",
+      "mode": "accept",
+      "expectation": "Matrix-vector product alone.",
+      "source": "module M\nvar A : Matrix[Real, 3, 3]\nvar v : Vector[Real, 3]\ndef w := A @ v",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "7ae81294cdb26aa0bbb90a08952873861779dc9f1136ef2bf99c70edbe8f998d",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "BASE.QUANTITY",
+      "group": "baseline",
+      "capability": "SCI.PHYSICAL_QUANTITY",
+      "mode": "accept",
+      "expectation": "Dimensioned arithmetic alone.",
+      "source": "module M\nparam m : Quantity[Mass]\nparam v : Quantity[Length / Time]\ndef p := m * v",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "41df7491025acc9cbd96192e70ade201b538ffd3dd51d453eb91da6473b29aa9",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.QUANT_X_PROB",
+      "group": "composition",
+      "capability": "LOGIC.FORALL x PROB.RANDOM_VARIABLE",
+      "mode": "observe",
+      "expectation": "Quantifying a proposition that mentions a random variable. Ordinary in probability; tests whether RV terms may appear inside quantified propositions.",
+      "source": "module M\nrv X : RandomVariable[Real]\nrequire forall t : Probability . X > 0.0",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T480"
+      ],
+      "content_hash": "167a32b5f78365bf6e3e3dfdaede19c0069ebf489b231082767bc8b4d64205ad",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall t : Probability . X > 0.0', span=Span(line=3, col=0, end_line=3, end_col=40, file='<input>'), expression=Quantifier(span=Span(line=3, col=8, end_line=3, end_col=40, file='<input>'), type_=EventType(), kind='forall', var='t', var_type=ScalarType(name='Probability'), symbol_id=SymbolId(name='t', ordinal=0, depth=1), body=Comparison(span=Span(line=3, col=33, end_line=3, end_col=40, file='<input>'), type_=EventType(), op='>', left=Ref(span=Span(line=3, col=33, end_line=3, end_col=34, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='X', symbol_id=SymbolId(name='X', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=37, end_line=3, end_col=40, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0'))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T480: require requires a proposition, not an event\n  --> <input>:3:9\n   3 | require forall t : Probability . X > 0.0\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    Event\n  expected: Proposition\n  note: an event has a probability, not a truth value; asserting it directly would claim it holds on every draw without saying so\n  note: use 'probability(...)' to speak about how likely it is, or compare fixed quantities to state something that is simply true\n  help: require probability(forall t : Probability . X > 0.0) = 1.0",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.QUANT_X_MATRIX",
+      "group": "composition",
+      "capability": "LOGIC.FORALL x ALG.MATRIX",
+      "mode": "observe",
+      "expectation": "Quantifying over vectors with a matrix expression in the body.",
+      "source": "module M\nvar A : Matrix[Real, 3, 3]\nrequire forall v : Vector[Real, 3] . (A @ v) = (A @ v)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "ccfed55aa006652d0f5fa3a7f8f196bd01fb0ee8ea5b5fa2283bb5d0de23f833",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall v : Vector[Real, 3] . A @ v = A @ v', span=Span(line=3, col=0, end_line=3, end_col=54, file='<input>'), expression=Quantifier(span=Span(line=3, col=8, end_line=3, end_col=54, file='<input>'), type_=PropositionType(), kind='forall', var='v', var_type=VectorType(element=ScalarType(name='Real'), length=3), symbol_id=SymbolId(name='v', ordinal=0, depth=1), body=Comparison(span=Span(line=3, col=37, end_line=3, end_col=54, file='<input>'), type_=PropositionType(), op='=', left=BinOp(span=Span(line=3, col=37, end_line=3, end_col=44, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), op='@', left=Ref(span=Span(line=3, col=38, end_line=3, end_col=39, file='<input>'), type_=MatrixType(element=ScalarType(name='Real'), rows=3, cols=3), name='A', symbol_id=SymbolId(name='A', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=42, end_line=3, end_col=43, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), name='v', symbol_id=SymbolId(name='v', ordinal=0, depth=1))), right=BinOp(span=Span(line=3, col=47, end_line=3, end_col=54, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), op='@', left=Ref(span=Span(line=3, col=48, end_line=3, end_col=49, file='<input>'), type_=MatrixType(element=ScalarType(name='Real'), rows=3, cols=3), name='A', symbol_id=SymbolId(name='A', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=52, end_line=3, end_col=53, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), name='v', symbol_id=SymbolId(name='v', ordinal=0, depth=1))))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.QUANT_X_UNITS",
+      "group": "composition",
+      "capability": "LOGIC.FORALL x SCI.PHYSICAL_QUANTITY",
+      "mode": "observe",
+      "expectation": "Quantifying over a dimensioned domain.",
+      "source": "module M\nrequire forall d : Quantity[Length] . d >= d",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "d2ab4ef1d615a753480fc3e4a15889b346ef7446ed15709d35c7cd3e58bbcaa3",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall d : Quantity[Length] . d >= d', span=Span(line=2, col=0, end_line=2, end_col=44, file='<input>'), expression=Quantifier(span=Span(line=2, col=8, end_line=2, end_col=44, file='<input>'), type_=PropositionType(), kind='forall', var='d', var_type=QuantityType(dimension=Dimension(exponents=(('Length', Fraction(1, 1)),), variables=()), base=ScalarType(name='Real')), symbol_id=SymbolId(name='d', ordinal=0, depth=1), body=Comparison(span=Span(line=2, col=38, end_line=2, end_col=44, file='<input>'), type_=PropositionType(), op='>=', left=Ref(span=Span(line=2, col=38, end_line=2, end_col=39, file='<input>'), type_=QuantityType(dimension=Dimension(exponents=(('Length', Fraction(1, 1)),), variables=()), base=ScalarType(name='Real')), name='d', symbol_id=SymbolId(name='d', ordinal=0, depth=1)), right=Ref(span=Span(line=2, col=43, end_line=2, end_col=44, file='<input>'), type_=QuantityType(dimension=Dimension(exponents=(('Length', Fraction(1, 1)),), variables=()), base=ScalarType(name='Real')), name='d', symbol_id=SymbolId(name='d', ordinal=0, depth=1)))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.PROB_X_UNITS",
+      "group": "composition",
+      "capability": "PROB.RANDOM_VARIABLE x SCI.PHYSICAL_QUANTITY",
+      "mode": "observe",
+      "expectation": "A dimensioned random variable -- a measured height in metres. Extremely common in scientific statistics. Tests whether RandomVariable composes with Quantity, and whether the law's parameters inherit the dimension.",
+      "source": "module M\nrv H : RandomVariable[Quantity[Length]]\nlaw H ~ Normal(location := 1.0, scale := 0.1)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T411"
+      ],
+      "content_hash": "2d5a0479c9d2b726f5fbb47049bace034edbe690035fe4aa9825045ef54cff1d",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T411: the support of Normal does not inhabit the declared type of 'H'\n  --> <input>:3:1\n   3 | law H ~ Normal(location := 1.0, scale := 0.1)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    support Real\n  expected: Quantity[Length]\n  note: Normal is supported on Real\n  help: declare 'H : Real', or choose a family whose support is Quantity[Length]",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.MATRIX_VALUED_RV",
+      "group": "composition",
+      "capability": "PROB.RANDOM_VARIABLE x ALG.MATRIX",
+      "mode": "observe",
+      "expectation": "A matrix-valued random variable (a random covariance matrix). Standard in multivariate statistics.",
+      "source": "module M\nrv S : RandomVariable[Matrix[Real, 3, 3]]\nrequire probability(S = S) = 1.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "7c04b5c193d2e3fb576e836799f34428968cc779467d833f59ef72f806540bc3",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='probability(S = S) = 1.0', span=Span(line=3, col=0, end_line=3, end_col=32, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=32, file='<input>'), type_=PropositionType(), op='=', left=ProbabilityExpr(span=Span(line=3, col=8, end_line=3, end_col=26, file='<input>'), type_=ScalarType(name='Probability'), event=Comparison(span=Span(line=3, col=20, end_line=3, end_col=25, file='<input>'), type_=EventType(), op='=', left=Ref(span=Span(line=3, col=20, end_line=3, end_col=21, file='<input>'), type_=RandomVariableType(codomain=MatrixType(element=ScalarType(name='Real'), rows=3, cols=3)), name='S', symbol_id=SymbolId(name='S', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=24, end_line=3, end_col=25, file='<input>'), type_=RandomVariableType(codomain=MatrixType(element=ScalarType(name='Real'), rows=3, cols=3)), name='S', symbol_id=SymbolId(name='S', ordinal=0, depth=0))), given=[]), right=Literal(span=Span(line=3, col=29, end_line=3, end_col=32, file='<input>'), type_=ScalarType(name='PositiveReal'), value=1.0, raw='1.0')), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.INDEXED_RV_FAMILY",
+      "group": "composition",
+      "capability": "PROB.RANDOM_VARIABLE x DISCRETE.INDEXED_FAMILY",
+      "mode": "observe",
+      "expectation": "An indexed family X_i -- the basis of every hierarchical model and every stochastic process. Tests whether `index` actually indexes anything.",
+      "source": "module M\nindex i : Natural\nrv X : RandomVariable[Real]\nlaw X ~ Normal(location := 0.0, scale := 1.0)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "42669461dc9215a4dffcb93dacaee5ab6c72f9222161e131298f5b4ee87fab28",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.FUNCTION_RETURNING_DISTRIBUTION",
+      "group": "composition",
+      "capability": "LOGIC.FUNCTION x PROB.DISTRIBUTION",
+      "mode": "observe",
+      "expectation": "A function from a parameter to a distribution. This is what a prior IS in a hierarchical model. Tests first-class distributions.",
+      "source": "module M\ndef prior_for(s : PositiveReal) : Distribution[Real] := Normal(location := 0.0, scale := s)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "a9b5f254a5889650566c5b9355f57c5400553d0efdedce89afc8e75958e116c3",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.OBJECTIVE_OVER_DERIVED",
+      "group": "composition",
+      "capability": "OPT.OBJECTIVE x EPISTEMIC.DERIVED",
+      "mode": "observe",
+      "expectation": "Minimising a derived quantity. The core of optimisation.",
+      "source": "module M\nparam x : Real\ndef loss := x * x\nminimise loss",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "f22f05a7689882ac837165ee86938b8887c51a4746d448a7e67a76b28c48da55",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.OBJECTIVE_OVER_PROBABILISTIC",
+      "group": "composition",
+      "capability": "OPT.OBJECTIVE x PROB.EXPECTATION",
+      "mode": "observe",
+      "expectation": "Optimising with respect to a parameter that indexes a distribution -- MLE. Tests whether objectives and probabilistic structure interact at all.",
+      "source": "module M\nparam t : Probability\nrv X : RandomVariable[Real]\nlaw X ~ Bernoulli(prob := t)\nmaximise t",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T411"
+      ],
+      "content_hash": "01bdfc8d04a109ecd985a405c5fb08f5449b69790f1a7677465a322c3838139f",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='0 <= t <= 1', span=Span(line=2, col=0, end_line=2, end_col=7, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T411: the support of Bernoulli does not inhabit the declared type of 'X'\n  --> <input>:4:1\n   4 | law X ~ Bernoulli(prob := t)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    support Bool\n  expected: Real\n  note: Bernoulli is supported on Bool\n  help: declare 'X : Bool', or choose a family whose support is Real",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.LOCAL_ASSUMPTION_IN_SCOPE",
+      "group": "composition",
+      "capability": "EPISTEMIC.ASSUMED x BINDING.LOCAL_SCOPE",
+      "mode": "observe",
+      "expectation": "Can an assumption discharge a domain restriction? log needs PositiveReal; x is Real with an assumption x > 0. If this fails, assumptions and the type system are disconnected -- a CRITICAL finding for a reasoning IR.",
+      "source": "module M\nvar x : Real\nassume x > 0.0\nrequire log(x) = log(x)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T427",
+        "HML-T427"
+      ],
+      "content_hash": "86d59267b747839f2d04d3b2466a276704003aededde67559480534113821284",
+      "obligations": [
+        "ProofObligation(kind='assumption', description='x > 0.0', span=Span(line=3, col=0, end_line=3, end_col=14, file='<input>'), expression=Comparison(span=Span(line=3, col=7, end_line=3, end_col=14, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=7, end_line=3, end_col=8, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=11, end_line=3, end_col=14, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), discharged_by=None)",
+        "ProofObligation(kind='constraint', description='log(x) = log(x)', span=Span(line=4, col=0, end_line=4, end_col=23, file='<input>'), expression=Comparison(span=Span(line=4, col=8, end_line=4, end_col=23, file='<input>'), type_=PropositionType(), op='=', left=Call(span=Span(line=4, col=8, end_line=4, end_col=14, file='<input>'), type_=ScalarType(name='Real'), callee='log', args=[Ref(span=Span(line=4, col=12, end_line=4, end_col=13, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0))]), right=Call(span=Span(line=4, col=17, end_line=4, end_col=23, file='<input>'), type_=ScalarType(name='Real'), callee='log', args=[Ref(span=Span(line=4, col=21, end_line=4, end_col=22, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=0, depth=0))])), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T427: the argument of log has the wrong type\n  --> <input>:4:13\n   4 | require log(x) = log(x)\n                   ^\n  found:    Real\n  expected: PositiveReal\n\nerror HML-T427: the argument of log has the wrong type\n  --> <input>:4:22\n   4 | require log(x) = log(x)\n                            ^\n  found:    Real\n  expected: PositiveReal",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.TENSOR_IN_PROPOSITION",
+      "group": "composition",
+      "capability": "ALG.TENSOR x LOGIC.PROPOSITION",
+      "mode": "observe",
+      "expectation": "A tensor inside a proposition.",
+      "source": "module M\nvar T : Tensor[Real, 2, 3, 4]\nrequire T = T",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "bf47be059df15432014bfb1b9c227b26e2e210c3ae8e977dd23b078585847a75",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='T = T', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=13, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=TensorType(element=ScalarType(name='Real'), shape=(2, 3, 4)), name='T', symbol_id=SymbolId(name='T', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=TensorType(element=ScalarType(name='Real'), shape=(2, 3, 4)), name='T', symbol_id=SymbolId(name='T', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.QUANTIFY_OVER_FUNCTIONS",
+      "group": "composition",
+      "capability": "LOGIC.FORALL x LOGIC.FUNCTION (higher order)",
+      "mode": "observe",
+      "expectation": "Quantifying over functions -- second-order. Needed for analysis ('for every continuous f...'). Tests whether the quantifier domain may be a function type.",
+      "source": "module M\nrequire forall f : Function[Real -> Real] . f = f",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "1931c19903c1aa781c612ae58821dba1a1d60e8228f9b1d3f8c76858bbab7e0a",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='forall f : Function[Real -> Real] . f = f', span=Span(line=2, col=0, end_line=2, end_col=49, file='<input>'), expression=Quantifier(span=Span(line=2, col=8, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), kind='forall', var='f', var_type=FunctionType(domain=(ScalarType(name='Real'),), codomain=ScalarType(name='Real')), symbol_id=SymbolId(name='f', ordinal=0, depth=1), body=Comparison(span=Span(line=2, col=44, end_line=2, end_col=49, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=2, col=44, end_line=2, end_col=45, file='<input>'), type_=FunctionType(domain=(ScalarType(name='Real'),), codomain=ScalarType(name='Real')), name='f', symbol_id=SymbolId(name='f', ordinal=0, depth=1)), right=Ref(span=Span(line=2, col=48, end_line=2, end_col=49, file='<input>'), type_=FunctionType(domain=(ScalarType(name='Real'),), codomain=ScalarType(name='Real')), name='f', symbol_id=SymbolId(name='f', ordinal=0, depth=1)))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "COMP.APPROX_IN_OBLIGATION",
+      "group": "composition",
+      "capability": "NUM.APPROXIMATE x EPISTEMIC.PROOF_OBLIGATION",
+      "mode": "observe",
+      "expectation": "An approximate value inside a proof obligation. Tests whether HML can mark a value as approximate at all, or whether 3.14159 is indistinguishable from an exact constant.",
+      "source": "module M\nconst pi_approx : Real = 3.14159\nrequire pi_approx > 3.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "333b748c601d18d051c0d6b43a02ced13c9164e1aec2a9db128f78383c2ad5ac",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='pi_approx > 3.0', span=Span(line=3, col=0, end_line=3, end_col=23, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=23, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=17, file='<input>'), type_=ScalarType(name='Real'), name='pi_approx', symbol_id=SymbolId(name='pi_approx', ordinal=0, depth=0)), right=Literal(span=Span(line=3, col=20, end_line=3, end_col=23, file='<input>'), type_=ScalarType(name='PositiveReal'), value=3.0, raw='3.0')), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.CONDITIONAL_EXPECTATION",
+      "group": "redteam",
+      "capability": "PROB.CONDITIONAL_EXPECTATION",
+      "mode": "observe",
+      "expectation": "E[X | theta] is the single most common object in statistics. If there is no expectation operator in the expression grammar, regression, conditional models and the law of total expectation are all unwritable.",
+      "source": "module M\nrv X : RandomVariable[Real]\nparam t : Probability\nrequire expectation(X | t) = t",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "614a703c3a18d9de4b257d1ee26c14e04bf43c31443ccf871410f2e63865ffeb",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='expectation(X | t) = t', span=Span(line=4, col=0, end_line=4, end_col=30, file='<input>'), expression=Comparison(span=Span(line=4, col=8, end_line=4, end_col=30, file='<input>'), type_=PropositionType(), op='=', left=MomentExpr(span=Span(line=4, col=8, end_line=4, end_col=26, file='<input>'), type_=ScalarType(name='Real'), kind='expectation', body=Ref(span=Span(line=4, col=20, end_line=4, end_col=21, file='<input>'), type_=RandomVariableType(codomain=ScalarType(name='Real')), name='X', symbol_id=SymbolId(name='X', ordinal=0, depth=0)), given=[Ref(span=Span(line=4, col=24, end_line=4, end_col=25, file='<input>'), type_=ScalarType(name='Probability'), name='t', symbol_id=SymbolId(name='t', ordinal=1, depth=0))]), right=Ref(span=Span(line=4, col=29, end_line=4, end_col=30, file='<input>'), type_=ScalarType(name='Probability'), name='t', symbol_id=SymbolId(name='t', ordinal=1, depth=0))), discharged_by=None)",
+        "ProofObligation(kind='parameter_positivity', description='0 <= t <= 1', span=Span(line=3, col=0, end_line=3, end_col=7, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.INTEGRAL",
+      "group": "redteam",
+      "capability": "ANALYSIS.INTEGRAL",
+      "mode": "observe",
+      "expectation": "A definite integral. Core analysis.",
+      "source": "module M\nvar f : Function[Real -> Real]\ndef a := integral(f(x), x : Real, 0.0, 1.0)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "ef34cf63637701f7fa7cfdba1095f88533446aa7c2340b38c8c674efd81bbd02",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.DERIVATIVE",
+      "group": "redteam",
+      "capability": "ANALYSIS.DERIVATIVE",
+      "mode": "observe",
+      "expectation": "A derivative. Core analysis.",
+      "source": "module M\nvar f : Function[Real -> Real]\ndef d := derivative(f(x), x : Real)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "78b01b2ada8744d59a96cd38210a5dc5236c21fdebf9c6f56c481442562bc17c",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.LIMIT",
+      "group": "redteam",
+      "capability": "ANALYSIS.LIMIT",
+      "mode": "observe",
+      "expectation": "A limit. Core analysis.",
+      "source": "module M\nvar f : Function[Real -> Real]\ndef l := limit(f(x), x : Real -> 0.0)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "a6780d1bd89c8b3c9b92aa54886ebebfd34952797b5873d94b5a9c4324a253aa",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.SUMMATION",
+      "group": "redteam",
+      "capability": "ANALYSIS.SERIES / DISCRETE.SUM",
+      "mode": "observe",
+      "expectation": "A summation. Without an indexed sum, no series, no sample mean, no log-likelihood over a dataset.",
+      "source": "module M\nindex i : Natural\ndef s := sum(i, 1, 10, i)",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T426"
+      ],
+      "content_hash": "7ebe1e3afe5d8a097301a1d9afc734880246560259c3f280b7f62f269e215b84",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T426: sum takes 1 argument, 4 given\n  --> <input>:3:10\n   3 | def s := sum(i, 1, 10, i)\n                ^^^^^^^^^^^^^^^^",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.SET_MEMBERSHIP",
+      "group": "redteam",
+      "capability": "LOGIC.SET_MEMBERSHIP",
+      "mode": "observe",
+      "expectation": "Set membership. Foundational.",
+      "source": "module M\nvar S : Set[Real]\nvar x : Real\nrequire x in S",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "cf73263e22d48589da757e51e592e12ed300564a3192715ac03974ca57f3d084",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='x in S', span=Span(line=4, col=0, end_line=4, end_col=14, file='<input>'), expression=MembershipExpr(span=Span(line=4, col=8, end_line=4, end_col=14, file='<input>'), type_=PropositionType(), element=Ref(span=Span(line=4, col=8, end_line=4, end_col=9, file='<input>'), type_=ScalarType(name='Real'), name='x', symbol_id=SymbolId(name='x', ordinal=1, depth=0)), collection=Ref(span=Span(line=4, col=13, end_line=4, end_col=14, file='<input>'), type_=SetType(element=ScalarType(name='Real')), name='S', symbol_id=SymbolId(name='S', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.PIECEWISE",
+      "group": "redteam",
+      "capability": "LOGIC.PIECEWISE_DEFINITION",
+      "mode": "observe",
+      "expectation": "A piecewise definition (absolute value). Extremely common.",
+      "source": "module M\nvar x : Real\ndef f := if x > 0.0 then x else -x",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P204"
+      ],
+      "content_hash": "2b891ef8cf2168cede7113c3323b7d2bbb910d1c3c0dcd65fd751200310698a5",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-P204: unexpected 'x' after definition\n  --> <input>:3:13\n   3 | def f := if x > 0.0 then x else -x\n                   ^\n  help: HML-L1 permits one statement per line",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.EXISTS_UNIQUE",
+      "group": "redteam",
+      "capability": "LOGIC.UNIQUENESS",
+      "mode": "observe",
+      "expectation": "Unique existence. Every 'the' in mathematics ('the inverse', 'the limit') rests on it.",
+      "source": "module M\nrequire exists! x : Real . x = 0.0",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-L101"
+      ],
+      "content_hash": "885c38c87477d4c0de4126ed19ebdab9150fdabb3e1b43e6ba973bc31665b054",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-L101: unexpected character '!' (U+0021 EXCLAMATION MARK)\n  --> <input>:2:15\n   2 | require exists! x : Real . x = 0.0\n                     ^\n  help: Hamiltonian Lang source is 7-bit ASCII; see docs/design/V0_DESIGN_FREEZE.md section 1",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.IMPLICATION_THEOREM",
+      "group": "redteam",
+      "capability": "LOGIC.IMPLICATION (theorem form)",
+      "mode": "observe",
+      "expectation": "A theorem-shaped implication under a quantifier.",
+      "source": "module M\nvar x : Real\nprove forall y : Real . y > 0.0 => y * y > 0.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "5d782ffbec254c89ba18d99918734571ebed4b1a722944b5dbfbe200278257f1",
+      "obligations": [
+        "ProofObligation(kind='theorem', description='forall y : Real . y > 0.0 => y * y > 0.0', span=Span(line=3, col=0, end_line=3, end_col=46, file='<input>'), expression=Quantifier(span=Span(line=3, col=6, end_line=3, end_col=46, file='<input>'), type_=PropositionType(), kind='forall', var='y', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='y', ordinal=0, depth=1), body=LogicalOp(span=Span(line=3, col=24, end_line=3, end_col=46, file='<input>'), type_=PropositionType(), op='implies', left=Comparison(span=Span(line=3, col=24, end_line=3, end_col=31, file='<input>'), type_=PropositionType(), op='>', left=Ref(span=Span(line=3, col=24, end_line=3, end_col=25, file='<input>'), type_=ScalarType(name='Real'), name='y', symbol_id=SymbolId(name='y', ordinal=0, depth=1)), right=Literal(span=Span(line=3, col=28, end_line=3, end_col=31, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')), right=Comparison(span=Span(line=3, col=35, end_line=3, end_col=46, file='<input>'), type_=PropositionType(), op='>', left=BinOp(span=Span(line=3, col=35, end_line=3, end_col=40, file='<input>'), type_=ScalarType(name='Real'), op='*', left=Ref(span=Span(line=3, col=35, end_line=3, end_col=36, file='<input>'), type_=ScalarType(name='Real'), name='y', symbol_id=SymbolId(name='y', ordinal=0, depth=1)), right=Ref(span=Span(line=3, col=39, end_line=3, end_col=40, file='<input>'), type_=ScalarType(name='Real'), name='y', symbol_id=SymbolId(name='y', ordinal=0, depth=1))), right=Literal(span=Span(line=3, col=43, end_line=3, end_col=46, file='<input>'), type_=ScalarType(name='NonNegativeReal'), value=0.0, raw='0.0')))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.STOCHASTIC_PROCESS",
+      "group": "redteam",
+      "capability": "PROB.STOCHASTIC_PROCESS",
+      "mode": "observe",
+      "expectation": "A process as a function-valued random variable (Brownian motion). Tests the outer limit of the RandomVariable constructor.",
+      "source": "module M\nrv W : RandomVariable[Function[Real -> Real]]\nrequire probability(W = W) = 1.0",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "b16959f9a8e269cdf195fc2b4c1e88ac3b6795a00890656cf8f9ac317fd71656",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='probability(W = W) = 1.0', span=Span(line=3, col=0, end_line=3, end_col=32, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=32, file='<input>'), type_=PropositionType(), op='=', left=ProbabilityExpr(span=Span(line=3, col=8, end_line=3, end_col=26, file='<input>'), type_=ScalarType(name='Probability'), event=Comparison(span=Span(line=3, col=20, end_line=3, end_col=25, file='<input>'), type_=EventType(), op='=', left=Ref(span=Span(line=3, col=20, end_line=3, end_col=21, file='<input>'), type_=RandomVariableType(codomain=FunctionType(domain=(ScalarType(name='Real'),), codomain=ScalarType(name='Real'))), name='W', symbol_id=SymbolId(name='W', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=24, end_line=3, end_col=25, file='<input>'), type_=RandomVariableType(codomain=FunctionType(domain=(ScalarType(name='Real'),), codomain=ScalarType(name='Real'))), name='W', symbol_id=SymbolId(name='W', ordinal=0, depth=0))), given=[]), right=Literal(span=Span(line=3, col=29, end_line=3, end_col=32, file='<input>'), type_=ScalarType(name='PositiveReal'), value=1.0, raw='1.0')), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.GROUP_STRUCTURE",
+      "group": "redteam",
+      "capability": "ALG.GROUP",
+      "mode": "observe",
+      "expectation": "An abstract algebraic structure via the concept mechanism. Tests whether `concept` can carry real algebraic content or is documentation.",
+      "source": "module M\nconcept Group\n  parameter carrier : Set[Real]\n  invariant closure := forall a : Real . a = a\n  example integers := carrier = carrier\nend",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "97441f7cff2e34a09b22476a54592a11e2b519ae23a7c02c6c2901aafa371535",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='Group.closure: forall a : Real . a = a', span=Span(line=4, col=2, end_line=4, end_col=19, file='<input>'), expression=Quantifier(span=Span(line=4, col=23, end_line=4, end_col=46, file='<input>'), type_=PropositionType(), kind='forall', var='a', var_type=ScalarType(name='Real'), symbol_id=SymbolId(name='a', ordinal=0, depth=2), body=Comparison(span=Span(line=4, col=41, end_line=4, end_col=46, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=4, col=41, end_line=4, end_col=42, file='<input>'), type_=ScalarType(name='Real'), name='a', symbol_id=SymbolId(name='a', ordinal=0, depth=2)), right=Ref(span=Span(line=4, col=45, end_line=4, end_col=46, file='<input>'), type_=ScalarType(name='Real'), name='a', symbol_id=SymbolId(name='a', ordinal=0, depth=2)))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.MEASURE",
+      "group": "redteam",
+      "capability": "ANALYSIS.MEASURE",
+      "mode": "observe",
+      "expectation": "A measure as a set function. Tests Set as a function domain.",
+      "source": "module M\nvar mu : Function[Set[Real] -> NonNegativeReal]\nrequire mu = mu",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "9861245ec5b0e10e9da67c2b2c6a403e47317605af2e8c71a90b353eeed0632e",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='mu = mu', span=Span(line=3, col=0, end_line=3, end_col=15, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=15, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=10, file='<input>'), type_=FunctionType(domain=(SetType(element=ScalarType(name='Real')),), codomain=ScalarType(name='NonNegativeReal')), name='mu', symbol_id=SymbolId(name='mu', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=13, end_line=3, end_col=15, file='<input>'), type_=FunctionType(domain=(SetType(element=ScalarType(name='Real')),), codomain=ScalarType(name='NonNegativeReal')), name='mu', symbol_id=SymbolId(name='mu', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.COMPLEX_NUMBER",
+      "group": "redteam",
+      "capability": "NUM.COMPLEX",
+      "mode": "observe",
+      "expectation": "Complex numbers. Absent from the documented type list; probing whether they exist at all. Their absence excludes Fourier analysis, spectral theory, quantum mechanics and most of the eigenvalue theory.",
+      "source": "module M\nvar z : Complex\nrequire z = z",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T440"
+      ],
+      "content_hash": "1b6aae015df137a606974d5d084298d951885156e78954aa877b49d21f1582c4",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='z = z', span=Span(line=3, col=0, end_line=3, end_col=13, file='<input>'), expression=Comparison(span=Span(line=3, col=8, end_line=3, end_col=13, file='<input>'), type_=PropositionType(), op='=', left=Ref(span=Span(line=3, col=8, end_line=3, end_col=9, file='<input>'), type_=ConceptType(name='Complex'), name='z', symbol_id=SymbolId(name='z', ordinal=0, depth=0)), right=Ref(span=Span(line=3, col=12, end_line=3, end_col=13, file='<input>'), type_=ConceptType(name='Complex'), name='z', symbol_id=SymbolId(name='z', ordinal=0, depth=0))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "error HML-T440: unknown type 'Complex'\n  --> <input>:2:1\n   2 | var z : Complex\n       ^^^^^\n  found:    Complex\n  note: 'Complex' is neither a built-in type nor a concept declared in this module\n  note: used as the type of var 'z'\n  help: declare a concept named 'Complex', or use a built-in type",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.EIGENVALUE",
+      "group": "redteam",
+      "capability": "ALG.EIGENVALUE",
+      "mode": "observe",
+      "expectation": "The eigenvalue equation, written structurally rather than via a builtin. Tests scalar-times-vector and matrix-vector composition in a proposition.",
+      "source": "module M\nvar A : Matrix[Real, 3, 3]\nvar v : Vector[Real, 3]\nparam lam : Real\nrequire (A @ v) = lam * v",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "76010ec2f2133c4984ad110e606aa75398b7d2313d95ec138b6aceeb1897d9a9",
+      "obligations": [
+        "ProofObligation(kind='constraint', description='A @ v = lam * v', span=Span(line=5, col=0, end_line=5, end_col=25, file='<input>'), expression=Comparison(span=Span(line=5, col=8, end_line=5, end_col=25, file='<input>'), type_=PropositionType(), op='=', left=BinOp(span=Span(line=5, col=8, end_line=5, end_col=15, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), op='@', left=Ref(span=Span(line=5, col=9, end_line=5, end_col=10, file='<input>'), type_=MatrixType(element=ScalarType(name='Real'), rows=3, cols=3), name='A', symbol_id=SymbolId(name='A', ordinal=0, depth=0)), right=Ref(span=Span(line=5, col=13, end_line=5, end_col=14, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), name='v', symbol_id=SymbolId(name='v', ordinal=1, depth=0))), right=BinOp(span=Span(line=5, col=18, end_line=5, end_col=25, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), op='*', left=Ref(span=Span(line=5, col=18, end_line=5, end_col=21, file='<input>'), type_=ScalarType(name='Real'), name='lam', symbol_id=SymbolId(name='lam', ordinal=2, depth=0)), right=Ref(span=Span(line=5, col=24, end_line=5, end_col=25, file='<input>'), type_=VectorType(element=ScalarType(name='Real'), length=3), name='v', symbol_id=SymbolId(name='v', ordinal=1, depth=0)))), discharged_by=None)"
+      ],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.SIGMA_ALGEBRA_CONDITIONING",
+      "group": "redteam",
+      "capability": "PROB.CONDITIONAL_ON_SIGMA_ALGEBRA",
+      "mode": "observe",
+      "expectation": "Conditioning one random variable on another -- the general form of conditional expectation, and the basis of martingales and regression.",
+      "source": "module M\nrv X : RandomVariable[Real]\nrv Y : RandomVariable[Real]\ndef m := expectation(X | Y)",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "content_hash": "1e007a49da274f9ee0bd60e83584364c1fe4c20232d4f5b06ac599b073f517e7",
+      "obligations": [],
+      "verdict": "OBSERVED",
+      "diagnostics": "",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.PROHIBITED_CONFLATION_DIST_VALUE",
+      "group": "redteam",
+      "capability": "TYPE.DISTRIBUTION_IS_NOT_VALUE",
+      "mode": "reject",
+      "expectation": "A Distribution[Real] is NOT a Real. The project's central type claim; this MUST be rejected.",
+      "source": "module M\nconst d : Distribution[Real] = 1.0",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T402"
+      ],
+      "content_hash": "bdf250057dd450b61b0916c0f916f319a2a3f098ebbbc835a3d84388de3a86b3",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "error HML-T402: the declared type of 'd' requires Distribution[Real]\n  --> <input>:2:32\n   2 | const d : Distribution[Real] = 1.0\n                                      ^^^\n  found:    PositiveReal\n  expected: Distribution[Real]\n  help: supply an expression of type Distribution[Real] for the declared type of 'd'",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.PROHIBITED_CONFLATION_RV_VALUE",
+      "group": "redteam",
+      "capability": "TYPE.RV_IS_NOT_VALUE",
+      "mode": "reject",
+      "expectation": "A RandomVariable[Real] is not a Real. MUST be rejected.",
+      "source": "module M\nrv X : RandomVariable[Real]\nconst y : Real = X",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T402"
+      ],
+      "content_hash": "7784c92f1354ab6997637e1d52638a073a6f7dd01a0eccf3b5750f73b30552c6",
+      "obligations": [],
+      "verdict": "PASS",
+      "diagnostics": "error HML-T402: the declared type of 'y' requires Real\n  --> <input>:3:18\n   3 | const y : Real = X\n                        ^\n  found:    RandomVariable[Real]\n  expected: Real\n  help: declare 'X : Real'",
+      "error": null,
+      "notes": ""
+    },
+    {
+      "id": "RT.PROHIBITED_CONFLATION_PROB_POSREAL",
+      "group": "redteam",
+      "capability": "TYPE.PROBABILITY_INCOMPARABLE_POSITIVEREAL",
+      "mode": "reject",
+      "expectation": "Probability and PositiveReal are declared INCOMPARABLE (D-004). Assigning one to the other must be rejected.",
+      "source": "module M\nparam p : Probability\nconst q : PositiveReal = p",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T402"
+      ],
+      "content_hash": "1c6d015db5376fd834fce153cc53c155e88600bd49d6e8e524fc68ca8c461a11",
+      "obligations": [
+        "ProofObligation(kind='parameter_positivity', description='0 <= p <= 1', span=Span(line=2, col=0, end_line=2, end_col=7, file='<input>'), expression=None, discharged_by=None)",
+        "ProofObligation(kind='parameter_positivity', description='q > 0', span=Span(line=3, col=0, end_line=3, end_col=26, file='<input>'), expression=None, discharged_by=None)"
+      ],
+      "verdict": "PASS",
+      "diagnostics": "error HML-T402: the declared type of 'q' requires PositiveReal\n  --> <input>:3:26\n   3 | const q : PositiveReal = p\n                                ^\n  found:    Probability\n  expected: PositiveReal\n  help: declare 'p : PositiveReal'",
+      "error": null,
+      "notes": ""
+    }
+  ]
+}

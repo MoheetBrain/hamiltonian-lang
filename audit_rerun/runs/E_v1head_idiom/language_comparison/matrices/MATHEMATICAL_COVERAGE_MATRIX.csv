@@ -1,0 +1,487 @@
+ontology_id,domain,name,criticality,weight,HML,HML_evidence,HML_evidence_quality
+LOGIC.ALPHA_EQUIVALENCE,A_FOUNDATIONS_LOGIC,alpha-equivalence,HIGH,8,?,not probed by this audit,—
+LOGIC.APPLICATION,A_FOUNDATIONS_LOGIC,function application,CRITICAL,9,P,`module M ; def f(u : Real) : Real := u * u ; require f(2.0) = 4.0` -> clean,A
+LOGIC.AXIOM,A_FOUNDATIONS_LOGIC,axiom / postulate declaration,MEDIUM,6,?,not probed by this audit,—
+LOGIC.BICONDITIONAL,A_FOUNDATIONS_LOGIC,biconditional / iff,HIGH,8,?,not probed by this audit,—
+LOGIC.BOUNDED_QUANTIFIER,A_FOUNDATIONS_LOGIC,relativised (bounded) quantification,HIGH,8,?,not probed by this audit,—
+LOGIC.CARTESIAN_PRODUCT,A_FOUNDATIONS_LOGIC,cartesian product and tuples,HIGH,8,?,not probed by this audit,—
+LOGIC.CHOICE,A_FOUNDATIONS_LOGIC,choice / selection of witnesses,LOW,3,?,not probed by this audit,—
+LOGIC.CLASSICAL_VS_CONSTRUCTIVE,A_FOUNDATIONS_LOGIC,excluded middle / constructivity marker,LOW,3,?,not probed by this audit,—
+LOGIC.CONJUNCTION,A_FOUNDATIONS_LOGIC,conjunction,CRITICAL,9,P,`module M ; var x : Real ; require x > 0.0 and x < 1.0` -> clean,A
+LOGIC.CONSERVATIVE_EXTENSION,A_FOUNDATIONS_LOGIC,conservativity of definitional extension,MEDIUM,6,?,not probed by this audit,—
+LOGIC.DEFINITIONAL_EQUALITY,A_FOUNDATIONS_LOGIC,definition versus assertion,CRITICAL,9,P,`module M ; const c : Real = 2.0 ; def d := c + 1.0` -> clean,A
+LOGIC.DEPENDENT_TYPE,A_FOUNDATIONS_LOGIC,types depending on values,HIGH,8,?,not probed by this audit,—
+LOGIC.DISJOINT_UNION,A_FOUNDATIONS_LOGIC,sum / disjoint union type,MEDIUM,5,?,not probed by this audit,—
+LOGIC.DISJUNCTION,A_FOUNDATIONS_LOGIC,disjunction,CRITICAL,9,P,`module M ; var x : Real ; require x > 0.0 or x < 1.0` -> clean,A
+LOGIC.EQUALITY,A_FOUNDATIONS_LOGIC,equality as an assertion,CRITICAL,10,P,`module M ; var x : Real ; require x = x` -> clean,A
+LOGIC.EXCLUSIVE_DISJUNCTION,A_FOUNDATIONS_LOGIC,exclusive disjunction,MEDIUM,5,?,not probed by this audit,—
+LOGIC.EXISTS,A_FOUNDATIONS_LOGIC,existential quantification,CRITICAL,10,P,`module M ; require exists x : Real . x = x` -> clean,A
+LOGIC.EXISTS_UNIQUE,A_FOUNDATIONS_LOGIC,unique existence,HIGH,8,0,`module M ; require exists! x : Real . x = 0.0` -> HML-L101 (grammar has no production),A
+LOGIC.FORALL,A_FOUNDATIONS_LOGIC,universal quantification,CRITICAL,10,P,`module M ; require forall x : Real . x = x` -> clean,A
+LOGIC.FREE_VS_BOUND,A_FOUNDATIONS_LOGIC,free versus bound occurrence distinction,CRITICAL,9,P,`module M ; var y : Real ; require forall x : Real . x = y` -> clean,A
+LOGIC.FUNCTIONAL_COMPLETENESS,A_FOUNDATIONS_LOGIC,functional completeness of the connective set,HIGH,7,?,not probed by this audit,—
+LOGIC.FUNCTION_AS_OBJECT,A_FOUNDATIONS_LOGIC,function as a first-class object,CRITICAL,10,P,`module M ; var f : Function[Real -> Real] ; require f = f` -> clean,A
+LOGIC.HYPOTHESIS_CONTEXT,A_FOUNDATIONS_LOGIC,typed context of assumptions,HIGH,8,?,not probed by this audit,—
+LOGIC.IMPLICATION,A_FOUNDATIONS_LOGIC,material implication,CRITICAL,10,P,`module M ; var x : Real ; require x > 1.0 => x > 0.0` -> clean,A
+LOGIC.INDEXED_FAMILY,A_FOUNDATIONS_LOGIC,indexed family of objects,CRITICAL,9,P,`module M ; index i : Natural ; var x : Real` -> clean,A
+LOGIC.INDEXED_UNION_INTERSECTION,A_FOUNDATIONS_LOGIC,indexed and countable set operations,HIGH,7,?,not probed by this audit,—
+LOGIC.INDUCTION_PRINCIPLE,A_FOUNDATIONS_LOGIC,induction principle over an inductive domain,HIGH,8,?,not probed by this audit,—
+LOGIC.LAMBDA,A_FOUNDATIONS_LOGIC,anonymous function abstraction,HIGH,8,?,not probed by this audit,—
+LOGIC.MODAL_QUALIFIER,A_FOUNDATIONS_LOGIC,"modal qualification (necessity, possibility)",LOW,3,?,not probed by this audit,—
+LOGIC.MODEL_SATISFACTION,A_FOUNDATIONS_LOGIC,satisfaction relation (model models formula),LOW,4,?,not probed by this audit,—
+LOGIC.NEGATION,A_FOUNDATIONS_LOGIC,negation,CRITICAL,9,P,`module M ; var x : Real ; require not (x > 0.0)` -> clean,A
+LOGIC.NESTED_QUANTIFIER_ORDER,A_FOUNDATIONS_LOGIC,quantifier alternation and order sensitivity,CRITICAL,10,P,`module M ; require forall x : Real . exists y : Real . y > x` -> clean,A
+LOGIC.PARTIAL_DEFINEDNESS,A_FOUNDATIONS_LOGIC,partiality and definedness conditions,HIGH,8,P,`module M ; const x : Real = 1.0 / 0.0` -> clean,A
+LOGIC.POWERSET,A_FOUNDATIONS_LOGIC,power set,MEDIUM,6,?,not probed by this audit,—
+LOGIC.PREDICATE,A_FOUNDATIONS_LOGIC,predicate / propositional function,CRITICAL,10,L,`module M ; var P : Predicate[Real] ; require forall x : Real . P(x)` -> HML-T470 (expressible only by weakening the declared type),A
+LOGIC.PROOF_OBJECT,A_FOUNDATIONS_LOGIC,proof as an inspectable object,MEDIUM,6,?,not probed by this audit,—
+LOGIC.PROOF_OBLIGATION,A_FOUNDATIONS_LOGIC,generated proof obligation / side condition,HIGH,8,?,not probed by this audit,—
+LOGIC.PROPOSITION,A_FOUNDATIONS_LOGIC,proposition as a first-class object,CRITICAL,10,P,`module M ; var p : Proposition ; require p` -> clean,A
+LOGIC.QUOTIENT_BY_EQUIVALENCE,A_FOUNDATIONS_LOGIC,quotient by an equivalence relation,MEDIUM,6,?,not probed by this audit,—
+LOGIC.RECURSIVE_DEFINITION,A_FOUNDATIONS_LOGIC,recursive / inductive definition,HIGH,7,?,not probed by this audit,—
+LOGIC.RELATION,A_FOUNDATIONS_LOGIC,n-ary relation as an object,HIGH,8,?,not probed by this audit,—
+LOGIC.SCHEMA,A_FOUNDATIONS_LOGIC,axiom or theorem schema with metavariables,LOW,3,?,not probed by this audit,—
+LOGIC.SECOND_ORDER_QUANTIFICATION,A_FOUNDATIONS_LOGIC,"quantification over functions, sets or predicates",HIGH,8,?,not probed by this audit,—
+LOGIC.SET_COMPREHENSION,A_FOUNDATIONS_LOGIC,set-builder / separation,CRITICAL,9,0,"`module M ; var S : Set[Real] ; def T := { x : Real | x > 0.0 }` -> HML-L101,HML-L101,HML-P204 (grammar has no production)",A
+LOGIC.SET_MEMBERSHIP,A_FOUNDATIONS_LOGIC,set membership,CRITICAL,9,0,`module M ; var S : Set[Real] ; var x : Real ; require x in S` -> HML-P204 (grammar has no production),A
+LOGIC.SET_OPERATIONS,A_FOUNDATIONS_LOGIC,"union, intersection, difference, complement",HIGH,7,?,not probed by this audit,—
+LOGIC.SUBSET,A_FOUNDATIONS_LOGIC,subset and set equality,HIGH,7,?,not probed by this audit,—
+LOGIC.SUBSTITUTION,A_FOUNDATIONS_LOGIC,capture-avoiding substitution,CRITICAL,9,P,`module M ; var x : Real ; def f(u : Real) : Real := u * u ; require f(x) = x * x` -> clean,A
+LOGIC.SUBTYPING_REFINEMENT,A_FOUNDATIONS_LOGIC,refinement types and controlled subtyping,HIGH,8,?,not probed by this audit,—
+LOGIC.THEOREM_STATEMENT,A_FOUNDATIONS_LOGIC,theorem with hypotheses and conclusion,CRITICAL,9,P,`module M ; prove forall x : Real . x > 0.0 => x >= 0.0` -> clean,A
+LOGIC.THEORY_SIGNATURE,A_FOUNDATIONS_LOGIC,theory / signature with axioms,MEDIUM,6,?,not probed by this audit,—
+LOGIC.TRUTH_VALUE,A_FOUNDATIONS_LOGIC,truth value distinct from numeric value,HIGH,7,?,not probed by this audit,—
+LOGIC.TYPE_JUDGEMENT,A_FOUNDATIONS_LOGIC,typing judgement,CRITICAL,9,P,`module M ; var x : Real` -> clean,A
+LOGIC.UNIVERSE_SORT,A_FOUNDATIONS_LOGIC,universes / stratification of collections,LOW,3,?,not probed by this audit,—
+LOGIC.VARIABLE_BINDING,A_FOUNDATIONS_LOGIC,binding structure and scope,CRITICAL,10,P,`module M ; require forall x : Real . x = x` -> clean,A
+LOGIC.WELL_FOUNDEDNESS,A_FOUNDATIONS_LOGIC,well-foundedness / termination measure,MEDIUM,6,?,not probed by this audit,—
+NUM.ABSOLUTE_VALUE,B_NUMBER_SYSTEMS,absolute value and modulus,HIGH,7,?,not probed by this audit,—
+NUM.ALGEBRAIC_NUMBER,B_NUMBER_SYSTEMS,algebraic numbers and radicals,LOW,3,?,not probed by this audit,—
+NUM.CARDINALITY,B_NUMBER_SYSTEMS,"cardinality, finiteness and countability",MEDIUM,6,?,not probed by this audit,—
+NUM.COMPLEX,B_NUMBER_SYSTEMS,complex numbers,HIGH,7,L,`module M ; var z : Complex ; require z = z` -> HML-T440 (expressible only by weakening the declared type),A
+NUM.DIVISIBILITY,B_NUMBER_SYSTEMS,divisibility relation,MEDIUM,5,?,not probed by this audit,—
+NUM.EXACT_VS_APPROX,B_NUMBER_SYSTEMS,exact versus approximate value distinction,HIGH,8,?,not probed by this audit,—
+NUM.EXTENDED_REAL,B_NUMBER_SYSTEMS,extended reals with +/- infinity,MEDIUM,6,?,not probed by this audit,—
+NUM.FLOOR_CEIL_ROUND,B_NUMBER_SYSTEMS,"floor, ceiling and rounding",MEDIUM,5,?,not probed by this audit,—
+NUM.GCD_LCM,B_NUMBER_SYSTEMS,gcd and lcm,LOW,3,?,not probed by this audit,—
+NUM.INTEGER,B_NUMBER_SYSTEMS,integers,CRITICAL,9,P,`module M ; const n : Integer = -3` -> clean,A
+NUM.INTEGER_MOD_N,B_NUMBER_SYSTEMS,integers modulo n,MEDIUM,5,?,not probed by this audit,—
+NUM.INTERVAL_DOMAIN,B_NUMBER_SYSTEMS,intervals as domains,HIGH,7,?,not probed by this audit,—
+NUM.LITERAL_NOTATION,B_NUMBER_SYSTEMS,unambiguous numeric literal syntax,MEDIUM,5,?,not probed by this audit,—
+NUM.MODULAR_ARITHMETIC,B_NUMBER_SYSTEMS,congruence and modular relations,MEDIUM,5,?,not probed by this audit,—
+NUM.NATURAL,B_NUMBER_SYSTEMS,natural numbers,CRITICAL,9,P,`module M ; const n : Natural = 3` -> clean,A
+NUM.NONNEGATIVE_REAL,B_NUMBER_SYSTEMS,non-negative reals,HIGH,7,?,not probed by this audit,—
+NUM.NUMERIC_COERCION_POLICY,B_NUMBER_SYSTEMS,declared coercion / promotion policy,HIGH,7,?,not probed by this audit,—
+NUM.ORDER_RELATION,B_NUMBER_SYSTEMS,total order on numeric domains,CRITICAL,9,P,`module M ; var x : Real ; require x <= x` -> clean,A
+NUM.ORDINAL,B_NUMBER_SYSTEMS,ordinals and transfinite indexing,LOW,2,?,not probed by this audit,—
+NUM.PADIC,B_NUMBER_SYSTEMS,p-adic and alternative completions,LOW,1,?,not probed by this audit,—
+NUM.POSITIVE_REAL,B_NUMBER_SYSTEMS,strictly positive reals,HIGH,7,?,not probed by this audit,—
+NUM.PRIME,B_NUMBER_SYSTEMS,primality,MEDIUM,5,?,not probed by this audit,—
+NUM.PROBABILITY_SCALAR,B_NUMBER_SYSTEMS,probability-valued scalar distinct from generic magnitude,MEDIUM,6,P,`module M ; const p : Probability = 1.5` -> HML-T402 (correctly rejected — the check exists),A
+NUM.QUATERNION_HYPERCOMPLEX,B_NUMBER_SYSTEMS,quaternions and non-commutative scalars,LOW,2,?,not probed by this audit,—
+NUM.RATIONAL,B_NUMBER_SYSTEMS,rationals,HIGH,7,?,not probed by this audit,—
+NUM.REAL,B_NUMBER_SYSTEMS,real numbers,CRITICAL,10,P,`module M ; const x : Real = 1.5` -> clean,A
+NUM.SIGN,B_NUMBER_SYSTEMS,sign function and signed reasoning,LOW,3,?,not probed by this audit,—
+NUM.TRANSCENDENTAL_CONSTANT,B_NUMBER_SYSTEMS,named mathematical constants,MEDIUM,5,?,not probed by this audit,—
+NUM.UNIT_INTERVAL,B_NUMBER_SYSTEMS,"unit interval [0,1]",HIGH,7,?,not probed by this audit,—
+NUM.VECTOR_OF_SCALARS,B_NUMBER_SYSTEMS,numeric vector with declared length,CRITICAL,9,P,"`module M ; var v : Vector[Real, 3] ; require v = v` -> clean",A
+ALG.BASIS_CHANGE,C_ALGEBRA,basis and change of coordinates,MEDIUM,5,?,not probed by this audit,—
+ALG.BROADCAST_SEMANTICS,C_ALGEBRA,elementwise operations and broadcasting rules,MEDIUM,6,?,not probed by this audit,—
+ALG.CATEGORY,C_ALGEBRA,"category, objects and morphisms",LOW,2,?,not probed by this audit,—
+ALG.DETERMINANT,C_ALGEBRA,determinant,MEDIUM,6,?,not probed by this audit,—
+ALG.DUAL_SPACE,C_ALGEBRA,dual space and covectors,LOW,4,?,not probed by this audit,—
+ALG.EIGEN,C_ALGEBRA,eigenvalues and eigenvectors,HIGH,7,P,"`module M ; var A : Matrix[Real, 3, 3] ; var v : Vector[Real, 3] ; param lam : Real ; require (A @ v) = lam * v` -> clean",A
+ALG.EINSTEIN_SUMMATION,C_ALGEBRA,implicit summation convention,LOW,3,?,not probed by this audit,—
+ALG.EQUATION,C_ALGEBRA,equation as a stated relation between terms,CRITICAL,9,P,`module M ; var x : Real ; require x + 1.0 = 2.0` -> clean,A
+ALG.FACTORIZATION,C_ALGEBRA,polynomial factorisation and roots,LOW,4,?,not probed by this audit,—
+ALG.FIELD,C_ALGEBRA,field,MEDIUM,6,?,not probed by this audit,—
+ALG.FUNCTOR,C_ALGEBRA,functorial construction,LOW,2,?,not probed by this audit,—
+ALG.GENERATORS_RELATIONS,C_ALGEBRA,presentation by generators and relations,LOW,3,?,not probed by this audit,—
+ALG.GROUP,C_ALGEBRA,group,MEDIUM,6,P,`module M ; concept Group ;   parameter carrier : Set[Real] ;   invariant closure := forall a : Real . a = a ;   example integers := carrier = carrier ; end` -> clean,A
+ALG.HOMOMORPHISM,C_ALGEBRA,structure-preserving map,MEDIUM,6,?,not probed by this audit,—
+ALG.IDEAL,C_ALGEBRA,ideal,LOW,3,?,not probed by this audit,—
+ALG.INEQUALITY,C_ALGEBRA,inequality as a stated relation,CRITICAL,9,P,`module M ; var x : Real ; require x + 1.0 > 2.0` -> clean,A
+ALG.INNER_PRODUCT,C_ALGEBRA,inner product and orthogonality,MEDIUM,6,?,not probed by this audit,—
+ALG.INVERSE,C_ALGEBRA,matrix inverse with invertibility obligation,HIGH,8,?,not probed by this audit,—
+ALG.ISOMORPHISM,C_ALGEBRA,isomorphism and structural identity,MEDIUM,5,?,not probed by this audit,—
+ALG.KERNEL_IMAGE,C_ALGEBRA,"kernel, image, rank-nullity",MEDIUM,5,?,not probed by this audit,—
+ALG.KRONECKER_OUTER,C_ALGEBRA,"outer, Kronecker and tensor products",LOW,4,?,not probed by this audit,—
+ALG.LINEAR_MAP,C_ALGEBRA,linear map distinct from its matrix,MEDIUM,6,?,not probed by this audit,—
+ALG.MATRIX,C_ALGEBRA,matrix as a typed object,CRITICAL,9,P,"`module M ; var A : Matrix[Real, 3, 3] ; var v : Vector[Real, 3] ; def w := A @ v` -> clean",A
+ALG.MATRIX_ARITHMETIC,C_ALGEBRA,matrix addition and non-commutative multiplication,CRITICAL,9,P,"`module M ; var A : Matrix[Real, 3, 3] ; var B : Matrix[Real, 3, 3] ; def C := A @ B ; def D := A + B` -> clean",A
+ALG.MATRIX_DECOMPOSITION,C_ALGEBRA,"factorisations (LU, QR, Cholesky, SVD, spectral)",MEDIUM,6,?,not probed by this audit,—
+ALG.MATRIX_SHAPE_TYPING,C_ALGEBRA,shape conformability checking,CRITICAL,9,P,"`module M ; var A : Matrix[Real, 2, 3] ; var B : Matrix[Real, 2, 3] ; def C := A @ B` -> HML-T434 (correctly rejected — the check exists)",A
+ALG.MODULE,C_ALGEBRA,module over a ring,LOW,3,?,not probed by this audit,—
+ALG.NORM,C_ALGEBRA,norm on a vector space,HIGH,7,?,not probed by this audit,—
+ALG.ORDER_STRUCTURE,C_ALGEBRA,ordered algebraic structure,MEDIUM,5,?,not probed by this audit,—
+ALG.POLYNOMIAL,C_ALGEBRA,polynomial as a structured object,HIGH,7,?,not probed by this audit,—
+ALG.POSITIVE_DEFINITE,C_ALGEBRA,positive (semi-)definiteness,HIGH,8,?,not probed by this audit,—
+ALG.QUOTIENT_STRUCTURE,C_ALGEBRA,quotient structure,LOW,4,?,not probed by this audit,—
+ALG.RANK,C_ALGEBRA,rank,MEDIUM,5,?,not probed by this audit,—
+ALG.RATIONAL_FUNCTION,C_ALGEBRA,rational function with pole structure,MEDIUM,5,?,not probed by this audit,—
+ALG.RING,C_ALGEBRA,ring,MEDIUM,5,?,not probed by this audit,—
+ALG.SOLUTION_SET,C_ALGEBRA,solution set as an object,HIGH,7,?,not probed by this audit,—
+ALG.SUBSTRUCTURE,C_ALGEBRA,"substructure (subgroup, subspace, subring)",MEDIUM,5,?,not probed by this audit,—
+ALG.SYMBOLIC_SIMPLIFICATION,C_ALGEBRA,algebraic simplification with side conditions,HIGH,7,?,not probed by this audit,—
+ALG.SYMBOLIC_VARIABLE,C_ALGEBRA,unbound symbolic variable / indeterminate,CRITICAL,9,P,`module M ; var x : Real` -> clean,A
+ALG.SYMMETRY_CLASS,C_ALGEBRA,structured matrix classes,MEDIUM,6,?,not probed by this audit,—
+ALG.SYSTEM_OF_RELATIONS,C_ALGEBRA,simultaneous system of equations/inequalities,HIGH,8,?,not probed by this audit,—
+ALG.TENSOR,C_ALGEBRA,tensor with declared rank and shape,HIGH,7,P,"`module M ; var T : Tensor[Real, 2, 3, 4] ; require T = T` -> clean",A
+ALG.TENSOR_INDEX_NOTATION,C_ALGEBRA,named index notation with binding,MEDIUM,6,?,not probed by this audit,—
+ALG.TRACE,C_ALGEBRA,trace,LOW,4,?,not probed by this audit,—
+ALG.TRANSPOSE_ADJOINT,C_ALGEBRA,transpose and conjugate transpose,HIGH,7,?,not probed by this audit,—
+ALG.VECTOR_SPACE,C_ALGEBRA,vector space over a field,HIGH,7,?,not probed by this audit,—
+ANA.ALMOST_EVERYWHERE,D_ANALYSIS,almost-everywhere / almost-sure qualification,HIGH,7,?,not probed by this audit,—
+ANA.ASYMPTOTIC_NOTATION,D_ANALYSIS,asymptotic order notation,MEDIUM,6,?,not probed by this audit,—
+ANA.BOUNDARY_CONDITION,D_ANALYSIS,boundary condition with type,LOW,4,?,not probed by this audit,—
+ANA.CHAIN_RULE,D_ANALYSIS,composition and the chain rule,HIGH,7,?,not probed by this audit,—
+ANA.COMPLEX_ANALYTIC,D_ANALYSIS,"holomorphy, poles and residues",LOW,4,?,not probed by this audit,—
+ANA.CONTINUITY,D_ANALYSIS,continuity at a point and on a set,CRITICAL,9,0,"`module M ; var f : Function[Real -> Real] ; var D : Set[Real] ; require continuous(f, on := D)` -> HML-P232 (grammar has no production)",A
+ANA.CONVERGENCE_MODES,D_ANALYSIS,distinct modes of convergence,HIGH,8,?,not probed by this audit,—
+ANA.CONVOLUTION,D_ANALYSIS,convolution,MEDIUM,5,?,not probed by this audit,—
+ANA.DERIVATIVE,D_ANALYSIS,derivative with respect to a named variable,CRITICAL,10,0,"`module M ; var f : Function[Real -> Real] ; def d := derivative(f(x), x : Real)` -> HML-P201 (grammar has no production)",A
+ANA.DIRECTIONAL_DERIVATIVE,D_ANALYSIS,directional and total derivative,MEDIUM,5,?,not probed by this audit,—
+ANA.DOMAIN_CODOMAIN,D_ANALYSIS,explicit domain and codomain of a function,CRITICAL,9,P,`module M ; var f : Function[Real -> NonNegativeReal] ; require f = f` -> clean,A
+ANA.FIXED_POINT,D_ANALYSIS,fixed points and contraction,LOW,4,?,not probed by this audit,—
+ANA.FUNCTIONAL_DERIVATIVE,D_ANALYSIS,derivative with respect to a function,MEDIUM,5,?,not probed by this audit,—
+ANA.FUNCTION_REAL,D_ANALYSIS,real- and vector-valued functions,CRITICAL,9,P,`module M ; def f(u : Real) : Real := u * u` -> clean,A
+ANA.FUNCTION_SPACE,D_ANALYSIS,function spaces as typed objects,MEDIUM,6,?,not probed by this audit,—
+ANA.GENERALIZED_FUNCTION,D_ANALYSIS,generalized functions / Schwartz distributions,LOW,4,?,not probed by this audit,—
+ANA.GRADIENT,D_ANALYSIS,gradient,HIGH,8,?,not probed by this audit,—
+ANA.HESSIAN,D_ANALYSIS,Hessian and second-order structure,MEDIUM,6,?,not probed by this audit,—
+ANA.HIGHER_DERIVATIVE,D_ANALYSIS,higher-order derivatives and smoothness classes,MEDIUM,6,?,not probed by this audit,—
+ANA.IMPLICIT_DIFFERENTIATION,D_ANALYSIS,implicit function and implicit differentiation,MEDIUM,5,?,not probed by this audit,—
+ANA.IMPROPER_INTEGRAL,D_ANALYSIS,improper integrals and convergence conditions,MEDIUM,6,?,not probed by this audit,—
+ANA.INITIAL_CONDITION,D_ANALYSIS,initial condition,MEDIUM,6,?,not probed by this audit,—
+ANA.INTEGRAL_DEFINITE,D_ANALYSIS,definite integral with explicit variable and domain,CRITICAL,9,0,"`module M ; var f : Function[Real -> Real] ; def a := integral(f(x), x : Real, 0.0, 1.0)` -> HML-P201 (grammar has no production)",A
+ANA.INTEGRAL_INDEFINITE,D_ANALYSIS,antiderivative and constant of integration,MEDIUM,5,?,not probed by this audit,—
+ANA.INTEGRAL_LEBESGUE,D_ANALYSIS,integration against a general measure,MEDIUM,6,?,not probed by this audit,—
+ANA.JACOBIAN,D_ANALYSIS,Jacobian matrix,HIGH,7,?,not probed by this audit,—
+ANA.LIMIT,D_ANALYSIS,limit of a function at a point,CRITICAL,9,0,"`module M ; var f : Function[Real -> Real] ; def l := limit(f(x), x : Real -> 0.0)` -> HML-P201 (grammar has no production)",A
+ANA.LIMIT_OF_SEQUENCE,D_ANALYSIS,"limit of a sequence, including limits at infinity",HIGH,8,?,not probed by this audit,—
+ANA.LINE_SURFACE_INTEGRAL,D_ANALYSIS,integration over curves and surfaces,LOW,4,?,not probed by this audit,—
+ANA.MEASURABILITY,D_ANALYSIS,measurable function,MEDIUM,6,?,not probed by this audit,—
+ANA.MEASURE,D_ANALYSIS,measure,HIGH,8,?,not probed by this audit,—
+ANA.METRIC_SPACE,D_ANALYSIS,metric and metric-space structure,MEDIUM,6,?,not probed by this audit,—
+ANA.MONOTONICITY_BOUNDEDNESS,D_ANALYSIS,"monotonicity, boundedness and convexity of functions",MEDIUM,6,?,not probed by this audit,—
+ANA.MULTIPLE_INTEGRAL,D_ANALYSIS,iterated and multiple integration,HIGH,7,?,not probed by this audit,—
+ANA.ODE,D_ANALYSIS,ordinary differential equation,HIGH,7,?,not probed by this audit,—
+ANA.PARTIAL_DERIVATIVE,D_ANALYSIS,partial derivative with held-constant variables,HIGH,8,?,not probed by this audit,—
+ANA.PARTIAL_FUNCTION,D_ANALYSIS,partial function with restricted domain,HIGH,7,?,not probed by this audit,—
+ANA.PDE,D_ANALYSIS,partial differential equation,MEDIUM,6,?,not probed by this audit,—
+ANA.PIECEWISE,D_ANALYSIS,piecewise definition over a partition of the domain,HIGH,8,0,`module M ; var x : Real ; def f := if x > 0.0 then x else -x` -> HML-P204 (grammar has no production),A
+ANA.POWER_SERIES,D_ANALYSIS,power series and radius of convergence,MEDIUM,5,?,not probed by this audit,—
+ANA.SERIES,D_ANALYSIS,infinite series and convergence,HIGH,7,?,not probed by this audit,—
+ANA.SIGMA_ALGEBRA,D_ANALYSIS,sigma-algebra of measurable sets,HIGH,7,?,not probed by this audit,—
+ANA.SPECIAL_FUNCTIONS,D_ANALYSIS,named special functions with branch and domain data,MEDIUM,5,?,not probed by this audit,—
+ANA.SUP_INF,D_ANALYSIS,supremum and infimum versus maximum and minimum,HIGH,7,?,not probed by this audit,—
+ANA.TAYLOR_EXPANSION,D_ANALYSIS,Taylor expansion with remainder,MEDIUM,6,?,not probed by this audit,—
+ANA.TRANSFORM,D_ANALYSIS,integral transforms,MEDIUM,5,?,not probed by this audit,—
+ANA.UNIFORM_CONTINUITY,D_ANALYSIS,uniform continuity and uniform convergence,HIGH,8,?,not probed by this audit,—
+ANA.VARIATIONAL_PROBLEM,D_ANALYSIS,variational / stationarity problem over functions,MEDIUM,6,?,not probed by this audit,—
+PROB.ARITHMETIC_ON_RANDOM_VARIABLES,E_PROBABILITY,arithmetic on random variables preserving dependence,HIGH,8,?,not probed by this audit,—
+PROB.BAYES_RULE,E_PROBABILITY,Bayes rule as a relation among distributions,HIGH,8,?,not probed by this audit,—
+PROB.CDF,E_PROBABILITY,cumulative distribution function,MEDIUM,6,?,not probed by this audit,—
+PROB.CHANGE_OF_VARIABLES_JACOBIAN,E_PROBABILITY,density transformation with Jacobian,MEDIUM,6,?,not probed by this audit,—
+PROB.CLT,E_PROBABILITY,central limit theorem and asymptotic normality,MEDIUM,6,?,not probed by this audit,—
+PROB.CONDITIONAL_DISTRIBUTION,E_PROBABILITY,conditional distribution given a random variable,CRITICAL,9,P,`module M ; param t : Probability ; rv X : RandomVariable[Bool] ; likelihood X | t ~ Bernoulli(prob := t)` -> clean,A
+PROB.CONDITIONAL_EXPECTATION,E_PROBABILITY,conditional expectation as a random variable,HIGH,8,0,`module M ; rv X : RandomVariable[Real] ; param t : Probability ; require expectation(X | t) = t` -> HML-P231 (grammar has no production),A
+PROB.CONDITIONAL_INDEPENDENCE,E_PROBABILITY,conditional independence,HIGH,8,?,not probed by this audit,—
+PROB.CONDITIONAL_PROBABILITY,E_PROBABILITY,conditional probability given an event,CRITICAL,9,0,`module M ; var A : Event ; var B : Event ; require probability(A | B) = 0.5` -> HML-P201 (grammar has no production),A
+PROB.CONDITIONING_ON_SIGMA_ALGEBRA,E_PROBABILITY,conditioning on a sigma-algebra,MEDIUM,6,0,`module M ; rv X : RandomVariable[Real] ; rv Y : RandomVariable[Real] ; def m := expectation(X | Y)` -> HML-P231 (grammar has no production),A
+PROB.CONVERGENCE_MODES,E_PROBABILITY,modes of stochastic convergence,MEDIUM,6,?,not probed by this audit,—
+PROB.COPULA,E_PROBABILITY,copula / separation of marginals from dependence,LOW,3,?,not probed by this audit,—
+PROB.DISTRIBUTED_AS,E_PROBABILITY,the 'distributed as' relation,CRITICAL,10,P,"`module M ; rv X : RandomVariable[Real] ; law X ~ Normal(location := 0.0, scale := 1.0)` -> clean",A
+PROB.DISTRIBUTION_FAMILY,E_PROBABILITY,parametric family with named parameters,HIGH,8,?,not probed by this audit,—
+PROB.DISTRIBUTION_OBJECT,E_PROBABILITY,distribution as a first-class object,CRITICAL,10,P,"`module M ; def d : Distribution[Real] := Normal(location := 0.0, scale := 1.0)` -> clean",A
+PROB.DIVERGENCE,E_PROBABILITY,divergences between distributions,MEDIUM,6,?,not probed by this audit,—
+PROB.ENTROPY_INFORMATION,E_PROBABILITY,entropy and mutual information,MEDIUM,5,?,not probed by this audit,—
+PROB.EVENT,E_PROBABILITY,event as a measurable set,HIGH,8,?,not probed by this audit,—
+PROB.EXCHANGEABILITY,E_PROBABILITY,exchangeability,LOW,4,?,not probed by this audit,—
+PROB.EXPECTATION,E_PROBABILITY,expectation as an integral against a distribution,CRITICAL,9,0,`module M ; rv X : RandomVariable[Real] ; require expectation(X) = 0.0` -> HML-P231 (grammar has no production),A
+PROB.FILTRATION,E_PROBABILITY,filtration / information over time,LOW,4,?,not probed by this audit,—
+PROB.FUNCTION_RETURNING_DISTRIBUTION,E_PROBABILITY,function whose value is a distribution (Markov kernel),CRITICAL,9,P,"`module M ; def kern(s : PositiveReal) : Distribution[Real] := Normal(location := 0.0, scale := s)` -> clean",A
+PROB.HIERARCHICAL_MODEL,E_PROBABILITY,hierarchical / generative model structure,HIGH,8,?,not probed by this audit,—
+PROB.IID,E_PROBABILITY,i.i.d. family,HIGH,8,?,not probed by this audit,—
+PROB.INDEPENDENCE,E_PROBABILITY,independence,CRITICAL,9,0,"`module M ; rv X : RandomVariable[Real] ; rv Y : RandomVariable[Real] ; require independent(X, Y)` -> HML-N306 (no such function/name)",A
+PROB.INDEXED_FAMILY_RV,E_PROBABILITY,indexed family of random variables,CRITICAL,9,P,"`module M ; index i : Natural ; rv X : RandomVariable[Real] ; law X ~ Normal(location := 0.0, scale := 1.0)` -> clean",A
+PROB.JOINT,E_PROBABILITY,joint distribution of several random variables,CRITICAL,9,0,"`module M ; rv X : RandomVariable[Real] ; rv Y : RandomVariable[Real] ; law X ~ Normal(location := 0.0, scale := 1.0) ; law Y ~ Normal(location := 0.0, scale := 1.0) ; def j := joint(X, Y)` -> HML-N306 (no such function/name)",A
+PROB.LLN,E_PROBABILITY,laws of large numbers,MEDIUM,5,?,not probed by this audit,—
+PROB.MARGINAL,E_PROBABILITY,marginal distribution and marginalisation,HIGH,8,?,not probed by this audit,—
+PROB.MARKOV_PROPERTY,E_PROBABILITY,Markov property,MEDIUM,6,?,not probed by this audit,—
+PROB.MARTINGALE,E_PROBABILITY,martingale property,LOW,3,?,not probed by this audit,—
+PROB.MGF_CF,E_PROBABILITY,moment generating and characteristic functions,LOW,4,?,not probed by this audit,—
+PROB.MIXTURE,E_PROBABILITY,mixture distribution,HIGH,7,?,not probed by this audit,—
+PROB.MOMENT,E_PROBABILITY,"moments, central moments and cumulants",MEDIUM,5,?,not probed by this audit,—
+PROB.PARAMETER_ROLE,E_PROBABILITY,semantic role of a distribution parameter,HIGH,8,?,not probed by this audit,—
+PROB.PDF,E_PROBABILITY,probability density with respect to a reference measure,HIGH,8,?,not probed by this audit,—
+PROB.PMF,E_PROBABILITY,probability mass function,HIGH,7,?,not probed by this audit,—
+PROB.PROBABILITY_MEASURE,E_PROBABILITY,probability measure and its axioms,CRITICAL,9,P,`module M ; var P : Function[Set[Real] -> Probability] ; require P = P` -> clean,A
+PROB.PROBABILITY_SPACE,E_PROBABILITY,"probability space (Omega, F, P)",MEDIUM,6,?,not probed by this audit,—
+PROB.PUSHFORWARD,E_PROBABILITY,distribution of a transformed random variable,HIGH,8,?,not probed by this audit,—
+PROB.QUANTILE,E_PROBABILITY,quantile function / generalised inverse CDF,MEDIUM,6,?,not probed by this audit,—
+PROB.RANDOM_FUNCTION,E_PROBABILITY,random functions and function-valued distributions,MEDIUM,6,?,not probed by this audit,—
+PROB.RANDOM_MATRIX,E_PROBABILITY,matrix- and vector-valued random variables,HIGH,7,?,not probed by this audit,—
+PROB.RANDOM_VARIABLE,E_PROBABILITY,random variable as an object distinct from its distribution and from its value,CRITICAL,10,P,"`module M ; rv X : RandomVariable[Real] ; law X ~ Normal(location := 0.0, scale := 1.0)` -> clean",A
+PROB.REALIZATION,E_PROBABILITY,realisation / observed value of a random variable,HIGH,8,?,not probed by this audit,—
+PROB.STOCHASTIC_PROCESS,E_PROBABILITY,stochastic process indexed by time or space,MEDIUM,6,0,`module M ; rv W : RandomVariable[Function[Real -> Real]] ; require probability(W = W) = 1.0` -> HML-N306 (no such function/name),A
+PROB.STOPPING_TIME,E_PROBABILITY,stopping time,LOW,3,?,not probed by this audit,—
+PROB.SUPPORT,E_PROBABILITY,support of a distribution,HIGH,7,?,not probed by this audit,—
+PROB.TRUNCATION_CENSORING,E_PROBABILITY,truncation and censoring,MEDIUM,5,?,not probed by this audit,—
+PROB.VARIANCE_COVARIANCE,E_PROBABILITY,"variance, covariance and correlation",HIGH,8,?,not probed by this audit,—
+STAT.BIAS,F_STATISTICS,bias of an estimator,MEDIUM,6,?,not probed by this audit,—
+STAT.BOOTSTRAP,F_STATISTICS,bootstrap and resampling distributions,LOW,3,?,not probed by this audit,—
+STAT.CAUSAL_INTERVENTION,F_STATISTICS,intervention (do-operator) distinct from conditioning,HIGH,7,?,not probed by this audit,—
+STAT.CONFIDENCE_INTERVAL,F_STATISTICS,confidence interval,HIGH,7,?,not probed by this audit,—
+STAT.CONFOUNDING,F_STATISTICS,confounding and adjustment sets,MEDIUM,6,?,not probed by this audit,—
+STAT.CONSISTENCY,F_STATISTICS,consistency,MEDIUM,6,?,not probed by this audit,—
+STAT.COUNTERFACTUAL,F_STATISTICS,counterfactual quantities,MEDIUM,6,?,not probed by this audit,—
+STAT.CREDIBLE_INTERVAL,F_STATISTICS,credible interval,MEDIUM,6,?,not probed by this audit,—
+STAT.CROSS_VALIDATION,F_STATISTICS,resampling-based evaluation,LOW,4,?,not probed by this audit,—
+STAT.DATASET,F_STATISTICS,dataset with declared structure,HIGH,7,?,not probed by this audit,—
+STAT.DESIGN_MATRIX,F_STATISTICS,design matrix and encoding of covariates,MEDIUM,5,?,not probed by this audit,—
+STAT.EFFECT_SIZE,F_STATISTICS,effect size distinguished from significance,MEDIUM,5,?,not probed by this audit,—
+STAT.EFFICIENCY,F_STATISTICS,"efficiency, variance and MSE of an estimator",MEDIUM,5,?,not probed by this audit,—
+STAT.ESTIMATOR,F_STATISTICS,estimator as a function of data,CRITICAL,9,P,`module M ; obs y : Real = 1.0 ; def theta_hat := y` -> clean,A
+STAT.FISHER_INFORMATION,F_STATISTICS,Fisher information,LOW,4,?,not probed by this audit,—
+STAT.GLM,F_STATISTICS,generalised linear model with link and family,MEDIUM,6,?,not probed by this audit,—
+STAT.HYPOTHESIS,F_STATISTICS,null and alternative hypotheses,MEDIUM,6,?,not probed by this audit,—
+STAT.IDENTIFIABILITY,F_STATISTICS,identifiability of parameters,MEDIUM,6,?,not probed by this audit,—
+STAT.LIKELIHOOD_FUNCTION,F_STATISTICS,likelihood as a function of the parameter,CRITICAL,9,P,`module M ; param t : Probability ; obs y : Bool = true ; likelihood y | t ~ Bernoulli(prob := t)` -> clean,A
+STAT.LINEAR_MODEL,F_STATISTICS,linear model with explicit error structure,HIGH,8,?,not probed by this audit,—
+STAT.LOG_LIKELIHOOD,F_STATISTICS,log-likelihood and additivity over independent observations,HIGH,7,?,not probed by this audit,—
+STAT.MCMC,F_STATISTICS,Markov chain Monte Carlo inference,MEDIUM,5,?,not probed by this audit,—
+STAT.MEASUREMENT_SCALE,F_STATISTICS,measurement scale of a variable,MEDIUM,6,?,not probed by this audit,—
+STAT.MISSING_DATA,F_STATISTICS,missingness mechanism,MEDIUM,5,?,not probed by this audit,—
+STAT.MIXED_EFFECTS,F_STATISTICS,random effects and grouped structure,MEDIUM,6,?,not probed by this audit,—
+STAT.MLE,F_STATISTICS,maximum likelihood estimation,HIGH,7,?,not probed by this audit,—
+STAT.MODEL_SELECTION_CRITERION,F_STATISTICS,model comparison criteria,LOW,4,?,not probed by this audit,—
+STAT.MULTIPLE_COMPARISON,F_STATISTICS,multiplicity and error-rate control,LOW,4,?,not probed by this audit,—
+STAT.OBSERVATION_VS_LATENT,F_STATISTICS,observed versus latent quantity,HIGH,7,?,not probed by this audit,—
+STAT.POPULATION_VS_SAMPLE,F_STATISTICS,population parameter versus sample statistic,CRITICAL,9,P,`module M ; param theta : Real ; obs y : Real = 1.0` -> clean,A
+STAT.POSTERIOR,F_STATISTICS,posterior distribution,HIGH,8,?,not probed by this audit,—
+STAT.POSTERIOR_PREDICTIVE,F_STATISTICS,predictive distribution,MEDIUM,6,?,not probed by this audit,—
+STAT.POWER,F_STATISTICS,statistical power as a function of the alternative,LOW,4,?,not probed by this audit,—
+STAT.PRIOR,F_STATISTICS,prior distribution over parameters,HIGH,8,?,not probed by this audit,—
+STAT.P_VALUE,F_STATISTICS,p-value,MEDIUM,6,?,not probed by this audit,—
+STAT.RESIDUAL,F_STATISTICS,residual versus error,MEDIUM,5,?,not probed by this audit,—
+STAT.SAMPLING_DESIGN,F_STATISTICS,sampling and experimental design,MEDIUM,5,?,not probed by this audit,—
+STAT.SAMPLING_DISTRIBUTION,F_STATISTICS,sampling distribution of a statistic,HIGH,8,?,not probed by this audit,—
+STAT.SUFFICIENCY,F_STATISTICS,sufficient statistic,LOW,4,?,not probed by this audit,—
+STAT.SUMMARY_STATISTIC,F_STATISTICS,descriptive summaries with defined conventions,MEDIUM,5,?,not probed by this audit,—
+STAT.TEST_STATISTIC,F_STATISTICS,test statistic and its null distribution,MEDIUM,6,?,not probed by this audit,—
+STAT.TIME_SERIES,F_STATISTICS,time-indexed dependent data,MEDIUM,5,?,not probed by this audit,—
+STAT.TYPE_ERRORS,F_STATISTICS,type I and type II error rates,LOW,4,?,not probed by this audit,—
+STAT.VARIATIONAL_INFERENCE,F_STATISTICS,variational approximation of a posterior,MEDIUM,5,?,not probed by this audit,—
+DISC.ADJACENCY_MATRIX,G_DISCRETE,matrix representation of a graph,LOW,4,?,not probed by this audit,—
+DISC.ALGORITHM_COST,G_DISCRETE,computational cost as a mathematical statement,LOW,4,?,not probed by this audit,—
+DISC.AUTOMATON,G_DISCRETE,automaton / labelled transition system,LOW,2,?,not probed by this audit,—
+DISC.BINOMIAL_COEFFICIENT,G_DISCRETE,binomial and multinomial coefficients,MEDIUM,5,?,not probed by this audit,—
+DISC.BOOLEAN_ALGEBRA,G_DISCRETE,Boolean algebra and normal forms,LOW,4,?,not probed by this audit,—
+DISC.COLOURING_PARTITION,G_DISCRETE,partitions and colourings,LOW,3,?,not probed by this audit,—
+DISC.COMBINATION,G_DISCRETE,unordered selection,MEDIUM,5,?,not probed by this audit,—
+DISC.COMBINATORIAL_IDENTITY,G_DISCRETE,combinatorial identity with validity range,LOW,4,?,not probed by this audit,—
+DISC.COMPLEXITY_CLASS,G_DISCRETE,complexity classes and reductions,LOW,2,?,not probed by this audit,—
+DISC.COUNTING_ARGUMENT,G_DISCRETE,counting principles as reusable arguments,LOW,3,?,not probed by this audit,—
+DISC.DAG,G_DISCRETE,directed acyclic graph with acyclicity as a checked property,HIGH,7,?,not probed by this audit,—
+DISC.DIRECTED_GRAPH,G_DISCRETE,directed graph,MEDIUM,6,?,not probed by this audit,—
+DISC.FACTORIAL,G_DISCRETE,factorial and falling/rising powers,LOW,3,?,not probed by this audit,—
+DISC.FLOW,G_DISCRETE,network flow with conservation constraints,LOW,4,?,not probed by this audit,—
+DISC.FORMAL_LANGUAGE,G_DISCRETE,formal language and grammar,LOW,3,?,not probed by this audit,—
+DISC.GENERATING_FUNCTION,G_DISCRETE,generating function,LOW,3,?,not probed by this audit,—
+DISC.GRAPH,G_DISCRETE,graph as vertices plus edges,MEDIUM,6,?,not probed by this audit,—
+DISC.INDEXED_EXTREMUM,G_DISCRETE,"indexed maximum, minimum and argmax over a finite set",MEDIUM,6,?,not probed by this audit,—
+DISC.LATTICE,G_DISCRETE,lattice with meet and join,MEDIUM,5,?,not probed by this audit,—
+DISC.MATCHING_COVER,G_DISCRETE,"matchings, covers and independent sets",LOW,3,?,not probed by this audit,—
+DISC.MULTISET,G_DISCRETE,multiset with multiplicities,LOW,4,?,not probed by this audit,—
+DISC.PARTIAL_ORDER,G_DISCRETE,partial order and incomparability,MEDIUM,6,?,not probed by this audit,—
+DISC.PATH_CONNECTIVITY,G_DISCRETE,"paths, reachability and connectivity",MEDIUM,5,?,not probed by this audit,—
+DISC.PERMUTATION,G_DISCRETE,permutation and arrangement,MEDIUM,5,?,not probed by this audit,—
+DISC.PRODUCT_NOTATION,G_DISCRETE,indexed product,HIGH,7,?,not probed by this audit,—
+DISC.RECURRENCE,G_DISCRETE,recurrence relation with initial conditions,MEDIUM,6,?,not probed by this audit,—
+DISC.SEQUENCE,G_DISCRETE,sequence indexed by naturals,HIGH,7,?,not probed by this audit,—
+DISC.SET_FINITE,G_DISCRETE,finite set with cardinality,HIGH,7,?,not probed by this audit,—
+DISC.SUMMATION,G_DISCRETE,summation with an explicit index and range,CRITICAL,9,L,"`module M ; index i : Natural ; def s := sum(i, 1, 10, i)` -> HML-T426 (expressible only by weakening the declared type)",A
+DISC.TREE,G_DISCRETE,tree and rooted hierarchy,LOW,4,?,not probed by this audit,—
+DISC.WEIGHTED_GRAPH,G_DISCRETE,weighted and labelled graphs,LOW,4,?,not probed by this audit,—
+GEO.AFFINE_SPACE,H_GEOMETRY_TOPOLOGY,affine space and affine combinations,LOW,4,?,not probed by this audit,—
+GEO.ANGLE,H_GEOMETRY_TOPOLOGY,angle with units and range convention,MEDIUM,5,?,not probed by this audit,—
+GEO.CHART_ATLAS,H_GEOMETRY_TOPOLOGY,"charts, atlases and coordinate patches",LOW,3,?,not probed by this audit,—
+GEO.COMPACTNESS,H_GEOMETRY_TOPOLOGY,compactness,MEDIUM,6,?,not probed by this audit,—
+GEO.CONE_ORDER,H_GEOMETRY_TOPOLOGY,cones and generalised inequalities,LOW,4,?,not probed by this audit,—
+GEO.CONNECTEDNESS,H_GEOMETRY_TOPOLOGY,connectedness and path-connectedness,LOW,4,?,not probed by this audit,—
+GEO.CONTINUOUS_MAP,H_GEOMETRY_TOPOLOGY,continuous map between spaces,MEDIUM,5,?,not probed by this audit,—
+GEO.CONVEX_SET,H_GEOMETRY_TOPOLOGY,convex set,HIGH,7,?,not probed by this audit,—
+GEO.COORDINATE_CHANGE,H_GEOMETRY_TOPOLOGY,change of coordinates with Jacobian factor,MEDIUM,6,?,not probed by this audit,—
+GEO.COORDINATE_SYSTEM,H_GEOMETRY_TOPOLOGY,named coordinate system,MEDIUM,5,?,not probed by this audit,—
+GEO.CURVATURE,H_GEOMETRY_TOPOLOGY,curvature,LOW,2,?,not probed by this audit,—
+GEO.DIFFERENTIAL_FORM,H_GEOMETRY_TOPOLOGY,differential forms and orientation,LOW,3,?,not probed by this audit,—
+GEO.DISTANCE,H_GEOMETRY_TOPOLOGY,distance with an identified metric,MEDIUM,6,?,not probed by this audit,—
+GEO.EUCLIDEAN_SPACE,H_GEOMETRY_TOPOLOGY,Euclidean space with dimension,HIGH,7,?,not probed by this audit,—
+GEO.GEODESIC,H_GEOMETRY_TOPOLOGY,geodesic and shortest path,LOW,2,?,not probed by this audit,—
+GEO.HOMEOMORPHISM,H_GEOMETRY_TOPOLOGY,homeomorphism and topological invariants,LOW,3,?,not probed by this audit,—
+GEO.HOMOTOPY,H_GEOMETRY_TOPOLOGY,homotopy and deformation,LOW,2,?,not probed by this audit,—
+GEO.MANIFOLD,H_GEOMETRY_TOPOLOGY,manifold with dimension and smoothness,LOW,4,?,not probed by this audit,—
+GEO.MEASURE_ON_GEOMETRIC_DOMAIN,H_GEOMETRY_TOPOLOGY,"volume, area and surface measures",LOW,4,?,not probed by this audit,—
+GEO.METRIC_TENSOR,H_GEOMETRY_TOPOLOGY,metric tensor and induced geometry,LOW,3,?,not probed by this audit,—
+GEO.OPEN_CLOSED,H_GEOMETRY_TOPOLOGY,"open, closed, interior, closure, boundary",MEDIUM,5,?,not probed by this audit,—
+GEO.ORIENTATION,H_GEOMETRY_TOPOLOGY,orientation and handedness,LOW,3,?,not probed by this audit,—
+GEO.POINT_VECTOR_DISTINCTION,H_GEOMETRY_TOPOLOGY,point versus displacement vector,MEDIUM,6,?,not probed by this audit,—
+GEO.POLYTOPE,H_GEOMETRY_TOPOLOGY,polyhedra and polytopes,LOW,4,?,not probed by this audit,—
+GEO.PROJECTION,H_GEOMETRY_TOPOLOGY,projection onto a set or subspace,MEDIUM,5,?,not probed by this audit,—
+GEO.SIMPLEX,H_GEOMETRY_TOPOLOGY,probability simplex as a constrained domain,MEDIUM,6,?,not probed by this audit,—
+GEO.TANGENT_SPACE,H_GEOMETRY_TOPOLOGY,tangent space at a point,LOW,4,?,not probed by this audit,—
+GEO.TOPOLOGICAL_SPACE,H_GEOMETRY_TOPOLOGY,topological space,MEDIUM,5,?,not probed by this audit,—
+GEO.TRANSFORMATION_GROUP,H_GEOMETRY_TOPOLOGY,group of transformations and invariance,MEDIUM,5,?,not probed by this audit,—
+GEO.VECTOR_FIELD,H_GEOMETRY_TOPOLOGY,vector field,LOW,4,?,not probed by this audit,—
+OPT.ARGMIN_ARGMAX,I_OPTIMIZATION,argmin/argmax as a set-valued binder,HIGH,8,?,not probed by this audit,—
+OPT.BELLMAN,I_OPTIMIZATION,Bellman equation / recursive optimality,LOW,4,?,not probed by this audit,—
+OPT.BOX_BOUND,I_OPTIMIZATION,variable bounds and domain restrictions,HIGH,7,?,not probed by this audit,—
+OPT.CHANCE_CONSTRAINT,I_OPTIMIZATION,probabilistic (chance) constraint,MEDIUM,6,?,not probed by this audit,—
+OPT.CONIC_PROGRAM,I_OPTIMIZATION,conic and semidefinite programs,LOW,4,?,not probed by this audit,—
+OPT.CONSTRAINT_SCOPE,I_OPTIMIZATION,scoped and conditional constraints,HIGH,8,?,not probed by this audit,—
+OPT.CONVEXITY,I_OPTIMIZATION,convexity of objective and constraints,HIGH,8,?,not probed by this audit,—
+OPT.DECISION_VARIABLE,I_OPTIMIZATION,decision variable with a declared domain,CRITICAL,9,P,`module M ; param x : Real ; def f := x * x ; minimise f` -> clean,A
+OPT.DIRECTION,I_OPTIMIZATION,minimisation versus maximisation,HIGH,7,?,not probed by this audit,—
+OPT.DUALITY,I_OPTIMIZATION,dual problem and duality gap,MEDIUM,5,?,not probed by this audit,—
+OPT.DYNAMIC_PROGRAMMING,I_OPTIMIZATION,sequential decision problems,LOW,4,?,not probed by this audit,—
+OPT.EQUALITY_CONSTRAINT,I_OPTIMIZATION,equality constraint,CRITICAL,9,P,`module M ; param x : Real ; param y : Real ; require x + y = 1.0 ; def f := x * x ; minimise f` -> clean,A
+OPT.EXPECTED_VALUE_OBJECTIVE,I_OPTIMIZATION,objective containing an expectation,HIGH,8,?,not probed by this audit,—
+OPT.FEASIBLE_SET,I_OPTIMIZATION,feasible set,CRITICAL,9,P,`module M ; param x : Real ; require x >= 0.0 ; def f := x * x ; minimise f` -> clean,A
+OPT.GRADIENT_OF_OBJECTIVE,I_OPTIMIZATION,derivative of an objective with respect to decisions,HIGH,8,?,not probed by this audit,—
+OPT.INEQUALITY_CONSTRAINT,I_OPTIMIZATION,inequality constraint,CRITICAL,9,P,`module M ; param x : Real ; require x >= 0.0 ; def f := x * x ; minimise f` -> clean,A
+OPT.INTEGER_VARIABLE,I_OPTIMIZATION,integrality and discrete decisions,MEDIUM,6,?,not probed by this audit,—
+OPT.KKT,I_OPTIMIZATION,first-order optimality conditions,MEDIUM,6,?,not probed by this audit,—
+OPT.LAGRANGIAN,I_OPTIMIZATION,Lagrangian and multipliers,MEDIUM,6,?,not probed by this audit,—
+OPT.LINEAR_PROGRAM,I_OPTIMIZATION,linear program,MEDIUM,6,?,not probed by this audit,—
+OPT.LOCAL_VS_GLOBAL,I_OPTIMIZATION,local versus global optimality,HIGH,7,?,not probed by this audit,—
+OPT.MIXED_INTEGER,I_OPTIMIZATION,mixed continuous-discrete problems,LOW,4,?,not probed by this audit,—
+OPT.MULTI_OBJECTIVE,I_OPTIMIZATION,multiple objectives and Pareto optimality,MEDIUM,5,?,not probed by this audit,—
+OPT.OBJECTIVE,I_OPTIMIZATION,objective function,CRITICAL,9,P,`module M ; param x : Real ; def f := x * x ; minimise f` -> clean,A
+OPT.OPTIMAL_CONTROL,I_OPTIMIZATION,optimal control over a dynamical system,LOW,4,?,not probed by this audit,—
+OPT.OPTIMAL_VALUE,I_OPTIMIZATION,optimal value versus optimiser,HIGH,7,?,not probed by this audit,—
+OPT.PARAMETRIC_OPTIMIZATION,I_OPTIMIZATION,optimisation as a function of parameters,MEDIUM,5,?,not probed by this audit,—
+OPT.PROBLEM_AS_OBJECT,I_OPTIMIZATION,optimisation problem as a first-class object,MEDIUM,6,?,not probed by this audit,—
+OPT.QUADRATIC_PROGRAM,I_OPTIMIZATION,quadratic program,MEDIUM,5,?,not probed by this audit,—
+OPT.REGULARIZATION,I_OPTIMIZATION,regularisation and penalty terms,MEDIUM,5,?,not probed by this audit,—
+OPT.ROBUST_WORST_CASE,I_OPTIMIZATION,robust / minimax formulation,MEDIUM,6,?,not probed by this audit,—
+OPT.VARIATIONAL_OBJECTIVE,I_OPTIMIZATION,optimisation over functions or distributions,MEDIUM,6,?,not probed by this audit,—
+SCI.AFFINE_UNIT,J_SCIENTIFIC_UNITS,affine (offset) units and the difference/absolute distinction,MEDIUM,6,?,not probed by this audit,—
+SCI.BASE_DIMENSION_SYSTEM,J_SCIENTIFIC_UNITS,declared system of base dimensions,MEDIUM,6,?,not probed by this audit,—
+SCI.CONSERVATION_LAW,J_SCIENTIFIC_UNITS,conservation and balance relations,LOW,4,?,not probed by this audit,—
+SCI.COORDINATE_FRAME,J_SCIENTIFIC_UNITS,reference frame of a physical quantity,LOW,4,?,not probed by this audit,—
+SCI.COUNT_VS_MEASURE,J_SCIENTIFIC_UNITS,"counts, proportions and rates distinguished",MEDIUM,5,?,not probed by this audit,—
+SCI.DIMENSION,J_SCIENTIFIC_UNITS,physical dimension as a type-level attribute,HIGH,8,P,`module M ; param a : Quantity[Length] ; param b : Quantity[Time] ; def c := a / b` -> clean,A
+SCI.DIMENSIONAL_HOMOGENEITY,J_SCIENTIFIC_UNITS,dimensional homogeneity checking,HIGH,8,P,`module M ; param a : Quantity[Length] ; param b : Quantity[Time] ; def c := a + b` -> HML-D502 (correctly rejected — the check exists),A
+SCI.DIMENSIONLESS,J_SCIENTIFIC_UNITS,dimensionless quantities,MEDIUM,6,?,not probed by this audit,—
+SCI.DIMENSIONLESS_GROUP,J_SCIENTIFIC_UNITS,dimensionless groups and the Buckingham pi theorem,LOW,3,?,not probed by this audit,—
+SCI.LOG_OF_RATIO,J_SCIENTIFIC_UNITS,logarithmic scales and reference values,LOW,4,?,not probed by this audit,—
+SCI.PHYSICAL_CONSTANT,J_SCIENTIFIC_UNITS,physical constants with units and provenance,LOW,4,?,not probed by this audit,—
+SCI.PREFIX_SCALING,J_SCIENTIFIC_UNITS,metric prefixes and scale factors,LOW,4,?,not probed by this audit,—
+SCI.QUANTITY,J_SCIENTIFIC_UNITS,quantity as value plus unit,HIGH,8,P,`module M ; param m : Quantity[Mass] ; param v : Quantity[Length / Time] ; def p := m * v` -> clean,A
+SCI.SIGNIFICANT_FIGURES,J_SCIENTIFIC_UNITS,precision of a reported value,LOW,3,?,not probed by this audit,—
+SCI.TENSOR_UNITS,J_SCIENTIFIC_UNITS,"units on vector, matrix and tensor components",MEDIUM,5,?,not probed by this audit,—
+SCI.TIME_AND_CALENDAR,J_SCIENTIFIC_UNITS,instants versus durations,LOW,4,?,not probed by this audit,—
+SCI.UNCERTAINTY,J_SCIENTIFIC_UNITS,measurement uncertainty attached to a quantity,MEDIUM,6,?,not probed by this audit,—
+SCI.UNCERTAINTY_PROPAGATION,J_SCIENTIFIC_UNITS,propagation of uncertainty through operations,LOW,4,?,not probed by this audit,—
+SCI.UNIT,J_SCIENTIFIC_UNITS,unit of measurement,HIGH,8,?,not probed by this audit,—
+SCI.UNITFUL_RANDOM_VARIABLE,J_SCIENTIFIC_UNITS,random variables and distribution parameters with units,MEDIUM,6,?,not probed by this audit,—
+SCI.UNIT_ALGEBRA,J_SCIENTIFIC_UNITS,algebra of compound units,HIGH,7,?,not probed by this audit,—
+SCI.UNIT_CONVERSION,J_SCIENTIFIC_UNITS,conversion between commensurable units,MEDIUM,6,?,not probed by this audit,—
+SCI.UNIT_IN_TRANSCENDENTAL_ARG,J_SCIENTIFIC_UNITS,dimensionless-argument requirement for transcendental functions,MEDIUM,6,?,not probed by this audit,—
+SCI.UNIT_OF_DERIVATIVE,J_SCIENTIFIC_UNITS,units of a derivative,MEDIUM,6,?,not probed by this audit,—
+SCI.UNIT_OF_INTEGRAL,J_SCIENTIFIC_UNITS,units of an integral,MEDIUM,6,?,not probed by this audit,—
+NUMER.ABSOLUTE_ERROR,K_NUMERICAL,absolute error,MEDIUM,6,?,not probed by this audit,—
+NUMER.APPROXIMATION_MARKER,K_NUMERICAL,approximation as a first-class relation,HIGH,8,?,not probed by this audit,—
+NUMER.AUTODIFF,K_NUMERICAL,algorithmic differentiation,MEDIUM,6,?,not probed by this audit,—
+NUMER.COMPLEXITY_OF_EVALUATION,K_NUMERICAL,cost of evaluating a mathematical object,LOW,3,?,not probed by this audit,—
+NUMER.CONDITION_NUMBER,K_NUMERICAL,conditioning of a problem,MEDIUM,6,?,not probed by this audit,—
+NUMER.CONVERGENCE_RATE,K_NUMERICAL,rate and order of convergence,MEDIUM,5,?,not probed by this audit,—
+NUMER.DISCRETIZATION,K_NUMERICAL,discretisation of a continuous problem,MEDIUM,6,?,not probed by this audit,—
+NUMER.ERROR_BOUND,K_NUMERICAL,error bound as a quantified statement,HIGH,7,?,not probed by this audit,—
+NUMER.EXACT_VS_NUMERIC_DISPATCH,K_NUMERICAL,separation of exact and numeric evaluation paths,MEDIUM,6,?,not probed by this audit,—
+NUMER.FINITE_DIFFERENCE,K_NUMERICAL,finite-difference approximation of derivatives,LOW,4,?,not probed by this audit,—
+NUMER.FIXED_POINT_ITERATION,K_NUMERICAL,fixed-point iteration and contraction conditions,LOW,4,?,not probed by this audit,—
+NUMER.FLOATING_POINT,K_NUMERICAL,floating-point number as a distinct type from the real,HIGH,8,?,not probed by this audit,—
+NUMER.INTERPOLATION,K_NUMERICAL,interpolation and its validity region,LOW,4,?,not probed by this audit,—
+NUMER.INTERVAL_ARITHMETIC,K_NUMERICAL,interval and validated arithmetic,LOW,3,?,not probed by this audit,—
+NUMER.ITERATION_SCHEME,K_NUMERICAL,iterative method with a stated stopping rule,MEDIUM,6,?,not probed by this audit,—
+NUMER.LINEAR_SOLVE,K_NUMERICAL,numerical solution of linear systems,MEDIUM,5,?,not probed by this audit,—
+NUMER.MACHINE_EPSILON,K_NUMERICAL,machine epsilon and representable range,LOW,4,?,not probed by this audit,—
+NUMER.MESH,K_NUMERICAL,grid or mesh over a domain,LOW,3,?,not probed by this audit,—
+NUMER.MONTE_CARLO,K_NUMERICAL,Monte Carlo estimation,MEDIUM,6,?,not probed by this audit,—
+NUMER.OVERFLOW_UNDERFLOW,K_NUMERICAL,"overflow, underflow and special values",MEDIUM,5,?,not probed by this audit,—
+NUMER.PRECISION_FORMAT,K_NUMERICAL,declared precision and number format,MEDIUM,5,?,not probed by this audit,—
+NUMER.QUADRATURE,K_NUMERICAL,numerical integration,MEDIUM,5,?,not probed by this audit,—
+NUMER.RELATIVE_ERROR,K_NUMERICAL,relative error,MEDIUM,6,?,not probed by this audit,—
+NUMER.REPRODUCIBILITY,K_NUMERICAL,reproducibility conditions of a computed result,LOW,4,?,not probed by this audit,—
+NUMER.RNG_SEED,K_NUMERICAL,pseudo-random generation and seeding,LOW,4,?,not probed by this audit,—
+NUMER.ROOT_FINDING,K_NUMERICAL,numerical root finding,LOW,4,?,not probed by this audit,—
+NUMER.ROUNDING_MODE,K_NUMERICAL,rounding mode and tie-breaking,LOW,3,?,not probed by this audit,—
+NUMER.SPARSITY_STRUCTURE,K_NUMERICAL,sparsity and structural zeros,LOW,4,?,not probed by this audit,—
+NUMER.STABILITY,K_NUMERICAL,numerical stability of an algorithm,MEDIUM,5,?,not probed by this audit,—
+NUMER.TIME_STEP,K_NUMERICAL,time integration scheme and stability condition,LOW,4,?,not probed by this audit,—
+NUMER.TOLERANCE,K_NUMERICAL,tolerance as an explicit parameter,MEDIUM,6,?,not probed by this audit,—
+EPIS.AMBIGUITY_FLAG,L_REASONING_EPISTEMICS,explicit ambiguity or underspecification,MEDIUM,6,?,not probed by this audit,—
+EPIS.APPROXIMATION_CLAIM,L_REASONING_EPISTEMICS,explicit approximation claim with its basis,HIGH,8,?,not probed by this audit,—
+EPIS.ASSERTION_VS_DEFINITION,L_REASONING_EPISTEMICS,speech-act distinction among statements,CRITICAL,9,P,`module M ; const c : Real = 2.0 ; var x : Real ; require x = 3.0` -> clean,A
+EPIS.ASSUMPTION,L_REASONING_EPISTEMICS,explicit assumption,CRITICAL,9,P,`module M ; var x : Real ; assume x > 0.0` -> clean,A
+EPIS.CAUSAL_CLAIM,L_REASONING_EPISTEMICS,causal claim with its identifying assumptions,HIGH,7,?,not probed by this audit,—
+EPIS.CONFIDENCE_QUALIFIER,L_REASONING_EPISTEMICS,qualified belief attached to a statement,MEDIUM,6,?,not probed by this audit,—
+EPIS.CONSISTENCY_CHECK,L_REASONING_EPISTEMICS,systematic consistency and well-formedness checking,CRITICAL,9,P,`module M ; var x : Real ; require y > 0.0` -> HML-N301 (correctly rejected — the check exists),A
+EPIS.CONTRADICTION_DETECTION,L_REASONING_EPISTEMICS,detection of inconsistent assumptions or constraints,MEDIUM,6,?,not probed by this audit,—
+EPIS.CORRELATION_VS_CAUSATION,L_REASONING_EPISTEMICS,"association, implication and causation kept distinct",CRITICAL,9,0,"`module M ; rv X : RandomVariable[Real] ; rv Y : RandomVariable[Real] ; require causes(X, Y)` -> HML-N306 (no such function/name)",A
+EPIS.COUNTEREXAMPLE,L_REASONING_EPISTEMICS,counterexample as a refuting object,MEDIUM,5,?,not probed by this audit,—
+EPIS.DEFEASIBLE_INFERENCE,L_REASONING_EPISTEMICS,defeasible / non-monotonic inference,LOW,4,?,not probed by this audit,—
+EPIS.EVIDENCE,L_REASONING_EPISTEMICS,evidential support distinguished from truth,MEDIUM,6,?,not probed by this audit,—
+EPIS.GIVEN_VS_DERIVED,L_REASONING_EPISTEMICS,"provenance of a value: given, derived or estimated",HIGH,7,?,not probed by this audit,—
+EPIS.IDEALIZATION,L_REASONING_EPISTEMICS,idealising assumption marked as false-but-useful,MEDIUM,5,?,not probed by this audit,—
+EPIS.KNOWN_UNKNOWN,L_REASONING_EPISTEMICS,explicitly unknown quantities,MEDIUM,6,?,not probed by this audit,—
+EPIS.LOCAL_ASSUMPTION_SCOPE,L_REASONING_EPISTEMICS,locally scoped assumption,HIGH,8,?,not probed by this audit,—
+EPIS.MODEL_VS_REALITY,L_REASONING_EPISTEMICS,model-world distinction,MEDIUM,6,?,not probed by this audit,—
+EPIS.NORMATIVE_VS_DESCRIPTIVE,L_REASONING_EPISTEMICS,descriptive statement versus decision rule,LOW,4,?,not probed by this audit,—
+EPIS.OPEN_PROBLEM,L_REASONING_EPISTEMICS,conjecture and open question,LOW,4,?,not probed by this audit,—
+EPIS.PROOF_STATUS,L_REASONING_EPISTEMICS,epistemic status of a statement,MEDIUM,6,?,not probed by this audit,—
+EPIS.PROVENANCE,L_REASONING_EPISTEMICS,provenance and attribution,MEDIUM,5,?,not probed by this audit,—
+EPIS.SCOPE_OF_APPLICABILITY,L_REASONING_EPISTEMICS,population or unit to which a claim applies,MEDIUM,6,?,not probed by this audit,—
+EPIS.SENSITIVITY_TO_ASSUMPTION,L_REASONING_EPISTEMICS,sensitivity of a conclusion to its assumptions,MEDIUM,5,?,not probed by this audit,—
+EPIS.TRANSLATION_LOSS_DECLARATION,L_REASONING_EPISTEMICS,declared loss when moving between representations,HIGH,8,?,not probed by this audit,—
+EPIS.VALIDITY_DOMAIN,L_REASONING_EPISTEMICS,domain of validity attached to a statement,HIGH,8,?,not probed by this audit,—
+XFORM.ALPHA_RENAMING,M_TRANSFORMATIONS_INFERENCE,safe renaming of bound variables,HIGH,7,?,not probed by this audit,—
+XFORM.BETA_REDUCTION,M_TRANSFORMATIONS_INFERENCE,application reduction,MEDIUM,6,?,not probed by this audit,—
+XFORM.CANONICALIZATION,M_TRANSFORMATIONS_INFERENCE,canonical form preserving semantics,CRITICAL,9,P,`module M ; require forall x : Real . exists y : Real . y > x` -> clean,A
+XFORM.CASE_ANALYSIS,M_TRANSFORMATIONS_INFERENCE,proof or definition by exhaustive cases,HIGH,7,?,not probed by this audit,—
+XFORM.CHANGE_OF_REPRESENTATION,M_TRANSFORMATIONS_INFERENCE,multiple faithful views of one object,HIGH,7,?,not probed by this audit,—
+XFORM.COMPILATION_TO_BACKEND,M_TRANSFORMATIONS_INFERENCE,translation to an external system,HIGH,7,?,not probed by this audit,—
+XFORM.CONDITIONING_OP,M_TRANSFORMATIONS_INFERENCE,conditioning as a model transformation,HIGH,8,?,not probed by this audit,—
+XFORM.CONSTRAINT_PROPAGATION,M_TRANSFORMATIONS_INFERENCE,propagation of constraints and refinements,HIGH,7,?,not probed by this audit,—
+XFORM.CONTRADICTION_PROOF,M_TRANSFORMATIONS_INFERENCE,reductio and contraposition,MEDIUM,5,?,not probed by this audit,—
+XFORM.DIFF_OF_STATEMENTS,M_TRANSFORMATIONS_INFERENCE,semantic difference between two versions of a statement,LOW,4,?,not probed by this audit,—
+XFORM.EQUATIONAL_REASONING,M_TRANSFORMATIONS_INFERENCE,chained equational derivation,MEDIUM,6,?,not probed by this audit,—
+XFORM.EVALUATION_PARTIAL,M_TRANSFORMATIONS_INFERENCE,partial evaluation with unknowns remaining,MEDIUM,6,?,not probed by this audit,—
+XFORM.EXISTENTIAL_WITNESS,M_TRANSFORMATIONS_INFERENCE,introducing and using a witness,MEDIUM,6,?,not probed by this audit,—
+XFORM.INDUCTION_APPLICATION,M_TRANSFORMATIONS_INFERENCE,applying induction,MEDIUM,6,?,not probed by this audit,—
+XFORM.LOSS_ANNOTATION,M_TRANSFORMATIONS_INFERENCE,structured annotation of what a transformation lost,HIGH,8,?,not probed by this audit,—
+XFORM.MARGINALIZATION,M_TRANSFORMATIONS_INFERENCE,marginalisation as an inference operation,HIGH,7,?,not probed by this audit,—
+XFORM.MODUS_PONENS,M_TRANSFORMATIONS_INFERENCE,detachment from an implication,HIGH,7,?,not probed by this audit,—
+XFORM.MOMENT_COMPUTATION,M_TRANSFORMATIONS_INFERENCE,derivation of moments from a distribution,MEDIUM,6,?,not probed by this audit,—
+XFORM.NORMAL_FORM,M_TRANSFORMATIONS_INFERENCE,normal form of an expression,MEDIUM,6,?,not probed by this audit,—
+XFORM.PATTERN_MATCHING,M_TRANSFORMATIONS_INFERENCE,structural pattern matching on expressions,HIGH,7,?,not probed by this audit,—
+XFORM.PRENEX_NORMAL_FORM,M_TRANSFORMATIONS_INFERENCE,quantifier movement and prenex form,MEDIUM,6,?,not probed by this audit,—
+XFORM.PROOF_CHECKING,M_TRANSFORMATIONS_INFERENCE,independent checking of a derivation,LOW,4,?,not probed by this audit,—
+XFORM.QUANTIFIER_ELIMINATION,M_TRANSFORMATIONS_INFERENCE,quantifier elimination in decidable theories,LOW,3,?,not probed by this audit,—
+XFORM.QUERY_OVER_STATEMENTS,M_TRANSFORMATIONS_INFERENCE,querying a body of mathematical statements,MEDIUM,6,?,not probed by this audit,—
+XFORM.REWRITING,M_TRANSFORMATIONS_INFERENCE,directed rewriting with rules,HIGH,7,?,not probed by this audit,—
+XFORM.ROUND_TRIP,M_TRANSFORMATIONS_INFERENCE,round-trip fidelity between surface and internal form,HIGH,7,?,not probed by this audit,—
+XFORM.SEMANTICS_PRESERVING_CHECK,M_TRANSFORMATIONS_INFERENCE,verification that a transformation preserves meaning,HIGH,7,?,not probed by this audit,—
+XFORM.SIMPLIFICATION,M_TRANSFORMATIONS_INFERENCE,simplification with preserved meaning,HIGH,7,?,not probed by this audit,—
+XFORM.SKOLEMIZATION,M_TRANSFORMATIONS_INFERENCE,Skolemisation of existentials,MEDIUM,6,?,not probed by this audit,—
+XFORM.SOLVE_FOR,M_TRANSFORMATIONS_INFERENCE,solving a relation for an unknown,MEDIUM,6,?,not probed by this audit,—
+XFORM.STAGING,M_TRANSFORMATIONS_INFERENCE,explicit staging of symbolic and numeric phases,MEDIUM,6,?,not probed by this audit,—
+XFORM.SUBSTITUTION_RULE,M_TRANSFORMATIONS_INFERENCE,substitution of equals for equals,HIGH,7,?,not probed by this audit,—
+XFORM.SYMBOLIC_DIFFERENTIATION,M_TRANSFORMATIONS_INFERENCE,symbolic differentiation,MEDIUM,6,?,not probed by this audit,—
+XFORM.SYMBOLIC_INTEGRATION,M_TRANSFORMATIONS_INFERENCE,symbolic integration with failure as an outcome,LOW,4,?,not probed by this audit,—
+XFORM.TOPOLOGICAL_ORDER,M_TRANSFORMATIONS_INFERENCE,dependency ordering and cycle detection,MEDIUM,6,?,not probed by this audit,—
+XFORM.TYPE_INFERENCE,M_TRANSFORMATIONS_INFERENCE,inference and checking of types,CRITICAL,9,P,`module M ; param mu : Real ; param sigma : PositiveReal ; var z : Real ; def v := mu + sigma * z` -> clean,A
+XFORM.UNIFICATION,M_TRANSFORMATIONS_INFERENCE,unification of terms and types,MEDIUM,6,?,not probed by this audit,—
+XFORM.UNIVERSAL_INSTANTIATION,M_TRANSFORMATIONS_INFERENCE,instantiating a universal statement,HIGH,7,?,not probed by this audit,—

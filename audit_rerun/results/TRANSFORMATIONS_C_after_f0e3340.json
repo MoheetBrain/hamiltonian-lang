@@ -1,0 +1,359 @@
+{
+  "summary": {
+    "src": "/Users/moheet/hml_v2_worktree/src",
+    "hamiltonian_lang": "/Users/moheet/hml_v2_worktree/src/hamiltonian_lang/__init__.py",
+    "n": 19,
+    "representable": 7,
+    "executable": 0,
+    "verifiable": 7,
+    "provenance_preserving": 7
+  },
+  "rows": [
+    {
+      "transformation": "substitution",
+      "note": "rule `substitute`",
+      "representable": "YES",
+      "executable": "NO",
+      "verifiable": "YES",
+      "provenance_preserving": "YES",
+      "good_source": "assume a1 : y = 2.0 * x\nassume a2 : z = y + k\nderive d1 : z = 2.0 * x + k from a1, a2 by substitute\n",
+      "bad_source": "assume a1 : y = 2.0 * x\nassume a2 : z = y + k\nderive d1 : z = 2.0 * x + 99.0 from a1, a2 by substitute\n",
+      "good_codes": [],
+      "good_ok": true,
+      "good_statuses": {
+        "d1": "VERIFIED"
+      },
+      "bad_codes": [
+        "HML-R706"
+      ],
+      "bad_ok": false,
+      "broken_variant_rejected": true,
+      "correct_step_verified": true,
+      "provenance_record": {
+        "premises": [
+          "a1",
+          "a2"
+        ],
+        "rule": "substitute",
+        "status": "VERIFIED"
+      },
+      "content_hash": "52f6180055c1f0a9964867fd289f7ed74c2460e3b1df929bb8ad8cbcb454a950",
+      "evidence": "codes=[] statuses={'d1': 'VERIFIED'} broken_rejected=True"
+    },
+    {
+      "transformation": "rewrite",
+      "note": "rewriting under a context = rule `congruence`",
+      "representable": "YES",
+      "executable": "NO",
+      "verifiable": "YES",
+      "provenance_preserving": "YES",
+      "good_source": "assume a1 : y = 2.0 * x\nderive d1 : exp(y) = exp(2.0 * x) from a1 by congruence(fn := exp)\n",
+      "bad_source": "assume a1 : y = 2.0 * x\nderive d1 : exp(y) = exp(3.0 * x) from a1 by congruence(fn := exp)\n",
+      "good_codes": [],
+      "good_ok": true,
+      "good_statuses": {
+        "d1": "VERIFIED"
+      },
+      "bad_codes": [
+        "HML-R706"
+      ],
+      "bad_ok": false,
+      "broken_variant_rejected": true,
+      "correct_step_verified": true,
+      "provenance_record": {
+        "premises": [
+          "a1"
+        ],
+        "rule": "congruence",
+        "status": "VERIFIED"
+      },
+      "content_hash": "a4d9d96b98ba3036107c9ecdf7e7fbeccdb8f2dcfa6845fbda9e8e1bae02aee4",
+      "evidence": "codes=[] statuses={'d1': 'VERIFIED'} broken_rejected=True"
+    },
+    {
+      "transformation": "simplify",
+      "note": "no normalisation rule in the closed catalogue",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "rearrange",
+      "note": "rule `subtract_both_sides`",
+      "representable": "YES",
+      "executable": "NO",
+      "verifiable": "YES",
+      "provenance_preserving": "YES",
+      "good_source": "assume a1 : y + k = 2.0 * x\nderive d1 : y + k - k = 2.0 * x - k from a1 by subtract_both_sides(by := k)\n",
+      "bad_source": "assume a1 : y + k = 2.0 * x\nderive d1 : y + k - k = 2.0 * x - 99.0 from a1 by subtract_both_sides(by := k)\n",
+      "good_codes": [],
+      "good_ok": true,
+      "good_statuses": {
+        "d1": "VERIFIED"
+      },
+      "bad_codes": [
+        "HML-R706"
+      ],
+      "bad_ok": false,
+      "broken_variant_rejected": true,
+      "correct_step_verified": true,
+      "provenance_record": {
+        "premises": [
+          "a1"
+        ],
+        "rule": "subtract_both_sides",
+        "status": "VERIFIED"
+      },
+      "content_hash": "0ef02b78960400af4d6a32d26cb7e4a94277276f4a3720b01a64abcd37c29562",
+      "evidence": "codes=[] statuses={'d1': 'VERIFIED'} broken_rejected=True"
+    },
+    {
+      "transformation": "cancel",
+      "note": "rule `divide_both_sides`, with its k != 0 obligation",
+      "representable": "YES",
+      "executable": "NO",
+      "verifiable": "YES",
+      "provenance_preserving": "YES",
+      "good_source": "assume a0 : k != 0.0\nassume a1 : y * k = 2.0 * x * k\nderive d1 : y * k / k = 2.0 * x * k / k from a1 by divide_both_sides(by := k)\n",
+      "bad_source": "assume a0 : k != 0.0\nassume a1 : y * k = 2.0 * x * k\nderive d1 : y * k / k = 2.0 * x from a1 by divide_both_sides(by := k)\n",
+      "good_codes": [],
+      "good_ok": true,
+      "good_statuses": {
+        "d1": "VERIFIED"
+      },
+      "bad_codes": [
+        "HML-R706"
+      ],
+      "bad_ok": false,
+      "broken_variant_rejected": true,
+      "correct_step_verified": true,
+      "provenance_record": {
+        "premises": [
+          "a1"
+        ],
+        "rule": "divide_both_sides",
+        "status": "VERIFIED"
+      },
+      "content_hash": "fe5c4ad61d9dd40e6af9d1737d573c7dcdf3f42c7343a8f8d0e5870a8ee051b3",
+      "evidence": "codes=[] statuses={'d1': 'VERIFIED'} broken_rejected=True"
+    },
+    {
+      "transformation": "factor",
+      "note": "no factoring rule in the closed catalogue",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "expand",
+      "note": "no expansion rule in the closed catalogue",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "differentiate",
+      "note": "`derivative(f(x), x : T)` is an EXPRESSION (D-026); there is no rule that differentiates both sides of an equation",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "integrate",
+      "note": "`integral(...)` is an EXPRESSION; there is no rule that integrates a relation",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "change of variables",
+      "note": "no change-of-variables rule",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "case split",
+      "note": "no case-analysis rule; `or` cannot be eliminated",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "contradiction",
+      "note": "`modus_tollens` only. There is no reductio/`False`-elimination rule, so proof BY contradiction proper is absent; scored on modus tollens alone and flagged in the report.",
+      "representable": "YES",
+      "executable": "NO",
+      "verifiable": "YES",
+      "provenance_preserving": "YES",
+      "good_source": "assume a1 : x > 0.0 implies y > 0.0\nassume a2 : not (y > 0.0)\nderive d1 : not (x > 0.0) from a2, a1 by modus_tollens\n",
+      "bad_source": "assume a1 : x > 0.0 implies y > 0.0\nassume a2 : not (y > 0.0)\nderive d1 : not (x > 1.0) from a2, a1 by modus_tollens\n",
+      "good_codes": [],
+      "good_ok": true,
+      "good_statuses": {
+        "d1": "VERIFIED"
+      },
+      "bad_codes": [
+        "HML-R706"
+      ],
+      "bad_ok": false,
+      "broken_variant_rejected": true,
+      "correct_step_verified": true,
+      "provenance_record": {
+        "premises": [
+          "a2",
+          "a1"
+        ],
+        "rule": "modus_tollens",
+        "status": "VERIFIED"
+      },
+      "content_hash": "37a637960bb54f5c5626a2d77086bae15dda8ad255d39c328123fe6c87d4a5b2",
+      "evidence": "codes=[] statuses={'d1': 'VERIFIED'} broken_rejected=True"
+    },
+    {
+      "transformation": "induction",
+      "note": "no induction rule; no inductive types",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "implication application",
+      "note": "rule `modus_ponens`",
+      "representable": "YES",
+      "executable": "NO",
+      "verifiable": "YES",
+      "provenance_preserving": "YES",
+      "good_source": "assume a1 : x > 0.0\nassume a2 : x > 0.0 implies y > 0.0\nderive d1 : y > 0.0 from a1, a2 by modus_ponens\n",
+      "bad_source": "assume a1 : x > 0.0\nassume a2 : x > 0.0 implies y > 0.0\nderive d1 : y > 1.0 from a1, a2 by modus_ponens\n",
+      "good_codes": [],
+      "good_ok": true,
+      "good_statuses": {
+        "d1": "VERIFIED"
+      },
+      "bad_codes": [
+        "HML-R706"
+      ],
+      "bad_ok": false,
+      "broken_variant_rejected": true,
+      "correct_step_verified": true,
+      "provenance_record": {
+        "premises": [
+          "a1",
+          "a2"
+        ],
+        "rule": "modus_ponens",
+        "status": "VERIFIED"
+      },
+      "content_hash": "4f7ab942fdfbb047249de933e89bc744a31e4a7bc116e7aaee6929e3a63aad78",
+      "evidence": "codes=[] statuses={'d1': 'VERIFIED'} broken_rejected=True"
+    },
+    {
+      "transformation": "equality substitution",
+      "note": "rules `symmetry` + `transitivity`",
+      "representable": "YES",
+      "executable": "NO",
+      "verifiable": "YES",
+      "provenance_preserving": "YES",
+      "good_source": "assume a1 : y = 2.0 * x\nderive d1 : 2.0 * x = y from a1 by symmetry\nassume a2 : 2.0 * x = k\nderive d2 : y = k from a1, a2 by transitivity\n",
+      "bad_source": "assume a1 : y = 2.0 * x\nassume a2 : 2.0 * x = k\nderive d2 : y = z from a1, a2 by transitivity\n",
+      "good_codes": [],
+      "good_ok": true,
+      "good_statuses": {
+        "d1": "VERIFIED",
+        "d2": "VERIFIED"
+      },
+      "bad_codes": [
+        "HML-R706"
+      ],
+      "bad_ok": false,
+      "broken_variant_rejected": true,
+      "correct_step_verified": true,
+      "provenance_record": {
+        "premises": [
+          "a1"
+        ],
+        "rule": "symmetry",
+        "status": "VERIFIED"
+      },
+      "content_hash": "6549743cb9134ea09b40a3e9c545f37e184142aa3e3608b7dd6c21fa4da6b5e7",
+      "evidence": "codes=[] statuses={'d1': 'VERIFIED', 'd2': 'VERIFIED'} broken_rejected=True"
+    },
+    {
+      "transformation": "probability conditioning",
+      "note": "`probability(A | B)` and `expectation(X | Y)` are EXPRESSIONS (D-026). No rule in the catalogue derives one conditional statement from another, so the conditioning STEP is still not representable.",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "Bayesian update",
+      "note": "`infer posterior x` REQUESTS an update; no rule represents one as a step",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "optimisation update",
+      "note": "`minimise`/`maximise` state an objective; no optimisation step is representable",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    },
+    {
+      "transformation": "approximation",
+      "note": "no approximation relation exists in the surface language",
+      "representable": "NO",
+      "executable": "NO",
+      "verifiable": "NO",
+      "provenance_preserving": "NO",
+      "good_source": null,
+      "bad_source": null,
+      "evidence": "no candidate surface form exists; not attempted"
+    }
+  ]
+}

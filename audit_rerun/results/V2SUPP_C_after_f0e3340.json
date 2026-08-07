@@ -1,0 +1,778 @@
+{
+  "src": "/Users/moheet/hml_v2_worktree/src/hamiltonian_lang/__init__.py",
+  "backend_summary": {
+    "lowerings": 45,
+    "silent_losses": 0,
+    "specimens_that_do_not_compile": []
+  },
+  "backend_rows": [
+    {
+      "specimen": "v2_probability",
+      "backend": "english",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 1,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_probability",
+      "backend": "graph",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_probability",
+      "backend": "hml",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_probability",
+      "backend": "json",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_probability",
+      "backend": "latex",
+      "faithful": false,
+      "n_unsupported": 5,
+      "n_notes": 2,
+      "constructs": [
+        "Normal argument roles",
+        "joint law",
+        "rv X",
+        "rv Y"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_probability",
+      "backend": "lean",
+      "faithful": false,
+      "n_unsupported": 14,
+      "n_notes": 7,
+      "constructs": [
+        "X",
+        "Y",
+        "def j",
+        "expression independence",
+        "expression joint",
+        "expression moment",
+        "expression probability",
+        "j",
+        "law X",
+        "law Y",
+        "require",
+        "rv X",
+        "rv Y"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_probability",
+      "backend": "stan",
+      "faithful": false,
+      "n_unsupported": 11,
+      "n_notes": 6,
+      "constructs": [
+        "Normal argument roles",
+        "X",
+        "Y",
+        "expression independence",
+        "expression moment",
+        "expression probability",
+        "j",
+        "require"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_probability",
+      "backend": "sympy",
+      "faithful": false,
+      "n_unsupported": 8,
+      "n_notes": 6,
+      "constructs": [
+        "X",
+        "Y",
+        "expression independence",
+        "expression joint",
+        "expression moment",
+        "expression probability",
+        "law X",
+        "law Y"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_probability",
+      "backend": "triples",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_analysis",
+      "backend": "english",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 1,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_analysis",
+      "backend": "graph",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_analysis",
+      "backend": "hml",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_analysis",
+      "backend": "json",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_analysis",
+      "backend": "latex",
+      "faithful": false,
+      "n_unsupported": 5,
+      "n_notes": 2,
+      "constructs": [
+        "binder domain of derivative",
+        "binder domain of integral",
+        "binder domain of limit",
+        "var D",
+        "var f"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_analysis",
+      "backend": "lean",
+      "faithful": false,
+      "n_unsupported": 9,
+      "n_notes": 7,
+      "constructs": [
+        "def a",
+        "def d",
+        "def l",
+        "expression continuity",
+        "expression derivative",
+        "expression integral",
+        "expression limit",
+        "var D",
+        "var f"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_analysis",
+      "backend": "stan",
+      "faithful": false,
+      "n_unsupported": 7,
+      "n_notes": 6,
+      "constructs": [
+        "D",
+        "expression continuity",
+        "expression derivative",
+        "expression integral",
+        "expression limit",
+        "f",
+        "require"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_analysis",
+      "backend": "sympy",
+      "faithful": false,
+      "n_unsupported": 6,
+      "n_notes": 6,
+      "constructs": [
+        "D",
+        "expression continuity",
+        "expression derivative",
+        "expression integral",
+        "expression limit",
+        "f"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_analysis",
+      "backend": "triples",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_sets",
+      "backend": "english",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 1,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_sets",
+      "backend": "graph",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_sets",
+      "backend": "hml",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_sets",
+      "backend": "json",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_sets",
+      "backend": "latex",
+      "faithful": false,
+      "n_unsupported": 2,
+      "n_notes": 2,
+      "constructs": [
+        "var S",
+        "var x"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_sets",
+      "backend": "lean",
+      "faithful": false,
+      "n_unsupported": 3,
+      "n_notes": 7,
+      "constructs": [
+        "require",
+        "var S",
+        "var x"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_sets",
+      "backend": "stan",
+      "faithful": false,
+      "n_unsupported": 4,
+      "n_notes": 6,
+      "constructs": [
+        "S",
+        "T",
+        "expression membership",
+        "require"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_sets",
+      "backend": "sympy",
+      "faithful": false,
+      "n_unsupported": 3,
+      "n_notes": 6,
+      "constructs": [
+        "S",
+        "expression membership",
+        "expression setcomprehension"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_sets",
+      "backend": "triples",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_causal",
+      "backend": "english",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 1,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_causal",
+      "backend": "graph",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_causal",
+      "backend": "hml",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_causal",
+      "backend": "json",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_causal",
+      "backend": "latex",
+      "faithful": false,
+      "n_unsupported": 2,
+      "n_notes": 2,
+      "constructs": [
+        "rv X",
+        "rv Y"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_causal",
+      "backend": "lean",
+      "faithful": false,
+      "n_unsupported": 7,
+      "n_notes": 7,
+      "constructs": [
+        "X",
+        "Y",
+        "expression associated",
+        "expression causes",
+        "expression correlated",
+        "rv X",
+        "rv Y"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_causal",
+      "backend": "stan",
+      "faithful": false,
+      "n_unsupported": 8,
+      "n_notes": 6,
+      "constructs": [
+        "X",
+        "Y",
+        "expression associated",
+        "expression causes",
+        "expression correlated",
+        "require"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_causal",
+      "backend": "sympy",
+      "faithful": false,
+      "n_unsupported": 5,
+      "n_notes": 6,
+      "constructs": [
+        "X",
+        "Y",
+        "expression associated",
+        "expression causes",
+        "expression correlated"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_causal",
+      "backend": "triples",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_reasoning",
+      "backend": "english",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 1,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_reasoning",
+      "backend": "graph",
+      "faithful": false,
+      "n_unsupported": 3,
+      "n_notes": 0,
+      "constructs": [
+        "derive d1",
+        "goal g",
+        "proved g"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_reasoning",
+      "backend": "hml",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_reasoning",
+      "backend": "json",
+      "faithful": true,
+      "n_unsupported": 0,
+      "n_notes": 0,
+      "constructs": [],
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_reasoning",
+      "backend": "latex",
+      "faithful": false,
+      "n_unsupported": 5,
+      "n_notes": 2,
+      "constructs": [
+        "derive d1",
+        "goal g",
+        "proved g",
+        "var x",
+        "var y"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_reasoning",
+      "backend": "lean",
+      "faithful": false,
+      "n_unsupported": 5,
+      "n_notes": 7,
+      "constructs": [
+        "derive d1",
+        "goal g",
+        "proved g",
+        "var x",
+        "var y"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_reasoning",
+      "backend": "stan",
+      "faithful": false,
+      "n_unsupported": 4,
+      "n_notes": 6,
+      "constructs": [
+        "assume",
+        "derive d1",
+        "goal g",
+        "proved g"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_reasoning",
+      "backend": "sympy",
+      "faithful": false,
+      "n_unsupported": 4,
+      "n_notes": 6,
+      "constructs": [
+        "assume",
+        "derive d1",
+        "goal g",
+        "proved g"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "v2_reasoning",
+      "backend": "triples",
+      "faithful": false,
+      "n_unsupported": 3,
+      "n_notes": 0,
+      "constructs": [
+        "derive d1",
+        "goal g",
+        "proved g"
+      ],
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": false,
+      "SILENT_LOSS": false
+    }
+  ],
+  "level3": {
+    "3.3 assumptions first-class and SCOPED": [
+      {
+        "case": "is there ANY local assumption context? (block form)",
+        "mode": "accept",
+        "accepted": false,
+        "codes": [
+          "HML-P205",
+          "HML-P205"
+        ],
+        "obligations": 0,
+        "behaves_as_required": false
+      },
+      {
+        "case": "does a module-level assumption refine the TYPE of its symbol?",
+        "mode": "accept",
+        "accepted": false,
+        "codes": [
+          "HML-T427"
+        ],
+        "obligations": 1,
+        "behaves_as_required": false
+      }
+    ],
+    "3.4 side conditions generated from partial operations": [
+      {
+        "case": "division by an unconstrained variable",
+        "mode": "reject",
+        "accepted": true,
+        "codes": [],
+        "obligations": 0,
+        "behaves_as_required": false
+      },
+      {
+        "case": "division by a literal zero",
+        "mode": "reject",
+        "accepted": true,
+        "codes": [],
+        "obligations": 0,
+        "behaves_as_required": false
+      },
+      {
+        "case": "matrix inverse",
+        "mode": "reject",
+        "accepted": false,
+        "codes": [
+          "HML-N306"
+        ],
+        "obligations": 0,
+        "behaves_as_required": true
+      },
+      {
+        "case": "tan at a pole",
+        "mode": "reject",
+        "accepted": true,
+        "codes": [],
+        "obligations": 0,
+        "behaves_as_required": false
+      },
+      {
+        "case": "0 ^ -1",
+        "mode": "reject",
+        "accepted": true,
+        "codes": [],
+        "obligations": 0,
+        "behaves_as_required": false
+      }
+    ],
+    "3.6 epistemic status preserved through a transformation": [
+      {
+        "case": "an assumed premise yields a derivation whose status is recorded",
+        "mode": "accept",
+        "accepted": true,
+        "codes": [],
+        "obligations": 1,
+        "behaves_as_required": true
+      },
+      {
+        "case": "a REQUIRED proposition must not be usable as a derivation premise",
+        "mode": "reject",
+        "accepted": false,
+        "codes": [
+          "HML-R703"
+        ],
+        "obligations": 1,
+        "behaves_as_required": true
+      }
+    ],
+    "3.7 approximation is a distinct relation carrying an error term": [
+      {
+        "case": "approximate equality operator",
+        "mode": "accept",
+        "accepted": false,
+        "codes": [
+          "HML-P204"
+        ],
+        "obligations": 0,
+        "behaves_as_required": false
+      },
+      {
+        "case": "value with an uncertainty (parses as subtraction)",
+        "mode": "accept",
+        "accepted": true,
+        "codes": [],
+        "obligations": 0,
+        "behaves_as_required": true
+      }
+    ]
+  },
+  "level3_8_queryability": {
+    "compiles": true,
+    "codes": [],
+    "which statements assume?": [
+      "a1"
+    ],
+    "which derivations, and with what status?": [
+      {
+        "label": "d1",
+        "rule": "symmetry",
+        "status": "VERIFIED"
+      }
+    ],
+    "which goals, and with what status?": [
+      {
+        "label": "g",
+        "status": "PROVED"
+      }
+    ],
+    "result.canonical available": true,
+    "result.graph available": true,
+    "result.hash available": true,
+    "result.symbols available": true,
+    "reasoning.obligations": [],
+    "reasoning.open_obligations": 0
+  }
+}

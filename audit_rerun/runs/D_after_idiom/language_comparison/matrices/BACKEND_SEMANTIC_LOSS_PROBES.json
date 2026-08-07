@@ -1,0 +1,906 @@
+{
+  "rows": [
+    {
+      "specimen": "epistemic_rich",
+      "backend": "english",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": "prose is not machine-checkable; all structure is advisory",
+      "n_limitation_notes": 1,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "epistemic_rich",
+      "backend": "graph",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "epistemic_rich",
+      "backend": "hml",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "epistemic_rich",
+      "backend": "json",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "epistemic_rich",
+      "backend": "latex",
+      "faithful": false,
+      "n_reported": 3,
+      "severities": [
+        "weakened"
+      ],
+      "constructs": [
+        "Beta argument roles",
+        "obs n",
+        "param theta"
+      ],
+      "expected_inexpressible": "LaTeX is presentational; NO semantics survive at all",
+      "n_limitation_notes": 2,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "epistemic_rich",
+      "backend": "lean",
+      "faithful": false,
+      "n_reported": 7,
+      "severities": [
+        "dropped",
+        "weakened"
+      ],
+      "constructs": [
+        "infer posterior",
+        "obs n",
+        "param theta",
+        "prior theta",
+        "prove",
+        "require",
+        "theta : Probability"
+      ],
+      "expected_inexpressible": "Lean has no primitive notion of observed data or of a prior",
+      "n_limitation_notes": 7,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "epistemic_rich",
+      "backend": "stan",
+      "faithful": false,
+      "n_reported": 8,
+      "severities": [
+        "dropped",
+        "weakened"
+      ],
+      "constructs": [
+        "Beta argument roles",
+        "assume",
+        "forall quantifier",
+        "infer posterior",
+        "obs n",
+        "prior theta",
+        "prove",
+        "require"
+      ],
+      "expected_inexpressible": "Stan has no `prove`; a proof goal has no Stan counterpart",
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "epistemic_rich",
+      "backend": "sympy",
+      "faithful": false,
+      "n_reported": 6,
+      "severities": [
+        "dropped",
+        "weakened"
+      ],
+      "constructs": [
+        "assume",
+        "forall quantifier",
+        "infer posterior",
+        "obs n value",
+        "prior theta",
+        "theta"
+      ],
+      "expected_inexpressible": "SymPy has no epistemic states; assume/require/prove collapse",
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "epistemic_rich",
+      "backend": "triples",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "dimensional",
+      "backend": "english",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": "prose",
+      "n_limitation_notes": 1,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "dimensional",
+      "backend": "graph",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "dimensional",
+      "backend": "hml",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "dimensional",
+      "backend": "json",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "dimensional",
+      "backend": "latex",
+      "faithful": false,
+      "n_reported": 2,
+      "severities": [
+        "weakened"
+      ],
+      "constructs": [
+        "param m",
+        "param v"
+      ],
+      "expected_inexpressible": "presentational only",
+      "n_limitation_notes": 2,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "dimensional",
+      "backend": "lean",
+      "faithful": false,
+      "n_reported": 6,
+      "severities": [
+        "dropped",
+        "weakened"
+      ],
+      "constructs": [
+        "check dimension",
+        "ke",
+        "m",
+        "param m",
+        "param v",
+        "v"
+      ],
+      "expected_inexpressible": "dimensions are library-level in Mathlib, not a kernel notion",
+      "n_limitation_notes": 7,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "dimensional",
+      "backend": "stan",
+      "faithful": false,
+      "n_reported": 4,
+      "severities": [
+        "dropped",
+        "weakened"
+      ],
+      "constructs": [
+        "check dimension",
+        "ke",
+        "m",
+        "v"
+      ],
+      "expected_inexpressible": "Stan has no units or dimensions",
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "dimensional",
+      "backend": "sympy",
+      "faithful": false,
+      "n_reported": 3,
+      "severities": [
+        "dropped",
+        "weakened"
+      ],
+      "constructs": [
+        "check dimension",
+        "m",
+        "v"
+      ],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "dimensional",
+      "backend": "triples",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "quantified",
+      "backend": "english",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": "prose",
+      "n_limitation_notes": 1,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "quantified",
+      "backend": "graph",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "quantified",
+      "backend": "hml",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "quantified",
+      "backend": "json",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "quantified",
+      "backend": "latex",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": "presentational only",
+      "n_limitation_notes": 2,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "quantified",
+      "backend": "lean",
+      "faithful": false,
+      "n_reported": 2,
+      "severities": [
+        "weakened"
+      ],
+      "constructs": [
+        "prove",
+        "require"
+      ],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 7,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "quantified",
+      "backend": "stan",
+      "faithful": false,
+      "n_reported": 4,
+      "severities": [
+        "dropped"
+      ],
+      "constructs": [
+        "exists quantifier",
+        "forall quantifier",
+        "prove",
+        "require"
+      ],
+      "expected_inexpressible": "Stan has no quantifiers; forall/exists cannot be a program element",
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "quantified",
+      "backend": "sympy",
+      "faithful": false,
+      "n_reported": 2,
+      "severities": [
+        "dropped"
+      ],
+      "constructs": [
+        "exists quantifier",
+        "forall quantifier"
+      ],
+      "expected_inexpressible": "SymPy quantifiers are not first-class propositions",
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "quantified",
+      "backend": "triples",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "concept",
+      "backend": "english",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": "prose",
+      "n_limitation_notes": 1,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "concept",
+      "backend": "graph",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "concept",
+      "backend": "hml",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "concept",
+      "backend": "json",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "concept",
+      "backend": "latex",
+      "faithful": false,
+      "n_reported": 1,
+      "severities": [
+        "dropped"
+      ],
+      "constructs": [
+        "concept LocationScale"
+      ],
+      "expected_inexpressible": "presentational only",
+      "n_limitation_notes": 2,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "concept",
+      "backend": "lean",
+      "faithful": false,
+      "n_reported": 4,
+      "severities": [
+        "dropped",
+        "weakened"
+      ],
+      "constructs": [
+        "LocationScale.positive",
+        "LocationScale.standard",
+        "LocationScale_scale : PositiveReal",
+        "concept LocationScale"
+      ],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 7,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "concept",
+      "backend": "stan",
+      "faithful": false,
+      "n_reported": 1,
+      "severities": [
+        "dropped"
+      ],
+      "constructs": [
+        "concept LocationScale"
+      ],
+      "expected_inexpressible": "Stan has no abstraction-definition construct",
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "concept",
+      "backend": "sympy",
+      "faithful": false,
+      "n_reported": 3,
+      "severities": [
+        "weakened"
+      ],
+      "constructs": [
+        "LocationScale.positive",
+        "LocationScale.standard",
+        "concept LocationScale"
+      ],
+      "expected_inexpressible": "SymPy has no concept-definition mechanism",
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "concept",
+      "backend": "triples",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "linear_algebra",
+      "backend": "english",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": "prose",
+      "n_limitation_notes": 1,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "linear_algebra",
+      "backend": "graph",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "linear_algebra",
+      "backend": "hml",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "linear_algebra",
+      "backend": "json",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "linear_algebra",
+      "backend": "latex",
+      "faithful": false,
+      "n_reported": 2,
+      "severities": [
+        "weakened"
+      ],
+      "constructs": [
+        "var A",
+        "var v"
+      ],
+      "expected_inexpressible": "presentational only",
+      "n_limitation_notes": 2,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "linear_algebra",
+      "backend": "lean",
+      "faithful": false,
+      "n_reported": 6,
+      "severities": [
+        "weakened"
+      ],
+      "constructs": [
+        "A",
+        "matrix product",
+        "v",
+        "var A",
+        "var v",
+        "w"
+      ],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 7,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "linear_algebra",
+      "backend": "stan",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "linear_algebra",
+      "backend": "sympy",
+      "faithful": false,
+      "n_reported": 2,
+      "severities": [
+        "approximated",
+        "weakened"
+      ],
+      "constructs": [
+        "matrix product",
+        "v"
+      ],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "linear_algebra",
+      "backend": "triples",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "optimisation",
+      "backend": "english",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": "prose",
+      "n_limitation_notes": 1,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": true,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "optimisation",
+      "backend": "graph",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "optimisation",
+      "backend": "hml",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "optimisation",
+      "backend": "json",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "optimisation",
+      "backend": "latex",
+      "faithful": false,
+      "n_reported": 1,
+      "severities": [
+        "weakened"
+      ],
+      "constructs": [
+        "param x"
+      ],
+      "expected_inexpressible": "presentational only",
+      "n_limitation_notes": 2,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "optimisation",
+      "backend": "lean",
+      "faithful": false,
+      "n_reported": 2,
+      "severities": [
+        "dropped",
+        "weakened"
+      ],
+      "constructs": [
+        "minimise",
+        "param x"
+      ],
+      "expected_inexpressible": "Lean has no `minimise` statement",
+      "n_limitation_notes": 7,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "optimisation",
+      "backend": "stan",
+      "faithful": false,
+      "n_reported": 1,
+      "severities": [
+        "dropped"
+      ],
+      "constructs": [
+        "minimise"
+      ],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "optimisation",
+      "backend": "sympy",
+      "faithful": false,
+      "n_reported": 1,
+      "severities": [
+        "weakened"
+      ],
+      "constructs": [
+        "minimise"
+      ],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 6,
+      "disclosed_per_construct": true,
+      "disclosed_by_blanket_note": true,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    },
+    {
+      "specimen": "optimisation",
+      "backend": "triples",
+      "faithful": true,
+      "n_reported": 0,
+      "severities": [],
+      "constructs": [],
+      "expected_inexpressible": null,
+      "n_limitation_notes": 0,
+      "disclosed_per_construct": false,
+      "disclosed_by_blanket_note": false,
+      "faithful_flag_misleading": false,
+      "SILENT_LOSS": false
+    }
+  ]
+}

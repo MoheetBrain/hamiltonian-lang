@@ -249,8 +249,12 @@ class RefinementEnv:
                     return f
         return None
 
-    def refine(self, sid: SymbolId, declared: Type | None) -> Type | None:
+    def refine(self, sid: SymbolId, declared: Type) -> Type:
         """The narrowed type of ``sid`` given the facts in scope, or ``declared``.
+
+        Total in both directions: it is given a type and always returns one, so a caller
+        never has to decide what an absent narrowing means. The only sound answer when
+        nothing is known is the declared type itself, which is what it returns.
 
         This is what makes ``assume x > 0.0`` license ``log(x)``. Only the scalar
         refinements are narrowed, and only against a literal zero -- the two cases the

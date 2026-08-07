@@ -1,0 +1,4898 @@
+{
+  "summary": {
+    "n_atoms": 486,
+    "n_probed_by_this_audit": 78,
+    "coverage_is_computed_over": "PROBED atoms only. Unprobed atoms are '?' and are excluded from every percentage rather than being counted as absent. A percentage over the whole ontology would be an artefact of how many probes were written.",
+    "faithful_of_probed": 75.6,
+    "present_of_probed": 79.5,
+    "absent_of_probed": 20.5,
+    "lossy_of_probed": 3.8,
+    "critical_atoms": 64,
+    "critical_probed": 64,
+    "critical_faithful_of_probed": 79.7,
+    "CRITICAL_ATOMS_SCORING_ZERO": [
+      "LOGIC.SET_COMPREHENSION",
+      "LOGIC.SET_MEMBERSHIP",
+      "ANA.CONTINUITY",
+      "ANA.DERIVATIVE",
+      "ANA.INTEGRAL_DEFINITE",
+      "ANA.LIMIT",
+      "PROB.CONDITIONAL_PROBABILITY",
+      "PROB.EXPECTATION",
+      "PROB.INDEPENDENCE",
+      "PROB.JOINT",
+      "EPIS.CORRELATION_VS_CAUSATION"
+    ],
+    "distribution": {
+      "P": 59,
+      "S": 0,
+      "C": 0,
+      "B": 0,
+      "L": 3,
+      "0": 16,
+      "?": 408
+    }
+  },
+  "rows": [
+    {
+      "ontology_id": "LOGIC.ALPHA_EQUIVALENCE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "alpha-equivalence",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.APPLICATION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "function application",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; def f(u : Real) : Real := u * u ; require f(2.0) = 4.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.AXIOM",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "axiom / postulate declaration",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.BICONDITIONAL",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "biconditional / iff",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.BOUNDED_QUANTIFIER",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "relativised (bounded) quantification",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.CARTESIAN_PRODUCT",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "cartesian product and tuples",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.CHOICE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "choice / selection of witnesses",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.CLASSICAL_VS_CONSTRUCTIVE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "excluded middle / constructivity marker",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.CONJUNCTION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "conjunction",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; require x > 0.0 and x < 1.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.CONSERVATIVE_EXTENSION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "conservativity of definitional extension",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.DEFINITIONAL_EQUALITY",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "definition versus assertion",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; const c : Real = 2.0 ; def d := c + 1.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.DEPENDENT_TYPE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "types depending on values",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.DISJOINT_UNION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "sum / disjoint union type",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.DISJUNCTION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "disjunction",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; require x > 0.0 or x < 1.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.EQUALITY",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "equality as an assertion",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; require x = x` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.EXCLUSIVE_DISJUNCTION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "exclusive disjunction",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.EXISTS",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "existential quantification",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; require exists x : Real . x = x` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.EXISTS_UNIQUE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "unique existence",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "0",
+      "HML_evidence": "`module M ; require exists! x : Real . x = 0.0` -> HML-L101 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.FORALL",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "universal quantification",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; require forall x : Real . x = x` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.FREE_VS_BOUND",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "free versus bound occurrence distinction",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var y : Real ; require forall x : Real . x = y` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.FUNCTIONAL_COMPLETENESS",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "functional completeness of the connective set",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.FUNCTION_AS_OBJECT",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "function as a first-class object",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; var f : Function[Real -> Real] ; require f = f` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.HYPOTHESIS_CONTEXT",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "typed context of assumptions",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.IMPLICATION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "material implication",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; require x > 1.0 => x > 0.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.INDEXED_FAMILY",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "indexed family of objects",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; index i : Natural ; var x : Real` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.INDEXED_UNION_INTERSECTION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "indexed and countable set operations",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.INDUCTION_PRINCIPLE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "induction principle over an inductive domain",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.LAMBDA",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "anonymous function abstraction",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.MODAL_QUALIFIER",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "modal qualification (necessity, possibility)",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.MODEL_SATISFACTION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "satisfaction relation (model models formula)",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.NEGATION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "negation",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; require not (x > 0.0)` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.NESTED_QUANTIFIER_ORDER",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "quantifier alternation and order sensitivity",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; require forall x : Real . exists y : Real . y > x` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.PARTIAL_DEFINEDNESS",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "partiality and definedness conditions",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "P",
+      "HML_evidence": "`module M ; const x : Real = 1.0 / 0.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.POWERSET",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "power set",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.PREDICATE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "predicate / propositional function",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "L",
+      "HML_evidence": "`module M ; var P : Predicate[Real] ; require forall x : Real . P(x)` -> HML-T470 (expressible only by weakening the declared type)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.PROOF_OBJECT",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "proof as an inspectable object",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.PROOF_OBLIGATION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "generated proof obligation / side condition",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.PROPOSITION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "proposition as a first-class object",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; var p : Proposition ; require p` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.QUOTIENT_BY_EQUIVALENCE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "quotient by an equivalence relation",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.RECURSIVE_DEFINITION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "recursive / inductive definition",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.RELATION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "n-ary relation as an object",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.SCHEMA",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "axiom or theorem schema with metavariables",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.SECOND_ORDER_QUANTIFICATION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "quantification over functions, sets or predicates",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.SET_COMPREHENSION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "set-builder / separation",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; var S : Set[Real] ; def T := { x : Real | x > 0.0 }` -> HML-L101,HML-L101,HML-P204 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.SET_MEMBERSHIP",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "set membership",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; var S : Set[Real] ; var x : Real ; require x in S` -> HML-P204 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.SET_OPERATIONS",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "union, intersection, difference, complement",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.SUBSET",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "subset and set equality",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.SUBSTITUTION",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "capture-avoiding substitution",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; def f(u : Real) : Real := u * u ; require f(x) = x * x` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.SUBTYPING_REFINEMENT",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "refinement types and controlled subtyping",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.THEOREM_STATEMENT",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "theorem with hypotheses and conclusion",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; prove forall x : Real . x > 0.0 => x >= 0.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.THEORY_SIGNATURE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "theory / signature with axioms",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.TRUTH_VALUE",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "truth value distinct from numeric value",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.TYPE_JUDGEMENT",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "typing judgement",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.UNIVERSE_SORT",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "universes / stratification of collections",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "LOGIC.VARIABLE_BINDING",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "binding structure and scope",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; require forall x : Real . x = x` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "LOGIC.WELL_FOUNDEDNESS",
+      "domain": "A_FOUNDATIONS_LOGIC",
+      "name": "well-foundedness / termination measure",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.ABSOLUTE_VALUE",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "absolute value and modulus",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.ALGEBRAIC_NUMBER",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "algebraic numbers and radicals",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.CARDINALITY",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "cardinality, finiteness and countability",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.COMPLEX",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "complex numbers",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "L",
+      "HML_evidence": "`module M ; var z : Complex ; require z = z` -> HML-T440 (expressible only by weakening the declared type)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "NUM.DIVISIBILITY",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "divisibility relation",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.EXACT_VS_APPROX",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "exact versus approximate value distinction",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.EXTENDED_REAL",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "extended reals with +/- infinity",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.FLOOR_CEIL_ROUND",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "floor, ceiling and rounding",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.GCD_LCM",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "gcd and lcm",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.INTEGER",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "integers",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; const n : Integer = -3` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "NUM.INTEGER_MOD_N",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "integers modulo n",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.INTERVAL_DOMAIN",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "intervals as domains",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.LITERAL_NOTATION",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "unambiguous numeric literal syntax",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.MODULAR_ARITHMETIC",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "congruence and modular relations",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.NATURAL",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "natural numbers",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; const n : Natural = 3` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "NUM.NONNEGATIVE_REAL",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "non-negative reals",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.NUMERIC_COERCION_POLICY",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "declared coercion / promotion policy",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.ORDER_RELATION",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "total order on numeric domains",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; require x <= x` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "NUM.ORDINAL",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "ordinals and transfinite indexing",
+      "criticality": "LOW",
+      "weight": 2,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.PADIC",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "p-adic and alternative completions",
+      "criticality": "LOW",
+      "weight": 1,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.POSITIVE_REAL",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "strictly positive reals",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.PRIME",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "primality",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.PROBABILITY_SCALAR",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "probability-valued scalar distinct from generic magnitude",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "P",
+      "HML_evidence": "`module M ; const p : Probability = 1.5` -> HML-T402 (correctly rejected \u2014 the check exists)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "NUM.QUATERNION_HYPERCOMPLEX",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "quaternions and non-commutative scalars",
+      "criticality": "LOW",
+      "weight": 2,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.RATIONAL",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "rationals",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.REAL",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "real numbers",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; const x : Real = 1.5` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "NUM.SIGN",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "sign function and signed reasoning",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.TRANSCENDENTAL_CONSTANT",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "named mathematical constants",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.UNIT_INTERVAL",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "unit interval [0,1]",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUM.VECTOR_OF_SCALARS",
+      "domain": "B_NUMBER_SYSTEMS",
+      "name": "numeric vector with declared length",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var v : Vector[Real, 3] ; require v = v` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.BASIS_CHANGE",
+      "domain": "C_ALGEBRA",
+      "name": "basis and change of coordinates",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.BROADCAST_SEMANTICS",
+      "domain": "C_ALGEBRA",
+      "name": "elementwise operations and broadcasting rules",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.CATEGORY",
+      "domain": "C_ALGEBRA",
+      "name": "category, objects and morphisms",
+      "criticality": "LOW",
+      "weight": 2,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.DETERMINANT",
+      "domain": "C_ALGEBRA",
+      "name": "determinant",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.DUAL_SPACE",
+      "domain": "C_ALGEBRA",
+      "name": "dual space and covectors",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.EIGEN",
+      "domain": "C_ALGEBRA",
+      "name": "eigenvalues and eigenvectors",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "P",
+      "HML_evidence": "`module M ; var A : Matrix[Real, 3, 3] ; var v : Vector[Real, 3] ; param lam : Real ; require (A @ v) = lam * v` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.EINSTEIN_SUMMATION",
+      "domain": "C_ALGEBRA",
+      "name": "implicit summation convention",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.EQUATION",
+      "domain": "C_ALGEBRA",
+      "name": "equation as a stated relation between terms",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; require x + 1.0 = 2.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.FACTORIZATION",
+      "domain": "C_ALGEBRA",
+      "name": "polynomial factorisation and roots",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.FIELD",
+      "domain": "C_ALGEBRA",
+      "name": "field",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.FUNCTOR",
+      "domain": "C_ALGEBRA",
+      "name": "functorial construction",
+      "criticality": "LOW",
+      "weight": 2,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.GENERATORS_RELATIONS",
+      "domain": "C_ALGEBRA",
+      "name": "presentation by generators and relations",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.GROUP",
+      "domain": "C_ALGEBRA",
+      "name": "group",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "P",
+      "HML_evidence": "`module M ; concept Group ;   parameter carrier : Set[Real] ;   invariant closure := forall a : Real . a = a ;   example integers := carrier = carrier ; end` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.HOMOMORPHISM",
+      "domain": "C_ALGEBRA",
+      "name": "structure-preserving map",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.IDEAL",
+      "domain": "C_ALGEBRA",
+      "name": "ideal",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.INEQUALITY",
+      "domain": "C_ALGEBRA",
+      "name": "inequality as a stated relation",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; require x + 1.0 > 2.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.INNER_PRODUCT",
+      "domain": "C_ALGEBRA",
+      "name": "inner product and orthogonality",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.INVERSE",
+      "domain": "C_ALGEBRA",
+      "name": "matrix inverse with invertibility obligation",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.ISOMORPHISM",
+      "domain": "C_ALGEBRA",
+      "name": "isomorphism and structural identity",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.KERNEL_IMAGE",
+      "domain": "C_ALGEBRA",
+      "name": "kernel, image, rank-nullity",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.KRONECKER_OUTER",
+      "domain": "C_ALGEBRA",
+      "name": "outer, Kronecker and tensor products",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.LINEAR_MAP",
+      "domain": "C_ALGEBRA",
+      "name": "linear map distinct from its matrix",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.MATRIX",
+      "domain": "C_ALGEBRA",
+      "name": "matrix as a typed object",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var A : Matrix[Real, 3, 3] ; var v : Vector[Real, 3] ; def w := A @ v` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.MATRIX_ARITHMETIC",
+      "domain": "C_ALGEBRA",
+      "name": "matrix addition and non-commutative multiplication",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var A : Matrix[Real, 3, 3] ; var B : Matrix[Real, 3, 3] ; def C := A @ B ; def D := A + B` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.MATRIX_DECOMPOSITION",
+      "domain": "C_ALGEBRA",
+      "name": "factorisations (LU, QR, Cholesky, SVD, spectral)",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.MATRIX_SHAPE_TYPING",
+      "domain": "C_ALGEBRA",
+      "name": "shape conformability checking",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var A : Matrix[Real, 2, 3] ; var B : Matrix[Real, 2, 3] ; def C := A @ B` -> HML-T434 (correctly rejected \u2014 the check exists)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.MODULE",
+      "domain": "C_ALGEBRA",
+      "name": "module over a ring",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.NORM",
+      "domain": "C_ALGEBRA",
+      "name": "norm on a vector space",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.ORDER_STRUCTURE",
+      "domain": "C_ALGEBRA",
+      "name": "ordered algebraic structure",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.POLYNOMIAL",
+      "domain": "C_ALGEBRA",
+      "name": "polynomial as a structured object",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.POSITIVE_DEFINITE",
+      "domain": "C_ALGEBRA",
+      "name": "positive (semi-)definiteness",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.QUOTIENT_STRUCTURE",
+      "domain": "C_ALGEBRA",
+      "name": "quotient structure",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.RANK",
+      "domain": "C_ALGEBRA",
+      "name": "rank",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.RATIONAL_FUNCTION",
+      "domain": "C_ALGEBRA",
+      "name": "rational function with pole structure",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.RING",
+      "domain": "C_ALGEBRA",
+      "name": "ring",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.SOLUTION_SET",
+      "domain": "C_ALGEBRA",
+      "name": "solution set as an object",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.SUBSTRUCTURE",
+      "domain": "C_ALGEBRA",
+      "name": "substructure (subgroup, subspace, subring)",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.SYMBOLIC_SIMPLIFICATION",
+      "domain": "C_ALGEBRA",
+      "name": "algebraic simplification with side conditions",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.SYMBOLIC_VARIABLE",
+      "domain": "C_ALGEBRA",
+      "name": "unbound symbolic variable / indeterminate",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.SYMMETRY_CLASS",
+      "domain": "C_ALGEBRA",
+      "name": "structured matrix classes",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.SYSTEM_OF_RELATIONS",
+      "domain": "C_ALGEBRA",
+      "name": "simultaneous system of equations/inequalities",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.TENSOR",
+      "domain": "C_ALGEBRA",
+      "name": "tensor with declared rank and shape",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "P",
+      "HML_evidence": "`module M ; var T : Tensor[Real, 2, 3, 4] ; require T = T` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ALG.TENSOR_INDEX_NOTATION",
+      "domain": "C_ALGEBRA",
+      "name": "named index notation with binding",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.TRACE",
+      "domain": "C_ALGEBRA",
+      "name": "trace",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.TRANSPOSE_ADJOINT",
+      "domain": "C_ALGEBRA",
+      "name": "transpose and conjugate transpose",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ALG.VECTOR_SPACE",
+      "domain": "C_ALGEBRA",
+      "name": "vector space over a field",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.ALMOST_EVERYWHERE",
+      "domain": "D_ANALYSIS",
+      "name": "almost-everywhere / almost-sure qualification",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.ASYMPTOTIC_NOTATION",
+      "domain": "D_ANALYSIS",
+      "name": "asymptotic order notation",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.BOUNDARY_CONDITION",
+      "domain": "D_ANALYSIS",
+      "name": "boundary condition with type",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.CHAIN_RULE",
+      "domain": "D_ANALYSIS",
+      "name": "composition and the chain rule",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.COMPLEX_ANALYTIC",
+      "domain": "D_ANALYSIS",
+      "name": "holomorphy, poles and residues",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.CONTINUITY",
+      "domain": "D_ANALYSIS",
+      "name": "continuity at a point and on a set",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; var f : Function[Real -> Real] ; var D : Set[Real] ; require continuous(f, on := D)` -> HML-P232 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ANA.CONVERGENCE_MODES",
+      "domain": "D_ANALYSIS",
+      "name": "distinct modes of convergence",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.CONVOLUTION",
+      "domain": "D_ANALYSIS",
+      "name": "convolution",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.DERIVATIVE",
+      "domain": "D_ANALYSIS",
+      "name": "derivative with respect to a named variable",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "0",
+      "HML_evidence": "`module M ; var f : Function[Real -> Real] ; def d := derivative(f(x), x : Real)` -> HML-P201 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ANA.DIRECTIONAL_DERIVATIVE",
+      "domain": "D_ANALYSIS",
+      "name": "directional and total derivative",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.DOMAIN_CODOMAIN",
+      "domain": "D_ANALYSIS",
+      "name": "explicit domain and codomain of a function",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var f : Function[Real -> NonNegativeReal] ; require f = f` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ANA.FIXED_POINT",
+      "domain": "D_ANALYSIS",
+      "name": "fixed points and contraction",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.FUNCTIONAL_DERIVATIVE",
+      "domain": "D_ANALYSIS",
+      "name": "derivative with respect to a function",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.FUNCTION_REAL",
+      "domain": "D_ANALYSIS",
+      "name": "real- and vector-valued functions",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; def f(u : Real) : Real := u * u` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ANA.FUNCTION_SPACE",
+      "domain": "D_ANALYSIS",
+      "name": "function spaces as typed objects",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.GENERALIZED_FUNCTION",
+      "domain": "D_ANALYSIS",
+      "name": "generalized functions / Schwartz distributions",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.GRADIENT",
+      "domain": "D_ANALYSIS",
+      "name": "gradient",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.HESSIAN",
+      "domain": "D_ANALYSIS",
+      "name": "Hessian and second-order structure",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.HIGHER_DERIVATIVE",
+      "domain": "D_ANALYSIS",
+      "name": "higher-order derivatives and smoothness classes",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.IMPLICIT_DIFFERENTIATION",
+      "domain": "D_ANALYSIS",
+      "name": "implicit function and implicit differentiation",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.IMPROPER_INTEGRAL",
+      "domain": "D_ANALYSIS",
+      "name": "improper integrals and convergence conditions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.INITIAL_CONDITION",
+      "domain": "D_ANALYSIS",
+      "name": "initial condition",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.INTEGRAL_DEFINITE",
+      "domain": "D_ANALYSIS",
+      "name": "definite integral with explicit variable and domain",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; var f : Function[Real -> Real] ; def a := integral(f(x), x : Real, 0.0, 1.0)` -> HML-P201 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ANA.INTEGRAL_INDEFINITE",
+      "domain": "D_ANALYSIS",
+      "name": "antiderivative and constant of integration",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.INTEGRAL_LEBESGUE",
+      "domain": "D_ANALYSIS",
+      "name": "integration against a general measure",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.JACOBIAN",
+      "domain": "D_ANALYSIS",
+      "name": "Jacobian matrix",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.LIMIT",
+      "domain": "D_ANALYSIS",
+      "name": "limit of a function at a point",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; var f : Function[Real -> Real] ; def l := limit(f(x), x : Real -> 0.0)` -> HML-P201 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ANA.LIMIT_OF_SEQUENCE",
+      "domain": "D_ANALYSIS",
+      "name": "limit of a sequence, including limits at infinity",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.LINE_SURFACE_INTEGRAL",
+      "domain": "D_ANALYSIS",
+      "name": "integration over curves and surfaces",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.MEASURABILITY",
+      "domain": "D_ANALYSIS",
+      "name": "measurable function",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.MEASURE",
+      "domain": "D_ANALYSIS",
+      "name": "measure",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.METRIC_SPACE",
+      "domain": "D_ANALYSIS",
+      "name": "metric and metric-space structure",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.MONOTONICITY_BOUNDEDNESS",
+      "domain": "D_ANALYSIS",
+      "name": "monotonicity, boundedness and convexity of functions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.MULTIPLE_INTEGRAL",
+      "domain": "D_ANALYSIS",
+      "name": "iterated and multiple integration",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.ODE",
+      "domain": "D_ANALYSIS",
+      "name": "ordinary differential equation",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.PARTIAL_DERIVATIVE",
+      "domain": "D_ANALYSIS",
+      "name": "partial derivative with held-constant variables",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.PARTIAL_FUNCTION",
+      "domain": "D_ANALYSIS",
+      "name": "partial function with restricted domain",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.PDE",
+      "domain": "D_ANALYSIS",
+      "name": "partial differential equation",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.PIECEWISE",
+      "domain": "D_ANALYSIS",
+      "name": "piecewise definition over a partition of the domain",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "0",
+      "HML_evidence": "`module M ; var x : Real ; def f := if x > 0.0 then x else -x` -> HML-P204 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "ANA.POWER_SERIES",
+      "domain": "D_ANALYSIS",
+      "name": "power series and radius of convergence",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.SERIES",
+      "domain": "D_ANALYSIS",
+      "name": "infinite series and convergence",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.SIGMA_ALGEBRA",
+      "domain": "D_ANALYSIS",
+      "name": "sigma-algebra of measurable sets",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.SPECIAL_FUNCTIONS",
+      "domain": "D_ANALYSIS",
+      "name": "named special functions with branch and domain data",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.SUP_INF",
+      "domain": "D_ANALYSIS",
+      "name": "supremum and infimum versus maximum and minimum",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.TAYLOR_EXPANSION",
+      "domain": "D_ANALYSIS",
+      "name": "Taylor expansion with remainder",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.TRANSFORM",
+      "domain": "D_ANALYSIS",
+      "name": "integral transforms",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.UNIFORM_CONTINUITY",
+      "domain": "D_ANALYSIS",
+      "name": "uniform continuity and uniform convergence",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "ANA.VARIATIONAL_PROBLEM",
+      "domain": "D_ANALYSIS",
+      "name": "variational / stationarity problem over functions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.ARITHMETIC_ON_RANDOM_VARIABLES",
+      "domain": "E_PROBABILITY",
+      "name": "arithmetic on random variables preserving dependence",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.BAYES_RULE",
+      "domain": "E_PROBABILITY",
+      "name": "Bayes rule as a relation among distributions",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.CDF",
+      "domain": "E_PROBABILITY",
+      "name": "cumulative distribution function",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.CHANGE_OF_VARIABLES_JACOBIAN",
+      "domain": "E_PROBABILITY",
+      "name": "density transformation with Jacobian",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.CLT",
+      "domain": "E_PROBABILITY",
+      "name": "central limit theorem and asymptotic normality",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.CONDITIONAL_DISTRIBUTION",
+      "domain": "E_PROBABILITY",
+      "name": "conditional distribution given a random variable",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; param t : Probability ; rv X : RandomVariable[Bool] ; likelihood X | t ~ Bernoulli(prob := t)` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.CONDITIONAL_EXPECTATION",
+      "domain": "E_PROBABILITY",
+      "name": "conditional expectation as a random variable",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "0",
+      "HML_evidence": "`module M ; rv X : RandomVariable[Real] ; param t : Probability ; require expectation(X | t) = t` -> HML-P231 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.CONDITIONAL_INDEPENDENCE",
+      "domain": "E_PROBABILITY",
+      "name": "conditional independence",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.CONDITIONAL_PROBABILITY",
+      "domain": "E_PROBABILITY",
+      "name": "conditional probability given an event",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; var A : Event ; var B : Event ; require probability(A | B) = 0.5` -> HML-P201 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.CONDITIONING_ON_SIGMA_ALGEBRA",
+      "domain": "E_PROBABILITY",
+      "name": "conditioning on a sigma-algebra",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "0",
+      "HML_evidence": "`module M ; rv X : RandomVariable[Real] ; rv Y : RandomVariable[Real] ; def m := expectation(X | Y)` -> HML-P231 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.CONVERGENCE_MODES",
+      "domain": "E_PROBABILITY",
+      "name": "modes of stochastic convergence",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.COPULA",
+      "domain": "E_PROBABILITY",
+      "name": "copula / separation of marginals from dependence",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.DISTRIBUTED_AS",
+      "domain": "E_PROBABILITY",
+      "name": "the 'distributed as' relation",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; rv X : RandomVariable[Real] ; law X ~ Normal(location := 0.0, scale := 1.0)` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.DISTRIBUTION_FAMILY",
+      "domain": "E_PROBABILITY",
+      "name": "parametric family with named parameters",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.DISTRIBUTION_OBJECT",
+      "domain": "E_PROBABILITY",
+      "name": "distribution as a first-class object",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; def d : Distribution[Real] := Normal(location := 0.0, scale := 1.0)` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.DIVERGENCE",
+      "domain": "E_PROBABILITY",
+      "name": "divergences between distributions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.ENTROPY_INFORMATION",
+      "domain": "E_PROBABILITY",
+      "name": "entropy and mutual information",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.EVENT",
+      "domain": "E_PROBABILITY",
+      "name": "event as a measurable set",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.EXCHANGEABILITY",
+      "domain": "E_PROBABILITY",
+      "name": "exchangeability",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.EXPECTATION",
+      "domain": "E_PROBABILITY",
+      "name": "expectation as an integral against a distribution",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; rv X : RandomVariable[Real] ; require expectation(X) = 0.0` -> HML-P231 (grammar has no production)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.FILTRATION",
+      "domain": "E_PROBABILITY",
+      "name": "filtration / information over time",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.FUNCTION_RETURNING_DISTRIBUTION",
+      "domain": "E_PROBABILITY",
+      "name": "function whose value is a distribution (Markov kernel)",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; def kern(s : PositiveReal) : Distribution[Real] := Normal(location := 0.0, scale := s)` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.HIERARCHICAL_MODEL",
+      "domain": "E_PROBABILITY",
+      "name": "hierarchical / generative model structure",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.IID",
+      "domain": "E_PROBABILITY",
+      "name": "i.i.d. family",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.INDEPENDENCE",
+      "domain": "E_PROBABILITY",
+      "name": "independence",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; rv X : RandomVariable[Real] ; rv Y : RandomVariable[Real] ; require independent(X, Y)` -> HML-N306 (no such function/name)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.INDEXED_FAMILY_RV",
+      "domain": "E_PROBABILITY",
+      "name": "indexed family of random variables",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; index i : Natural ; rv X : RandomVariable[Real] ; law X ~ Normal(location := 0.0, scale := 1.0)` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.JOINT",
+      "domain": "E_PROBABILITY",
+      "name": "joint distribution of several random variables",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; rv X : RandomVariable[Real] ; rv Y : RandomVariable[Real] ; law X ~ Normal(location := 0.0, scale := 1.0) ; law Y ~ Normal(location := 0.0, scale := 1.0) ; def j := joint(X, Y)` -> HML-N306 (no such function/name)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.LLN",
+      "domain": "E_PROBABILITY",
+      "name": "laws of large numbers",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.MARGINAL",
+      "domain": "E_PROBABILITY",
+      "name": "marginal distribution and marginalisation",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.MARKOV_PROPERTY",
+      "domain": "E_PROBABILITY",
+      "name": "Markov property",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.MARTINGALE",
+      "domain": "E_PROBABILITY",
+      "name": "martingale property",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.MGF_CF",
+      "domain": "E_PROBABILITY",
+      "name": "moment generating and characteristic functions",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.MIXTURE",
+      "domain": "E_PROBABILITY",
+      "name": "mixture distribution",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.MOMENT",
+      "domain": "E_PROBABILITY",
+      "name": "moments, central moments and cumulants",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.PARAMETER_ROLE",
+      "domain": "E_PROBABILITY",
+      "name": "semantic role of a distribution parameter",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.PDF",
+      "domain": "E_PROBABILITY",
+      "name": "probability density with respect to a reference measure",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.PMF",
+      "domain": "E_PROBABILITY",
+      "name": "probability mass function",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.PROBABILITY_MEASURE",
+      "domain": "E_PROBABILITY",
+      "name": "probability measure and its axioms",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var P : Function[Set[Real] -> Probability] ; require P = P` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.PROBABILITY_SPACE",
+      "domain": "E_PROBABILITY",
+      "name": "probability space (Omega, F, P)",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.PUSHFORWARD",
+      "domain": "E_PROBABILITY",
+      "name": "distribution of a transformed random variable",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.QUANTILE",
+      "domain": "E_PROBABILITY",
+      "name": "quantile function / generalised inverse CDF",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.RANDOM_FUNCTION",
+      "domain": "E_PROBABILITY",
+      "name": "random functions and function-valued distributions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.RANDOM_MATRIX",
+      "domain": "E_PROBABILITY",
+      "name": "matrix- and vector-valued random variables",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.RANDOM_VARIABLE",
+      "domain": "E_PROBABILITY",
+      "name": "random variable as an object distinct from its distribution and from its value",
+      "criticality": "CRITICAL",
+      "weight": 10,
+      "HML": "P",
+      "HML_evidence": "`module M ; rv X : RandomVariable[Real] ; law X ~ Normal(location := 0.0, scale := 1.0)` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.REALIZATION",
+      "domain": "E_PROBABILITY",
+      "name": "realisation / observed value of a random variable",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.STOCHASTIC_PROCESS",
+      "domain": "E_PROBABILITY",
+      "name": "stochastic process indexed by time or space",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "0",
+      "HML_evidence": "`module M ; rv W : RandomVariable[Function[Real -> Real]] ; require probability(W = W) = 1.0` -> HML-N306 (no such function/name)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "PROB.STOPPING_TIME",
+      "domain": "E_PROBABILITY",
+      "name": "stopping time",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.SUPPORT",
+      "domain": "E_PROBABILITY",
+      "name": "support of a distribution",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.TRUNCATION_CENSORING",
+      "domain": "E_PROBABILITY",
+      "name": "truncation and censoring",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "PROB.VARIANCE_COVARIANCE",
+      "domain": "E_PROBABILITY",
+      "name": "variance, covariance and correlation",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.BIAS",
+      "domain": "F_STATISTICS",
+      "name": "bias of an estimator",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.BOOTSTRAP",
+      "domain": "F_STATISTICS",
+      "name": "bootstrap and resampling distributions",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.CAUSAL_INTERVENTION",
+      "domain": "F_STATISTICS",
+      "name": "intervention (do-operator) distinct from conditioning",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.CONFIDENCE_INTERVAL",
+      "domain": "F_STATISTICS",
+      "name": "confidence interval",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.CONFOUNDING",
+      "domain": "F_STATISTICS",
+      "name": "confounding and adjustment sets",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.CONSISTENCY",
+      "domain": "F_STATISTICS",
+      "name": "consistency",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.COUNTERFACTUAL",
+      "domain": "F_STATISTICS",
+      "name": "counterfactual quantities",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.CREDIBLE_INTERVAL",
+      "domain": "F_STATISTICS",
+      "name": "credible interval",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.CROSS_VALIDATION",
+      "domain": "F_STATISTICS",
+      "name": "resampling-based evaluation",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.DATASET",
+      "domain": "F_STATISTICS",
+      "name": "dataset with declared structure",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.DESIGN_MATRIX",
+      "domain": "F_STATISTICS",
+      "name": "design matrix and encoding of covariates",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.EFFECT_SIZE",
+      "domain": "F_STATISTICS",
+      "name": "effect size distinguished from significance",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.EFFICIENCY",
+      "domain": "F_STATISTICS",
+      "name": "efficiency, variance and MSE of an estimator",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.ESTIMATOR",
+      "domain": "F_STATISTICS",
+      "name": "estimator as a function of data",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; obs y : Real = 1.0 ; def theta_hat := y` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "STAT.FISHER_INFORMATION",
+      "domain": "F_STATISTICS",
+      "name": "Fisher information",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.GLM",
+      "domain": "F_STATISTICS",
+      "name": "generalised linear model with link and family",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.HYPOTHESIS",
+      "domain": "F_STATISTICS",
+      "name": "null and alternative hypotheses",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.IDENTIFIABILITY",
+      "domain": "F_STATISTICS",
+      "name": "identifiability of parameters",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.LIKELIHOOD_FUNCTION",
+      "domain": "F_STATISTICS",
+      "name": "likelihood as a function of the parameter",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; param t : Probability ; obs y : Bool = true ; likelihood y | t ~ Bernoulli(prob := t)` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "STAT.LINEAR_MODEL",
+      "domain": "F_STATISTICS",
+      "name": "linear model with explicit error structure",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.LOG_LIKELIHOOD",
+      "domain": "F_STATISTICS",
+      "name": "log-likelihood and additivity over independent observations",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.MCMC",
+      "domain": "F_STATISTICS",
+      "name": "Markov chain Monte Carlo inference",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.MEASUREMENT_SCALE",
+      "domain": "F_STATISTICS",
+      "name": "measurement scale of a variable",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.MISSING_DATA",
+      "domain": "F_STATISTICS",
+      "name": "missingness mechanism",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.MIXED_EFFECTS",
+      "domain": "F_STATISTICS",
+      "name": "random effects and grouped structure",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.MLE",
+      "domain": "F_STATISTICS",
+      "name": "maximum likelihood estimation",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.MODEL_SELECTION_CRITERION",
+      "domain": "F_STATISTICS",
+      "name": "model comparison criteria",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.MULTIPLE_COMPARISON",
+      "domain": "F_STATISTICS",
+      "name": "multiplicity and error-rate control",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.OBSERVATION_VS_LATENT",
+      "domain": "F_STATISTICS",
+      "name": "observed versus latent quantity",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.POPULATION_VS_SAMPLE",
+      "domain": "F_STATISTICS",
+      "name": "population parameter versus sample statistic",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; param theta : Real ; obs y : Real = 1.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "STAT.POSTERIOR",
+      "domain": "F_STATISTICS",
+      "name": "posterior distribution",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.POSTERIOR_PREDICTIVE",
+      "domain": "F_STATISTICS",
+      "name": "predictive distribution",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.POWER",
+      "domain": "F_STATISTICS",
+      "name": "statistical power as a function of the alternative",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.PRIOR",
+      "domain": "F_STATISTICS",
+      "name": "prior distribution over parameters",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.P_VALUE",
+      "domain": "F_STATISTICS",
+      "name": "p-value",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.RESIDUAL",
+      "domain": "F_STATISTICS",
+      "name": "residual versus error",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.SAMPLING_DESIGN",
+      "domain": "F_STATISTICS",
+      "name": "sampling and experimental design",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.SAMPLING_DISTRIBUTION",
+      "domain": "F_STATISTICS",
+      "name": "sampling distribution of a statistic",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.SUFFICIENCY",
+      "domain": "F_STATISTICS",
+      "name": "sufficient statistic",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.SUMMARY_STATISTIC",
+      "domain": "F_STATISTICS",
+      "name": "descriptive summaries with defined conventions",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.TEST_STATISTIC",
+      "domain": "F_STATISTICS",
+      "name": "test statistic and its null distribution",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.TIME_SERIES",
+      "domain": "F_STATISTICS",
+      "name": "time-indexed dependent data",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.TYPE_ERRORS",
+      "domain": "F_STATISTICS",
+      "name": "type I and type II error rates",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "STAT.VARIATIONAL_INFERENCE",
+      "domain": "F_STATISTICS",
+      "name": "variational approximation of a posterior",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.ADJACENCY_MATRIX",
+      "domain": "G_DISCRETE",
+      "name": "matrix representation of a graph",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.ALGORITHM_COST",
+      "domain": "G_DISCRETE",
+      "name": "computational cost as a mathematical statement",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.AUTOMATON",
+      "domain": "G_DISCRETE",
+      "name": "automaton / labelled transition system",
+      "criticality": "LOW",
+      "weight": 2,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.BINOMIAL_COEFFICIENT",
+      "domain": "G_DISCRETE",
+      "name": "binomial and multinomial coefficients",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.BOOLEAN_ALGEBRA",
+      "domain": "G_DISCRETE",
+      "name": "Boolean algebra and normal forms",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.COLOURING_PARTITION",
+      "domain": "G_DISCRETE",
+      "name": "partitions and colourings",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.COMBINATION",
+      "domain": "G_DISCRETE",
+      "name": "unordered selection",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.COMBINATORIAL_IDENTITY",
+      "domain": "G_DISCRETE",
+      "name": "combinatorial identity with validity range",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.COMPLEXITY_CLASS",
+      "domain": "G_DISCRETE",
+      "name": "complexity classes and reductions",
+      "criticality": "LOW",
+      "weight": 2,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.COUNTING_ARGUMENT",
+      "domain": "G_DISCRETE",
+      "name": "counting principles as reusable arguments",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.DAG",
+      "domain": "G_DISCRETE",
+      "name": "directed acyclic graph with acyclicity as a checked property",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.DIRECTED_GRAPH",
+      "domain": "G_DISCRETE",
+      "name": "directed graph",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.FACTORIAL",
+      "domain": "G_DISCRETE",
+      "name": "factorial and falling/rising powers",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.FLOW",
+      "domain": "G_DISCRETE",
+      "name": "network flow with conservation constraints",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.FORMAL_LANGUAGE",
+      "domain": "G_DISCRETE",
+      "name": "formal language and grammar",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.GENERATING_FUNCTION",
+      "domain": "G_DISCRETE",
+      "name": "generating function",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.GRAPH",
+      "domain": "G_DISCRETE",
+      "name": "graph as vertices plus edges",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.INDEXED_EXTREMUM",
+      "domain": "G_DISCRETE",
+      "name": "indexed maximum, minimum and argmax over a finite set",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.LATTICE",
+      "domain": "G_DISCRETE",
+      "name": "lattice with meet and join",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.MATCHING_COVER",
+      "domain": "G_DISCRETE",
+      "name": "matchings, covers and independent sets",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.MULTISET",
+      "domain": "G_DISCRETE",
+      "name": "multiset with multiplicities",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.PARTIAL_ORDER",
+      "domain": "G_DISCRETE",
+      "name": "partial order and incomparability",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.PATH_CONNECTIVITY",
+      "domain": "G_DISCRETE",
+      "name": "paths, reachability and connectivity",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.PERMUTATION",
+      "domain": "G_DISCRETE",
+      "name": "permutation and arrangement",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.PRODUCT_NOTATION",
+      "domain": "G_DISCRETE",
+      "name": "indexed product",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.RECURRENCE",
+      "domain": "G_DISCRETE",
+      "name": "recurrence relation with initial conditions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.SEQUENCE",
+      "domain": "G_DISCRETE",
+      "name": "sequence indexed by naturals",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.SET_FINITE",
+      "domain": "G_DISCRETE",
+      "name": "finite set with cardinality",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.SUMMATION",
+      "domain": "G_DISCRETE",
+      "name": "summation with an explicit index and range",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "L",
+      "HML_evidence": "`module M ; index i : Natural ; def s := sum(i, 1, 10, i)` -> HML-T426 (expressible only by weakening the declared type)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "DISC.TREE",
+      "domain": "G_DISCRETE",
+      "name": "tree and rooted hierarchy",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "DISC.WEIGHTED_GRAPH",
+      "domain": "G_DISCRETE",
+      "name": "weighted and labelled graphs",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.AFFINE_SPACE",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "affine space and affine combinations",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.ANGLE",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "angle with units and range convention",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.CHART_ATLAS",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "charts, atlases and coordinate patches",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.COMPACTNESS",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "compactness",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.CONE_ORDER",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "cones and generalised inequalities",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.CONNECTEDNESS",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "connectedness and path-connectedness",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.CONTINUOUS_MAP",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "continuous map between spaces",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.CONVEX_SET",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "convex set",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.COORDINATE_CHANGE",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "change of coordinates with Jacobian factor",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.COORDINATE_SYSTEM",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "named coordinate system",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.CURVATURE",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "curvature",
+      "criticality": "LOW",
+      "weight": 2,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.DIFFERENTIAL_FORM",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "differential forms and orientation",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.DISTANCE",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "distance with an identified metric",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.EUCLIDEAN_SPACE",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "Euclidean space with dimension",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.GEODESIC",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "geodesic and shortest path",
+      "criticality": "LOW",
+      "weight": 2,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.HOMEOMORPHISM",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "homeomorphism and topological invariants",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.HOMOTOPY",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "homotopy and deformation",
+      "criticality": "LOW",
+      "weight": 2,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.MANIFOLD",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "manifold with dimension and smoothness",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.MEASURE_ON_GEOMETRIC_DOMAIN",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "volume, area and surface measures",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.METRIC_TENSOR",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "metric tensor and induced geometry",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.OPEN_CLOSED",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "open, closed, interior, closure, boundary",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.ORIENTATION",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "orientation and handedness",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.POINT_VECTOR_DISTINCTION",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "point versus displacement vector",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.POLYTOPE",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "polyhedra and polytopes",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.PROJECTION",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "projection onto a set or subspace",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.SIMPLEX",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "probability simplex as a constrained domain",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.TANGENT_SPACE",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "tangent space at a point",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.TOPOLOGICAL_SPACE",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "topological space",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.TRANSFORMATION_GROUP",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "group of transformations and invariance",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "GEO.VECTOR_FIELD",
+      "domain": "H_GEOMETRY_TOPOLOGY",
+      "name": "vector field",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.ARGMIN_ARGMAX",
+      "domain": "I_OPTIMIZATION",
+      "name": "argmin/argmax as a set-valued binder",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.BELLMAN",
+      "domain": "I_OPTIMIZATION",
+      "name": "Bellman equation / recursive optimality",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.BOX_BOUND",
+      "domain": "I_OPTIMIZATION",
+      "name": "variable bounds and domain restrictions",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.CHANCE_CONSTRAINT",
+      "domain": "I_OPTIMIZATION",
+      "name": "probabilistic (chance) constraint",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.CONIC_PROGRAM",
+      "domain": "I_OPTIMIZATION",
+      "name": "conic and semidefinite programs",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.CONSTRAINT_SCOPE",
+      "domain": "I_OPTIMIZATION",
+      "name": "scoped and conditional constraints",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.CONVEXITY",
+      "domain": "I_OPTIMIZATION",
+      "name": "convexity of objective and constraints",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.DECISION_VARIABLE",
+      "domain": "I_OPTIMIZATION",
+      "name": "decision variable with a declared domain",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; param x : Real ; def f := x * x ; minimise f` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "OPT.DIRECTION",
+      "domain": "I_OPTIMIZATION",
+      "name": "minimisation versus maximisation",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.DUALITY",
+      "domain": "I_OPTIMIZATION",
+      "name": "dual problem and duality gap",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.DYNAMIC_PROGRAMMING",
+      "domain": "I_OPTIMIZATION",
+      "name": "sequential decision problems",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.EQUALITY_CONSTRAINT",
+      "domain": "I_OPTIMIZATION",
+      "name": "equality constraint",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; param x : Real ; param y : Real ; require x + y = 1.0 ; def f := x * x ; minimise f` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "OPT.EXPECTED_VALUE_OBJECTIVE",
+      "domain": "I_OPTIMIZATION",
+      "name": "objective containing an expectation",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.FEASIBLE_SET",
+      "domain": "I_OPTIMIZATION",
+      "name": "feasible set",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; param x : Real ; require x >= 0.0 ; def f := x * x ; minimise f` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "OPT.GRADIENT_OF_OBJECTIVE",
+      "domain": "I_OPTIMIZATION",
+      "name": "derivative of an objective with respect to decisions",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.INEQUALITY_CONSTRAINT",
+      "domain": "I_OPTIMIZATION",
+      "name": "inequality constraint",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; param x : Real ; require x >= 0.0 ; def f := x * x ; minimise f` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "OPT.INTEGER_VARIABLE",
+      "domain": "I_OPTIMIZATION",
+      "name": "integrality and discrete decisions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.KKT",
+      "domain": "I_OPTIMIZATION",
+      "name": "first-order optimality conditions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.LAGRANGIAN",
+      "domain": "I_OPTIMIZATION",
+      "name": "Lagrangian and multipliers",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.LINEAR_PROGRAM",
+      "domain": "I_OPTIMIZATION",
+      "name": "linear program",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.LOCAL_VS_GLOBAL",
+      "domain": "I_OPTIMIZATION",
+      "name": "local versus global optimality",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.MIXED_INTEGER",
+      "domain": "I_OPTIMIZATION",
+      "name": "mixed continuous-discrete problems",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.MULTI_OBJECTIVE",
+      "domain": "I_OPTIMIZATION",
+      "name": "multiple objectives and Pareto optimality",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.OBJECTIVE",
+      "domain": "I_OPTIMIZATION",
+      "name": "objective function",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; param x : Real ; def f := x * x ; minimise f` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "OPT.OPTIMAL_CONTROL",
+      "domain": "I_OPTIMIZATION",
+      "name": "optimal control over a dynamical system",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.OPTIMAL_VALUE",
+      "domain": "I_OPTIMIZATION",
+      "name": "optimal value versus optimiser",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.PARAMETRIC_OPTIMIZATION",
+      "domain": "I_OPTIMIZATION",
+      "name": "optimisation as a function of parameters",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.PROBLEM_AS_OBJECT",
+      "domain": "I_OPTIMIZATION",
+      "name": "optimisation problem as a first-class object",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.QUADRATIC_PROGRAM",
+      "domain": "I_OPTIMIZATION",
+      "name": "quadratic program",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.REGULARIZATION",
+      "domain": "I_OPTIMIZATION",
+      "name": "regularisation and penalty terms",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.ROBUST_WORST_CASE",
+      "domain": "I_OPTIMIZATION",
+      "name": "robust / minimax formulation",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "OPT.VARIATIONAL_OBJECTIVE",
+      "domain": "I_OPTIMIZATION",
+      "name": "optimisation over functions or distributions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.AFFINE_UNIT",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "affine (offset) units and the difference/absolute distinction",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.BASE_DIMENSION_SYSTEM",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "declared system of base dimensions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.CONSERVATION_LAW",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "conservation and balance relations",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.COORDINATE_FRAME",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "reference frame of a physical quantity",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.COUNT_VS_MEASURE",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "counts, proportions and rates distinguished",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.DIMENSION",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "physical dimension as a type-level attribute",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "P",
+      "HML_evidence": "`module M ; param a : Quantity[Length] ; param b : Quantity[Time] ; def c := a / b` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "SCI.DIMENSIONAL_HOMOGENEITY",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "dimensional homogeneity checking",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "P",
+      "HML_evidence": "`module M ; param a : Quantity[Length] ; param b : Quantity[Time] ; def c := a + b` -> HML-D502 (correctly rejected \u2014 the check exists)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "SCI.DIMENSIONLESS",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "dimensionless quantities",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.DIMENSIONLESS_GROUP",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "dimensionless groups and the Buckingham pi theorem",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.LOG_OF_RATIO",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "logarithmic scales and reference values",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.PHYSICAL_CONSTANT",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "physical constants with units and provenance",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.PREFIX_SCALING",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "metric prefixes and scale factors",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.QUANTITY",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "quantity as value plus unit",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "P",
+      "HML_evidence": "`module M ; param m : Quantity[Mass] ; param v : Quantity[Length / Time] ; def p := m * v` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "SCI.SIGNIFICANT_FIGURES",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "precision of a reported value",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.TENSOR_UNITS",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "units on vector, matrix and tensor components",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.TIME_AND_CALENDAR",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "instants versus durations",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.UNCERTAINTY",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "measurement uncertainty attached to a quantity",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.UNCERTAINTY_PROPAGATION",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "propagation of uncertainty through operations",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.UNIT",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "unit of measurement",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.UNITFUL_RANDOM_VARIABLE",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "random variables and distribution parameters with units",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.UNIT_ALGEBRA",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "algebra of compound units",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.UNIT_CONVERSION",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "conversion between commensurable units",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.UNIT_IN_TRANSCENDENTAL_ARG",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "dimensionless-argument requirement for transcendental functions",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.UNIT_OF_DERIVATIVE",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "units of a derivative",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "SCI.UNIT_OF_INTEGRAL",
+      "domain": "J_SCIENTIFIC_UNITS",
+      "name": "units of an integral",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.ABSOLUTE_ERROR",
+      "domain": "K_NUMERICAL",
+      "name": "absolute error",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.APPROXIMATION_MARKER",
+      "domain": "K_NUMERICAL",
+      "name": "approximation as a first-class relation",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.AUTODIFF",
+      "domain": "K_NUMERICAL",
+      "name": "algorithmic differentiation",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.COMPLEXITY_OF_EVALUATION",
+      "domain": "K_NUMERICAL",
+      "name": "cost of evaluating a mathematical object",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.CONDITION_NUMBER",
+      "domain": "K_NUMERICAL",
+      "name": "conditioning of a problem",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.CONVERGENCE_RATE",
+      "domain": "K_NUMERICAL",
+      "name": "rate and order of convergence",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.DISCRETIZATION",
+      "domain": "K_NUMERICAL",
+      "name": "discretisation of a continuous problem",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.ERROR_BOUND",
+      "domain": "K_NUMERICAL",
+      "name": "error bound as a quantified statement",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.EXACT_VS_NUMERIC_DISPATCH",
+      "domain": "K_NUMERICAL",
+      "name": "separation of exact and numeric evaluation paths",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.FINITE_DIFFERENCE",
+      "domain": "K_NUMERICAL",
+      "name": "finite-difference approximation of derivatives",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.FIXED_POINT_ITERATION",
+      "domain": "K_NUMERICAL",
+      "name": "fixed-point iteration and contraction conditions",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.FLOATING_POINT",
+      "domain": "K_NUMERICAL",
+      "name": "floating-point number as a distinct type from the real",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.INTERPOLATION",
+      "domain": "K_NUMERICAL",
+      "name": "interpolation and its validity region",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.INTERVAL_ARITHMETIC",
+      "domain": "K_NUMERICAL",
+      "name": "interval and validated arithmetic",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.ITERATION_SCHEME",
+      "domain": "K_NUMERICAL",
+      "name": "iterative method with a stated stopping rule",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.LINEAR_SOLVE",
+      "domain": "K_NUMERICAL",
+      "name": "numerical solution of linear systems",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.MACHINE_EPSILON",
+      "domain": "K_NUMERICAL",
+      "name": "machine epsilon and representable range",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.MESH",
+      "domain": "K_NUMERICAL",
+      "name": "grid or mesh over a domain",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.MONTE_CARLO",
+      "domain": "K_NUMERICAL",
+      "name": "Monte Carlo estimation",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.OVERFLOW_UNDERFLOW",
+      "domain": "K_NUMERICAL",
+      "name": "overflow, underflow and special values",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.PRECISION_FORMAT",
+      "domain": "K_NUMERICAL",
+      "name": "declared precision and number format",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.QUADRATURE",
+      "domain": "K_NUMERICAL",
+      "name": "numerical integration",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.RELATIVE_ERROR",
+      "domain": "K_NUMERICAL",
+      "name": "relative error",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.REPRODUCIBILITY",
+      "domain": "K_NUMERICAL",
+      "name": "reproducibility conditions of a computed result",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.RNG_SEED",
+      "domain": "K_NUMERICAL",
+      "name": "pseudo-random generation and seeding",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.ROOT_FINDING",
+      "domain": "K_NUMERICAL",
+      "name": "numerical root finding",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.ROUNDING_MODE",
+      "domain": "K_NUMERICAL",
+      "name": "rounding mode and tie-breaking",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.SPARSITY_STRUCTURE",
+      "domain": "K_NUMERICAL",
+      "name": "sparsity and structural zeros",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.STABILITY",
+      "domain": "K_NUMERICAL",
+      "name": "numerical stability of an algorithm",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.TIME_STEP",
+      "domain": "K_NUMERICAL",
+      "name": "time integration scheme and stability condition",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "NUMER.TOLERANCE",
+      "domain": "K_NUMERICAL",
+      "name": "tolerance as an explicit parameter",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.AMBIGUITY_FLAG",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "explicit ambiguity or underspecification",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.APPROXIMATION_CLAIM",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "explicit approximation claim with its basis",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.ASSERTION_VS_DEFINITION",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "speech-act distinction among statements",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; const c : Real = 2.0 ; var x : Real ; require x = 3.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "EPIS.ASSUMPTION",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "explicit assumption",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; assume x > 0.0` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "EPIS.CAUSAL_CLAIM",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "causal claim with its identifying assumptions",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.CONFIDENCE_QUALIFIER",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "qualified belief attached to a statement",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.CONSISTENCY_CHECK",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "systematic consistency and well-formedness checking",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; var x : Real ; require y > 0.0` -> HML-N301 (correctly rejected \u2014 the check exists)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "EPIS.CONTRADICTION_DETECTION",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "detection of inconsistent assumptions or constraints",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.CORRELATION_VS_CAUSATION",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "association, implication and causation kept distinct",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "0",
+      "HML_evidence": "`module M ; rv X : RandomVariable[Real] ; rv Y : RandomVariable[Real] ; require causes(X, Y)` -> HML-N306 (no such function/name)",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "EPIS.COUNTEREXAMPLE",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "counterexample as a refuting object",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.DEFEASIBLE_INFERENCE",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "defeasible / non-monotonic inference",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.EVIDENCE",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "evidential support distinguished from truth",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.GIVEN_VS_DERIVED",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "provenance of a value: given, derived or estimated",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.IDEALIZATION",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "idealising assumption marked as false-but-useful",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.KNOWN_UNKNOWN",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "explicitly unknown quantities",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.LOCAL_ASSUMPTION_SCOPE",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "locally scoped assumption",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.MODEL_VS_REALITY",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "model-world distinction",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.NORMATIVE_VS_DESCRIPTIVE",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "descriptive statement versus decision rule",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.OPEN_PROBLEM",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "conjecture and open question",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.PROOF_STATUS",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "epistemic status of a statement",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.PROVENANCE",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "provenance and attribution",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.SCOPE_OF_APPLICABILITY",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "population or unit to which a claim applies",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.SENSITIVITY_TO_ASSUMPTION",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "sensitivity of a conclusion to its assumptions",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.TRANSLATION_LOSS_DECLARATION",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "declared loss when moving between representations",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "EPIS.VALIDITY_DOMAIN",
+      "domain": "L_REASONING_EPISTEMICS",
+      "name": "domain of validity attached to a statement",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.ALPHA_RENAMING",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "safe renaming of bound variables",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.BETA_REDUCTION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "application reduction",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.CANONICALIZATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "canonical form preserving semantics",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; require forall x : Real . exists y : Real . y > x` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "XFORM.CASE_ANALYSIS",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "proof or definition by exhaustive cases",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.CHANGE_OF_REPRESENTATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "multiple faithful views of one object",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.COMPILATION_TO_BACKEND",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "translation to an external system",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.CONDITIONING_OP",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "conditioning as a model transformation",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.CONSTRAINT_PROPAGATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "propagation of constraints and refinements",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.CONTRADICTION_PROOF",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "reductio and contraposition",
+      "criticality": "MEDIUM",
+      "weight": 5,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.DIFF_OF_STATEMENTS",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "semantic difference between two versions of a statement",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.EQUATIONAL_REASONING",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "chained equational derivation",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.EVALUATION_PARTIAL",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "partial evaluation with unknowns remaining",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.EXISTENTIAL_WITNESS",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "introducing and using a witness",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.INDUCTION_APPLICATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "applying induction",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.LOSS_ANNOTATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "structured annotation of what a transformation lost",
+      "criticality": "HIGH",
+      "weight": 8,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.MARGINALIZATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "marginalisation as an inference operation",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.MODUS_PONENS",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "detachment from an implication",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.MOMENT_COMPUTATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "derivation of moments from a distribution",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.NORMAL_FORM",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "normal form of an expression",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.PATTERN_MATCHING",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "structural pattern matching on expressions",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.PRENEX_NORMAL_FORM",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "quantifier movement and prenex form",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.PROOF_CHECKING",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "independent checking of a derivation",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.QUANTIFIER_ELIMINATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "quantifier elimination in decidable theories",
+      "criticality": "LOW",
+      "weight": 3,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.QUERY_OVER_STATEMENTS",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "querying a body of mathematical statements",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.REWRITING",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "directed rewriting with rules",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.ROUND_TRIP",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "round-trip fidelity between surface and internal form",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.SEMANTICS_PRESERVING_CHECK",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "verification that a transformation preserves meaning",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.SIMPLIFICATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "simplification with preserved meaning",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.SKOLEMIZATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "Skolemisation of existentials",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.SOLVE_FOR",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "solving a relation for an unknown",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.STAGING",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "explicit staging of symbolic and numeric phases",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.SUBSTITUTION_RULE",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "substitution of equals for equals",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.SYMBOLIC_DIFFERENTIATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "symbolic differentiation",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.SYMBOLIC_INTEGRATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "symbolic integration with failure as an outcome",
+      "criticality": "LOW",
+      "weight": 4,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.TOPOLOGICAL_ORDER",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "dependency ordering and cycle detection",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.TYPE_INFERENCE",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "inference and checking of types",
+      "criticality": "CRITICAL",
+      "weight": 9,
+      "HML": "P",
+      "HML_evidence": "`module M ; param mu : Real ; param sigma : PositiveReal ; var z : Real ; def v := mu + sigma * z` -> clean",
+      "HML_evidence_quality": "A"
+    },
+    {
+      "ontology_id": "XFORM.UNIFICATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "unification of terms and types",
+      "criticality": "MEDIUM",
+      "weight": 6,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    },
+    {
+      "ontology_id": "XFORM.UNIVERSAL_INSTANTIATION",
+      "domain": "M_TRANSFORMATIONS_INFERENCE",
+      "name": "instantiating a universal statement",
+      "criticality": "HIGH",
+      "weight": 7,
+      "HML": "?",
+      "HML_evidence": "not probed by this audit",
+      "HML_evidence_quality": "\u2014"
+    }
+  ]
+}

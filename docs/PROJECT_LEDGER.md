@@ -2775,3 +2775,74 @@ audit rerun is the next step and has not been run.
 **Next intended step.** Rerun the 486-atom capability audit unchanged (do not edit the
 ontology) and report BEFORE/AFTER for critical coverage, critical zeros, compositional
 closure, transformation representability and backend silent loss.
+
+---
+
+## 2026-08-07 (third entry) — capability-audit rerun, and the `assume` half-fix corrected
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `f0e3340`
+**Stage:** HML V2 measurement + D-028
+
+**Objective.** Rerun the 486-atom capability audit unchanged and report BEFORE/AFTER;
+fix what the measurement exposed.
+
+**What was completed.** The audit was rerun against both the v1 baseline and the V2
+compiler with the ontology verified byte-identical by sha256. `docs/hml_v2/AUDIT_RERUN.md`
+records the result. D-028 wired the refinement environment into the type checker.
+
+**Results, as measured — targets hit and missed.**
+
+| metric | published | reproduced | AFTER | target | verdict |
+|---|---:|---:|---:|---:|---|
+| critical faithful | 79.7% | 79.7% | 96.9% (corrected probes) / 82.8% (unmodified) | ≥95% | HIT / MISS |
+| critical zeros | 11 | 11 | 0 (corrected) / 8 (unmodified) | 0 | HIT / MISS |
+| compositional closure | 0.615 | **0.692** | 0.692 | ≥0.85 | **MISSED** |
+| transformations representable | 0/19 | 0/19 | **7/19** | ≥15/19 | **MISSED** |
+| transformations verifiable | 0/19 | 0/19 | **7/19** | nonzero | HIT |
+| epistemic expressible | 8/13 | 8/13 | 8/13 | — | no change |
+| epistemic enforced | 5/13 | **4/13** | 5/13 | — | +1 |
+| definedness consistency | — | — | 0/19 changed | — | no change |
+| extensibility | — | — | 0/9 changed | — | no change, as predicted |
+| backend silent loss | 0/54 | 0/54 | 0/54 and 0/45 on V2 constructs | 0 | HELD |
+| inference rules soundness-checked | — | 0/16 | **16/16** | — | new |
+
+**Decisions and why.** D-028 in full.
+
+**Tests and verification actually executed.**
+- `.venv/bin/python -m pytest` → **6240 passed, 0 failed** (6226 before)
+- hash stability after D-028: **0 changed, 0 added** — invisible to modules with no assumption
+- the directive §7 example now compiles; ten refusal cases pinned
+
+**Failures and unresolved uncertainty — read this section, not the table.**
+- **Two published audit figures did not reproduce.** Compositional closure is **0.692**,
+  not the published 0.615, in the audit's own committed artefact at `b1ac7bf`; epistemic
+  enforcement reproduced at 4/13, not 5/13. Recorded as discrepancies, not corrected.
+- **Seventeen probes were changed** to match V2 idiom. The control run applied the same
+  seventeen to v1 and v1 gained **nothing** (79.7% → 79.7%, 11 zeros → 11 zeros; overall
+  faithful *fell* because the corrected probes are harder). Two changes are aggressive
+  (they alter declared types); a reader rejecting those gets **93.8% / 2 zeros**, short of
+  the 95% target. Both readings are published.
+- **D-025 and the `7a98427` commit message claimed `assume` was load-bearing against the
+  type checker. That was false when written** — Γ was consumed only by the reasoning
+  checker. Corrected by D-028; the false claim is recorded in D-028 rather than edited out.
+- **Three regressions**, all from the deliberate `Event`/`Proposition` barrier:
+  `PROB.RANDOM_VARIABLE`, `COMP.MATRIX_VALUED_RV`, `RT.STOCHASTIC_PROCESS`. Defensible
+  semantics, measured cost, published.
+- **`prove` still proves nothing**, and `GRAMMAR_CONTRACT.md` §1 says it should become a
+  goal with `ASSERTED_UNCHECKED`. It does not; it remains a `ProveStmt` with no status
+  field. Contract-vs-implementation divergence, recorded.
+- **408 of 486 atoms remain unprobed**; two whole domains have zero probes. The
+  semantic-density benchmark has still never run. V2 model writability is unmeasured.
+- **Maturity: still LEVEL 1 — DOMAIN DSL.** Level 2 is not reached, so Level 3 cannot be.
+
+**Effect on the overall project.** Criterion **3.5 — transformations that check their own
+preservation, which the ladder names as *the* distinguishing Level 3 capability — moved
+FAIL → PASS.** 16/16 rules accept a correct step and reject one differing only in its
+stated conclusion. That is real and it is the thesis of the V2 directive. It is also not
+enough for a level change: compositionality (0.692 < 0.70), unassessed coverage, absent
+scoped assumptions, absent partiality obligations and absent approximation all still block.
+
+**Next intended step.** Compositional closure is the first failure in ladder order and the
+cheapest remaining level gate: 0.692 against a 0.70 Level 2 threshold. Then a coherent
+partiality policy (criterion 3.4), which the directive's §8 specifies and which is not
+built. Do not run any HML-vs-English model experiment until V2 is frozen.
