@@ -1,0 +1,66 @@
+{
+  "stage": "CAL-3",
+  "arm": "STRUCTURED_ENGLISH_ONLY",
+  "model": "gemma4:31b",
+  "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.0,
+  "max_tokens": 8192,
+  "keys_verified_by": "exhaustive enumeration in verify_keys()",
+  "calls": 4,
+  "correct": 2,
+  "total": 4,
+  "records": [
+    {
+      "id": "cal3_adjacent_sum",
+      "domain": "combinatorics",
+      "why_hard": "two interacting constraints; no closed form; requires systematic counting",
+      "prompt": "Consider strings of length 5 in which each character is one of the digits 1, 2, 3, 4, 5, 6, 7 (repetition allowed).\n\nCount the strings that satisfy BOTH of the following:\n  (a) no two adjacent characters are equal;\n  (b) the sum of the five digits is divisible by 4.\n\nGive the final answer as a single integer.",
+      "key": "2244",
+      "final_answer": "",
+      "correct": false,
+      "completion_tokens": 8192,
+      "latency_s": 412.57,
+      "finish_reason": "length",
+      "full_response": ""
+    },
+    {
+      "id": "cal3_reflecting_walk",
+      "domain": "probability",
+      "why_hard": "four-step state evolution with reflecting boundaries at both ends",
+      "prompt": "A particle moves on the positions 0, 1, 2, 3.\nIt starts at position 0.\nAt each step it attempts to move up by 1 with probability 1/2, and down by 1 with probability 1/2.\nAn attempt to move below 0 leaves it at 0. An attempt to move above 3 leaves it at 3.\n\nAfter exactly 4 steps, what is the probability that the particle is at position 2?\n\nGive the final answer as an exact fraction in lowest terms.",
+      "key": "1/4",
+      "final_answer": "1/4",
+      "correct": true,
+      "completion_tokens": 5726,
+      "latency_s": 321.79,
+      "finish_reason": "stop",
+      "full_response": "GIVEN:\n- A particle moves on positions $\\{0, 1, 2, 3\\}$.\n- Starting position: $S_0 = 0$.\n- Transition rules at each step:\n    - Move up by 1 with probability $p = 1/2$.\n    - Move down by 1 with probability $q = 1/2$.\n- Boundary conditions:\n    - If the particle is at position 0 and attempts to move down, it stays at 0.\n    - If the particle is at position 3 and attempts to move up, it stays at 3.\n- Total number of steps: $n = 4$.\n\nGOAL:\nDetermine the probability that the particle is at position 2 after exactly 4 steps ($P(S_4 = 2)$).\n\nREASONING:\n1. Define the transition matrix $M$ for the state vector $v_t = [P(S_t=0), P(S_t=1), P(S_t=2), P(S_t=3)]^T$. Based on the rules:\n   - From 0: moves to 1 (prob 1/2) or stays at 0 (prob 1/2).\n   - From 1: moves to 0 (prob 1/2) or moves to 2 (prob 1/2).\n   - From 2: moves to 1 (prob 1/2) or moves to 3 (prob 1/2).\n   - From 3: moves to 2 (prob 1/2) or stays at 3 (prob 1/2).\n   The transition matrix $M$ is:\n   $$ M = \\begin{pmatrix} 1/2 & 1/2 & 0 & 0 \\\\ 1/2 & 0 & 1/2 & 0 \\\\ 0 & 1/2 & 0 & 1/2 \\\\ 0 & 0 & 1/2 & 1/2 \\end{pmatrix} $$\n\n2. Calculate the state vector $v_t$ for each step starting from $v_0 = [1, 0, 0, 0]^T$:\n   - Step 1:\n     $$ v_1 = M v_0 = \\begin{pmatrix} 1/2 \\\\ 1/2 \\\\ 0 \\\\ 0 \\end{pmatrix} $$\n   - Step 2:\n     $$ v_2 = M v_1 = \\begin{pmatrix} (1/2)(1/2) + (1/2)(1/2) \\\\ (1/2)(1/2) + (1/2)(0) \\\\ (1/2)(1/2) + (1/2)(0) \\\\ (1/2)(0) + (1/2)(0) \\end{pmatrix} = \\begin{pmatrix} 1/2 \\\\ 1/4 \\\\ 1/4 \\\\ 0 \\end{pmatrix} $$\n   - Step 3:\n     $$ v_3 = M v_2 = \\begin{pmatrix} (1/2)(1/2) + (1/2)(1/4) \\\\ (1/2)(1/2) + (1/2)(1/4) \\\\ (1/2)(1/4) + (1/2)(0) \\\\ (1/2)(1/4) + (1/2)(0) \\end{pmatrix} = \\begin{pmatrix} 3/8 \\\\ 3/8 \\\\ 1/8 \\\\ 1/8 \\end{pmatrix} $$\n   - Step 4:\n     $$ v_4 = M v_3 = \\begin{pmatrix} (1/2)(3/8) + (1/2)(3/8) \\\\ (1/2)(3/8) + (1/2)(1/8) \\\\ (1/2)(3/8) + (1/2)(1/8) \\\\ (1/2)(1/8) + (1/2)(1/8) \\end{pmatrix} = \\begin{pmatrix} 6/16 \\\\ 4/16 \\\\ 4/16 \\\\ 2/16 \\end{pmatrix} $$\n\n3. The probability that the particle is at position 2 after 4 steps is $P(S_4=2) = v_4[2] = 4/16$.\n   Simplifying the fraction: $4/16 = 1/4$.\n\nCHECK:\n- Sum of probabilities in $v_4$: $6/16 + 4/16 + 4/16 + 2/16 = 16/16 = 1$. Correct.\n- Possible paths to position 2: (D, D, U, U), (U, D, U, U), (U, U, D, U), (U, U, U, D). Each has probability $(1/2)^4 = 1/16$. Total is $4 \\times 1/16 = 1/4$. Correct.\n\nFINAL ANSWER:\n1/4"
+    },
+    {
+      "id": "cal3_lp_vertices",
+      "domain": "optimisation",
+      "why_hard": "the optimum is at an axis vertex, not the intersection of the two constraints",
+      "prompt": "Minimise 3x + 5y over real x and y, subject to all four constraints:\n\n    x + y >= 8\n    2x + y >= 10\n    x >= 0\n    y >= 0\n\nGive the final answer as a single number: the minimum VALUE of 3x + 5y.",
+      "key": "24",
+      "final_answer": "24",
+      "correct": true,
+      "completion_tokens": 2200,
+      "latency_s": 128.8,
+      "finish_reason": "stop",
+      "full_response": "GIVEN:\nThe objective function to minimize is $f(x, y) = 3x + 5y$ subject to the constraints:\n1. $x + y \\ge 8$\n2. $2x + y \\ge 10$\n3. $x \\ge 0$\n4. $y \\ge 0$\n\nGOAL:\nDetermine the minimum value of $3x + 5y$.\n\nREASONING:\n1. The feasible region is defined by a set of linear inequalities in the first quadrant ($x, y \\ge 0$). Since the objective function and constraints are linear, the minimum must occur at one of the vertices (extreme points) of the convex feasible region.\n2. Identify the boundary lines:\n   - Line 1: $x + y = 8$\n   - Line 2: $2x + y = 10$\n   - Axis 1: $x = 0$\n   - Axis 2: $y = 0$\n3. Find the intersection points of these lines and check if they satisfy all constraints:\n   - Intersection of Line 1 and Line 2:\n     Subtracting $(x + y = 8)$ from $(2x + y = 10)$ gives $x = 2$.\n     Substituting $x=2$ into $x+y=8$ gives $y=6$.\n     Point $(2, 6)$ satisfies all constraints ($2 \\ge 0, 6 \\ge 0$).\n   - Intersection of Line 1 and the y-axis ($x=0$):\n     $0 + y = 8 \\implies y = 8$.\n     Check Constraint 2: $2(0) + 8 = 8$, which is NOT $\\ge 10$. This point is not in the feasible region.\n   - Intersection of Line 1 and the x-axis ($y=0$):\n     $x + 0 = 8 \\implies x = 8$.\n     Check Constraint 2: $2(8) + 0 = 16$, which is $\\ge 10$. This point $(8, 0)$ is in the feasible region.\n   - Intersection of Line 2 and the y-axis ($x=0$):\n     $2(0) + y = 10 \\implies y = 10$.\n     Check Constraint 1: $0 + 10 = 10$, which is $\\ge 8$. This point $(0, 10)$ is in the feasible region.\n   - Intersection of Line 2 and the x-axis ($y=0$):\n     $2x + 0 = 10 \\implies x = 5$.\n     Check Constraint 1: $5 + 0 = 5$, which is NOT $\\ge 8$. This point is not in the feasible region.\n4. Evaluate the objective function $f(x, y) = 3x + 5y$ at the identified vertices:\n   - At $(2, 6)$: $f(2, 6) = 3(2) + 5(6) = 6 + 30 = 36$.\n   - At $(8, 0)$: $f(8, 0) = 3(8) + 5(0) = 24 + 0 = 24$.\n   - At $(0, 10)$: $f(0, 10) = 3(0) + 5(10) = 0 + 50 = 50$.\n5. Compare the values: The minimum value is $\\min(36, 24, 50) = 24$.\n\nCHECK:\n- For $(8, 0)$: $8+0=8 \\ge 8$ (True), $16+0=16 \\ge 10$ (True), $8 \\ge 0$ (True), $0 \\ge 0$ (True). Value is 24.\n- For $(2, 6)$: $2+6=8 \\ge 8$ (True), $4+6=10 \\ge 10$ (True), $2 \\ge 0$ (True), $6 \\ge 0$ (True). Value is 36.\n- For $(0, 10)$: $0+10=10 \\ge 8$ (True), $0+10=10 \\ge 10$ (True), $0 \\ge 0$ (True), $10 \\ge 0$ (True). Value is 50.\n\nFINAL ANSWER:\n24"
+    },
+    {
+      "id": "cal3_floor_identity",
+      "domain": "number theory",
+      "why_hard": "no pattern; requires reasoning about floor behaviour over a large range",
+      "prompt": "For how many integers n with 1 <= n <= 2000 does\n\n    floor(n/7) + floor(n/11) = floor(n/5)\n\nhold, where floor(z) is the greatest integer not exceeding z?\n\nGive the final answer as a single integer.",
+      "key": "24",
+      "final_answer": "",
+      "correct": false,
+      "completion_tokens": 8192,
+      "latency_s": 469.98,
+      "finish_reason": "length",
+      "full_response": "GIVEN:\nThe range of integers is $1 \\le n \\le 2000$.\nThe equation to solve is $\\lfloor n/7 \\rfloor + \\lfloor n/11 \\rfloor = \\lfloor n/5 \\rfloor$, where $\\lfloor z \\rfloor$ denotes the floor function.\n\nGOAL:\nDetermine the number of integers $n$ in the given range that satisfy the equation.\n\nREASONING:\n1. Let $g(n) = \\lfloor n/7 \\rfloor + \\lfloor n/11 \\rfloor - \\lfloor n/5 \\rfloor$. We seek $n$ such that $g(n) = 0$.\n2. Using the property $\\lfloor x \\rfloor = x - \\{x\\}$, where $\\{x\\}$ is the fractional part:\n   $g(n) = (n/7 - \\{n/7\\}) + (n/11 - \\{n/11\\}) - (n/5 - \\{n/5\\})$\n   $g(n) = n(1/7 + 1/11 - 1/5) - (\\{n/7\\} + \\{n/11\\} - \\{n/5\\})$\n   $g(n) = \\frac{13}{385}n - (\\{n/7\\} + \\{n/11\\} - \\{n/5\\})$.\n3. The term $(\\{n/7\\} + \\{n/11\\} - \\{n/5\\})$ is bounded between $-1$ and $2$.\n4. If $\\frac{13}{385}n \\ge 2$, then since $\\{n/7\\} + \\{n/11\\} - \\{n/5\\} < 2$, we must"
+    }
+  ]
+}

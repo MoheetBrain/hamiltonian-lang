@@ -1,0 +1,58 @@
+{
+  "stage": "CAL-1",
+  "arm": "STRUCTURED_ENGLISH_ONLY",
+  "model": "gemma4:31b",
+  "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.0,
+  "max_tokens": 8192,
+  "calls": 3,
+  "correct": 3,
+  "total": 3,
+  "records": [
+    {
+      "id": "cal1_screening",
+      "intended_band": "easier",
+      "error_class": "probability role / base rate",
+      "prompt": "A screening test is applied to a population in which 3 people in every 500 have a certain condition.\nThe test correctly returns positive for 94% of people who have the condition.\nThe test correctly returns negative for 91% of people who do not have the condition.\n\nOne person, chosen uniformly at random from this population, tests positive.\nWhat is the probability that this person has the condition?\n\nGive the final answer as a decimal rounded to four decimal places.",
+      "answer_note": "0.0593 (0.00564 / 0.09510)",
+      "final_answer": "0.0593",
+      "correct": true,
+      "completion_tokens": 1643,
+      "prompt_tokens": 226,
+      "latency_s": 66.88,
+      "full_response": "GIVEN:\n- Prevalence of the condition in the population: $P(C) = \\frac{3}{500} = 0.006$.\n- Probability that a person does not have the condition: $P(\\neg C) = 1 - P(C) = \\frac{497}{500} = 0.994$.\n- Sensitivity (True Positive Rate): $P(Pos | C) = 94\\% = 0.94$.\n- Specificity (True Negative Rate): $P(Neg | \\neg C) = 91\\% = 0.91$.\n- False Positive Rate: $P(Pos | \\neg C) = 1 - P(Neg | \\neg C) = 1 - 0.91 = 0.09$.\n\nGOAL:\nDetermine the probability that a person has the condition given they tested positive, denoted as $P(C | Pos)$.\n\nREASONING:\n1. Use Bayes' Theorem to express the conditional probability:\n   $$P(C | Pos) = \\frac{P(Pos | C) \\cdot P(C)}{P(Pos)}$$\n2. Calculate the total probability of testing positive, $P(Pos)$, using the Law of Total Probability:\n   $$P(Pos) = P(Pos | C) \\cdot P(C) + P(Pos | \\neg C) \\cdot P(\\neg C)$$\n3. Substitute the given values into the equation for $P(Pos)$:\n   $$P(Pos) = (0.94 \\times 0.006) + (0.09 \\times 0.994)$$\n   $$P(Pos) = 0.00564 + 0.08946$$\n   $$P(Pos) = 0.0951$$\n4. Substitute the values into the Bayes' Theorem formula:\n   $$P(C | Pos) = \\frac{0.00564}{0.0951}$$\n5. Perform the division to find the decimal value:\n   $$P(C | Pos) = \\frac{564}{9510} = \\frac{94}{1585} \\approx 0.05930599...$$\n6. Round the result to four decimal places as requested: $0.0593$.\n\nCHECK:\n- The prevalence is very low (0.6%), so even with a high sensitivity and specificity, we expect the posterior probability to be relatively low due to the large number of false positives from the healthy population ($0.08946$) compared to true positives ($0.00564$).\n- $0.00564 / (0.00564 + 0.08946) \\approx 0.0593$. The logic is consistent.\n\nFINAL ANSWER:\n0.0593",
+      "finish_reason": "stop",
+      "error": null
+    },
+    {
+      "id": "cal1_constrained_min",
+      "intended_band": "middle",
+      "error_class": "ignored constraint",
+      "prompt": "Let f(x) = x^2 - 6x + 13, defined for real x.\nSubject to the constraint x >= 5, find the minimum value of f(x).\n\nGive the final answer as a single number: the minimum VALUE of f.",
+      "answer_note": "8 at x=5; the unconstrained minimum 4 at x=3 is infeasible",
+      "final_answer": "8",
+      "correct": true,
+      "completion_tokens": 999,
+      "prompt_tokens": 181,
+      "latency_s": 43.37,
+      "full_response": "GIVEN:\n- The function $f(x) = x^2 - 6x + 13$ defined for real $x$.\n- The constraint $x \\ge 5$.\n\nGOAL:\n- Find the minimum value of $f(x)$ subject to $x \\ge 5$.\n\nREASONING:\n1. Identify the type of function: $f(x) = x^2 - 6x + 13$ is a quadratic function with a positive leading coefficient ($a=1$), meaning it describes a parabola that opens upwards.\n2. Find the vertex of the parabola: The x-coordinate of the vertex for a quadratic $ax^2 + bx + c$ is given by $x = -b / (2a)$.\n   $x_{vertex} = -(-6) / (2 \\cdot 1) = 6 / 2 = 3$.\n3. Analyze the behavior of the function relative to the constraint: The vertex occurs at $x = 3$. Since the parabola opens upwards, the function decreases for $x < 3$ and increases for $x > 3$.\n4. Evaluate the domain constraint: We are given $x \\ge 5$. Because the interval $[5, \\infty)$ lies entirely to the right of the vertex ($x=3$), the function $f(x)$ is strictly increasing on this interval.\n5. Determine the minimum value: Since $f(x)$ is strictly increasing for $x \\ge 5$, the minimum value occurs at the smallest possible value of $x$ in the domain, which is $x = 5$.\n6. Calculate $f(5)$:\n   $f(5) = (5)^2 - 6(5) + 13$\n   $f(5) = 25 - 30 + 13$\n   $f(5) = -5 + 13$\n   $f(5) = 8$.\n\nCHECK:\n- Vertex is at $x=3$, where $f(3) = 9 - 18 + 13 = 4$.\n- For $x \\ge 5$, the function values are always greater than or equal to $f(5)$.\n- Calculation check: $25 - 30 + 13 = 8$.\n\nFINAL ANSWER:\n8",
+      "finish_reason": "stop",
+      "error": null
+    },
+    {
+      "id": "cal1_domain_trap",
+      "intended_band": "harder",
+      "error_class": "ignored domain restriction (partiality)",
+      "prompt": "Find every real number x satisfying\n\n    (x^2 - 9) / (x - 3) = 6\n\nIf there are no such real numbers, say so explicitly.\nGive the final answer as either the complete list of solutions, or the words: no solution.",
+      "answer_note": "no solution: cancelling gives x=3, which the denominator excludes",
+      "final_answer": "no solution",
+      "correct": true,
+      "completion_tokens": 877,
+      "prompt_tokens": 182,
+      "latency_s": 38.18,
+      "full_response": "GIVEN: The equation $\\frac{x^2 - 9}{x - 3} = 6$.\n\nGOAL: Find every real number $x$ satisfying the equation.\n\nREASONING:\n1. Identify constraints on the variable $x$: For the expression $\\frac{x^2 - 9}{x - 3}$ to be defined, the denominator must not be zero. Therefore, $x - 3 \\neq 0$, which implies $x \\neq 3$.\n2. Simplify the numerator of the fraction: The term $x^2 - 9$ is a difference of squares and can be factored as $(x - 3)(x + 3)$.\n3. Rewrite the equation using the factored form: $\\frac{(x - 3)(x + 3)}{x - 3} = 6$.\n4. Simplify the fraction: Under the condition $x \\neq 3$, we can cancel the common factor $(x - 3)$ from the numerator and denominator. The equation simplifies to $x + 3 = 6$.\n5. Solve for $x$: Subtracting 3 from both sides gives $x = 3$.\n6. Compare the result with the constraints: In step 1, it was established that $x$ cannot be 3 because it would make the original expression undefined (division by zero). Since the only potential solution is $x = 3$, and this value is excluded from the domain of the equation, there are no valid solutions.\n\nCHECK:\nIf we substitute $x = 3$ into the original equation:\n$\\frac{3^2 - 9}{3 - 3} = \\frac{0}{0}$, which is undefined.\nSince no other values for $x$ were found during simplification, there are no real numbers that satisfy the equation.\n\nFINAL ANSWER: no solution",
+      "finish_reason": "stop",
+      "error": null
+    }
+  ]
+}

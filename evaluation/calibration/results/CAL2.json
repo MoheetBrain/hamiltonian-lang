@@ -1,0 +1,91 @@
+{
+  "stage": "CAL-2",
+  "arm": "STRUCTURED_ENGLISH_ONLY",
+  "model": "gemma4:31b",
+  "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.0,
+  "max_tokens": 8192,
+  "key_verification": {
+    "cal2_urn_conditional": "binomial(7,2)*binomial(5,1) / (C(12,3)-C(7,3)) = 21/37",
+    "cal2_quantifier_order": "S1 true (y=sqrt(|x|)+1); S2 false (take x=y^2)",
+    "cal2_two_constraints": "projection of (4,3) onto x+y=5 is (3,2), feasible, f=2",
+    "cal2_units": "A=pi*0.12^2=0.0452389 m^2; Q=0.0075 m^3/s; v=0.165786 m/s",
+    "cal2_extraneous": "sympy.solve(sqrt(2x+7)=x+2) -> [1]; x=-3 fails x+2>=0"
+  },
+  "scorer_selftest_cases": 14,
+  "calls": 5,
+  "correct": 5,
+  "total": 5,
+  "records": [
+    {
+      "id": "cal2_urn_conditional",
+      "domain": "probability",
+      "error_class": "conditional dependence without replacement",
+      "prompt": "A box contains 7 red balls and 5 blue balls. Three balls are drawn at random without replacement.\n\nGiven that at least one blue ball was drawn, what is the probability that exactly two of the three drawn balls are red?\n\nGive the final answer as an exact fraction in lowest terms.",
+      "key": "21/37",
+      "final_answer": "21/37",
+      "correct": true,
+      "completion_tokens": 2392,
+      "prompt_tokens": 184,
+      "latency_s": 100.41,
+      "finish_reason": "stop",
+      "full_response": "GIVEN:\n- A box contains 7 red balls and 5 blue balls.\n- Total number of balls $N = 7 + 5 = 12$.\n- Three balls are drawn at random without replacement.\n- Condition: At least one blue ball was drawn.\n\nGOAL:\n- Determine the probability that exactly two of the three drawn balls are red, given the condition.\n\nREASONING:\n1. Calculate the total number of ways to choose 3 balls from 12:\n   $$\\binom{12}{3} = \\frac{12 \\times 11 \\times 10}{3 \\times 2 \\times 1} = 2 \\times 11 \\times 10 = 220$$\n\n2. Calculate the number of ways to choose 3 balls such that no blue ball is drawn (i.e., all three are red):\n   $$\\binom{7}{3} = \\frac{7 \\times 6 \\times 5}{3 \\times 2 \\times 1} = 35$$\n\n3. Calculate the number of ways to choose 3 balls such that at least one blue ball is drawn:\n   $$\\text{Ways}(\\ge 1 \\text{ Blue}) = \\binom{12}{3} - \\binom{7}{3} = 220 - 35 = 185$$\n\n4. Calculate the number of ways to choose exactly two red balls and one blue ball:\n   $$\\text{Ways}(2 \\text{ Red}, 1 \\text{ Blue}) = \\binom{7}{2} \\times \\binom{5}{1}$$\n   $$\\binom{7}{2} = \\frac{7 \\times 6}{2 \\times 1} = 21$$\n   $$\\binom{5}{1} = 5$$\n   $$\\text{Ways}(2 \\text{ Red}, 1 \\text{ Blue}) = 21 \\times 5 = 105$$\n\n5. The conditional probability is the ratio of the number of ways for the target event to occur and the number of ways for the given condition to be satisfied:\n   $$P(\\text{Exactly 2 Red} | \\ge 1 \\text{ Blue}) = \\frac{\\text{Ways}(2 \\text{ Red}, 1 \\text{ Blue})}{\\text{Ways}(\\ge 1 \\text{ Blue})} = \\frac{105}{185}$$\n\n6. Simplify the fraction:\n   $$\\frac{105}{185} = \\frac{105 \\div 5}{185 \\div 5} = \\frac{21}{37}$$\n\nCHECK:\n- Total outcomes $\\binom{12}{3} = 220$.\n- Outcomes with no blue balls (all red) $\\binom{7}{3} = 35$.\n- Outcomes with at least one blue ball $220 - 35 = 185$.\n- Outcomes with exactly two red and one blue $\\binom{7}{2}\\binom{5}{1} = 21 \\times 5 = 105$.\n- Probability $105/185 = 21/37$.\n- The condition \"at least one blue ball\" is satisfied by the event \"exactly two red balls\" (since that implies exactly one blue ball).\n\nFINAL ANSWER:\n21/37"
+    },
+    {
+      "id": "cal2_quantifier_order",
+      "domain": "logic / quantifier scope",
+      "error_class": "quantifier order",
+      "prompt": "Consider these two statements about real numbers.\n\nS1: for every real number x, there exists a real number y such that y^2 > x.\nS2: there exists a real number y such that for every real number x, y^2 > x.\n\nExactly which of S1 and S2 are true?\n\nGive the final answer as one of: both, neither, S1 only, S2 only.",
+      "key": "S1 only",
+      "final_answer": "S1 only",
+      "correct": true,
+      "completion_tokens": 1192,
+      "prompt_tokens": 212,
+      "latency_s": 52.68,
+      "finish_reason": "stop",
+      "full_response": "GIVEN:\nTwo statements about real numbers:\nS1: $\\forall x \\in \\mathbb{R}, \\exists y \\in \\mathbb{R}$ such that $y^2 > x$.\nS2: $\\exists y \\in \\mathbb{R}$ such that $\\forall x \\in \\mathbb{R}, y^2 > x$.\n\nGOAL:\nDetermine which of S1 and S2 are true.\n\nREASONING:\n1. Analyze S1: \"For every real number $x$, there exists a real number $y$ such that $y^2 > x$.\"\n   - If $x < 0$, we can choose $y = 0$. Then $y^2 = 0 > x$, which is true.\n   - If $x \\ge 0$, we can choose $y = \\sqrt{x} + 1$. Then $y^2 = (\\sqrt{x} + 1)^2 = x + 2\\sqrt{x} + 1$. Since $2\\sqrt{x} + 1 > 0$ for all $x \\ge 0$, it follows that $y^2 > x$.\n   - Since for any real number $x$, we can find a corresponding $y$ such that $y^2 > x$, S1 is true.\n\n2. Analyze S2: \"There exists a real number $y$ such that for every real number $x$, $y^2 > x$.\"\n   - This statement claims there is a single constant value $C = y^2$ (where $C \\ge 0$) such that $C > x$ for all $x \\in \\mathbb{R}$.\n   - To test if this is true, we check if there is any $y$ that satisfies the condition. For any chosen $y$, let $x = y^2 + 1$.\n   - Substituting this into the inequality: $y^2 > y^2 + 1 \\implies 0 > 1$.\n   - This is a contradiction. Therefore, for any real number $y$, there exists at least one real number $x$ (specifically $x = y^2+1$) such that $y^2 \\le x$.\n   - Thus, S2 is false.\n\nCHECK:\nS1 asserts that the choice of $y$ can depend on $x$. This is true because the set of squares $\\{y^2 : y \\in \\mathbb{R}\\} = [0, \\infty)$ is not bounded above.\nS2 asserts that there is a universal upper bound for all real numbers $x$ in the form of a square $y^2$. Since $\\mathbb{R}$ has no upper bound, this is false.\n\nFINAL ANSWER: S1 only"
+    },
+    {
+      "id": "cal2_two_constraints",
+      "domain": "optimisation",
+      "error_class": "non-obvious binding constraint",
+      "prompt": "Minimise f(x, y) = (x - 4)^2 + (y - 3)^2 over real x and y, subject to all three constraints:\n\n    x + y <= 5\n    x >= 0\n    y >= 0\n\nGive the final answer as a single number: the minimum VALUE of f.",
+      "key": "2",
+      "final_answer": "2",
+      "correct": true,
+      "completion_tokens": 2321,
+      "prompt_tokens": 195,
+      "latency_s": 110.74,
+      "finish_reason": "stop",
+      "full_response": "GIVEN:\n- Objective function: $f(x, y) = (x - 4)^2 + (y - 3)^2$\n- Constraints:\n  1. $x + y \\le 5$\n  2. $x \\ge 0$\n  3. $y \\ge 0$\n\nGOAL:\nMinimize the value of $f(x, y)$ subject to the given constraints.\n\nREASONING:\n1. The function $f(x, y) = (x - 4)^2 + (y - 3)^2$ represents the squared Euclidean distance from a point $(x, y)$ to the point $P(4, 3)$.\n2. The feasible region is a triangle with vertices at $(0, 0)$, $(5, 0)$, and $(0, 5)$.\n3. First, check if the unconstrained minimum of $f$, which occurs at $(4, 3)$, lies within the feasible region:\n   - Check constraint 1: $4 + 3 = 7$. Since $7 \\not\\le 5$, the point $(4, 3)$ is outside the feasible region.\n4. Because the function is convex and the constraints define a convex set, the minimum must occur on the boundary of the feasible region closest to $(4, 3)$.\n5. The boundaries are:\n   - Segment A: $x = 0$ for $0 \\le y \\le 5$.\n   - Segment B: $y = 0$ for $0 \\le x \\le 5$.\n   - Segment C: $x + y = 5$ for $0 \\le x \\le 5, 0 \\le y \\le 5$.\n6. Analyze Segment C ($x + y = 5$) using Lagrange multipliers or substitution:\n   - Let $y = 5 - x$. Substitute into $f$:\n     $g(x) = (x - 4)^2 + (5 - x - 3)^2 = (x - 4)^2 + (2 - x)^2$\n     $g(x) = x^2 - 8x + 16 + 4 - 4x + x^2 = 2x^2 - 12x + 20$\n   - To find the minimum of $g(x)$, take the derivative and set it to zero:\n     $g'(x) = 4x - 12 = 0 \\implies x = 3$.\n   - If $x = 3$, then $y = 5 - 3 = 2$.\n   - The point $(3, 2)$ satisfies all constraints ($3+2=5, 3\\ge 0, 2\\ge 0$).\n   - Calculate the value: $f(3, 2) = (3 - 4)^2 + (2 - 3)^2 = (-1)^2 + (-1)^2 = 1 + 1 = 2$.\n7. Analyze Segment A ($x = 0$):\n   - $f(0, y) = (0 - 4)^2 + (y - 3)^2 = 16 + (y - 3)^2$.\n   - The minimum occurs at $y = 3$, giving $f(0, 3) = 16$.\n8. Analyze Segment B ($y = 0$):\n   - $f(x, 0) = (x - 4)^2 + (0 - 3)^2 = (x - 4)^2 + 9$.\n   - The minimum occurs at $x = 4$, giving $f(4, 0) = 9$.\n9. Compare the values found:\n   - On Segment C: $f(3, 2) = 2$\n   - On Segment A: $\\min f = 16$\n   - On Segment B: $\\min f = 9$\n   - Vertices: $f(0,0)=25$, $f(5,0)=10$, $f(0,5)=20$.\n\nThe minimum value is 2.\n\nCHECK:\n- Point $(3, 2)$ satisfies $x+y=5 \\le 5$, $x=3 \\ge 0$, and $y=2 \\ge 0$.\n- The distance from $(4, 3)$ to the line $x + y - 5 = 0$ is $\\frac{|4 + 3 - 5|}{\\sqrt{1^2 + 1^2}} = \\frac{2}{\\sqrt{2}} = \\sqrt{2}$.\n- The squared distance is $(\\sqrt{2})^2 = 2$.\n\nFINAL ANSWER:\n2"
+    },
+    {
+      "id": "cal2_units",
+      "domain": "dimensions",
+      "error_class": "unit tracking across steps",
+      "prompt": "Water flows through a pipe of circular cross-section with radius 12 cm.\nThe volumetric flow rate is 0.45 cubic metres per minute.\n\nWhat is the average speed of the water, in metres per second?\n\nGive the final answer as a decimal in m/s rounded to four decimal places.",
+      "key": "0.1658",
+      "final_answer": "0.1658",
+      "correct": true,
+      "completion_tokens": 1099,
+      "prompt_tokens": 189,
+      "latency_s": 53.38,
+      "finish_reason": "stop",
+      "full_response": "GIVEN:\n- Radius of the pipe, $r = 12\\text{ cm}$\n- Volumetric flow rate, $Q = 0.45\\text{ m}^3/\\text{min}$\n\nGOAL:\n- Determine the average speed of the water, $v$, in metres per second ($\\text{m/s}$), rounded to four decimal places.\n\nREASONING:\n1. Convert all units to SI base units (metres and seconds).\n   - Radius: $r = 12\\text{ cm} = 0.12\\text{ m}$.\n   - Volumetric flow rate: $Q = \\frac{0.45\\text{ m}^3}{60\\text{ s}} = 0.0075\\text{ m}^3/\\text{s}$.\n\n2. Calculate the cross-sectional area ($A$) of the pipe using the formula for the area of a circle:\n   $A = \\pi r^2$\n   $A = \\pi (0.12\\text{ m})^2$\n   $A = 0.0144\\pi\\text{ m}^2$\n\n3. Use the relationship between volumetric flow rate, area, and average speed:\n   $Q = A \\cdot v$\n   Rearranging for $v$:\n   $v = \\frac{Q}{A}$\n\n4. Substitute the known values into the equation:\n   $v = \\frac{0.0075\\text{ m}^3/\\text{s}}{0.0144\\pi\\text{ m}^2}$\n   $v = \\frac{0.0075}{0.0144\\pi}\\text{ m/s}$\n\n5. Perform the numerical calculation:\n   $v = \\frac{0.0075}{0.045238934...}$\n   $v \\approx 0.165786399...$\n\n6. Round the result to four decimal places:\n   $v \\approx 0.1658\\text{ m/s}$.\n\nCHECK:\n- Radius $0.12\\text{ m} \\implies A \\approx 0.0452\\text{ m}^2$.\n- Flow rate $0.0075\\text{ m}^3/\\text{s}$.\n- Speed $v = 0.0075 / 0.0452 \\approx 0.1659$ (rough check).\n- Precise calculation: $0.0075 / (0.0144 \\cdot \\pi) = 0.165786...$ which rounds to $0.1658$.\n\nFINAL ANSWER:\n0.1658"
+    },
+    {
+      "id": "cal2_extraneous",
+      "domain": "algebra",
+      "error_class": "extraneous roots + domain",
+      "prompt": "Find every real number x satisfying\n\n    sqrt(2x + 7) = x + 2\n\nGive the final answer as the complete list of solutions, or the words: no solution.",
+      "key": "1",
+      "final_answer": "1",
+      "correct": true,
+      "completion_tokens": 934,
+      "prompt_tokens": 163,
+      "latency_s": 45.84,
+      "finish_reason": "stop",
+      "full_response": "GIVEN:\nThe equation $\\sqrt{2x + 7} = x + 2$.\n\nGOAL:\nFind every real number $x$ that satisfies this equation.\n\nREASONING:\n1. Identify constraints for the square root to be defined and for the equality to hold:\n   - The expression inside the square root must be non-negative: $2x + 7 \\ge 0 \\implies x \\ge -3.5$.\n   - Since the principal square root $\\sqrt{2x+7}$ is always non-negative, we must have $x + 2 \\ge 0 \\implies x \\ge -2$.\n   - Combining these, any valid solution must satisfy $x \\ge -2$.\n\n2. Square both sides of the equation to eliminate the square root:\n   $(\\sqrt{2x + 7})^2 = (x + 2)^2$\n   $2x + 7 = x^2 + 4x + 4$\n\n3. Rearrange the terms into a standard quadratic form $ax^2 + bx + c = 0$:\n   $x^2 + 4x - 2x + 4 - 7 = 0$\n   $x^2 + 2x - 3 = 0$\n\n4. Solve the quadratic equation by factoring:\n   $(x + 3)(x - 1) = 0$\n   This gives two potential solutions: $x = -3$ or $x = 1$.\n\n5. Verify each potential solution against the constraints and the original equation:\n   - For $x = -3$:\n     Check constraint: $-3 \\ge -2$ is False.\n     Check equation: $\\sqrt{2(-3) + 7} = \\sqrt{1} = 1$, but $x + 2 = -3 + 2 = -1$. Since $1 \\neq -1$, $x = -3$ is an extraneous solution.\n   - For $x = 1$:\n     Check constraint: $1 \\ge -2$ is True.\n     Check equation: $\\sqrt{2(1) + 7} = \\sqrt{9} = 3$, and $x + 2 = 1 + 2 = 3$. Since $3 = 3$, $x = 1$ is a valid solution.\n\nCHECK:\nThe only value that satisfies both the algebraic manipulation and the original equation's constraints is $x=1$. Substituting $x=1$ back into $\\sqrt{2x+7} = x+2$ yields $\\sqrt{9}=3$, which is correct.\n\nFINAL ANSWER:\n1"
+    }
+  ]
+}

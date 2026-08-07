@@ -3201,3 +3201,61 @@ not encouraging.
 **Next intended step.** Await CAL-3. If it also saturates, the calibration budget is
 exhausted at 13 and the honest return is `NO_USEFUL_SE_HEADROOM_REGION_FOUND` with an
 analysis, rather than another forty calls.
+
+---
+
+## 2026-08-07 (eleventh entry) — SE calibration exhausted: NO_USEFUL_SE_HEADROOM_REGION_FOUND
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `3e3662b`
+**Stage:** signal-first directive §2C — calibration budget exhausted at 13/13
+
+**Objective.** Determine whether a structured-English difficulty region with headroom
+exists for this model, before authorising further HML engineering.
+
+**Files changed.** New `docs/evaluation/SE_CALIBRATION_REPORT.md`; CAL-3 results.
+
+**Result. 10 valid observations, 10 correct. No usable difficulty region found.**
+
+| stage | calls | valid | correct |
+|---|---|---|---|
+| CAL-1 | 3 | 3 | 3 |
+| CAL-2 | 5 | 5 | 5 |
+| CAL-3 | 4 | **2** | 2 |
+| total | **13** | 10 | **10/10** |
+
+**Tests and verification actually executed.**
+- digest verified against the pin before every stage
+- answer keys verified independently: SymPy (CAL-2), exhaustive enumeration (CAL-3)
+- scorer self-tests (14 and 10 synthetic cases) passed **before** the first scientific call
+- CAL-1/CAL-2 completions: 877–2392 tokens, all `finish=stop` — no truncation
+
+**Failures and unresolved uncertainty.**
+- **The two CAL-3 "failures" are truncation, not difficulty.** Both `finish=length` at
+  exactly 8192. `cal3_floor_identity` was mid-way through a *correct* fractional-part
+  argument. Scoring them as incorrect would have manufactured headroom out of a token
+  limit — the exact artifact the 4096-vs-8192 effect warned about. Recorded
+  MEASUREMENT_INVALID at this budget.
+- **This was my task-design error.** CAL-3 was meant to be harder; it was merely longer.
+  Length is not difficulty.
+- **The one axis on which the model failed is unusable for this hypothesis.** HML is more
+  verbose than prose, so on a length-limited task it truncates sooner. A corpus of such
+  tasks would measure verbosity while appearing to measure reasoning.
+- **Three corpora have now saturated** (93%, 100%, 10/10). The mechanism is understood: the
+  semantic-trap genre HML targets is canonical and heavily represented in training data,
+  and novel constants do not defeat a memorised pattern.
+- **Structural tension:** the families where this model is plausibly weak (combinatorics 0%,
+  asymptotics 0%, abstract algebra 5%, topology 10%) are the families where HML's own
+  ontology coverage is near zero. The region where headroom might exist is largely the
+  region HML cannot express.
+- **Not measured:** whether a 16384 budget converts the truncations into genuine failures;
+  whether bounded-length multi-fact state-tracking tasks saturate; whether a weaker model
+  shows headroom.
+
+**Effect on the overall project.** The gate at §2C is reached and not passed. Per the
+directive, scientific calls stop here rather than continuing for another forty. No HML
+acquisition call may be made, and none was: **total Gemma calls 13, all structured-English,
+zero HML.**
+
+**Next intended step.** Return to the user. The choice of difficulty axis, model, budget,
+or acceptance of the negative finding is a scientific-direction decision, not an
+engineering one.

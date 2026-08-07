@@ -58,7 +58,16 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
-**SE difficulty calibration is under way (signal-first directive).** Structured-English
+**SE CALIBRATION IS COMPLETE AND FOUND NO USABLE HEADROOM.** 13/13 calls used;
+**10 valid observations, 10 correct**. The two apparent failures were `finish=length`
+truncations at 8192 tokens, one of them mid-way through a correct argument — recorded
+MEASUREMENT_INVALID rather than counted as difficulty. This is the third corpus in the
+project's history to saturate (93%, 100%, 10/10). The one difficulty axis discovered
+(length) is unusable for this hypothesis, because HML is more verbose than prose and would
+truncate sooner. See `docs/evaluation/SE_CALIBRATION_REPORT.md`.
+**No HML model call has been made. Total Gemma calls: 13, all structured English.**
+
+**Superseded note — SE difficulty calibration was under way (signal-first directive).** Structured-English
 only, no HML. CAL-1 3/3 and CAL-2 5/5 against tasks built around the exact semantic traps
 HML targets; CAL-3 pending. 9 of the 13-call budget used. No truncation (877-2392 tokens of
 8192). This is the third corpus in the project's history to saturate.
