@@ -42,11 +42,13 @@ __all__ = [
     "MatrixType",
     "TensorType",
     "SetType",
+    "ProductType",
     "FunctionType",
     "PredicateType",
     "RandomVariableType",
     "DistributionType",
     "PropositionType",
+    "EventType",
     "UnknownType",
     "ConceptType",
     "is_subtype",
@@ -375,6 +377,27 @@ class SetType(Type):
 
 
 @dataclass(frozen=True)
+class ProductType(Type):
+    """An ordered tuple of types, ``Product[T1, T2, ...]``.
+
+    Introduced (D-026) because ``joint(X, Y)`` has no honest type without it: the joint
+    law of an ``X : RandomVariable[Real]`` and a ``Y : RandomVariable[Natural]`` is
+    supported on ``Real * Natural``, and neither ``Vector`` (homogeneous) nor
+    ``UnknownType`` (which must never survive a clean check) can say that.
+
+    **Order is part of identity.** ``Product[Real, Natural]`` is not
+    ``Product[Natural, Real]``: the first component of a pair is not the second. This is
+    why ``JointExpr`` does not sort its components, unlike ``IndependenceExpr``, whose
+    relation genuinely is symmetric.
+    """
+
+    components: tuple[Type, ...]
+
+    def render(self) -> str:
+        return f"Product[{', '.join(t.render() for t in self.components)}]"
+
+
+@dataclass(frozen=True)
 class FunctionType(Type):
     domain: tuple[Type, ...]
     codomain: Type
@@ -417,6 +440,29 @@ class DistributionType(Type):
 class PropositionType(Type):
     def render(self) -> str:
         return "Proposition"
+
+
+@dataclass(frozen=True)
+class EventType(Type):
+    """A measurable set of outcomes: a formula whose truth depends on the draw.
+
+    ``Event`` and ``Proposition`` are **incomparable** — there is deliberately no
+    subtyping path in either direction (D-026).
+
+    A proposition is true or false. An event is neither until an outcome is drawn; it
+    has a *probability*, not a truth value. Admitting `require X > 0.0` for a
+    ``RandomVariable`` would therefore assert that a random inequality holds **surely**,
+    while looking exactly like an ordinary constraint — the silent-conflation failure
+    mode this codebase treats as the worst one. The separation forces the author to say
+    which claim is meant: `require probability(X > 0.0) = 1.0` is the sure/almost-sure
+    reading, and it is spelled differently from `require x > 0.0` over a value.
+
+    An ``Event`` is also **not** a ``Probability``. `probability(A)` maps the former to
+    the latter and is the only construct that does.
+    """
+
+    def render(self) -> str:
+        return "Event"
 
 
 @dataclass(frozen=True)
@@ -488,6 +534,16 @@ def is_subtype(sub: Type, sup: Type) -> bool:
 
     if isinstance(sub, SetType) and isinstance(sup, SetType):
         return is_subtype(sub.element, sup.element)
+
+    if isinstance(sub, ProductType) and isinstance(sup, ProductType):
+        # Componentwise and covariant, with arity fixed. A pair is not a triple, and
+        # widening the arity would silently discard or invent a component.
+        if len(sub.components) != len(sup.components):
+            return False
+        return all(
+            is_subtype(a, b)
+            for a, b in zip(sub.components, sup.components, strict=True)
+        )
 
     if isinstance(sub, RandomVariableType) and isinstance(sup, RandomVariableType):
         return is_subtype(sub.codomain, sup.codomain)

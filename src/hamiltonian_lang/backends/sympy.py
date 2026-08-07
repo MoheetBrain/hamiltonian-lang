@@ -61,21 +61,32 @@ from ..ast.nodes import (
     Comparison,
     ConceptDecl,
     ConceptMember,
+    ContinuityExpr,
     Declaration,
     DefineStmt,
+    DerivativeExpr,
     DistExpr,
     Expr,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Statement,
     UnaryOp,
@@ -848,6 +859,72 @@ class SympyBackend(Backend):
                 "namespace, not a binder, so quantifier nesting order -- the exact "
                 "property this language exists to make explicit -- cannot be "
                 "represented at all.",
+                e.span.line,
+            )
+            return None
+
+        # -- V2 mathematical expression coverage (D-026) --------------------
+        #
+        # SymPy genuinely HAS `Integral`, `Derivative`, `Limit`, `Contains` and
+        # `ConditionSet`, so the reason for dropping them is specific rather than
+        # "SymPy cannot": it is that emitting them would bind a symbol this backend
+        # cannot declare correctly. Every SymPy symbol here is created by
+        # `_symbol_expr` from an HML declaration, with the assumptions its refinement
+        # type justifies. An expression-level binder has no declaration, and two
+        # sibling binders may legitimately share a spelling with DIFFERENT refinements
+        # -- `integral(f, x : Real, ...)` beside `integral(g, x : PositiveReal, ...)` --
+        # because HML only forbids shadowing, not reuse across disjoint scopes. Emitting
+        # `sympy.Symbol('x', positive=True)` for both would silently give one of them
+        # the wrong assumptions, and a wrong assumption in a symbolic algebra system
+        # propagates into simplification results without any error.
+        #
+        # This is a real gap and it is worth closing later, by emitting a *scoped*
+        # symbol name per binder. It is recorded rather than half-done.
+        if isinstance(e, (LimitExpr, DerivativeExpr, IntegralExpr, SetComprehension)):
+            self.drop(
+                f"expression {type(e).__name__.replace('Expr', '').lower()}",
+                "SymPy has the corresponding object, but its bound variable would need "
+                "a Symbol carrying the assumptions of the HML binder type, and this "
+                "backend declares symbols only from declarations. Two binders spelled "
+                "alike with different refinements would silently share one symbol.",
+                e.span.line,
+            )
+            return None
+
+        if isinstance(e, (MomentExpr, ProbabilityExpr, JointExpr, IndependenceExpr)):
+            self.drop(
+                f"expression {type(e).__name__.replace('Expr', '').lower()}",
+                "this needs sympy.stats, which the module docstring already refuses "
+                "for laws: it would carry the family and discard the role, the "
+                "conditioning set and the query, while looking complete.",
+                e.span.line,
+            )
+            return None
+
+        if isinstance(e, MembershipExpr):
+            self.drop(
+                "expression membership",
+                "sympy.Contains needs a sympy Set on the right; an HML Set[T] is "
+                "declared as a symbol here and carries no sympy set object.",
+                e.span.line,
+            )
+            return None
+
+        if isinstance(e, ContinuityExpr):
+            self.drop(
+                "expression continuity",
+                "sympy.calculus.util.continuous_domain COMPUTES a domain from a "
+                "concrete expression; it cannot state continuity of an undetermined "
+                "function symbol, which is what HML declares.",
+                e.span.line,
+            )
+            return None
+
+        if isinstance(e, RelationExpr):
+            self.drop(
+                f"expression {e.relation}",
+                "SymPy has no predicate for association, correlation or causation, so "
+                "the three would collapse into one opaque function name.",
                 e.span.line,
             )
             return None

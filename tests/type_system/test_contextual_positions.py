@@ -40,10 +40,27 @@ def recorded(monkeypatch):
     seen: list[str] = []
     original = TypeChecker.check
 
-    def spy(self, e, expected, *, role, code="HML-T460", note=None, message=None):
+    def spy(
+        self,
+        e,
+        expected,
+        *,
+        role,
+        code="HML-T460",
+        note=None,
+        message=None,
+        lift_random=False,
+    ):
         seen.append(role)
         return original(
-            self, e, expected, role=role, code=code, note=note, message=message
+            self,
+            e,
+            expected,
+            role=role,
+            code=code,
+            note=note,
+            message=message,
+            lift_random=lift_random,
         )
 
     monkeypatch.setattr(TypeChecker, "check", spy)

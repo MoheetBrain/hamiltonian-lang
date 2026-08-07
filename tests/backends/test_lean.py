@@ -219,8 +219,11 @@ def test_every_reference_is_bound_somewhere(example):
     for line in lines:
         if line.startswith(("import", "namespace", "end")):
             continue
-        # quantifier-bound variables are local to their statement
+        # quantifier-bound variables are local to their statement, and so are the
+        # binders of a set-builder `{x : T | ...}` (D-026): Lean's setOf notation binds
+        # its variable exactly as the quantifiers do.
         local = set(re.findall(r"[∀∃][!]? (\w+) :", line))
+        local |= set(re.findall(r"\{\s*(\w+) : [^|]+\|", line))
         body = line.split(":=", 1)[-1] if line.startswith("def ") else line
         for name in re.findall(r"\b[A-Za-z_]\w*\b", body):
             if name in ambient or name in local or name in bound or name.isdigit():

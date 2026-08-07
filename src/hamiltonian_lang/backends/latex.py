@@ -16,21 +16,32 @@ from ..ast.nodes import (
     CheckStmt,
     Comparison,
     ConceptDecl,
+    ContinuityExpr,
     Declaration,
     DefineStmt,
+    DerivativeExpr,
     DistExpr,
     Expr,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Statement,
     UnaryOp,
@@ -234,7 +245,101 @@ class LatexBackend(Backend):
             t = _set_of(e.var_type.render()) if e.var_type else "?"
             return rf"{q} {_name(e.var)} \in {t} \,.\, {self.expr(e.body)}"
 
+        # -- V2 mathematical expression coverage (D-026) --------------------
+        #
+        # LaTeX is the one target where most of these have a *standard* notation, so
+        # most are exact. The exceptions are declared, not hidden.
+
+        if isinstance(e, MomentExpr):
+            op = r"\mathbb{E}" if e.kind == "expectation" else r"\operatorname{Var}"
+            return rf"{op}\left[{self._conditional(e.body, e.given)}\right]"
+
+        if isinstance(e, ProbabilityExpr):
+            return rf"\Pr\left({self._conditional(e.event, e.given)}\right)"
+
+        if isinstance(e, JointExpr):
+            # There is no standard operator for "the joint law of". The usual notations
+            # (`p_{X,Y}`, `F_{X,Y}`) name a density or a CDF, which are different
+            # objects from the law itself, so choosing one would silently change what
+            # is written.
+            self.weaken(
+                "joint law",
+                "LaTeX has no standard operator for a joint probability law; the "
+                "output names the variables but a reader must supply the reading",
+                e.span.line,
+            )
+            args = ", ".join(self.expr(p) for p in e.parts)
+            return rf"\mathcal{{L}}\left({args}\right)"
+
+        if isinstance(e, IndependenceExpr):
+            body = r" \perp ".join(self.expr(p) for p in e.parts)
+            if e.given:
+                body += r" \mid " + ", ".join(self.expr(g) for g in e.given)
+            return body
+
+        if isinstance(e, MembershipExpr):
+            return rf"{self.expr(e.element)} \in {self.expr(e.collection)}"
+
+        if isinstance(e, SetComprehension):
+            t = _set_of(e.var_type.render()) if e.var_type else "?"
+            return (
+                rf"\left\{{ {_name(e.var)} \in {t} \;\middle|\; "
+                rf"{self.expr(e.predicate)} \right\}}"
+            )
+
+        if isinstance(e, (LimitExpr, DerivativeExpr, IntegralExpr)):
+            # Standard notation carries the binder's NAME but not its declared domain:
+            # `\lim_{x \to 0}` is written identically whether x ranges over the reals or
+            # over the positives, and those are different limits. Declared once per
+            # occurrence rather than assumed harmless.
+            self.weaken(
+                f"binder domain of {type(e).__name__.replace('Expr', '').lower()}",
+                f"{_binder_domain(e)} is not carried by standard notation; the "
+                f"rendered form is identical for every domain the variable could range "
+                f"over",
+                e.span.line,
+            )
+            if isinstance(e, LimitExpr):
+                return (
+                    rf"\lim_{{{_name(e.var)} \to {self.expr(e.point)}}} "
+                    rf"{self.expr(e.body)}"
+                )
+            if isinstance(e, DerivativeExpr):
+                return (
+                    rf"\frac{{\mathrm{{d}}}}{{\mathrm{{d}} {_name(e.var)}}}"
+                    rf"\left({self.expr(e.body)}\right)"
+                )
+            return (
+                rf"\int_{{{self.expr(e.lower)}}}^{{{self.expr(e.upper)}}} "
+                rf"{self.expr(e.body)} \,\mathrm{{d}} {_name(e.var)}"
+            )
+
+        if isinstance(e, ContinuityExpr):
+            return (
+                rf"{self.expr(e.function)} \in C\left({self.expr(e.domain)}\right)"
+            )
+
+        if isinstance(e, RelationExpr):
+            # No standard symbol distinguishes association from correlation from
+            # causation, and the notations that exist for causation (Pearl's `do`) mean
+            # something narrower. The operator name is spelled out so the three stay
+            # visibly distinct in the rendered document.
+            args = f"{self.expr(e.left)}, {self.expr(e.right)}"
+            return rf"\operatorname{{{e.relation}}}\left({args}\right)"
+
+        self.drop(
+            f"expression {type(e).__name__}",
+            "no LaTeX form is defined for this construct; emitting a placeholder would "
+            "produce a document that reads as complete and is not",
+            e.span.line,
+        )
         return r"\text{?}"
+
+    def _conditional(self, head: Expr, given: list[Expr]) -> str:
+        text = self.expr(head)
+        if given:
+            text += r" \mid " + ", ".join(self.expr(g) for g in given)
+        return text
 
 
 _SETS = {
@@ -247,6 +352,11 @@ _SETS = {
     "Probability": r"[0, 1]",
     "Bool": r"\{\top, \bot\}",
 }
+
+
+def _binder_domain(e: Expr) -> str:
+    t = getattr(e, "var_type", None)
+    return f"{getattr(e, 'var', '?')} : {'?' if t is None else t.render()}"
 
 
 def _set_of(rendered: str) -> str:

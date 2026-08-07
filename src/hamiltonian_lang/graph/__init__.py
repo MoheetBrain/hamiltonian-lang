@@ -21,20 +21,31 @@ from ..ast.nodes import (
     CheckStmt,
     Comparison,
     ConceptDecl,
+    ContinuityExpr,
     Declaration,
     DefineStmt,
+    DerivativeExpr,
     DistExpr,
     Expr,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     LogicalOp,
+    MembershipExpr,
     Module,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Statement,
     UnaryOp,
@@ -346,6 +357,37 @@ def _children(e: Expr) -> Iterable[Expr]:
         return tuple(a.value for a in e.args)
     if isinstance(e, Quantifier):
         return (e.body,)
+
+    # -- V2 mathematical expression coverage (D-026) ------------------------
+    #
+    # This function drives BOTH ``refs_in`` (which builds the depends_on edges) and
+    # ``quantifier_chain`` (which records scope order for H2). A form missing here does
+    # not raise: it returns no children, so `require probability(X > 0.0)` would appear
+    # in the graph with no dependency on X at all, and a quantifier nested inside an
+    # integrand would vanish from the scope chain. Both are silent, so the coverage is
+    # asserted mechanically in tests/backends/test_v2_expression_backends.py.
+    if isinstance(e, MomentExpr):
+        return (e.body, *e.given)
+    if isinstance(e, ProbabilityExpr):
+        return (e.event, *e.given)
+    if isinstance(e, JointExpr):
+        return tuple(e.parts)
+    if isinstance(e, IndependenceExpr):
+        return (*e.parts, *e.given)
+    if isinstance(e, MembershipExpr):
+        return (e.element, e.collection)
+    if isinstance(e, SetComprehension):
+        return (e.predicate,)
+    if isinstance(e, LimitExpr):
+        return (e.body, e.point)
+    if isinstance(e, DerivativeExpr):
+        return (e.body,)
+    if isinstance(e, IntegralExpr):
+        return (e.body, e.lower, e.upper)
+    if isinstance(e, ContinuityExpr):
+        return (e.function, e.domain)
+    if isinstance(e, RelationExpr):
+        return (e.left, e.right)
     return ()
 
 

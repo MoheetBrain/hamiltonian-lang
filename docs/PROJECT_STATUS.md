@@ -40,10 +40,19 @@ so a model can assert a derivation but cannot assert that it is correct. See `D-
 Strictly additive: all 43 `examples/**/*.hml` hash byte-identically under the V2 and v1
 compilers, so ACQ0/H2 records stay reconstructible under their original language version.
 
-**Phases II-IV of the V2 directive are NOT done** — probability/set/analysis coverage,
-compositional-closure work, the extension mechanism, the synthetic generator and the
-capability-audit rerun all remain. No new maturity-ladder claim is made until the audit
-is rerun.
+**Phase II is now done too (D-026):** all eleven critical coverage zeros are closed and
+enforced — expectation/conditional/joint/independence, set membership and comprehension,
+limit/derivative/integral/continuity, and correlation-vs-causation. Four ship as examples.
+
+**Adversarial review found a critical defect in the phase-I spine and it is fixed
+(D-027):** a `goal` was admissible as a derivation premise, so `goal g1 : 1.0 = 2.0`
+could prove itself with zero diagnostics. Premises must now be ESTABLISHED, and
+obligations propagate along derivation chains.
+
+**Phases III-IV are NOT done** — compositional-closure measurement, the extension/module
+mechanism, the synthetic trajectory generator, the 100+ specimen suite and the
+capability-audit rerun all remain. **No maturity-ladder claim is made until the audit is
+rerun**, and no BEFORE/AFTER coverage percentages exist yet.
 
 **THE 24-TASK V1 BENCHMARK IS RETIRED FOR H2 — `HML_BENCHMARK_FAILED_NO_SIGNAL`.**
 The SE control scored **23/23 (100%)** against a usable headroom band of 6-17, so the gate

@@ -2699,3 +2699,79 @@ here about the ladder placement; that requires the audit rerun, which has not be
 expression, conditional/joint probability, independence, set membership and comprehension,
 limit/derivative/integral/continuity, causal vs associational relations), then rerun the
 486-atom capability audit unchanged and report before/after.
+
+---
+
+## 2026-08-07 (later) — V2 expression coverage, and the red-team fixes to the spine
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `7a98427`
+**Stage:** HML V2 phase II (coverage) + adversarial closure of phase I
+
+**Objective.** Close the eleven critical coverage zeros the language audit measured, and
+fix the eight findings adversarial review returned against the reasoning spine.
+
+**Files and systems changed.**
+- `ast/nodes.py` — 11 expression node kinds (D-026); `types.py` — `EventType`,
+  `Product[T1,T2]`; `lexer`, `parser`, `type_system`, `semantics`, `graph`, backends
+- `reasoning/check.py` — the established/unestablished premise split and obligation
+  propagation (D-027)
+- `backends/__init__.py` — `graph`/`triples` reasoning-loss reporting
+- `backends/canonical.py` — numeric normalisation inside `expr_identity` only
+- `cli/__init__.py` — reasoning verdicts in `hml check`, rule obligations in
+  `hml obligations`
+- `spec/ir.schema.json` — the V2 statement kinds (a D-025 omission) plus 11 expression kinds
+- new `tests/reasoning/test_circularity.py`, `tests/adversarial/test_v2_expression_rejections.py`
+- `DECISIONS.md` — D-026, D-027, and a correction to D-025
+
+**What was completed.** All 11 critical atoms are representable and enforced: LIMIT,
+CONTINUITY, DERIVATIVE, INTEGRAL_DEFINITE, EXPECTATION, JOINT, CONDITIONAL_PROBABILITY,
+INDEPENDENCE, SET_MEMBERSHIP, SET_COMPREHENSION, CORRELATION_VS_CAUSATION. Four are
+shipped as examples. The reasoning spine's critical circularity defect is closed.
+
+**Decisions and why.** D-026 and D-027 in full. The two that matter most:
+- `expectation` kept as a keyword and *given an expression production*, rather than
+  deleted as the audit suggested — deletion would have broken `infer expectation x`.
+- Premises must be ESTABLISHED. `goal`/`require`/`prove` state things to be shown and are
+  no longer admissible as premises; obligations propagate along derivation chains.
+
+**Tests and verification actually executed.**
+- `.venv/bin/python -m pytest` → **6226 passed, 5 skipped, 7 xfailed, 7 xpassed, 0 failed**
+  (was 5787 after the spine commit; 5743 at base `3dd4216`)
+- `.venv/bin/ruff check src tests` → **All checks passed**
+- hash stability, cross-worktree: **0 pre-existing hashes changed**, 4 added for the new
+  example files. `tests/golden/hashes.json` gained 4 rows and changed none.
+- the original circularity exploit now emits `HML-R712`; the goal is not PROVED
+- semantic barriers re-verified independently by the lead: `RandomVariable[Real]` into a
+  `Real` declaration → HML-T402; into a definition body → HML-T403; `Distribution` as a
+  value → HML-T402; dimension mismatch → HML-D502
+
+**Failures and unresolved uncertainty.**
+- **The critical defect in the phase-I spine was found by adversarial review, not by the
+  suite.** `goal g1 : 1.0 = 2.0` could prove itself; the module compiled with zero
+  diagnostics and reported `g1` PROVED. So did two silent-loss defects before it. The
+  suite tests what the authors thought of; this is the second consecutive change where
+  that was the binding limitation.
+- A D-025 claim was overstated — "43/43 byte-identical content hashes" — when 28 of the
+  43 are candidate-syntax files that do not compile. 15 produce real hashes, all
+  unchanged. Corrected in place in D-025 with the correction noted.
+- SymPy has `Integral`/`Derivative`/`Limit` and the backend **drops** them rather than
+  emitting: the bound variable needs a `Symbol` carrying the binder's refinement, and
+  that backend declares symbols only from declarations. Two sibling binders spelled alike
+  would silently share one symbol, and a wrong assumption propagates through CAS
+  simplification with no error. Loss is declared, not silent.
+- `PValue` vs `PosteriorProbability` remains conflatable in comparison position — D-022
+  holds in 5 of 12 expression positions. Pre-existing, unchanged by this work, recorded in
+  `docs/hml_v2/RED_TEAM_BASELINE.md`.
+- HML still cannot distinguish *sure* from *almost-sure* convergence (audit C-7).
+- **Still not done:** compositional-closure measurement, the extension/module mechanism,
+  the synthetic trajectory generator, the 100+ specimen regression suite, and the
+  486-atom capability-audit rerun. No maturity-ladder claim is made.
+
+**Effect on the overall project.** The audit's three deciding findings are now addressed
+in the surface language: transformation forms exist, `assume` is load-bearing, and the 11
+critical zeros are closed. Whether that moves the ladder placement is **unmeasured** — the
+audit rerun is the next step and has not been run.
+
+**Next intended step.** Rerun the 486-atom capability audit unchanged (do not edit the
+ontology) and report BEFORE/AFTER for critical coverage, critical zeros, compositional
+closure, transformation representability and backend silent loss.

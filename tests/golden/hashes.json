@@ -1,10 +1,14 @@
 {
   "examples/algebra/constrained_optimisation.hml": "45a67867df1090d0c6f6fad51a94f258f5d1818d87466b278958677bafd5c807",
+  "examples/analysis/derivative_and_integral.hml": "3dfcd11b29a247863ec607c4a91e1da4e0e8b853cec4a7f7213081690be83b1f",
+  "examples/causal/correlation_is_not_causation.hml": "708ee062d535573edce0ee739b9fb9b6096abc49e38cba13892854df001558c4",
   "examples/concepts/location_scale_family.hml": "4498edfa93ba212cc54fb4f61a21b0a31deb9e349016688d3844d77c0987acd5",
   "examples/logic/quantifier_scope.hml": "8250373bb23c814a462ba8621e2df516f4d2dd4835743be0c53fde5a97545b1c",
   "examples/logic/quantifier_scope_reversed.hml": "11a6a261150914d89ef4d5083d00024b413799c87dd1e2e06446271d2e59657a",
   "examples/physics/kinetic_energy.hml": "25efff792d32ccf0785806946328a67d934d4fd183f3f950f55085ba00588eff",
+  "examples/sets/membership_and_comprehension.hml": "643169da5fb4b607112923a39c186faf9e9c70e375f79f6e0d86fcd0c66c2db6",
   "examples/statistics/bayesian_coin.hml": "f79c553cca1adaa1fb4c7ec27be419802289e6ebb00f465fb552323cbee3b1bb",
+  "examples/statistics/conditional_expectation.hml": "1b63ae0369f663725899f5e9b8b33d82777dff71f240aebeba893b941193c76a",
   "examples/statistics/linear_regression.hml": "583109a8db26c6c8e42e2b720d6f3327450398ce05e6260394b608ea57ba1501",
   "examples/statistics/normal_distribution.hml": "89d11ca0a956c48d62e72dcdd2459e22086cdf6a8776368e4d68f094bf9d55dd"
 }

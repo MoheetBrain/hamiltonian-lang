@@ -22,6 +22,7 @@ from evaluation.syntax_acquisition.core import (
 )
 
 from hamiltonian_lang import compile_source
+from hamiltonian_lang.ast.nodes import uses_v2
 from hamiltonian_lang.backends.canonical import content_hash
 from hamiltonian_lang.lexer import KEYWORDS
 
@@ -214,12 +215,45 @@ def test_candidate_d_keeps_integer_and_real_literals_distinct():
 
 
 def _example_files():
+    """The corpus these four surfaces are evaluated on.
+
+    **Pinned to the V1 language, deliberately (D-026).** Candidates A-D are a frozen
+    tournament artefact: they were specified against the V1 surface, the tranches were
+    run against it, and D-033 has already recorded eliminations on that basis. Feeding
+    them modules containing constructs that did not exist when they were designed would
+    not measure anything about the surfaces -- it would retroactively change the
+    tournament's inputs, and the recorded results would no longer be reproducible from
+    the corpus they were computed on.
+
+    The alternative -- extending A-D with productions for the eleven V2 expression
+    forms -- was rejected for the same reason. A surface that gained forms after its
+    tranches were scored is not the surface that was scored.
+
+    ``uses_v2`` is the predicate rather than a hand-maintained skip list, so a future
+    V2 example is excluded automatically while every V1 example stays in. Nothing is
+    weakened: a V1 example that stops round-tripping still fails, and the surfaces still
+    fail LOUDLY (`cannot express the expression node ...`) rather than silently, which
+    is what proved this pin was needed.
+    """
     root = REPO / "examples"
     out = []
     for path in sorted(root.rglob("*.hml")):
         if any((parent / ".illustrative").exists() for parent in path.parents):
             continue
+        result = compile_source(path.read_text(), str(path))
+        if result.ok() and uses_v2(result.module):
+            continue
         out.append(path)
+    return out
+
+
+def _v2_example_files():
+    root = REPO / "examples"
+    out = []
+    for path in sorted(root.rglob("*.hml")):
+        result = compile_source(path.read_text(), str(path))
+        if result.ok() and uses_v2(result.module):
+            out.append(path)
     return out
 
 
@@ -236,3 +270,31 @@ def test_every_shipped_example_round_trips_in_every_surface(candidate_id, path):
         f"[{candidate_id}] {path} failed at {outcome.stage}: {outcome.detail}\n"
         f"--- rendered ---\n{outcome.rendered}"
     )
+
+
+def test_the_pinned_corpus_is_not_silently_empty():
+    """A pin that excluded everything would make the test above vacuous."""
+    assert len(_example_files()) >= 15
+
+
+@pytest.mark.parametrize("candidate_id", CANDIDATE_IDS)
+@pytest.mark.parametrize(
+    "path", _v2_example_files(), ids=lambda p: p.relative_to(REPO / "examples").as_posix()
+)
+def test_a_v2_example_is_refused_loudly_by_every_v1_surface(candidate_id, path):
+    """The other half of the pin, and the reason it is safe.
+
+    An excluded example must be excluded because the surface genuinely CANNOT express
+    it, not because the test stopped looking. Each candidate is asked to render a V2
+    example and must refuse with a stated reason -- if one of them ever silently
+    succeeds by dropping the construct, this fails.
+    """
+    result = compile_source(path.read_text(), str(path))
+    assert result.ok(), "\n" + result.diagnostics.render()
+    outcome = round_trip(CANDIDATES[candidate_id], result.module, str(path))
+    assert not outcome.ok, (
+        f"[{candidate_id}] silently round-tripped {path.name}, which uses constructs "
+        f"the surface has no production for. A surface that appears to accept a form "
+        f"it cannot express is dropping it."
+    )
+    assert outcome.detail, "a refusal must state what could not be expressed"

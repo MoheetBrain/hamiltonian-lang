@@ -1,0 +1,40 @@
+# Example -- limits, derivatives and definite integrals as REPRESENTATIONS.
+#
+# Nothing in this file is evaluated. `hml check` does not differentiate anything
+# and does not integrate anything; what it checks is that each expression names a
+# well-scoped mathematical object with an exact type and an exact dimension.
+#
+# Representation and execution are separate on purpose. A backend that cannot
+# compute an integral must report the loss rather than make the integral
+# unwritable, and `hml render stan` on this file reports exactly that.
+#
+# The binder is typed, like every other binder in the language. `forall x : Real`
+# and `integral(..., x : Real, ...)` bind the same way and alpha-rename the same
+# way: renaming x to u throughout leaves the content hash unchanged.
+
+module Analysis
+
+param s : Quantity[Length]
+param v : Quantity[Length / Time]
+param t0 : Quantity[Time]
+param t1 : Quantity[Time]
+
+# Differentiating DIVIDES by the dimension of the variable, so a length
+# differentiated by a time is a velocity. Declare it as anything else and the
+# file stops compiling.
+def velocity : Quantity[Length / Time] := derivative(s, t : Quantity[Time])
+
+# Integrating MULTIPLIES by it, which is the exact inverse.
+def displacement : Quantity[Length] := integral(v, t : Quantity[Time], t0, t1)
+
+# The bounds are evaluated OUTSIDE the binder and must inhabit the binder's type,
+# so an integral over time cannot be given bounds that are bare numbers.
+def area : Real := integral(x ^ 2.0, x : Real, 0.0, 1.0)
+
+# A limit lands in the CLOSURE of the body's type, never in the body's type
+# itself. Every value of 1.0 / x is positive here and the limit need not be, so
+# the result is NonNegativeReal; declaring it PositiveReal is rejected.
+def decay : NonNegativeReal := limit(1.0 / x, x : PositiveReal -> 1.0)
+
+check dimension velocity = Length / Time
+check dimension displacement = Length

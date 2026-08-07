@@ -989,9 +989,17 @@ when the author's conclusion *is* the kernel's conclusion, up to alpha-equivalen
 
 **Backward compatibility.** Strictly additive. `backends/canonical.py` emits the v0.2
 schema tag **only** for modules where `ast.nodes.uses_v2()` is true. Measured: all 43
-`.hml` files under `examples/` produce byte-identical content hashes under the V2
-compiler and the v1 compiler (cross-worktree `diff`, 43/43 identical). ACQ0/H2 records
-therefore remain reconstructible under their original language version.
+`.hml` files under `examples/` produce byte-identical output under the V2 compiler and
+the v1 compiler (cross-worktree `diff`, 43/43 identical). ACQ0/H2 records therefore
+remain reconstructible under their original language version.
+
+> **Correction (2026-08-07, same day).** The sentence above originally read "byte-identical
+> **content hashes** ... 43/43". That overstated the evidence. 28 of the 43 files are the
+> alternative candidate-syntax grammars under `examples/candidate_syntaxes/`, which do not
+> compile as HML-L1 and therefore produce an identical *error*, not an identical hash.
+> **15 files produce an actual content hash, and all 15 are unchanged.** The backward
+> compatibility conclusion holds; the number supporting it was loosely worded. Found by
+> adversarial review.
 
 `prove` keeps its v1 meaning exactly — it states an obligation and proves nothing.
 V2 does not reinterpret historical files; it adds `goal`/`derive`/`proved`, where the
@@ -1021,3 +1029,330 @@ failure mode `backends/base.py` calls the worst in the codebase:
 substitution, so a step requiring capture-avoiding substitution is REJECTED rather than
 performed. The conservative direction is deliberate; lifting it needs a real
 capture-avoiding implementation, not a loosened comparison.
+
+---
+
+## D-027 — closing the V2 red-team findings: premises must be ESTABLISHED
+
+**Date:** 2026-08-07 · **Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `7a98427`
+
+**Context.** Adversarial review of the just-landed V2 spine ran 30 attacks: 22 blocked,
+8 succeeded. One was critical and is the substance of this record.
+
+### The critical defect: unestablished claims were admissible as premises
+
+```
+goal   g1 : 1.0 = 2.0
+derive d1 : 2.0 = 1.0 from g1 by symmetry
+derive d2 : 1.0 = 2.0 from d1 by symmetry
+proved g1 by d2
+```
+compiled with **zero errors and zero warnings**, reporting `d1` and `d2` VERIFIED and
+`g1` PROVED. Reproduced before fixing.
+
+**The trusted kernel was blameless.** Both steps really are valid applications of
+symmetry, and every kernel-level and obligation-level attack was blocked. The hole was
+one layer up: `check.py::run` correctly kept `goal`/`require`/`prove` out of the
+refinement environment Γ — with a comment naming the exact hazard — and then wrote them
+into `self.propositions`, which is the pool `_check_derivation` draws premises from.
+**The guard was applied to one channel and not the other**, which is worse than guarding
+neither, because it reads as though the hazard was handled.
+
+This also defeated D-025's stated acyclicity argument. That argument was "a derivation
+may only cite claims established *earlier* in the module, so a cycle needs a backward
+edge and there are none." It is now stated correctly: **textual order is an acyclicity
+argument only if every claim in the namespace is _established_ when it is cited.** A
+`goal` is textually earlier than the derivations that consume it, and the `proved` edge
+that closes the loop was never in the premise graph at all.
+
+**Fix.** Two pools, not one. `propositions` holds only ESTABLISHED claims — assumptions
+(granted by definition) and successfully-checked derivations. `unestablished` holds
+`goal`/`require`/`prove`, cited only to produce `HML-R712` explaining why they are
+refused. Plus **obligation propagation**: a derivation inherits the undischarged
+mandatory obligations of its premises (`HML-R713`), so a chain resting on an open
+`k != 0` cannot be certified at any depth.
+
+### The other three findings
+
+- **`graph` and `triples` dropped all three V2 nodes reporting `faithful=True`**
+  (6 silent losses). `Backend.report_reasoning_loss` covers everything subclassing
+  `Backend`; these two are plain closures over `build_graph` and were missed. Fixed with
+  `_reasoning_loss()` in `backends/__init__.py`. These are the *machine-readable*
+  semantic views, so an undeclared loss here is worse than in a prose rendering: a
+  consumer reading the graph would conclude the reasoning does not exist.
+- **No CLI surface reported any reasoning verdict**, and `hml obligations` inverted the
+  truth — on a module whose obligation was correctly discharged it printed the
+  *assumptions* as `NOT DISCHARGED` and omitted the real obligation. This is what made
+  the critical defect invisible: `hml check` printed `ok:` and stopped. Both fixed.
+  A verifier that computes a verdict and never surfaces it is half a verifier.
+- **`expr_identity` treated `1` and `1.0` as different** while `refinement.py`
+  deliberately treats `0`/`0.0` as one number (with a named regression test). The two
+  halves disagreed about what a number is; the symptom was *correct* derivations
+  rejected. Numeric literals are now normalised inside `expr_identity` only — booleans
+  excluded, and `content_hash` untouched, verified by re-running the cross-worktree hash
+  comparison.
+
+**What held, and is worth protecting.** The kernel resisted every attack. `_ENTAILS`
+correctly refuses `x>=0 ⊢ x!=0`, `k=0 ⊢ k>0`, disjunctions, and facts under binders.
+`proved` is genuinely adjudicated. Substitution refuses to descend into binders as
+documented. No `expr_identity` collision was found. Alpha-equivalence holds for both
+claim labels and variables. **No surface syntax asserts a status — that D-025 claim
+survived.** 5/5 adversarial inputs ran clean with no crash, hang or missing diagnostic.
+
+**Verification.** `tests/reasoning/`: 54 passed (was 44). The original exploit now emits
+`HML-R712` and the goal is not PROVED. v1 hash stability re-verified after the
+`expr_identity` change: unchanged.
+
+**Lesson recorded.** Both this defect and the two silent-loss defects in D-025 were found
+by adversarial review, not by the test suite. The suite tests what the authors thought of.
+
+---
+
+## D-026 — the eleven critical coverage zeros: mathematical expression forms
+
+**Date:** 2026-08-07 · **Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `7a98427`
+
+**Context.** The language audit probed 64 critical mathematical atoms and found 79.7%
+faithfully representable with **11 at zero**, clustered in four areas: analysis (LIMIT,
+CONTINUITY, DERIVATIVE, INTEGRAL_DEFINITE), probability (EXPECTATION, JOINT,
+CONDITIONAL_PROBABILITY, INDEPENDENCE), sets (SET_MEMBERSHIP, SET_COMPREHENSION) and
+epistemics (CORRELATION_VS_CAUSATION). Every one was verified before acting; the
+`expectation` finding was reproduced exactly as reported:
+
+```
+$ hml check /tmp/t.hml          # require expectation(X) > 0.0
+error HML-P231: expected an expression, found 'expectation'
+```
+
+**Decision.** Add eleven expression forms, two type constructors and eleven keywords.
+
+```
+expectation(X)            expectation(X | Y, Z)         variance(X)
+probability(A)            probability(A | B)
+joint(X, Y)               independent(X, Y)             independent(X, Y | Z)
+x in A                    {x : T | P}
+limit(f, x : T -> a)      derivative(f, x : T)          integral(f, x : T, a, b)
+continuous(f, on := D)
+associated(X, Y)          correlated(X, Y)              causes(X, Y)
+```
+
+New types: `Event` (nullary, incomparable with `Proposition`) and `Product[T1, T2]`
+(what gives `joint` an honest type). New keywords: `probability joint independent in
+limit derivative integral continuous associated correlated causes`. New operators:
+`{` `}`.
+
+### The `expectation` defect, and why the audit's fix was not taken
+
+`expectation` and `variance` were **already** keywords, and the checker already carried
+correct type rules for both in `_aggregate_type`. The keyword had no expression
+production, so the rules were unreachable: the audit's diagnosis was exact.
+
+Its suggested repair — delete the lexer entry — would have broken `infer expectation x`,
+which is the *other* production that needs the word. The repair taken is smaller and
+loses nothing: **keep the keyword, give it an expression production.** Both
+`infer expectation theta` and `require expectation(X) > 0.0` now compile, and
+`tests/semantics/test_v2_expressions.py` pins each so neither can be traded for the
+other. The dead `_aggregate_type` branches were removed rather than left as a second
+implementation of a rule that now lives in `_moment_type`.
+
+### The barrier this change is really about: E[X] versus E[X | Y]
+
+```
+expectation(X)          : Real                  a VALUE
+expectation(X | theta)  : Real                  theta is not random
+expectation(X | Y)      : RandomVariable[Real]  Y is random
+joint(X, Y)             : Distribution[Product[Real, Real]]   a LAW
+probability(X > 0.0)    : Probability           never PValue, never PosteriorProbability
+```
+
+E[X] is a number; E[X | Y] is a function of Y, and a function of a random variable is a
+random variable. Collapsing them would let `param m : Real = expectation(X | Y)` bind a
+random quantity to a fixed name. Conditioning on a **non-random** parameter yields a
+value again, because a deterministic function of a constant is a constant — which is
+what makes `expectation(X | theta) = A(theta) @ x` a well-formed equation.
+
+Two further type rules are load-bearing and were not obvious:
+
+* **Expectation leaves the support for its convex hull.** E[N] for a count is not a
+  count. Returning the codomain unchanged would make `expectation(N) : Natural` compile,
+  which is false. `Bool` maps to `Probability`, because E[1_A] = P(A).
+* **A limit lands in the CLOSURE of the body's type.** Every value of `1.0 / x` for
+  positive x is positive and the limit need not be, so `PositiveReal` widens to
+  `NonNegativeReal`. The three unit-interval kinds are closed intervals and each stays
+  its own kind: no operator here performs a D-022 coercion.
+
+### `Event` — a new barrier, not a weakened one
+
+A comparison with a `RandomVariable` operand is typed `Event`, and `Event` is
+**incomparable** with `Proposition`. `require X > 0.0` is therefore rejected
+(`HML-T480`) with the correction `require probability(X > 0.0) = 1.0`.
+
+A proposition is true or false; an event is neither until a draw. `require X > 0.0`
+looks exactly like `require x > 0.0` over a value and claims something completely
+different — that a random inequality holds on *every* draw. Admitting it silently is the
+conflation this codebase treats as the worst failure mode.
+
+**Blast radius, measured: zero.** Before this change an event could not be *formed*:
+`X > 0.0` failed with `HML-T429` "these operands are not comparable". Nothing that used
+to compile stops compiling. The exception worth naming is `require X = Y` between two
+random variables, which did compile via `join`'s identity path and now does not. That is
+the correct direction: sure equality and almost-sure equality are different claims, and
+the language previously admitted the stronger-looking one without saying which it meant.
+No file under `examples/` and no test asserted it.
+
+### Measurable lifting — the mechanism that must never become a subtyping path
+
+`expectation(f(X))` requires `f(X)` to be well-typed, so a **lifting** rule was added:
+if `f : T -> U` and `X : RandomVariable[T]` then `f(X) : RandomVariable[U]`, and the
+same for arithmetic operators.
+
+`_underlying` strips one `RandomVariable` wrapper and **every caller re-wraps**. It is
+applied only at operator and application sites; `check(..., lift_random=True)` is opt-in
+and only `_check_user_call` passes it. Declaration initialisers, distribution roles and
+definition bodies deliberately do not, so `param p : Real = X` and
+`def t : Real := 2.0 * X` remain the errors they have always been. Four tests pin that.
+
+The rule is also strictly **more precise** than the accident it replaces:
+`RandomVariable[Probability] + RandomVariable[Probability]` used to reach `join`, which
+returned `RandomVariable[Probability]` for a sum that may exceed 1. It now yields
+`RandomVariable[NonNegativeReal]`.
+
+### Symmetry is declared and tested, not assumed
+
+| form | canonical treatment | why |
+|---|---|---|
+| `correlated`, `associated` | operands **sorted** | the relations are symmetric |
+| `causes` | operands **ordered** | direction is the content of the claim |
+| `independent(X, Y \| Z)` | both lists **sorted** | symmetric in operands and in the conditioning set |
+| `expectation(X \| Y, Z)` | `given` **sorted** | conditioning on Y and Z generates one sigma-algebra — the treatment `Law.given` already receives |
+| `joint(X, Y)` | components **ordered** | the type is `Product[T1, T2]` and a product is ordered |
+
+Measured: `correlated(X,Y)` and `causes(X,Y)` do not hash equal; `causes(X,Y)` and
+`causes(Y,X)` do not hash equal; `correlated(X,Y)` and `correlated(Y,X)` do.
+
+`implies(P, Q)` was **not** added, though `GRAMMAR_CONTRACT.md` §2 lists it. `=>` and the
+`implies` keyword already denote it and already produce one canonical form; a third
+spelling of one object would be two implementations waiting to disagree.
+
+### Three deviations from `docs/hml_v2/GRAMMAR_CONTRACT.md` §2
+
+The contract says an agent that believes a form is wrong must say so and stop, not
+improvise. These are said, with the evidence.
+
+1. **`E[...]` and `P(...)` are not the surface; `expectation(...)` and
+   `probability(...)` are.** `E[X]` collides with indexing — `parse_postfix` already
+   reads `IDENT [ ... ]` as an `Index` — so `E` would have to be reserved in the value
+   namespace. It cannot be: `benchmarks/representations/hamiltonian/p01_normal_scale_role.hml`
+   line 3 declares `var E : RandomVariable[Real]`, and this is a language called
+   *Hamiltonian* Lang, where `E` is energy and `P` is pressure or momentum. A form whose
+   reading depends on whether the author also wanted a variable called `E` is the
+   ambiguity `CLAUDE.md` rule 1 forbids. The mathematics is unaffected — every form the
+   contract lists is expressible, under a spelling that has one reading.
+2. **Binders carry a mandatory type annotation**: `derivative(f, x : Real)`, not
+   `derivative(f, x)`. Governing principle 1 already forced this twice —
+   `HML-P236` on quantifiers ("untyped quantification is rejected: the domain must be
+   explicit") and `HML-P214` on transform parameters (D-015). An inferred binder type
+   here would be inferred from the *point* or the *bounds*, which is the implicit
+   coupling both decisions refused.
+3. **Conditional independence is `independent(X, Y | Z)`**, not a `given` keyword. It
+   reuses the `|` that `law y | x ~ ...` already uses, per the contract's own rule 2,
+   and keeps one construct where a second spelling would let the two drift.
+
+`{` and `}` are the one place a new sigil was added. An undelimited
+`set x : Real | x > 0.0` gives the predicate no right-hand end, so
+`require v in set x : Real | x > 0.0 and p` has two readings; braces have one.
+
+### Backward compatibility, measured
+
+All 43 `.hml` files under `examples/` — 15 of which compile to a real content hash,
+28 being the non-HML candidate-syntax grammars — produce **byte-identical** output under
+this compiler and the v1 compiler at `/Users/moheet/hamiltonian_lang`. Cross-worktree
+`diff`: identical. `tests/golden/hashes.json` gained four rows and changed none.
+
+`uses_v2` was **extended** to walk expressions, which `docs/hml_v2/SEMANTICS.md` §4.5
+already required ("include *every* V2-introduced field, not only the new statement
+kinds"). Without it a module whose only V2 content is `expectation(X | Y)` would be
+tagged `hml-canonical-0.1.0` while carrying a `"kind": "Moment"` node no 0.1.0 reader
+knows — a tag that is actively misleading rather than merely absent.
+
+`spec/ir.schema.json` was extended in the same change, as §4.5 requires. This also
+corrected an omission from D-025: `Goal`, `Derivation` and `ProofClaim` were emitted by
+`backends/canonical.py` but were never added to the statement enum, so every V2
+reasoning document failed schema validation.
+
+### Zero silent backend loss
+
+Every backend renders the eleven forms or declares the loss. Two **pre-existing** silent
+holes were closed on the way: `backends/latex.py` returned `\text{?}` and
+`backends/english.py` returned "an unrepresented expression" for any unknown node, both
+while reporting `faithful=True`. `backends/graph` had a third, of a different shape:
+`_children` returned `()` for unknown nodes, so `require probability(X > 0.0)` would
+have appeared in the semantic graph with **no dependency edge on X at all**.
+
+| target | treatment |
+|---|---|
+| `hml` | all eleven rendered; round-trip hash-stable and idempotent |
+| `english` | all eleven; the three causal relations get three different sentences |
+| `latex` | nine exact; `joint` weakened (no standard operator for a joint law); the three analysis binders weakened (standard notation carries the binder's name but not its domain) |
+| `lean` | membership and comprehension exact (Mathlib's `Set` *is* HML's `Set[T]`); nine dropped with specific reasons |
+| `stan` | all eleven dropped with specific reasons |
+| `sympy` | all eleven dropped; the reason for `Integral`/`Derivative`/`Limit` is specific and is a real gap — see below |
+
+**Known limitation, recorded rather than half-done.** SymPy genuinely has `Integral`,
+`Derivative`, `Limit` and `ConditionSet`. They are dropped because the bound variable
+would need a `Symbol` carrying the assumptions of the HML binder type, and this backend
+declares symbols only from *declarations*. Two sibling binders spelled alike with
+different refinements — `integral(f, x : Real, ...)` beside
+`integral(g, x : PositiveReal, ...)`, legal because HML forbids shadowing but not reuse
+across disjoint scopes — would silently share one symbol, and a wrong assumption in a
+symbolic algebra system propagates into simplification results with no error. Closing
+this needs a scoped symbol name per binder.
+
+### Freeze manifest
+
+`tests/freeze/frozen_subset.py` was amended deliberately, never suppressed: 11 keywords
+and 2 type constructors admitted, **0 statement kinds** — these forms compose inside the
+statements that already exist. The three questions D-025 answered were answered again for
+each: none reaches `hamiltonian_lang.v1` (the import barrier is untouched), none promotes
+a `QUARANTINED_SURFACE_FORM` (all 18 remain rejected), and each is *enforced* rather than
+merely parsed — 23 new diagnostics reject the corresponding misuse.
+
+`docs/evaluation/V1_FREEZE_MANIFEST.md` was **not** amended, and this is deliberate
+rather than an omission. It is the frozen evidence document for the V1 language; its rows
+are pinned by `REQUIRED_MANIFEST_ROWS`, and D-025 set the precedent that V2 additions are
+evidenced in `DECISIONS.md` and `docs/hml_v2/` rather than backdated into a document
+describing a language state that no longer obtains. The executed rejection for each new
+diagnostic lives in `tests/adversarial/test_v2_expression_rejections.py`.
+
+### A scientific-integrity pin
+
+`tests/syntax_acquisition/test_candidate_surfaces.py` requires every shipped example to
+round-trip through candidate surfaces A–D. Those surfaces are a **frozen tournament
+artefact**: specified against the V1 surface, run against it, and D-033 has already
+recorded eliminations on that basis. Feeding them V2 modules would retroactively change
+the tournament's inputs, and extending A–D with new productions would mean the surfaces
+that were scored are not the surfaces that exist.
+
+The corpus is therefore pinned with `uses_v2`. Nothing is weakened: a V1 example that
+stops round-tripping still fails, a companion test asserts the pinned corpus is not
+silently empty, and a second companion test asserts every excluded V2 example is
+**refused loudly** by all four surfaces — so an exclusion can never hide a surface that
+quietly drops a construct.
+
+**Verification.**
+`pytest`: 6226 passed, 5 skipped, 7 xfailed, 7 xpassed, 0 failed.
+`ruff check src tests`: clean.
+`mypy` over `ast types parser lexer type_system semantics backends graph`: clean.
+`hml check` on each of the four new examples: exit 0.
+Cross-compiler hash diff over `examples/`: identical.
+
+**Risks / limitations.**
+- SymPy analysis forms dropped rather than rendered (above).
+- HML still does not distinguish *sure* from *almost-sure*: `require probability(A) = 1.0`
+  is the only spelling, and it means the former.
+- The audit's C-7 hole is unchanged: `law y ~ Normal(...)` on a plain `var y : Real`
+  still compiles, so a Bayesian `param` with a prior is not `RandomVariable`-typed and
+  therefore forms propositions rather than events. This is inherited, is recorded in
+  `docs/hml_v2/SEMANTICS.md` §1.3, and D-026 does not claim to close it.
+- `variance` of a vector-valued random variable is refused rather than typed: the answer
+  is a covariance matrix, which v2 does not represent.

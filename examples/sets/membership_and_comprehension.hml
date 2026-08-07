@@ -1,0 +1,41 @@
+# Example -- sets as generative machinery, not as a library.
+#
+# `Set[T]` has been a type constructor since v0 but nothing could be said about a
+# set: there was no membership and no way to build one. Two constructs fix that,
+# and the test of whether they are the right two is whether they COMPOSE with the
+# machinery that already exists -- quantifiers, function domains, constraints --
+# without anything being special-cased for them.
+#
+# Every use below is an ordinary use of an existing form.
+
+module Sets
+
+param a : Real
+param f : Function[Real -> Real]
+
+# A comprehension binds its variable exactly as a quantifier does, and the binder
+# carries an explicit type for the same reason: the domain must be stated, never
+# inferred from a neighbour.
+def positives : Set[Real] := {x : Real | x > 0.0}
+def unit_interval : Set[Real] := {x : Real | x >= 0.0 and x <= 1.0}
+
+# Membership composes with constraints ...
+require a in positives
+
+# ... with quantifiers, in both scope orders ...
+require forall x : Real . x in unit_interval => x in positives or x = 0.0
+require exists x : Real . x in unit_interval and x in positives
+
+# ... with anonymous comprehensions in place ...
+require a in {x : Real | x > 1.0}
+
+# ... and with a construct from an entirely different part of the language, which
+# is the real test: continuity takes a function and a set, and neither had to be
+# taught about the other.
+require continuous(f, on := positives)
+require continuous(f, on := {x : Real | x > 1.0})
+
+# Membership is a relation between a value and a set, not a comparison, so the
+# element type is checked against the set's element type rather than merely
+# compared with it.
+require a + 1.0 in positives

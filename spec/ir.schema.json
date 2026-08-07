@@ -87,8 +87,20 @@
             "Call",
             "Index",
             "DistributionLaw",
-            "Quantifier"
-          ]
+            "Quantifier",
+            "Moment",
+            "Probability",
+            "Joint",
+            "Independence",
+            "Membership",
+            "SetComprehension",
+            "Limit",
+            "Derivative",
+            "Integral",
+            "Continuity",
+            "Relation"
+          ],
+          "description": "Moment..Relation were added by D-026 (V2 mathematical expression coverage). Extending an enum is additive: every document valid under the previous schema is still valid."
         }
       }
     },
@@ -111,8 +123,12 @@
             "Solve",
             "Inference",
             "Check",
-            "Concept"
-          ]
+            "Concept",
+            "Goal",
+            "Derivation",
+            "ProofClaim"
+          ],
+          "description": "Goal, Derivation and ProofClaim are the D-025 reasoning spine. They were emitted by backends/canonical.py from that change but were not added here at the time, so a V2 document failed schema validation; corrected alongside D-026."
         }
       }
     },

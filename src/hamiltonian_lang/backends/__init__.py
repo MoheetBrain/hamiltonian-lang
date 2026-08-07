@@ -66,6 +66,38 @@ def _bootstrap() -> None:
 
     register("json", _json)
 
+    def _reasoning_loss(module, target: str) -> list:
+        """V2 reasoning nodes dropped by a backend that is a plain function.
+
+        ``Backend.report_reasoning_loss`` covers every backend that subclasses
+        ``Backend``. ``graph`` and ``triples`` do not -- they are closures over
+        ``build_graph``, which has no case for any V2 statement -- so the base-class fix
+        missed them and both reported ``faithful=True`` on a module whose entire
+        derivation chain they had discarded. These are the *machine-readable* semantic
+        views, which makes an undeclared loss here worse than in a prose rendering: a
+        consumer reading the graph would conclude the reasoning does not exist.
+        """
+        from ..ast.nodes import DeriveStmt, GoalStmt, ProvedStmt
+
+        out = []
+        for st in module.statements:
+            if isinstance(st, (GoalStmt, DeriveStmt, ProvedStmt)):
+                kind = {
+                    GoalStmt: "goal", DeriveStmt: "derive", ProvedStmt: "proved",
+                }[type(st)]
+                name = getattr(st, "label", None) or getattr(st, "goal", "")
+                out.append(
+                    Unsupported(
+                        f"{kind} {name}",
+                        f"the {target} view is built from the semantic graph, which has "
+                        f"no node kind for a reasoning transition; the inference, its "
+                        f"obligations and its verification status are erased",
+                        st.span.line,
+                        "dropped",
+                    )
+                )
+        return out
+
     def _graph(module, symbols=None) -> BackendResult:
         import json
 
@@ -80,7 +112,11 @@ def _bootstrap() -> None:
                 ],
             )
         g = build_graph(module, symbols)
-        return BackendResult(target="graph", text=json.dumps(g.to_dict(), indent=2))
+        return BackendResult(
+            target="graph",
+            text=json.dumps(g.to_dict(), indent=2),
+            unsupported=_reasoning_loss(module, "graph"),
+        )
 
     register("graph", _graph)
 
@@ -95,7 +131,11 @@ def _bootstrap() -> None:
                     Unsupported("triples", "requires a resolved symbol table", 0, "dropped")
                 ],
             )
-        return BackendResult(target="triples", text=build_graph(module, symbols).render_triples())
+        return BackendResult(
+            target="triples",
+            text=build_graph(module, symbols).render_triples(),
+            unsupported=_reasoning_loss(module, "triples"),
+        )
 
     register("triples", _triples)
 

@@ -1,0 +1,47 @@
+# Example -- four relations that ordinary prose runs together.
+#
+# This file performs no causal inference and claims none. What it demonstrates is
+# separation: four relations that English writes with the same word ("linked to",
+# "associated with", "drives") are four objects here, and no two of them share a
+# canonical identity.
+#
+#   implies(P, Q)      written `P => Q`, a logical connective between propositions
+#   associated(X, Y)   the variables are not independent          -- SYMMETRIC
+#   correlated(X, Y)   they co-vary linearly                      -- SYMMETRIC
+#   causes(X, Y)       intervening on X changes Y                 -- DIRECTED
+#
+# The two properties worth stating precisely, both of them tested:
+#
+#   * `correlated(X, Y)` and `causes(X, Y)` have different content hashes. One
+#     cannot be substituted for the other, by a model or by a rewrite.
+#   * `causes(X, Y)` and `causes(Y, X)` have different content hashes, while
+#     `correlated(X, Y)` and `correlated(Y, X)` have the SAME one. Direction is
+#     part of a causal claim's identity and is not part of a correlational one.
+
+module Causality
+
+rv rainfall : RandomVariable[NonNegativeReal]
+rv umbrella_sales : RandomVariable[Natural]
+rv ice_cream_sales : RandomVariable[Natural]
+
+# Two consequences of one common cause. They are correlated and neither causes
+# the other -- the classic case that a single "related to" predicate cannot tell
+# apart from the line below it.
+require correlated(umbrella_sales, ice_cream_sales)
+require associated(umbrella_sales, ice_cream_sales)
+
+# A directed claim, and a strictly stronger one. Nothing here proves it; the
+# language's job is that stating it is visibly a different act from stating the
+# correlation above.
+require causes(rainfall, umbrella_sales)
+
+# Independence is the negation of association and is a claim about the laws, so
+# it is an ordinary proposition rather than an event.
+require independent(rainfall, ice_cream_sales)
+
+# Implication stays what it has always been: a connective between propositions,
+# with no probabilistic content at all. It is in this file to be contrasted, not
+# to be grouped with the three above.
+param p : Probability
+param q : Probability
+require p > 0.5 => q > 0.5

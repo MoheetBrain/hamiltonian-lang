@@ -28,25 +28,36 @@ from ..ast.nodes import (
     Comparison,
     ConceptDecl,
     ConceptMember,
+    ContinuityExpr,
     Declaration,
     DefineStmt,
+    DerivativeExpr,
     DeriveStmt,
     DistExpr,
     Expr,
     GoalStmt,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     Module,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Statement,
     SymbolId,
@@ -198,7 +209,142 @@ def _expr(e: Expr | None) -> Any:
             "type": _type(e.type_),
         }
 
+    # -- V2 mathematical expression coverage (D-026) ------------------------
+    #
+    # Every one of these MUST be here. The fallthrough at the bottom of this function
+    # emits `{"kind": "<ClassName>"}` and nothing else, so a missing branch would give
+    # every instance of a form the SAME canonical identity -- `integral(f, x, 0, 1)`
+    # and `integral(g, y, 2, 3)` would hash equal and the reasoning kernel would treat
+    # one as a proof of the other. That is a silent identity collapse, not a rendering
+    # gap, which is why `tests/semantics/test_v2_expressions.py` asserts by construction
+    # that no `Expr` subclass reaches the fallthrough.
+
+    if isinstance(e, MomentExpr):
+        # `given` is SORTED. Conditioning on Y and Z generates one sigma-algebra
+        # however the two are ordered, exactly as `Law.given` is sorted for the same
+        # reason. `body` is not, because there is only one.
+        return {
+            "kind": "Moment",
+            "moment": e.kind,
+            "body": _expr(e.body),
+            "given": _sorted_exprs(e.given),
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, ProbabilityExpr):
+        return {
+            "kind": "Probability",
+            "event": _expr(e.event),
+            "given": _sorted_exprs(e.given),
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, JointExpr):
+        # ORDERED, unlike independence below. The type is `Product[T1, T2]` and a
+        # product is ordered: the first component of a pair is not the second.
+        return {
+            "kind": "Joint",
+            "components": [_expr(p) for p in e.parts],
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, IndependenceExpr):
+        # SORTED in both lists: independence is symmetric in its operands and in its
+        # conditioning set, so `independent(X, Y)` and `independent(Y, X)` are one
+        # claim and must be one identity.
+        return {
+            "kind": "Independence",
+            "operands": _sorted_exprs(e.parts),
+            "given": _sorted_exprs(e.given),
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, MembershipExpr):
+        return {
+            "kind": "Membership",
+            "element": _expr(e.element),
+            "collection": _expr(e.collection),
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, SetComprehension):
+        return {
+            "kind": "SetComprehension",
+            "binder": _sym(e.symbol_id),
+            "binder_type": _type(e.var_type),
+            "predicate": _expr(e.predicate),
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, LimitExpr):
+        return {
+            "kind": "Limit",
+            "binder": _sym(e.symbol_id),
+            "binder_type": _type(e.var_type),
+            "body": _expr(e.body),
+            "point": _expr(e.point),
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, DerivativeExpr):
+        return {
+            "kind": "Derivative",
+            "binder": _sym(e.symbol_id),
+            "binder_type": _type(e.var_type),
+            "body": _expr(e.body),
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, IntegralExpr):
+        return {
+            "kind": "Integral",
+            "binder": _sym(e.symbol_id),
+            "binder_type": _type(e.var_type),
+            "body": _expr(e.body),
+            "lower": _expr(e.lower),
+            "upper": _expr(e.upper),
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, ContinuityExpr):
+        return {
+            "kind": "Continuity",
+            "function": _expr(e.function),
+            "domain": _expr(e.domain),
+            "type": _type(e.type_),
+        }
+
+    if isinstance(e, RelationExpr):
+        # The `relation` key is what keeps `correlated(X, Y)` and `causes(X, Y)` apart,
+        # and the conditional sort is what keeps `causes(X, Y)` apart from
+        # `causes(Y, X)` while identifying `correlated(X, Y)` with `correlated(Y, X)`.
+        # Both properties are asserted directly in the test suite.
+        operands = [_expr(e.left), _expr(e.right)]
+        return {
+            "kind": "Relation",
+            "relation": e.relation,
+            "operands": _sorted_docs(operands) if e.symmetric else operands,
+            "type": _type(e.type_),
+        }
+
     return {"kind": type(e).__name__}
+
+
+def _doc_key(doc: Any) -> str:
+    """A total, deterministic order on serialised sub-documents.
+
+    Sorting by the canonical JSON of each element rather than by source position is what
+    makes a symmetric operator's identity independent of the order it was written in.
+    """
+    return json.dumps(doc, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def _sorted_docs(docs: list) -> list:
+    return sorted(docs, key=_doc_key)
+
+
+def _sorted_exprs(items: list) -> list:
+    return _sorted_docs([_expr(x) for x in items])
 
 
 def _member(m: ConceptMember) -> dict:
@@ -355,12 +501,32 @@ def canonical_json(
     )
 
 
-def _strip_types(doc: Any) -> Any:
-    """Recursively drop every ``type`` annotation from a serialised expression."""
+def _normalise_for_identity(doc: Any) -> Any:
+    """Drop ``type`` annotations and normalise numeric literal spellings.
+
+    Two adjustments, both confined to :func:`expr_identity` and invisible to
+    :func:`content_hash`, so no historical module hash moves.
+
+    *Types* are dropped for the reason given in :func:`expr_identity`.
+
+    *Numbers* are normalised because ``1`` and ``1.0`` are the same number, and the two
+    halves of the reasoning layer disagreed about that: ``reasoning/refinement.py``
+    deliberately treats ``0`` and ``0.0`` as one value (it has a named regression test
+    for it, because a rule generates ``k != 0`` with an integer zero while the author
+    writes ``0.0``), while this function distinguished them. The visible symptom was a
+    *correct* derivation rejected -- ``derive d : y + 1 = 2.0 * x + 1 ... by
+    add_both_sides(by := 1.0)`` -- which is the safe direction to be wrong in but is
+    still wrong, and an author has no way to tell that the mismatch is a literal
+    spelling. Booleans are left alone: ``True`` must not collapse into ``1``.
+    """
     if isinstance(doc, dict):
-        return {k: _strip_types(v) for k, v in doc.items() if k != "type"}
+        return {k: _normalise_for_identity(v) for k, v in doc.items() if k != "type"}
     if isinstance(doc, list):
-        return [_strip_types(v) for v in doc]
+        return [_normalise_for_identity(v) for v in doc]
+    if isinstance(doc, bool):
+        return doc
+    if isinstance(doc, int):
+        return float(doc)
     return doc
 
 
@@ -401,7 +567,7 @@ def expr_identity(e: Expr, *, with_types: bool = False) -> str:
     finally:
         _INCLUDE_NAMES.reset(token)
     if not with_types:
-        doc = _strip_types(doc)
+        doc = _normalise_for_identity(doc)
     return json.dumps(doc, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 

@@ -62,25 +62,36 @@ from ..ast.nodes import (
     CheckStmt,
     Comparison,
     ConceptDecl,
+    ContinuityExpr,
     Declaration,
     DefineStmt,
+    DerivativeExpr,
     DeriveStmt,
     DistExpr,
     Expr,
     GoalStmt,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     Module,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Span,
     Statement,
@@ -93,12 +104,15 @@ from ..types import (
     UNIT_INTERVAL_KINDS,
     ConceptType,
     DistributionType,
+    EventType,
     FunctionType,
     MatrixType,
+    ProductType,
     PropositionType,
     QuantityType,
     RandomVariableType,
     ScalarType,
+    SetType,
     TensorType,
     Type,
     UnknownType,
@@ -123,6 +137,31 @@ REAL = ScalarType("Real")
 BOOL = ScalarType("Bool")
 NAT = ScalarType("Natural")
 PROP = PropositionType()
+EVENT = EventType()
+NONNEG = ScalarType("NonNegativeReal")
+PROBABILITY = ScalarType("Probability")
+
+#: The topological closure of each scalar refinement, used by ``limit`` (D-026).
+#:
+#: A limit may leave an open set: 1/n is positive for every n and its limit is 0. Giving
+#: `limit(...)` the body's own type would therefore let `PositiveReal` survive a
+#: construction that provably escapes it -- unsoundness of exactly the kind the
+#: refinement poset exists to prevent. Naturals are widened to NonNegativeReal rather
+#: than kept, because a limit of integers need not be an integer.
+_LIMIT_CLOSURE: dict[str, str] = {
+    "PositiveNatural": "Natural",
+    "Natural": "NonNegativeReal",
+    "Integer": "Real",
+    "Rational": "Real",
+    "PositiveReal": "NonNegativeReal",
+    "NonNegativeReal": "NonNegativeReal",
+    "Real": "Real",
+    # The three unit-interval kinds are CLOSED intervals, so each is its own closure.
+    # Widening them would also silently cross the D-022 barrier, which no limit does.
+    "Probability": "Probability",
+    "PValue": "PValue",
+    "PosteriorProbability": "PosteriorProbability",
+}
 
 _BUILTIN_SIGNATURES: dict[str, tuple[tuple[Type, ...], Type]] = {
     "exp": ((REAL,), ScalarType("PositiveReal")),
@@ -385,6 +424,7 @@ class TypeChecker:
         code: str = "HML-T460",
         note: str | None = None,
         message: str | None = None,
+        lift_random: bool = False,
     ) -> CheckedExpr:
         """Check ``e`` against ``expected``, reporting the role that imposed it.
 
@@ -393,9 +433,16 @@ class TypeChecker:
 
         ``message`` overrides the generated headline for sites whose wording is already
         cited in the freeze manifest; the structured fields are unaffected.
+
+        ``lift_random`` is opt-in MEASURABLE LIFTING (D-026): the expectation is tested
+        against what a ``RandomVariable`` ranges over rather than against the wrapper.
+        Only *application* sites pass it, and only because they re-wrap the result. Value
+        positions -- declaration initialisers, distribution roles, definition bodies --
+        deliberately do not, which is what keeps `param p : Real = X` an error.
         """
         actual = self.synthesise(e)
-        if self._inhabits(e, actual, expected):
+        probe = _underlying(actual) if lift_random else actual
+        if self._inhabits(e, probe, expected):
             return CheckedExpr(e, actual, expected, role, True)
 
         notes = [note] if note else []
@@ -456,6 +503,8 @@ class TypeChecker:
             "Vector", "Matrix", "Tensor", "Set", "Function", "Predicate",
             "RandomVariable", "Distribution", "Quantity", "Proposition",
             "Dimensionless",
+            # D-026
+            "Event", "Product",
             *self.concepts,
         ]
 
@@ -498,6 +547,11 @@ class TypeChecker:
         if isinstance(t, FunctionType | PredicateType):
             for d in t.domain:
                 self._validate_type(d, span, where)
+        if isinstance(t, ProductType):
+            # Without this, `Product[Frobnicator, Real]` would carry an undeclared
+            # concept reference past the check that exists to catch exactly that.
+            for c in t.components:
+                self._validate_type(c, span, where)
 
     def _nearest_type(self, name: str) -> str:
         """Suggest the closest real type name, so the diagnostic is actionable."""
@@ -582,11 +636,13 @@ class TypeChecker:
 
         if isinstance(st, (AssumeStmt, RequireStmt, ProveStmt)):
             pt = self.expr_type(st.proposition)
-            if not (isinstance(pt, PropositionType) or is_subtype(pt, BOOL)):
+            what = type(st).__name__.replace("Stmt", "").lower()
+            if self._reject_event_assertion(st.proposition, pt, what):
+                pass
+            elif not (isinstance(pt, PropositionType) or is_subtype(pt, BOOL)):
                 self.diags.error(
                     "HML-T404",
-                    f"{type(st).__name__.replace('Stmt', '').lower()} requires a "
-                    f"proposition",
+                    f"{what} requires a proposition",
                     st.proposition.span,
                     expected="Proposition",
                     found=pt.render(),
@@ -607,7 +663,11 @@ class TypeChecker:
             # would reach the kernel and be certified on structure alone.
             prop = st.proposition if isinstance(st, GoalStmt) else st.conclusion
             pt = self.expr_type(prop)
-            if not (isinstance(pt, PropositionType) or is_subtype(pt, BOOL)):
+            if self._reject_event_assertion(
+                prop, pt, "goal" if isinstance(st, GoalStmt) else "derivation"
+            ):
+                pass
+            elif not (isinstance(pt, PropositionType) or is_subtype(pt, BOOL)):
                 self.diags.error(
                     "HML-T404",
                     (
@@ -1002,6 +1062,8 @@ class TypeChecker:
                 )
                 self.obligations[-1].discharged_by = "hamiltonian_lang.type_system"
         else:
+            if self._reject_event_assertion(st.subject, t, "check"):
+                return
             if not (isinstance(t, PropositionType) or is_subtype(t, BOOL)):
                 self.diags.error(
                     "HML-T404",
@@ -1010,6 +1072,39 @@ class TypeChecker:
                     expected="Proposition",
                     found=t.render(),
                 )
+
+    def _reject_event_assertion(self, prop: Expr, t: Type, what: str) -> bool:
+        """Refuse to assert an EVENT as though it were a proposition (D-026).
+
+        ``require X > 0.0`` for a random ``X`` looks exactly like ``require x > 0.0``
+        for a fixed ``x`` and claims something completely different: that a random
+        inequality holds on *every* draw. Admitting it silently is the conflation this
+        codebase treats as the worst failure mode, so the checker makes the author
+        choose a spelling for what is meant.
+
+        This is a barrier ADDITION. Before it, an event could not be formed at all --
+        `X > 0.0` failed with HML-T429 "these operands are not comparable" -- so
+        nothing that used to compile stops compiling because of this rule.
+        """
+        if not isinstance(t, EventType):
+            return False
+        from ..backends.hml import render_expr
+
+        self.diags.error(
+            "HML-T480",
+            f"{what} requires a proposition, not an event",
+            prop.span,
+            expected="Proposition",
+            found=t.render(),
+            correction=f"require probability({render_expr(prop)}) = 1.0",
+            notes=[
+                "an event has a probability, not a truth value; asserting it directly "
+                "would claim it holds on every draw without saying so",
+                "use 'probability(...)' to speak about how likely it is, or compare "
+                "fixed quantities to state something that is simply true",
+            ],
+        )
+        return True
 
     def check_concept(self, st: ConceptDecl) -> None:
         # Type the transforms first and publish a FunctionType for each, so that an
@@ -1101,12 +1196,15 @@ class TypeChecker:
         if isinstance(e, UnaryOp):
             ot = self.expr_type(e.operand)
             if e.op == "not":
-                if not (isinstance(ot, PropositionType) or is_subtype(ot, BOOL)):
+                if not (
+                    isinstance(ot, (PropositionType, EventType)) or is_subtype(ot, BOOL)
+                ):
                     self.diags.error(
                         "HML-T420", "'not' requires a proposition", e.span,
                         expected="Proposition", found=ot.render(),
                     )
-                return PROP
+                # The complement of an event is an event (D-026).
+                return EVENT if isinstance(ot, EventType) else PROP
             # Negation destroys every positivity refinement: -(PositiveNatural) is an
             # Integer, not a PositiveNatural. Preserving `ot` here would make
             # `const a : Natural = -3` type-check, which is exactly wrong.
@@ -1129,13 +1227,21 @@ class TypeChecker:
             lt = self.expr_type(e.left)
             rt = self.expr_type(e.right)
             self._require_comparable(e, lt, rt)
+            # A comparison with a random operand denotes an EVENT, not a proposition
+            # (D-026). `X > 0.0` has a probability; `x > 0.0` has a truth value. They
+            # look identical and they are different claims, so only the type can keep
+            # them apart.
+            if isinstance(lt, RandomVariableType) or isinstance(rt, RandomVariableType):
+                return EVENT
             return PROP
 
         if isinstance(e, LogicalOp):
             lt = self.expr_type(e.left)
             rt = self.expr_type(e.right)
             for side, t in ((e.left, lt), (e.right, rt)):
-                if not (isinstance(t, PropositionType) or is_subtype(t, BOOL)):
+                if not (
+                    isinstance(t, (PropositionType, EventType)) or is_subtype(t, BOOL)
+                ):
                     self.diags.error(
                         "HML-T421",
                         f"the operands of {e.op!r} must be propositions",
@@ -1147,6 +1253,10 @@ class TypeChecker:
                             "sides must be truth-valued"
                         ],
                     )
+            # An event combined with anything is still an event: the truth of the whole
+            # still depends on the draw.
+            if isinstance(lt, EventType) or isinstance(rt, EventType):
+                return EVENT
             return PROP
 
         if isinstance(e, Quantifier):
@@ -1155,7 +1265,9 @@ class TypeChecker:
             if sym is not None and e.var_type is not None:
                 sym.declared_type = e.var_type
             bt = self.expr_type(e.body)
-            if not (isinstance(bt, PropositionType) or is_subtype(bt, BOOL)):
+            if not (
+                isinstance(bt, (PropositionType, EventType)) or is_subtype(bt, BOOL)
+            ):
                 self.diags.error(
                     "HML-T422",
                     f"the body of '{e.kind} {e.var}' must be a proposition",
@@ -1163,7 +1275,19 @@ class TypeChecker:
                     expected="Proposition",
                     found=bt.render(),
                 )
-            return PROP
+            # Quantifying over an event gives an event: an intersection or union of
+            # events is an event, not a proposition.
+            return EVENT if isinstance(bt, EventType) else PROP
+
+        if isinstance(
+            e,
+            (
+                MomentExpr, ProbabilityExpr, JointExpr, IndependenceExpr,
+                MembershipExpr, SetComprehension, LimitExpr, DerivativeExpr,
+                IntegralExpr, ContinuityExpr, RelationExpr,
+            ),
+        ):
+            return self._v2_expr_type(e)
 
         if isinstance(e, BinOp):
             return self._binop_type(e)
@@ -1210,6 +1334,577 @@ class TypeChecker:
 
         return UnknownType(f"unhandled node {type(e).__name__}")
 
+    # ==================================================================
+    # V2 mathematical expression forms (D-026)
+    # ==================================================================
+    #
+    # Every rule below obeys the same two commitments:
+    #
+    #   * Representation is not execution. `integral(...)` is given an exact type and a
+    #     dimension; nothing computes it, and a backend that cannot must say so.
+    #   * No barrier is crossed to make something compose. Where a construct would need
+    #     `RandomVariable[T]` to be a `T`, it is rejected instead, and the diagnostic
+    #     names the construct that does the conversion honestly (`expectation`).
+
+    def _v2_expr_type(self, e: Expr) -> Type:
+        if isinstance(e, MomentExpr):
+            return self._moment_type(e)
+        if isinstance(e, ProbabilityExpr):
+            return self._probability_type(e)
+        if isinstance(e, JointExpr):
+            return self._joint_type(e)
+        if isinstance(e, IndependenceExpr):
+            return self._independence_type(e)
+        if isinstance(e, MembershipExpr):
+            return self._membership_type(e)
+        if isinstance(e, SetComprehension):
+            return self._comprehension_type(e)
+        if isinstance(e, LimitExpr):
+            return self._limit_type(e)
+        if isinstance(e, DerivativeExpr):
+            return self._derivative_type(e)
+        if isinstance(e, IntegralExpr):
+            return self._integral_type(e)
+        if isinstance(e, ContinuityExpr):
+            return self._continuity_type(e)
+        assert isinstance(e, RelationExpr)
+        return self._relation_type(e)
+
+    # -- probability ------------------------------------------------------
+
+    #: Where the expectation of a random variable lives, given where the variable does.
+    #:
+    #: E[X] lies in the closed convex hull of the support, which is NOT the support. The
+    #: mean of a natural-valued count is not a natural number; the mean of an indicator
+    #: is a probability. Returning the codomain unchanged -- the obvious implementation --
+    #: would let `expectation(N) : Natural` through for a Poisson count, which is false.
+    _EXPECTATION_HULL: dict[str, str] = {
+        # E[1_A] = P(A). The hull of {false, true} read as {0, 1} is [0, 1].
+        "Bool": "Probability",
+        "PositiveNatural": "PositiveReal",
+        "Natural": "NonNegativeReal",
+        "Integer": "Real",
+        "Rational": "Real",
+        "Real": "Real",
+        "NonNegativeReal": "NonNegativeReal",
+        "PositiveReal": "PositiveReal",
+        # The unit-interval kinds are closed and convex, so each is its own hull. Each
+        # also stays its OWN kind: averaging p-values does not produce a posterior
+        # (D-022), and no operator here may perform that coercion.
+        "Probability": "Probability",
+        "PValue": "PValue",
+        "PosteriorProbability": "PosteriorProbability",
+    }
+
+    def _moment_type(self, e: MomentExpr) -> Type:
+        """``expectation(X)``, ``expectation(X | Y)``, ``variance(X)``.
+
+        The asymmetry that matters, and the reason this is a type rule rather than a
+        convention:
+
+            expectation(X)          : T                     -- a VALUE
+            expectation(X | theta)  : T                     -- theta is not random
+            expectation(X | Y)      : RandomVariable[T]     -- Y is random
+
+        E[X] is a number. E[X | Y] is a function of Y, and a function of a random
+        variable is a random variable. Collapsing the two would make
+        `param m : Real = expectation(X | Y)` compile, which asserts that a random
+        quantity is a fixed one.
+        """
+        bt = self.expr_type(e.body)
+        given_types = [self.expr_type(g) for g in e.given]
+
+        if isinstance(bt, DistributionType):
+            self.diags.error(
+                "HML-T428",
+                f"{e.kind} applies to a random variable, not to a law",
+                e.body.span,
+                found=bt.render(),
+                notes=["bind the law to a symbol with '~', then take its expectation"],
+            )
+            return UnknownType(f"{e.kind} of a distribution")
+
+        # The aggregate reading of `variance` predates V2 and is preserved exactly:
+        # `variance(v)` over a Vector is the dispersion of a fixed sample, which is a
+        # different object from the variance of a random variable and has no
+        # conditioning set.
+        if e.kind == "variance" and isinstance(bt, (VectorType, MatrixType, TensorType)):
+            if e.given:
+                self.diags.error(
+                    "HML-T483",
+                    "the variance of a fixed aggregate cannot be conditioned",
+                    e.span,
+                    found=bt.render(),
+                    correction="drop the '|' clause, or take the variance of a "
+                               "RandomVariable",
+                    notes=[
+                        "conditioning is an operation on random variables; a vector of "
+                        "known numbers has no conditional law"
+                    ],
+                )
+            return NONNEG
+
+        if not isinstance(bt, RandomVariableType):
+            self.diags.error(
+                "HML-T481",
+                f"{e.kind} requires a random variable",
+                e.body.span,
+                expected="RandomVariable[T]",
+                found=bt.render(),
+                correction=(
+                    "declare the subject as 'rv X : RandomVariable[Real]', or drop the "
+                    f"{e.kind}"
+                ),
+                notes=[
+                    f"the {e.kind} of a quantity that is already fixed is that quantity "
+                    f"itself; writing it states nothing and usually means a random "
+                    f"variable was intended"
+                ],
+            )
+            return UnknownType(f"{e.kind} of a non-random quantity")
+
+        inner = bt.codomain
+        result = (
+            self._expectation_result(e, inner)
+            if e.kind == "expectation"
+            else self._variance_result(e, inner)
+        )
+        if isinstance(result, UnknownType):
+            return result
+
+        for g, gt in zip(e.given, given_types, strict=True):
+            if isinstance(gt, DistributionType):
+                self.diags.error(
+                    "HML-T428",
+                    "a probability law cannot appear in a conditioning set",
+                    g.span,
+                    found=gt.render(),
+                    notes=[
+                        "conditioning is on the value a random variable took, not on "
+                        "the law it was drawn from"
+                    ],
+                )
+                return UnknownType("conditioning on a distribution")
+
+        if any(isinstance(t, RandomVariableType) for t in given_types):
+            return RandomVariableType(result)
+        return result
+
+    def _expectation_result(self, e: MomentExpr, inner: Type) -> Type:
+        if isinstance(inner, ScalarType):
+            hull = self._EXPECTATION_HULL.get(inner.name)
+            if hull is None:  # pragma: no cover - the table covers every scalar
+                return REAL
+            return ScalarType(hull)
+        if isinstance(inner, QuantityType):
+            base = self._EXPECTATION_HULL.get(inner.base.name, "Real")
+            return QuantityType(inner.dimension, ScalarType(base))
+        # Vectors and matrices average componentwise, so the shape survives.
+        if isinstance(inner, (VectorType, MatrixType, TensorType)):
+            return inner
+        self.diags.error(
+            "HML-T484",
+            "expectation is defined for numeric random variables",
+            e.span,
+            expected="RandomVariable[Real] or a numeric refinement of it",
+            found=f"RandomVariable[{inner.render()}]",
+        )
+        return UnknownType("expectation of a non-numeric random variable")
+
+    def _variance_result(self, e: MomentExpr, inner: Type) -> Type:
+        """Variance squares the dimension. That is not decoration: it is what makes
+        `variance(height) = 4.0` a dimensional error against a length."""
+        if isinstance(inner, QuantityType):
+            return QuantityType(inner.dimension.power(2), NONNEG)
+        if isinstance(inner, ScalarType) and inner.name != "Bool":
+            return NONNEG
+        if isinstance(inner, ScalarType):  # Bool: Var[1_A] = p(1-p)
+            return NONNEG
+        self.diags.error(
+            "HML-T484",
+            "variance is defined for scalar random variables",
+            e.span,
+            expected="RandomVariable[Real] or a numeric refinement of it",
+            found=f"RandomVariable[{inner.render()}]",
+            notes=[
+                "the variance of a vector-valued random variable is a covariance "
+                "matrix, which v2 does not represent"
+            ],
+        )
+        return UnknownType("variance of a non-scalar random variable")
+
+    def _require_event(self, expr: Expr, t: Type, role: str) -> bool:
+        """An event, or a diagnostic that names the construct which would produce one."""
+        if isinstance(t, EventType):
+            return True
+        if isinstance(t, PropositionType) or is_subtype(t, BOOL):
+            self.diags.error(
+                "HML-T482",
+                f"{role} is a proposition, not an event",
+                expr.span,
+                expected="Event",
+                found=t.render(),
+                correction=(
+                    "declare the quantities it mentions as "
+                    "'rv X : RandomVariable[...]' so the formula denotes an event"
+                ),
+                notes=[
+                    "a proposition over fixed quantities is true or false, so its "
+                    "probability is 0 or 1 and asking for it states nothing",
+                ],
+            )
+            return False
+        self.diags.error(
+            "HML-T482",
+            f"{role} must be an event",
+            expr.span,
+            expected="Event",
+            found=t.render(),
+            correction="write a comparison over a random variable, e.g. 'X > 0.0'",
+        )
+        return False
+
+    def _probability_type(self, e: ProbabilityExpr) -> Type:
+        """``probability(A)`` / ``probability(A | B)`` : Probability.
+
+        The result is ``Probability`` and never ``PValue`` or
+        ``PosteriorProbability``. The three are pairwise incomparable (D-022), and a
+        probability computed *inside the model* is the first of them; a tail probability
+        under a null and a posterior over hypotheses are produced by procedures this
+        language does not run.
+        """
+        et = self.expr_type(e.event)
+        self._require_event(e.event, et, "the argument of 'probability'")
+        for g in e.given:
+            gt = self.expr_type(g)
+            self._require_event(g, gt, "a condition of 'probability'")
+        return PROBABILITY
+
+    def _joint_type(self, e: JointExpr) -> Type:
+        """``joint(X, Y)`` : ``Distribution[Product[T1, T2]]``.
+
+        A **law**, not a random variable and not a value, so every existing barrier
+        applies to it untouched: `joint(X, Y) > 0.0` is refused by the same rule that
+        refuses comparing any distribution with a number.
+        """
+        components: list[Type] = []
+        for p in e.parts:
+            t = self.expr_type(p)
+            if isinstance(t, RandomVariableType):
+                components.append(t.codomain)
+                continue
+            self.diags.error(
+                "HML-T485",
+                "a joint law is formed from random variables",
+                p.span,
+                expected="RandomVariable[T]",
+                found=t.render(),
+                correction="declare it as 'rv X : RandomVariable[Real]'",
+                notes=[
+                    "joint(...) denotes the law of the tuple; a law and a value have "
+                    "no joint distribution"
+                    if isinstance(t, DistributionType)
+                    else "a fixed quantity contributes no randomness to a joint law"
+                ],
+            )
+            return UnknownType("joint of a non-random operand")
+        return DistributionType(ProductType(tuple(components)))
+
+    def _independence_type(self, e: IndependenceExpr) -> Type:
+        """``independent(X, Y)`` / ``independent(X, Y | Z)`` : Proposition.
+
+        A proposition and **not** an event: independence is a property of the laws, so
+        it holds or does not. It has no probability of its own, which is why it is
+        admissible in `require` while `X > 0.0` is not.
+        """
+        ok = True
+        for p in (*e.parts, *e.given):
+            t = self.expr_type(p)
+            if isinstance(t, RandomVariableType):
+                continue
+            ok = False
+            self.diags.error(
+                "HML-T485",
+                "independence relates random variables",
+                p.span,
+                expected="RandomVariable[T]",
+                found=t.render(),
+                correction="declare it as 'rv X : RandomVariable[Real]'",
+                notes=[
+                    "two fixed quantities are trivially independent; the claim is only "
+                    "informative about random ones"
+                ],
+            )
+        return PROP if ok else UnknownType("independence over a non-random operand")
+
+    def _relation_type(self, e: RelationExpr) -> Type:
+        """``associated`` / ``correlated`` / ``causes`` : Proposition.
+
+        Three distinct relations. HML performs no causal inference and this construct
+        claims none; what it buys is that the three cannot be spelled as one thing, and
+        that `causes` carries a direction the canonical form preserves.
+        """
+        ok = True
+        for side in (e.left, e.right):
+            t = self.expr_type(side)
+            if isinstance(t, RandomVariableType):
+                continue
+            ok = False
+            self.diags.error(
+                "HML-T495",
+                f"{e.relation!r} relates random variables",
+                side.span,
+                expected="RandomVariable[T]",
+                found=t.render(),
+                correction="declare it as 'rv X : RandomVariable[Real]'",
+                notes=[
+                    "association, correlation and causation are claims about how two "
+                    "varying quantities co-vary; a constant does not vary"
+                ],
+            )
+        return PROP if ok else UnknownType(f"{e.relation} over a non-random operand")
+
+    # -- sets -------------------------------------------------------------
+
+    def _membership_type(self, e: MembershipExpr) -> Type:
+        ct = self.expr_type(e.collection)
+        et = self.expr_type(e.element)
+        if not isinstance(ct, SetType):
+            self.diags.error(
+                "HML-T486",
+                "'in' requires a set on the right",
+                e.collection.span,
+                expected="Set[T]",
+                found=ct.render(),
+                correction="declare it as 'param A : Set[Real]', or write a "
+                           "comprehension '{x : Real | ...}'",
+            )
+            return PROP
+        probe = _underlying(et)
+        if not self._inhabits(e.element, probe, ct.element):
+            self.diags.error(
+                "HML-T487",
+                "this value cannot be a member of that set",
+                e.span,
+                expected=ct.element.render(),
+                found=probe.render(),
+                correction=(
+                    f"supply an expression of type {ct.element.render()}, or declare "
+                    f"the set as Set[{probe.render()}]"
+                ),
+                notes=[_conflation_note(probe, ct.element) or
+                       "membership is not a comparison: the element type must inhabit "
+                       "the set's element type"],
+            )
+        # Membership of a random variable in a fixed set is an event: whether the draw
+        # lands in the set depends on the draw.
+        return EVENT if isinstance(et, RandomVariableType) else PROP
+
+    def _bind_expression_binder(self, e: Expr, var: str) -> Type | None:
+        """Validate a binding form's binder and publish its type to the symbol table."""
+        var_type = getattr(e, "var_type", None)
+        self._validate_type(var_type, e.span, f"bound variable {var!r}")
+        sid = getattr(e, "symbol_id", None)
+        sym = self.symbols.get(sid) if sid else None
+        if sym is not None and var_type is not None:
+            sym.declared_type = var_type
+        return var_type
+
+    def _comprehension_type(self, e: SetComprehension) -> Type:
+        var_type = self._bind_expression_binder(e, e.var)
+        pt = self.expr_type(e.predicate)
+        if isinstance(pt, EventType):
+            self.diags.error(
+                "HML-T488",
+                "a set comprehension cannot be selected by an event",
+                e.predicate.span,
+                expected="Proposition",
+                found=pt.render(),
+                correction="condition on a fixed quantity, or take "
+                           "'probability(<event>)' first",
+                notes=[
+                    "an event's truth depends on the draw, so the set it would define "
+                    "is itself random; v2 has no random-set type and will not pretend "
+                    "the membership is fixed"
+                ],
+            )
+        elif not (isinstance(pt, PropositionType) or is_subtype(pt, BOOL)):
+            self.diags.error(
+                "HML-T488",
+                "the predicate of a set comprehension must be a proposition",
+                e.predicate.span,
+                expected="Proposition",
+                found=pt.render(),
+                correction="write a comparison, e.g. '{x : Real | x > 0.0}'",
+            )
+        if var_type is None:  # pragma: no cover - the parser demands an annotation
+            return UnknownType("comprehension with no binder type")
+        return SetType(var_type)
+
+    # -- analysis ---------------------------------------------------------
+    #
+    # These represent; they do not compute. That distinction is the whole design: a
+    # backend which cannot evaluate an integral must report the loss (base.py), and the
+    # expression must still have an exact type, an exact dimension and an exact binder.
+
+    def _limit_type(self, e: LimitExpr) -> Type:
+        var_type = self._bind_expression_binder(e, e.var)
+        if var_type is not None:
+            self.check(
+                e.point,
+                var_type,
+                role=f"point approached by the limit in {e.var!r}",
+                code="HML-T489",
+            )
+        bt = self.expr_type(e.body)
+        return self._limit_closure(e, bt)
+
+    def _limit_closure(self, e: LimitExpr, t: Type) -> Type:
+        """The closure of ``t``: where a limit of values of ``t`` may actually land."""
+        if isinstance(t, ScalarType):
+            closed = _LIMIT_CLOSURE.get(t.name)
+            if closed is not None:
+                return ScalarType(closed)
+        if isinstance(t, QuantityType):
+            closed = _LIMIT_CLOSURE.get(t.base.name)
+            if closed is not None:
+                return QuantityType(t.dimension, ScalarType(closed))
+        self.diags.error(
+            "HML-T490",
+            "a limit is defined for real-valued magnitudes",
+            e.body.span,
+            expected="Real, a refinement of it, or Quantity[...]",
+            found=t.render(),
+            notes=[
+                "the limit of a truth value, a law or a set is not defined in v2"
+            ],
+        )
+        return UnknownType("limit of a non-magnitude")
+
+    def _analysis_dimensions(
+        self, e: Expr, body_type: Type, var_type: Type | None, what: str
+    ) -> tuple | None:
+        bd = dimension_of(body_type)
+        vd = dimension_of(var_type) if var_type is not None else None
+        if bd is None or vd is None:
+            self.diags.error(
+                "HML-T491",
+                f"a {what} needs a dimensioned integrand and a dimensioned variable",
+                e.span,
+                expected="Real or Quantity[...] on both",
+                found=(
+                    f"{body_type.render()} with respect to "
+                    f"{'?' if var_type is None else var_type.render()}"
+                ),
+                notes=[
+                    "a dimension carrying an unresolved variable is unknown, not "
+                    "dimensionless, and must not be treated as scalar"
+                ],
+            )
+            return None
+        return bd, vd
+
+    def _derivative_type(self, e: DerivativeExpr) -> Type:
+        """``derivative(<body>, x : T)`` DIVIDES the dimension by that of ``x``.
+
+        So the derivative of a length by a time is a velocity, and
+        `check dimension derivative(s, t : Quantity[Time]) = Length / Time` passes while
+        `= Length` fails. The base scalar is `Real` because a derivative may be negative
+        however positive the body is.
+        """
+        var_type = self._bind_expression_binder(e, e.var)
+        bt = self.expr_type(e.body)
+        dims = self._analysis_dimensions(e, bt, var_type, "derivative")
+        if dims is None:
+            return UnknownType("derivative with an unknown dimension")
+        bd, vd = dims
+        dim = bd / vd
+        return REAL if dim.is_dimensionless() else QuantityType(dim, REAL)
+
+    def _integral_type(self, e: IntegralExpr) -> Type:
+        """``integral(<body>, x : T, a, b)`` MULTIPLIES the dimension by that of ``x``.
+
+        The exact mirror of the derivative, which is what makes
+        `integral(v, t : Quantity[Time], t0, t1)` a length.
+        """
+        var_type = self._bind_expression_binder(e, e.var)
+        if var_type is not None:
+            for bound, name in ((e.lower, "lower"), (e.upper, "upper")):
+                self.check(
+                    bound,
+                    var_type,
+                    role=f"{name} bound of the integral in {e.var!r}",
+                    code="HML-T489",
+                )
+        bt = self.expr_type(e.body)
+        dims = self._analysis_dimensions(e, bt, var_type, "integral")
+        if dims is None:
+            return UnknownType("integral with an unknown dimension")
+        bd, vd = dims
+        dim = bd * vd
+        return REAL if dim.is_dimensionless() else QuantityType(dim, REAL)
+
+    def _continuity_type(self, e: ContinuityExpr) -> Type:
+        """``continuous(f, on := D)`` : Proposition.
+
+        Not a binder: ``f`` is a function value and ``D`` is a set value, so this
+        composes with a comprehension without any special case --
+        `continuous(f, on := {x : Real | x > 0.0})` type-checks by the ordinary rules.
+        """
+        ft = self.expr_type(e.function)
+        dt = self.expr_type(e.domain)
+        domain_type: Type | None = None
+        if not isinstance(ft, FunctionType):
+            self.diags.error(
+                "HML-T492",
+                "continuity is a property of a function",
+                e.function.span,
+                expected="Function[T -> U]",
+                found=ft.render(),
+                correction="declare it as 'param f : Function[Real -> Real]'",
+            )
+        elif len(ft.domain) != 1:
+            self.diags.error(
+                "HML-T492",
+                "v2 states continuity for one-argument functions only",
+                e.function.span,
+                expected="Function[T -> U]",
+                found=ft.render(),
+                notes=[
+                    "joint continuity in several arguments is a different property "
+                    "from continuity in each, and v2 will not silently pick one"
+                ],
+            )
+        else:
+            domain_type = ft.domain[0]
+
+        if not isinstance(dt, SetType):
+            self.diags.error(
+                "HML-T493",
+                "the 'on' role of a continuity claim must be a set",
+                e.domain.span,
+                expected="Set[T]",
+                found=dt.render(),
+                correction="continuous(f, on := {x : Real | x > 0.0})",
+            )
+        elif domain_type is not None and not is_subtype(dt.element, domain_type):
+            self.diags.error(
+                "HML-T494",
+                "the domain of the continuity claim is not inside the function's domain",
+                e.span,
+                expected=f"Set[{domain_type.render()}]",
+                found=dt.render(),
+                correction=(
+                    f"restrict the set to Set[{domain_type.render()}], or widen the "
+                    f"function's domain"
+                ),
+                notes=[
+                    "continuity on a set the function is not defined on is not a "
+                    "weaker claim, it is a meaningless one"
+                ],
+            )
+        return PROP
+
     #: How a scalar element type behaves under repeated addition. Summing
     #: probabilities may exceed 1, so Probability widens to NonNegativeReal; summing
     #: positives stays positive. Getting this wrong would let `sum(w) : Probability`
@@ -1233,7 +1928,12 @@ class TypeChecker:
         actually been typed. (Red-team finding 1.8.)
         """
         name = e.callee
-        if name not in ("sum", "prod", "mean", "variance", "expectation", "transpose"):
+        # `expectation` and `variance` are NOT here any more. They are keywords with
+        # their own expression productions (D-026), so they can never reach this
+        # function as a `Call`; the aggregate reading of `variance` moved to
+        # ``_moment_type``, where it behaves exactly as it did. Leaving dead branches
+        # here would leave two implementations of one rule, waiting to disagree.
+        if name not in ("sum", "prod", "mean", "transpose"):
             return None
 
         if len(arg_types) != 1:
@@ -1254,20 +1954,6 @@ class TypeChecker:
             )
             return UnknownType("transpose of a non-matrix")
 
-        if name == "expectation":
-            if isinstance(t, RandomVariableType):
-                return t.codomain
-            if isinstance(t, DistributionType):
-                self.diags.error(
-                    "HML-T428",
-                    "expectation applies to a random variable, not to a law",
-                    e.span,
-                    found=t.render(),
-                    notes=["bind the law to a symbol with '~', then take its expectation"],
-                )
-                return UnknownType("expectation of a distribution")
-            return t
-
         element = t.element if isinstance(t, (VectorType, MatrixType, TensorType)) else None
         if element is None:
             self.diags.error(
@@ -1279,8 +1965,6 @@ class TypeChecker:
             )
             return UnknownType(f"{name} of a non-aggregate")
 
-        if name == "variance":
-            return ScalarType("NonNegativeReal")
         if name == "mean":
             # The mean of a set of values lies in their own range, so the element
             # refinement is preserved -- unlike the sum.
@@ -1301,6 +1985,10 @@ class TypeChecker:
         aggregate = self._aggregate_type(e, arg_types)
         if aggregate is not None:
             return aggregate
+        # MEASURABLE LIFTING at an application site (D-026): `log(X)` for a random X is
+        # a random variable over `log`'s codomain. The argument is checked against the
+        # domain on what it ranges over, and the wrapper is restored on the result.
+        random_arg = any(isinstance(t, RandomVariableType) for t in arg_types)
         sig = _BUILTIN_SIGNATURES.get(e.callee)
         if sig is not None:
             domain, codomain = sig
@@ -1313,7 +2001,7 @@ class TypeChecker:
                 )
                 return codomain
             for a, at, want in zip(e.args, arg_types, domain, strict=True):
-                if not is_subtype(at, want):
+                if not is_subtype(_underlying(at), want):
                     self.diags.error(
                         "HML-T427",
                         f"the argument of {e.callee} has the wrong type",
@@ -1321,7 +2009,7 @@ class TypeChecker:
                         expected=want.render(),
                         found=at.render(),
                     )
-            return codomain
+            return RandomVariableType(codomain) if random_arg else codomain
 
         sym = None
         for candidate in self.symbols.all.values():
@@ -1404,9 +2092,12 @@ class TypeChecker:
             )
             return self._call_result_type(e, sig, sym)
 
+        random_arg = False
         for position, (arg, want, pname) in enumerate(
             zip(e.args, sig.param_types, sig.param_names, strict=True), start=1
         ):
+            if isinstance(self.synthesise(arg), RandomVariableType):
+                random_arg = True
             if isinstance(want, UnknownType):
                 # An unannotated parameter constrains nothing. Saying so is honest;
                 # inventing an expectation for it would not be.
@@ -1417,8 +2108,15 @@ class TypeChecker:
                 role=f"parameter {pname!r} (argument {position}) of {sig.name}",
                 code="HML-T472",
                 note=f"the signature is {sig.render()}",
+                lift_random=True,
             )
-        return self._call_result_type(e, sig, sym)
+        result = self._call_result_type(e, sig, sym)
+        # MEASURABLE LIFTING (D-026): a user function applied to a random variable
+        # returns a random variable. Not lifting here would let `def m : Real := f(X)`
+        # bind a random quantity to a fixed name with no diagnostic.
+        if random_arg and not isinstance(result, (UnknownType, RandomVariableType)):
+            return RandomVariableType(result)
+        return result
 
     def _arity_hint(self, sig: CallableSignature, given: int) -> str:
         """A repair *class*, never a repaired call.
@@ -1457,6 +2155,12 @@ class TypeChecker:
         return UnknownType(f"{sig.name} has no declared return type yet")
 
     def _require_comparable(self, e: Comparison, lt: Type, rt: Type) -> None:
+        # Comparability is decided on what the random variables RANGE OVER, not on the
+        # RandomVariable wrapper: `X > 0.0` compares a real with a real, and the fact
+        # that one of them is random is what makes the result an Event (handled by the
+        # caller), not what makes the comparison ill-formed. Without this unwrapping,
+        # `probability(X > 0.0)` could never be written at all.
+        lt, rt = _underlying(lt), _underlying(rt)
         ld, rd = dimension_of(lt), dimension_of(rt)
         if ld is not None and rd is not None:
             if ld != rd:
@@ -1496,6 +2200,24 @@ class TypeChecker:
         lt = self.expr_type(e.left)
         rt = self.expr_type(e.right)
 
+        # MEASURABLE LIFTING (D-026). An arithmetic operation with a random operand is
+        # a random variable over the result of the same operation on what the operands
+        # range over. This is what lets `expectation(2.0 * X)` be written.
+        #
+        # It is strictly a *tracking* rule, never an erasing one: the wrapper is
+        # removed to compute and put straight back, so `param p : Real = 2.0 * X`
+        # remains rejected. It is also strictly more precise than the accident it
+        # replaces -- `X + Y` used to reach `join`, which returned RandomVariable[T]
+        # unchanged and so admitted `RandomVariable[Probability] + RandomVariable[
+        # Probability] : RandomVariable[Probability]`, a sum that may exceed 1.
+        if isinstance(lt, RandomVariableType) or isinstance(rt, RandomVariableType):
+            inner = self._binop_type_on(e, _underlying(lt), _underlying(rt))
+            if isinstance(inner, UnknownType):
+                return inner
+            return RandomVariableType(inner)
+        return self._binop_type_on(e, lt, rt)
+
+    def _binop_type_on(self, e: BinOp, lt: Type, rt: Type) -> Type:
         for side, t in ((e.left, lt), (e.right, rt)):
             if isinstance(t, DistributionType):
                 self.diags.error(
@@ -1729,6 +2451,23 @@ def _as_literal(e: Expr):
     if isinstance(e, Literal) and isinstance(e.value, bool):
         return e.value
     return None
+
+
+def _underlying(t: Type) -> Type:
+    """Strip one ``RandomVariable`` wrapper, for MEASURABLE LIFTING (D-026).
+
+    A measurable function of a random variable is a random variable: if
+    ``f : T -> U`` and ``X : RandomVariable[T]`` then ``f(X) : RandomVariable[U]``. The
+    same holds for arithmetic. This function supplies the ``T`` that the underlying rule
+    is computed on; the caller re-wraps the result.
+
+    **This is not a subtyping path and must never become one.** It is applied only at
+    application and operator sites, and only by callers that re-wrap. Declaration
+    initialisers, distribution roles and definition bodies do not use it, so
+    `param p : Real = X` stays the error it has always been: the randomness is tracked
+    through the operation, not erased by it.
+    """
+    return t.codomain if isinstance(t, RandomVariableType) else t
 
 
 def _base_of(t: Type) -> ScalarType:

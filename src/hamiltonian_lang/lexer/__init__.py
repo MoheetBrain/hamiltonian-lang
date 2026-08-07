@@ -50,6 +50,24 @@ KEYWORDS = frozenset(
         # have to guess whether `by` was meant as a name. Verified safe -- no .hml file
         # in the repository uses any of these five as an identifier.
         "derive", "goal", "proved", "from", "by",
+        # V2 mathematical expression heads (D-026). These are grammar, not library:
+        # each one takes a structured argument list that no generic call can express --
+        # a `|` conditioning tail, a typed binder, or a mandatory role label -- so they
+        # are dispatched by the parser rather than resolved as function names.
+        #
+        # Full keywords rather than contextual identifiers, for the reason recorded for
+        # `from`/`by` above: a contextual head would make `param limit : Real` legal and
+        # leave two meanings for one spelling. Verified before admission -- no `.hml`
+        # file anywhere in the repository uses any of these eleven as an identifier
+        # (they occur only inside comments).
+        #
+        # `expectation` and `variance` were ALREADY keywords and stay keywords; what
+        # changes is that they finally have an expression production. Deleting them
+        # instead -- the audit's suggestion -- would have broken `infer expectation x`,
+        # which is the other production that needs them.
+        "probability", "joint", "independent", "in",
+        "limit", "derivative", "integral", "continuous",
+        "associated", "correlated", "causes",
         # quantifiers and connectives
         "forall", "exists", "unique", "and", "or", "not", "implies", "iff",
         # concept members
@@ -64,7 +82,12 @@ KEYWORDS = frozenset(
 _OPERATORS = [
     "<=>", ":=", "->", "=>", "<=", ">=", "!=", "::", "**",
     ":", "~", "|", "@", "^", "+", "-", "*", "/", "=", "<", ">",
-    "(", ")", "[", "]", ",", ".",
+    # `{` and `}` delimit a set comprehension (D-026). They are the one place V2 adds a
+    # sigil rather than reusing an existing one, because set-builder notation has no
+    # ASCII alternative that stays unambiguous: an undelimited `set x : Real | x > 0.0`
+    # gives the predicate no right-hand end, so `require v in set x : Real | x > 0.0 and
+    # p` has two readings. Braces have exactly one.
+    "(", ")", "[", "]", "{", "}", ",", ".",
 ]
 
 # Greek and mathematical characters that models routinely emit. Folding keeps the

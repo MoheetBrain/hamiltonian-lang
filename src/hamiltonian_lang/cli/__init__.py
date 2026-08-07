@@ -20,6 +20,7 @@ from pathlib import Path
 
 from .. import __version__, compile_source
 from ..backends import available, render
+from ..backends.hml import render_expr
 
 
 def _read(path: str) -> tuple[str, str]:
@@ -81,6 +82,33 @@ def main(argv: list[str] | None = None) -> int:
 
     args = ap.parse_args(argv)
 
+    def _print_reasoning_summary(result) -> None:
+        """Report the reasoning verdicts, or say nothing for a v1 module.
+
+        Without this there was NO command that showed a derivation's status or a goal's
+        verdict, which is what let a falsely-PROVED goal go unnoticed: `hml check`
+        printed `ok:` and stopped. A verifier that computes a verdict and never surfaces
+        it is only half a verifier.
+        """
+        r = getattr(result, "reasoning", None)
+        if r is None or (not r.derivation_status and not r.goal_status):
+            return
+        if r.derivation_status:
+            counts: dict[str, int] = {}
+            for status in r.derivation_status.values():
+                counts[status] = counts.get(status, 0) + 1
+            summary = ", ".join(f"{n} {s}" for s, n in sorted(counts.items()))
+            print(f"     derivations: {summary}")
+        if r.goal_status:
+            counts = {}
+            for status in r.goal_status.values():
+                counts[status] = counts.get(status, 0) + 1
+            summary = ", ".join(f"{n} {s}" for s, n in sorted(counts.items()))
+            print(f"     goals:       {summary}")
+        open_obs = r.open_obligations()
+        if open_obs:
+            print(f"     {len(open_obs)} open obligation(s) blocking certification")
+
     if args.command == "check":
         result = _compile(args.file, require_ok=False)
         if result.ok():
@@ -91,6 +119,7 @@ def main(argv: list[str] | None = None) -> int:
                     f"({len(result.module.statements)} statements, {n} symbols, "
                     f"{len(result.obligations)} proof obligation(s))"
                 )
+                _print_reasoning_summary(result)
                 w = len(result.diagnostics.warnings)
                 if w:
                     print(f"     {w} warning(s)")
@@ -126,14 +155,35 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "obligations":
         result = _compile(args.file)
-        if not result.obligations:
+        reasoning_obs = list(result.reasoning.obligations) if result.reasoning else []
+        if not result.obligations and not reasoning_obs:
             print("no proof obligations generated")
             return 0
-        print(f"{len(result.obligations)} proof obligation(s):")
-        for o in result.obligations:
-            state = o.discharged_by or "NOT DISCHARGED"
-            print(f"  [{o.kind:<22}] line {o.span.line:>3}  {o.description}")
-            print(f"  {'':<24} status: {state}")
+        if result.obligations:
+            print(f"{len(result.obligations)} standing proof obligation(s):")
+            for o in result.obligations:
+                state = o.discharged_by or "NOT DISCHARGED"
+                print(f"  [{o.kind:<22}] line {o.span.line:>3}  {o.description}")
+                print(f"  {'':<24} status: {state}")
+        # Rule-generated obligations were previously invisible here: `hml obligations`
+        # listed only the standing type-level ones, so a module whose `k != 0` was
+        # genuinely discharged printed its *assumptions* as NOT DISCHARGED and omitted
+        # the real obligation entirely -- exactly inverting the truth for the reader.
+        if reasoning_obs:
+            print(f"{len(reasoning_obs)} rule-generated obligation(s):")
+            for ro in reasoning_obs:
+                state = (
+                    f"{ro.status} by {ro.discharged_by}"
+                    if ro.discharged_by
+                    else ro.status
+                )
+                mand = "mandatory" if ro.mandatory else "advisory"
+                print(
+                    f"  [{ro.reason:<22}] {ro.id}  {render_expr(ro.proposition)}"
+                )
+                print(
+                    f"  {'':<24} from {ro.generated_by}, {mand}, status: {state}"
+                )
         return 0
 
     if args.command == "views":

@@ -21,27 +21,38 @@ from ..ast.nodes import (
     Comparison,
     ConceptDecl,
     ConceptMember,
+    ContinuityExpr,
     Declaration,
     DeclKind,
     DefineStmt,
+    DerivativeExpr,
     DeriveStmt,
     DistExpr,
     Expr,
     GoalStmt,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     Module,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
     RuleArg,
+    SetComprehension,
     SolveStmt,
     Span,
     Statement,
@@ -54,9 +65,11 @@ from ..types import (
     ConceptType,
     Dimension,
     DistributionType,
+    EventType,
     FunctionType,
     MatrixType,
     PredicateType,
+    ProductType,
     PropositionType,
     QuantityType,
     RandomVariableType,
@@ -82,6 +95,17 @@ _DECL_KEYWORDS = {
 _INFER_QUERIES = {"posterior", "expectation", "variance", "mle", "map"}
 
 _COMPARISONS = {"=", "!=", "<", "<=", ">", ">="}
+
+#: Keywords that head a V2 expression form (D-026). Each has its own production because
+#: each takes a structured argument list a generic call cannot express.
+_MOMENTS = {"expectation", "variance"}
+_RELATIONS = {"associated", "correlated", "causes"}
+_EXPRESSION_HEADS = (
+    _MOMENTS
+    | _RELATIONS
+    | {"probability", "joint", "independent", "limit", "derivative",
+       "integral", "continuous"}
+)
 
 _CONCEPT_MEMBER_KEYWORDS = {
     "parameter", "transform", "invariant", "property", "example", "counterexample",
@@ -718,10 +742,12 @@ class Parser:
                 return scalar
             if head == "Proposition":
                 return PropositionType()
+            if head == "Event":
+                return EventType()
             if head == "Dimensionless":
                 return QuantityType()
             if head in ("Quantity", "Vector", "Matrix", "Tensor", "Set", "Function",
-                        "Predicate", "RandomVariable", "Distribution"):
+                        "Predicate", "RandomVariable", "Distribution", "Product"):
                 self._err(
                     "HML-P221",
                     f"type constructor {head!r} requires arguments",
@@ -758,6 +784,21 @@ class Parser:
         if head == "Set":
             self.expect_op("]", "to close Set[...]")
             return SetType(first)
+        if head == "Product":
+            components = [first]
+            while self.accept_op(","):
+                components.append(self.parse_type())
+            if len(components) < 2:
+                self._err(
+                    "HML-P267",
+                    "Product requires at least two component types",
+                    tok.span,
+                    correction="Product[Real, Natural]",
+                    notes=["a one-component product is the component itself"],
+                )
+                raise ParseAbort
+            self.expect_op("]", "to close Product[...]")
+            return ProductType(tuple(components))
         if head == "RandomVariable":
             self.expect_op("]", "to close RandomVariable[...]")
             return RandomVariableType(first)
@@ -957,22 +998,42 @@ class Parser:
 
     def parse_comparison(self) -> Expr:
         left = self.parse_additive()
+        # `in` sits at comparison precedence: it is a relation between a value and a
+        # set, so `x + 1.0 in A and y in B` groups the way a reader expects without
+        # brackets. It is exclusive with the comparison operators for the same reason
+        # chaining is rejected below -- `a < b in C` has no single reading.
+        if self.cur.is_kw("in"):
+            self.next()
+            collection = self.parse_additive()
+            node: Expr = MembershipExpr(
+                element=left,
+                collection=collection,
+                span=Span.merge(left.span, collection.span),
+            )
+            self._reject_chain()
+            return node
         if self.cur.kind is TokenKind.OP and self.cur.value in _COMPARISONS:
             tok = self.next()
             right = self.parse_additive()
             node = Comparison(op=tok.value, left=left, right=right,
                               span=Span.merge(left.span, right.span))
             # Chained comparisons are a classic silent-meaning bug (a < b < c).
-            if self.cur.kind is TokenKind.OP and self.cur.value in _COMPARISONS:
-                self._err(
-                    "HML-P230",
-                    "chained comparisons are not permitted",
-                    correction="write 'a < b and b < c'",
-                    notes=["chaining hides which comparison is intended and is rejected"],
-                )
-                raise ParseAbort
+            self._reject_chain()
             return node
         return left
+
+    def _reject_chain(self) -> None:
+        """Refuse a second relational operator at the same level."""
+        if (
+            self.cur.kind is TokenKind.OP and self.cur.value in _COMPARISONS
+        ) or self.cur.is_kw("in"):
+            self._err(
+                "HML-P230",
+                "chained comparisons are not permitted",
+                correction="write 'a < b and b < c'",
+                notes=["chaining hides which comparison is intended and is rejected"],
+            )
+            raise ParseAbort
 
     def parse_additive(self) -> Expr:
         left = self.parse_multiplicative()
@@ -1034,6 +1095,12 @@ class Parser:
 
         if tok.is_kw("forall", "exists"):
             return self.parse_quantifier()
+
+        if tok.kind is TokenKind.KEYWORD and tok.value in _EXPRESSION_HEADS:
+            return self.parse_expression_head()
+
+        if tok.is_op("{"):
+            return self.parse_set_comprehension()
 
         if tok.kind is TokenKind.IDENT:
             self.next()
@@ -1175,6 +1242,291 @@ class Parser:
             var_type=var_type,
             body=body,
             span=Span.merge(tok.span, body.span),
+        )
+
+    # -- V2 mathematical expression forms (D-026) -------------------------
+    #
+    # All eleven are keyword-headed and parenthesis-delimited, so each is LL(1) from
+    # its head and none can be confused with a call: the heads are keywords, and
+    # `parse_call` is only ever reached from an IDENT.
+    #
+    # Three shapes recur:
+    #   head ( <expr> [ | <expr>, ... ] )      moment, probability
+    #   head ( <expr>, <expr>, ... )           joint, independent, relations
+    #   head ( <expr>, <name> : <T> ... )      the binding forms
+    #
+    # The binder in the third shape carries a MANDATORY type annotation. This deviates
+    # from the sketch in docs/hml_v2/GRAMMAR_CONTRACT.md section 2, which wrote
+    # `derivative(f, x)`. Governing principle 1 -- every object has a type -- is why:
+    # the same reasoning already forced HML-P236 on quantifiers ("untyped quantification
+    # is rejected: the domain must be explicit") and HML-P214 on transform parameters
+    # (D-015). An inferred binder type here would be inferred from the *point* or the
+    # *bounds*, which is exactly the implicit coupling those two decisions refused.
+
+    def _parse_given_tail(self, ctx: str) -> list[Expr]:
+        """Parse an optional ``| e1, e2, ...`` conditioning tail.
+
+        ``|`` is the same 'given' bar the `law` statement uses. Reusing it is the point:
+        a reader who knows `law y | x ~ ...` already knows what
+        `expectation(y | x)` conditions on.
+        """
+        if not self.accept_op("|"):
+            return []
+        out = [self.parse_expr()]
+        while self.accept_op(","):
+            out.append(self.parse_expr())
+        if not out:  # pragma: no cover - parse_expr either returns or aborts
+            self._err("HML-P260", f"expected at least one term after '|' in {ctx}")
+            raise ParseAbort
+        return out
+
+    def _parse_operand_list(self, head: str, minimum: int) -> list[Expr]:
+        out = [self.parse_expr()]
+        while self.accept_op(","):
+            out.append(self.parse_expr())
+        if len(out) < minimum:
+            self._err(
+                "HML-P261",
+                f"{head} relates at least {minimum} operands, {len(out)} given",
+                correction=f"{head}(X, Y)",
+                notes=[
+                    f"{head} of a single argument states nothing; the relation is "
+                    f"between things"
+                ],
+            )
+            raise ParseAbort
+        return out
+
+    def _parse_typed_binder(self, head: str) -> tuple[Token, Type]:
+        """``<name> : <Type>`` — the binder of an analysis or comprehension form."""
+        name = self.expect_ident(f"to bind the variable of {head}")
+        if not self.accept_op(":"):
+            self._err(
+                "HML-P262",
+                f"the variable bound by {head} requires an explicit type",
+                correction=f"{name.value} : Real",
+                notes=[
+                    "every object has a type (governing principle 1); an untyped binder "
+                    "would take its domain implicitly from its neighbours"
+                ],
+            )
+            raise ParseAbort
+        return name, self.parse_type()
+
+    def parse_expression_head(self) -> Expr:
+        head = self.cur.value
+        if head in _MOMENTS:
+            return self.parse_moment()
+        if head == "probability":
+            return self.parse_probability()
+        if head == "joint":
+            return self.parse_joint()
+        if head == "independent":
+            return self.parse_independence()
+        if head == "limit":
+            return self.parse_limit()
+        if head == "derivative":
+            return self.parse_derivative()
+        if head == "integral":
+            return self.parse_integral()
+        if head == "continuous":
+            return self.parse_continuity()
+        return self.parse_relation()
+
+    def parse_moment(self) -> MomentExpr:
+        """``expectation(X)`` / ``expectation(X | Y, Z)`` / ``variance(X)``."""
+        tok = self.next()
+        self.expect_op("(", f"after '{tok.value}'")
+        body = self.parse_expr()
+        given = self._parse_given_tail(tok.value)
+        close = self.expect_op(")", f"to close '{tok.value}'")
+        return MomentExpr(
+            kind=tok.value, body=body, given=given, span=Span.merge(tok.span, close.span)
+        )
+
+    def parse_probability(self) -> ProbabilityExpr:
+        """``probability(A)`` / ``probability(A | B)``."""
+        tok = self.next()
+        self.expect_op("(", "after 'probability'")
+        event = self.parse_expr()
+        given = self._parse_given_tail("probability")
+        close = self.expect_op(")", "to close 'probability'")
+        return ProbabilityExpr(
+            event=event, given=given, span=Span.merge(tok.span, close.span)
+        )
+
+    def parse_joint(self) -> JointExpr:
+        tok = self.next()
+        self.expect_op("(", "after 'joint'")
+        parts = self._parse_operand_list("joint", 2)
+        close = self.expect_op(")", "to close 'joint'")
+        return JointExpr(parts=parts, span=Span.merge(tok.span, close.span))
+
+    def parse_independence(self) -> IndependenceExpr:
+        """``independent(X, Y)`` and ``independent(X, Y | Z)``.
+
+        Conditional independence reuses the same head and the same `|` rather than
+        taking a keyword of its own: `independent(X, Y | Z)` reads as "X and Y are
+        independent, given Z", which is the sentence, and it keeps one construct where
+        a second spelling would invite the two to drift apart.
+        """
+        tok = self.next()
+        self.expect_op("(", "after 'independent'")
+        parts = self._parse_operand_list("independent", 2)
+        given = self._parse_given_tail("independent")
+        close = self.expect_op(")", "to close 'independent'")
+        return IndependenceExpr(
+            parts=parts, given=given, span=Span.merge(tok.span, close.span)
+        )
+
+    def parse_relation(self) -> RelationExpr:
+        """``associated(X, Y)`` / ``correlated(X, Y)`` / ``causes(X, Y)``."""
+        tok = self.next()
+        self.expect_op("(", f"after '{tok.value}'")
+        left = self.parse_expr()
+        if not self.accept_op(","):
+            self._err(
+                "HML-P263",
+                f"{tok.value} relates two variables",
+                correction=f"{tok.value}(X, Y)",
+            )
+            raise ParseAbort
+        right = self.parse_expr()
+        close = self.expect_op(")", f"to close '{tok.value}'")
+        return RelationExpr(
+            relation=tok.value,
+            left=left,
+            right=right,
+            span=Span.merge(tok.span, close.span),
+        )
+
+    def parse_set_comprehension(self) -> SetComprehension:
+        """``{ x : T | P }``."""
+        tok = self.next()  # '{'
+        name, var_type = self._parse_typed_binder("a set comprehension")
+        if not self.accept_op("|"):
+            self._err(
+                "HML-P264",
+                "a set comprehension requires '|' between the binder and its predicate",
+                correction=f"{{{name.value} : {var_type.render()} | <proposition>}}",
+                notes=[
+                    "the set of every value of a type is written as the type itself; "
+                    "a comprehension without a predicate selects nothing new"
+                ],
+            )
+            raise ParseAbort
+        predicate = self.parse_expr()
+        close = self.expect_op("}", "to close a set comprehension")
+        return SetComprehension(
+            var=name.value,
+            var_type=var_type,
+            predicate=predicate,
+            span=Span.merge(tok.span, close.span),
+        )
+
+    def parse_limit(self) -> LimitExpr:
+        """``limit(<body>, x : T -> <point>)``."""
+        tok = self.next()
+        self.expect_op("(", "after 'limit'")
+        body = self.parse_expr()
+        self.expect_op(",", "between the body of a limit and its binder")
+        name, var_type = self._parse_typed_binder("a limit")
+        if not self.accept_op("->"):
+            self._err(
+                "HML-P265",
+                "a limit requires '->' between the bound variable and the point "
+                "approached",
+                correction=f"limit(<body>, {name.value} : {var_type.render()} -> 0.0)",
+            )
+            raise ParseAbort
+        point = self.parse_expr()
+        close = self.expect_op(")", "to close 'limit'")
+        return LimitExpr(
+            var=name.value,
+            var_type=var_type,
+            body=body,
+            point=point,
+            span=Span.merge(tok.span, close.span),
+        )
+
+    def parse_derivative(self) -> DerivativeExpr:
+        """``derivative(<body>, x : T)``."""
+        tok = self.next()
+        self.expect_op("(", "after 'derivative'")
+        body = self.parse_expr()
+        self.expect_op(",", "between the body of a derivative and its binder")
+        name, var_type = self._parse_typed_binder("a derivative")
+        close = self.expect_op(")", "to close 'derivative'")
+        return DerivativeExpr(
+            var=name.value,
+            var_type=var_type,
+            body=body,
+            span=Span.merge(tok.span, close.span),
+        )
+
+    def parse_integral(self) -> IntegralExpr:
+        """``integral(<body>, x : T, <lower>, <upper>)``."""
+        tok = self.next()
+        self.expect_op("(", "after 'integral'")
+        body = self.parse_expr()
+        self.expect_op(",", "between the body of an integral and its binder")
+        name, var_type = self._parse_typed_binder("an integral")
+        self.expect_op(",", "before the lower bound of an integral")
+        lower = self.parse_expr()
+        self.expect_op(",", "before the upper bound of an integral")
+        upper = self.parse_expr()
+        close = self.expect_op(")", "to close 'integral'")
+        return IntegralExpr(
+            var=name.value,
+            var_type=var_type,
+            body=body,
+            lower=lower,
+            upper=upper,
+            span=Span.merge(tok.span, close.span),
+        )
+
+    def parse_continuity(self) -> ContinuityExpr:
+        """``continuous(f, on := D)``.
+
+        The role label is mandatory, for the reason D-003 makes it mandatory on
+        distributions: `continuous(f, D)` does not say whether `D` is the domain, the
+        codomain or a point.
+        """
+        tok = self.next()
+        self.expect_op("(", "after 'continuous'")
+        function = self.parse_expr()
+        self.expect_op(",", "between the function and its domain")
+        if not (
+            self.cur.kind in (TokenKind.IDENT, TokenKind.KEYWORD)
+            and self.peek().is_op(":=")
+        ):
+            self._err(
+                "HML-P266",
+                "the domain of a continuity claim must be given the 'on' role",
+                correction="continuous(f, on := D)",
+                notes=[
+                    "role labels are mandatory here for the reason they are mandatory "
+                    "on distributions (D-003): a bare second argument does not say "
+                    "whether it is the domain or a point"
+                ],
+            )
+            raise ParseAbort
+        role_tok = self.next()
+        self.next()  # ':='
+        if role_tok.value != "on":
+            self._err(
+                "HML-P266",
+                f"'continuous' has no role {role_tok.value!r}",
+                role_tok.span,
+                expected="on",
+                found=role_tok.value,
+                correction="continuous(f, on := D)",
+            )
+            raise ParseAbort
+        domain = self.parse_expr()
+        close = self.expect_op(")", "to close 'continuous'")
+        return ContinuityExpr(
+            function=function, domain=domain, span=Span.merge(tok.span, close.span)
         )
 
 

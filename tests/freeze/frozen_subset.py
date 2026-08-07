@@ -89,6 +89,39 @@ FROZEN_KEYWORDS: frozenset[str] = frozenset(
         # is unaffected -- V2 reaches its own kernel in `reasoning/`, not `v1/`, and
         # the import barrier in test_quarantine.py still forbids that edge.
         "derive", "goal", "proved", "from", "by",
+        # -- V2 mathematical expression coverage (D-026) -------------------
+        # Eleven keywords, each opening ONE expression production that closes one of
+        # the eleven critical coverage zeros the language audit measured. Admitted
+        # deliberately, with the same three questions answered for each as for D-025:
+        #
+        # 1. *Does it reach a quarantined layer?* No. Every one of these is handled in
+        #    `parser/`, `type_system/` and `backends/`. None reaches
+        #    `hamiltonian_lang.v1`; the import barrier below is untouched and
+        #    `test_no_compiler_module_statically_imports_the_quarantined_package`
+        #    still passes.
+        # 2. *Does it promote a QUARANTINED_SURFACE_FORM?* No. The forms in that table
+        #    (`step`, `entails`, `family`, `member`, `relation`, `mint`, ...) remain
+        #    rejected; none of these eleven appears there, and none of them is a
+        #    spelling of one.
+        # 3. *Is it enforced or merely parsed?* Enforced. Each has a type rule that
+        #    REJECTS the corresponding misuse -- HML-T480/T481/T482/T483/T484/T485/
+        #    T486/T487/T488/T489/T490/T491/T492/T493/T494/T495 -- which is the bar
+        #    `SUPPORTED_ENFORCED` sets. The executed rejection for each lives in
+        #    `tests/adversarial/test_v2_expression_rejections.py`, NOT in
+        #    `docs/evaluation/V1_FREEZE_MANIFEST.md`: that manifest is the frozen
+        #    evidence document for the V1 language, its rows are pinned by
+        #    REQUIRED_MANIFEST_ROWS below, and D-025 set the precedent that V2
+        #    additions are evidenced in DECISIONS.md and docs/hml_v2/ rather than
+        #    backdated into it. The full record is D-026 and
+        #    docs/hml_v2/EXPRESSION_COVERAGE.md.
+        #
+        # `expectation` and `variance` are ABSENT from this block because they were
+        # already frozen keywords. D-026 did not add them; it gave them an expression
+        # production they had never had, which is what unshadowed the type rules the
+        # audit found unreachable.
+        "probability", "joint", "independent", "in",
+        "limit", "derivative", "integral", "continuous",
+        "associated", "correlated", "causes",
     }
 )
 
@@ -103,6 +136,13 @@ NON_STATEMENT_KEYWORDS: frozenset[str] = frozenset(
         # V2: `from` and `by` are separators inside `derive`/`proved`, not statement
         # heads. `derive`, `goal` and `proved` ARE statement heads and so are absent.
         "from", "by",
+        # D-026: all eleven are EXPRESSION heads. None begins a statement, which is
+        # exactly why the statement-kind set below is unchanged: this change adds
+        # mathematics that composes inside the statements that already exist, rather
+        # than adding statements.
+        "probability", "joint", "independent", "in",
+        "limit", "derivative", "integral", "continuous",
+        "associated", "correlated", "causes",
     }
 )
 
@@ -204,6 +244,16 @@ FROZEN_TYPE_CONSTRUCTORS: frozenset[str] = frozenset(
     {
         "Vector", "Matrix", "Tensor", "Set", "Function", "Predicate",
         "RandomVariable", "Distribution", "Quantity", "Proposition", "Dimensionless",
+        # -- D-026 -------------------------------------------------------
+        # `Event` is nullary like `Proposition`, and INCOMPARABLE with it: an event has
+        # a probability, a proposition has a truth value, and admitting one where the
+        # other is expected is the conflation the constructor exists to prevent.
+        #
+        # `Product[T1, T2]` is what gives `joint(X, Y)` an honest type. Neither name
+        # appears in QUARANTINED_TYPE_NAMES, and neither is a spelling of anything
+        # there: no epistemic status, justification, proof or derivation object entered
+        # the gate.
+        "Event", "Product",
     }
 )
 

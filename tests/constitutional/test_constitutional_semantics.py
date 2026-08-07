@@ -104,15 +104,19 @@ def test_a_law_may_not_be_compared_with_a_value():
 
 
 def test_a_law_may_not_be_summarised_as_if_it_were_a_value():
-    """`mean(d)` on a law is rejected: a law is not an aggregate of values.
+    """`mean(d)` and `expectation(d)` on a law are both rejected.
 
-    Note for the record: the checker also carries `HML-T428` for `expectation(<law>)`,
-    and that branch is **unreachable from HML source** — `expectation` is a reserved
-    keyword (the `infer expectation` query), so `expectation(d)` is a parse error before
-    the checker sees it. The reachable route is asserted here; the unreachable one is
-    named so nobody cites `HML-T428` as a live surface guarantee.
+    History, because the change of code here matters. Until D-026 `expectation` was a
+    reserved keyword with **no expression production**, so `expectation(d)` failed at
+    `HML-P231` — "expected an expression" — and the checker's `HML-T428` branch was
+    unreachable from source. That was the defect the language audit recorded: the
+    keyword shadowed a working type rule.
+
+    `expectation` now has a production, so the semantic rule is the one that fires. The
+    barrier is unchanged and the diagnostic is strictly better: it names the conflation
+    instead of reporting a syntax error.
     """
-    assert "HML-P231" in rejected(
+    assert "HML-T428" in rejected(
         "param d : Distribution[Real]", "def m : Real := expectation(d)"
     )
     assert "HML-T427" in rejected(

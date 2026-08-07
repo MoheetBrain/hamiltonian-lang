@@ -46,22 +46,33 @@ from ..ast.nodes import (
     CheckStmt,
     Comparison,
     ConceptDecl,
+    ContinuityExpr,
     Declaration,
     DeclKind,
     DefineStmt,
+    DerivativeExpr,
     DistExpr,
     Expr,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Statement,
     UnaryOp,
@@ -955,6 +966,57 @@ class StanBackend(Backend):
                 e.span.line,
             )
             return f"/* {e.kind} {e.var} : NOT EXPRESSIBLE IN STAN */", _ATOM
+
+        # -- V2 mathematical expression coverage (D-026) --------------------
+        #
+        # Stan encodes NONE of the eleven, and the reason is uniform enough to state
+        # once: Stan's expression language is a numeric evaluator over declared data
+        # and parameters. It has no operator that returns an expectation, no first-class
+        # event, no set type, and no symbolic limit, derivative or integral. Every one
+        # is dropped with the specific reason, because a comment in a `.stan` file that
+        # a sampler silently ignores is exactly the authoritative-looking wrong output
+        # this contract exists to prevent.
+        if isinstance(e, (MomentExpr, ProbabilityExpr, JointExpr, IndependenceExpr)):
+            self.drop(
+                f"expression {type(e).__name__.replace('Expr', '').lower()}",
+                "Stan expresses a model by incrementing a log density, not by naming "
+                "expectations, events, joint laws or independence claims. Those are "
+                "properties OF the posterior and are recovered from the samples "
+                "afterwards; nothing in the model block denotes them.",
+                e.span.line,
+            )
+            return "/* unrepresented */", _ATOM
+
+        if isinstance(e, (MembershipExpr, SetComprehension)):
+            self.drop(
+                f"expression {type(e).__name__.replace('Expr', '').lower()}",
+                "Stan has no set type. A membership test could sometimes be unrolled "
+                "over a finite container, but an HML Set[T] is defined by a predicate "
+                "over a type and is not enumerable in general.",
+                e.span.line,
+            )
+            return "/* unrepresented */", _ATOM
+
+        if isinstance(e, (LimitExpr, DerivativeExpr, IntegralExpr, ContinuityExpr)):
+            self.drop(
+                f"expression {type(e).__name__.replace('Expr', '').lower()}",
+                "Stan differentiates programs automatically but has no symbolic limit, "
+                "derivative, integral or continuity term. `integrate_1d` evaluates a "
+                "definite integral numerically at run time, which is a computation and "
+                "not a representation of the expression written here.",
+                e.span.line,
+            )
+            return "/* unrepresented */", _ATOM
+
+        if isinstance(e, RelationExpr):
+            self.drop(
+                f"expression {e.relation}",
+                "Stan has no predicate for association, correlation or causation, and "
+                "no way to distinguish the three. Emitting a comment would leave a "
+                "causal claim as text a sampler ignores.",
+                e.span.line,
+            )
+            return "/* unrepresented */", _ATOM
 
         self.drop("expression", f"no Stan encoding for {type(e).__name__}", e.span.line)
         return "/* unrepresented */", _ATOM

@@ -24,25 +24,36 @@ from ..ast.nodes import (
     CheckStmt,
     Comparison,
     ConceptDecl,
+    ContinuityExpr,
     Declaration,
     DefineStmt,
+    DerivativeExpr,
     DeriveStmt,
     DistExpr,
     Expr,
     GoalStmt,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     Module,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Span,
     Statement,
@@ -285,6 +296,56 @@ class Resolver:
                 return
             if isinstance(n, Quantifier):
                 rec(n.body)
+                return
+            # V2 expression forms (D-026). Omitting any of these would make a definition
+            # cycle running through, say, an integrand invisible to HML-S606 -- the
+            # checker would report nothing and the definition would be unfoldable.
+            if isinstance(n, MomentExpr):
+                rec(n.body)
+                for g in n.given:
+                    rec(g)
+                return
+            if isinstance(n, ProbabilityExpr):
+                rec(n.event)
+                for g in n.given:
+                    rec(g)
+                return
+            if isinstance(n, JointExpr):
+                for p in n.parts:
+                    rec(p)
+                return
+            if isinstance(n, IndependenceExpr):
+                for p in n.parts:
+                    rec(p)
+                for g in n.given:
+                    rec(g)
+                return
+            if isinstance(n, MembershipExpr):
+                rec(n.element)
+                rec(n.collection)
+                return
+            if isinstance(n, ContinuityExpr):
+                rec(n.function)
+                rec(n.domain)
+                return
+            if isinstance(n, RelationExpr):
+                rec(n.left)
+                rec(n.right)
+                return
+            if isinstance(n, SetComprehension):
+                rec(n.predicate)
+                return
+            if isinstance(n, LimitExpr):
+                rec(n.body)
+                rec(n.point)
+                return
+            if isinstance(n, DerivativeExpr):
+                rec(n.body)
+                return
+            if isinstance(n, IntegralExpr):
+                rec(n.body)
+                rec(n.lower)
+                rec(n.upper)
                 return
 
         rec(e)
@@ -556,10 +617,82 @@ class Resolver:
             self.pop()
             return
 
+        # -- V2 expression forms (D-026) ----------------------------------
+        #
+        # Two groups. The non-binding forms only recurse. The binding forms push a
+        # scope, declare the binder and record its SymbolId -- exactly what the
+        # Quantifier branch above does, deliberately by the same code shape, because
+        # alpha-equivalence for the new binders has to come from the same machinery
+        # rather than from a parallel implementation that can drift.
+        if isinstance(e, MomentExpr):
+            self.visit_expr(e.body)
+            for g in e.given:
+                self.visit_expr(g)
+            return
+        if isinstance(e, ProbabilityExpr):
+            self.visit_expr(e.event)
+            for g in e.given:
+                self.visit_expr(g)
+            return
+        if isinstance(e, JointExpr):
+            for p in e.parts:
+                self.visit_expr(p)
+            return
+        if isinstance(e, IndependenceExpr):
+            for p in e.parts:
+                self.visit_expr(p)
+            for g in e.given:
+                self.visit_expr(g)
+            return
+        if isinstance(e, MembershipExpr):
+            self.visit_expr(e.element)
+            self.visit_expr(e.collection)
+            return
+        if isinstance(e, ContinuityExpr):
+            self.visit_expr(e.function)
+            self.visit_expr(e.domain)
+            return
+        if isinstance(e, RelationExpr):
+            self.visit_expr(e.left)
+            self.visit_expr(e.right)
+            return
+
+        if isinstance(e, SetComprehension):
+            self.push(f"set {e.var}")
+            e.symbol_id = self.declare(e.var, "quantified", e.var_type, e.span).id
+            self.visit_expr(e.predicate)
+            self.pop()
+            return
+        if isinstance(e, LimitExpr):
+            # The point is resolved in the ENCLOSING scope, before the binder exists.
+            # Otherwise `limit(1.0 / x, x : Real -> x)` would quietly bind the point to
+            # the variable being taken to it, which denotes nothing.
+            self.visit_expr(e.point)
+            self.push(f"limit {e.var}")
+            e.symbol_id = self.declare(e.var, "quantified", e.var_type, e.span).id
+            self.visit_expr(e.body)
+            self.pop()
+            return
+        if isinstance(e, DerivativeExpr):
+            self.push(f"derivative {e.var}")
+            e.symbol_id = self.declare(e.var, "quantified", e.var_type, e.span).id
+            self.visit_expr(e.body)
+            self.pop()
+            return
+        if isinstance(e, IntegralExpr):
+            # Same rule as the limit point: the bounds are outside the binder.
+            self.visit_expr(e.lower)
+            self.visit_expr(e.upper)
+            self.push(f"integral {e.var}")
+            e.symbol_id = self.declare(e.var, "quantified", e.var_type, e.span).id
+            self.visit_expr(e.body)
+            self.pop()
+            return
+
 
 _BUILTIN_FUNCTIONS = {
     "exp", "log", "sqrt", "abs", "sin", "cos", "tan",
-    "sum", "prod", "mean", "variance", "expectation", "transpose",
+    "sum", "prod", "mean", "transpose",
 }
 
 

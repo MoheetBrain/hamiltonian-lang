@@ -115,8 +115,16 @@ class _ReasoningChecker:
         self.result = ReasoningResult()
         #: label -> (statement, ClaimId)
         self.claims: dict[str, tuple[Statement, ClaimId]] = {}
-        #: label -> the proposition that claim asserts, once established.
+        #: label -> the proposition that claim asserts, ONCE ESTABLISHED. Only
+        #: assumptions and successfully-checked derivations ever enter this pool; it is
+        #: what `_check_derivation` draws premises from.
         self.propositions: dict[str, Expr] = {}
+        #: label -> the statement, for claims that state something to be SHOWN
+        #: (`goal`, `require`, `prove`). Kept only so a diagnostic can explain why
+        #: citing one as a premise is refused, rather than saying "unknown claim".
+        self.unestablished: dict[str, Statement] = {}
+        #: label -> undischarged mandatory obligations inherited by anything citing it.
+        self.pending: dict[str, list[ReasoningObligation]] = {}
         self.env = RefinementEnv()
         self._ob_counter = 0
 
@@ -206,18 +214,36 @@ class _ReasoningChecker:
         for st in self.module.statements:
             if isinstance(st, AssumeStmt):
                 # An assumption is granted, not proved: that is what `assume` means.
+                # It is therefore ESTABLISHED and may serve as a premise.
                 self.env.assume(st.proposition, source_label=st.label)
                 if st.label:
                     self.propositions[st.label] = st.proposition
-            elif isinstance(st, (RequireStmt, ProveStmt)):
-                # `require` and `prove` state obligations; they are NOT facts, so they
-                # do not enter Γ. Letting `prove P` license steps that need P is exactly
-                # the circularity that makes `prove 1 = 2` look like a proof.
+            elif isinstance(st, (RequireStmt, ProveStmt, GoalStmt)):
+                # `require`, `prove` and `goal` state things to be SHOWN. They are not
+                # facts and they are not established, so they enter neither Γ nor the
+                # premise pool -- they are recorded separately, for diagnostics only.
+                #
+                # This distinction is the whole ballgame, and an earlier version of this
+                # file got it half right: it kept these three out of Γ (with a comment
+                # naming the exact hazard) and then wrote them into `self.propositions`
+                # anyway, which is the pool `_check_derivation` draws premises from. The
+                # result was a module that compiled with zero diagnostics and reported
+                # `1.0 = 2.0` as PROVED:
+                #
+                #     goal   g1 : 1.0 = 2.0
+                #     derive d1 : 2.0 = 1.0 from g1 by symmetry
+                #     derive d2 : 1.0 = 2.0 from d1 by symmetry
+                #     proved g1 by d2
+                #
+                # The kernel was blameless -- both steps really are valid applications of
+                # symmetry. The defect was admitting an unestablished claim as a premise.
+                # Guarding one channel and not the other is worse than guarding neither,
+                # because it reads as though the hazard was handled.
+                # Regression: tests/reasoning/test_circularity.py.
                 if st.label:
-                    self.propositions[st.label] = st.proposition
-            elif isinstance(st, GoalStmt):
-                self.result.goal_status[st.label] = GoalStatus.OPEN
-                self.propositions[st.label] = st.proposition
+                    self.unestablished[st.label] = st
+                if isinstance(st, GoalStmt):
+                    self.result.goal_status[st.label] = GoalStatus.OPEN
             elif isinstance(st, DeriveStmt):
                 self._check_derivation(st)
 
@@ -243,12 +269,40 @@ class _ReasoningChecker:
             return
 
         premise_props: list[Expr] = []
+        inherited: list[ReasoningObligation] = []
         for name in st.premises:
+            unestablished = self.unestablished.get(name)
+            if unestablished is not None:
+                kind = {
+                    GoalStmt: "goal",
+                    RequireStmt: "requirement",
+                    ProveStmt: "claim",
+                }[type(unestablished)]
+                self.diags.error(
+                    "HML-R712",
+                    f"{name!r} is a {kind}, not an established fact, and cannot be a premise",
+                    st.span,
+                    found=name,
+                    correction=(
+                        f"derive {name!r} first, or state it as an assumption if it is "
+                        f"genuinely being granted"
+                    ),
+                    notes=[
+                        f"a {kind} states something to be SHOWN; using it to support a "
+                        f"derivation would make the derivation support itself",
+                        "only `assume` and a checked `derive` are established",
+                    ],
+                )
+                self._reject(st, f"premise {name!r} is not established")
+                return
             prop = self.propositions.get(name)
             if prop is None:
                 self._reject(st, f"premise {name!r} carries no proposition")
                 return
             premise_props.append(prop)
+            # A step resting on a premise with an open obligation inherits it: the
+            # conclusion is no better established than the weakest thing it stands on.
+            inherited.extend(self.pending.get(name, ()))
 
         args = {a.role: a.value for a in st.rule_args}
         application = kernel.apply(st.rule, premise_props, args)
@@ -316,18 +370,33 @@ class _ReasoningChecker:
             obligations.append(ob)
         self.result.obligations.extend(obligations)
 
-        self._finalise_status(st, obligations)
+        self._finalise_status(st, obligations, inherited)
         self.propositions[st.label] = st.conclusion
 
     def _finalise_status(
-        self, st: DeriveStmt, obligations: list[ReasoningObligation]
+        self,
+        st: DeriveStmt,
+        obligations: list[ReasoningObligation],
+        inherited: list[ReasoningObligation],
     ) -> None:
-        """The ONLY place VERIFIED is ever assigned."""
-        undischarged = [
+        """The ONLY place VERIFIED is ever assigned.
+
+        ``inherited`` carries the still-open obligations of this step's premises. They
+        are counted but not re-reported: a chain of ten steps resting on one undischarged
+        `k != 0` should say so once, at the step that generated it, and then decline to
+        certify the nine that follow.
+        """
+        own = [
             o
             for o in obligations
             if o.mandatory and o.status != ObligationStatus.DISCHARGED
         ]
+        still_open = [
+            o
+            for o in inherited
+            if o.mandatory and o.status != ObligationStatus.DISCHARGED
+        ]
+        undischarged = own
         if undischarged:
             st.status = DerivationStatus.CHECKED
             from ..backends.hml import render_expr
@@ -350,8 +419,33 @@ class _ReasoningChecker:
                         "discharged, so the result is not certified",
                     ],
                 )
+        elif still_open:
+            # Structurally correct, own side conditions met, but standing on a premise
+            # whose obligation nobody discharged. Not certified.
+            st.status = DerivationStatus.CHECKED
+            from ..backends.hml import render_expr
+
+            first = still_open[0]
+            self.diags.warn(
+                "HML-R713",
+                (
+                    f"derivation {st.label!r} is CHECKED but not VERIFIED: it rests on "
+                    f"{first.generated_by!r}, whose obligation "
+                    f"{render_expr(first.proposition)} is not established"
+                ),
+                st.span,
+                correction=(
+                    f"discharge the obligation on {first.generated_by!r} and this step "
+                    f"is certified too"
+                ),
+                notes=[
+                    "a conclusion is no better established than the weakest premise it "
+                    "stands on"
+                ],
+            )
         else:
             st.status = DerivationStatus.VERIFIED
+        self.pending[st.label] = own + still_open
         self.result.derivation_status[st.label] = st.status
 
     def _reject(self, st: DeriveStmt, reason: str) -> None:

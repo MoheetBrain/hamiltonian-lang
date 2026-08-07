@@ -20,24 +20,35 @@ from ..ast.nodes import (
     CheckStmt,
     Comparison,
     ConceptDecl,
+    ContinuityExpr,
     Declaration,
     DefineStmt,
+    DerivativeExpr,
     DeriveStmt,
     DistExpr,
     Expr,
     GoalStmt,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Statement,
     UnaryOp,
@@ -365,7 +376,101 @@ class EnglishBackend(Backend):
             }[e.kind]
             return f"{head}, {self.expr(e.body)}"
 
+        # -- V2 mathematical expression coverage (D-026) --------------------
+        #
+        # Controlled English can carry all eleven forms, and carrying them is the whole
+        # point of this backend: it is the view a reader checks the encoding against.
+        # Each clause names the construct explicitly rather than borrowing notation, so
+        # "the expectation of X given Y" cannot be misread as "the expectation of X".
+
+        if isinstance(e, MomentExpr):
+            word = "expectation" if e.kind == "expectation" else "variance"
+            return f"the {word} of {self.expr(e.body)}{self._given_clause(e.given)}"
+
+        if isinstance(e, ProbabilityExpr):
+            return (
+                f"the probability that {self.expr(e.event)}"
+                f"{self._given_clause(e.given)}"
+            )
+
+        if isinstance(e, JointExpr):
+            parts = ", and ".join(self.expr(p) for p in e.parts)
+            return f"the joint probability law of {parts}"
+
+        if isinstance(e, IndependenceExpr):
+            parts = ", and ".join(self.expr(p) for p in e.parts)
+            return f"{parts} are independent{self._given_clause(e.given)}"
+
+        if isinstance(e, MembershipExpr):
+            return (
+                f"{self.expr(e.element)} is a member of {self.expr(e.collection)}"
+            )
+
+        if isinstance(e, SetComprehension):
+            t = e.var_type.render() if e.var_type else "unknown"
+            return (
+                f"the set of every {e.var} that is {_type_phrase(t)} such that "
+                f"{self.expr(e.predicate)}"
+            )
+
+        if isinstance(e, LimitExpr):
+            t = e.var_type.render() if e.var_type else "unknown"
+            return (
+                f"the limit of {self.expr(e.body)} as {e.var}, which is "
+                f"{_type_phrase(t)}, approaches {self.expr(e.point)}"
+            )
+
+        if isinstance(e, DerivativeExpr):
+            t = e.var_type.render() if e.var_type else "unknown"
+            return (
+                f"the derivative of {self.expr(e.body)} with respect to {e.var}, "
+                f"which is {_type_phrase(t)}"
+            )
+
+        if isinstance(e, IntegralExpr):
+            t = e.var_type.render() if e.var_type else "unknown"
+            return (
+                f"the definite integral of {self.expr(e.body)} with respect to "
+                f"{e.var}, which is {_type_phrase(t)}, from {self.expr(e.lower)} to "
+                f"{self.expr(e.upper)}"
+            )
+
+        if isinstance(e, ContinuityExpr):
+            return (
+                f"{self.expr(e.function)} is continuous on {self.expr(e.domain)}"
+            )
+
+        if isinstance(e, RelationExpr):
+            # Deliberately three different sentences. Rendering all three as "is
+            # related to" would erase in the view the very distinction the type system
+            # was extended to make (D-026), and this view is what a reader audits.
+            phrase = {
+                "associated": (
+                    f"{self.expr(e.left)} is statistically associated with "
+                    f"{self.expr(e.right)}"
+                ),
+                "correlated": (
+                    f"{self.expr(e.left)} is correlated with {self.expr(e.right)}"
+                ),
+                "causes": f"{self.expr(e.left)} causes {self.expr(e.right)}",
+            }[e.relation]
+            return phrase
+
+        # A node with no clause above would otherwise be rendered as bland prose and
+        # counted faithful -- the exact failure `backends/base.py` names as the worst
+        # in this codebase. Declare it instead.
+        self.drop(
+            f"expression {type(e).__name__}",
+            "no controlled-English clause is defined for this construct, so the "
+            "sentence would omit it silently",
+            e.span.line,
+        )
         return "an unrepresented expression"
+
+    def _given_clause(self, given: list[Expr]) -> str:
+        if not given:
+            return ""
+        return " given " + ", and ".join(self.expr(g) for g in given)
 
 
 def to_english(module, symbols=None):

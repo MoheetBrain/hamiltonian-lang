@@ -1,0 +1,59 @@
+# Example -- expectation, conditional expectation, events and joint laws.
+#
+# The point of this file is the TYPES, not the arithmetic. Four objects that
+# ordinary notation writes almost identically are four different kinds of thing
+# here, and each annotation below is checked rather than decorative:
+#
+#   X                          RandomVariable[Real]              a measurable function
+#   expectation(X)             Real                              a VALUE
+#   expectation(X | Y)         RandomVariable[Real]              a function of Y
+#   joint(X, Y)                Distribution[Product[Real, Real]] a LAW
+#   probability(X > 0.0)       Probability                       a number in [0, 1]
+#
+# Replace any one of those declared types with another and the file stops
+# compiling. That is the whole claim.
+
+module ConditionalExpectation
+
+rv X : RandomVariable[Real]
+rv Y : RandomVariable[Real]
+rv Z : RandomVariable[Real]
+
+param theta : Real
+
+# E[X] is a value. Conditioning on a fixed parameter leaves it a value: a
+# deterministic function of a constant is a constant.
+def mean_x : Real := expectation(X)
+def mean_x_given_theta : Real := expectation(X | theta)
+
+# E[X | Y] is NOT a value. It is a random variable measurable with respect to Y,
+# so it carries the RandomVariable constructor and cannot be bound to a Real.
+def mean_x_given_y : RandomVariable[Real] := expectation(X | Y)
+
+# Conditioning on two variables generates one sigma-algebra, so the order of the
+# conditioning set is not part of this object's identity.
+def mean_x_given_yz : RandomVariable[Real] := expectation(X | Y, Z)
+
+# Variance squares the dimension. Here everything is dimensionless, so the visible
+# consequence is only that the result is non-negative.
+def spread : NonNegativeReal := variance(X)
+
+# A measurable function of a random variable is a random variable, so its
+# expectation is again a value.
+def mean_exp_x : PositiveReal := expectation(exp(X))
+def mean_scaled : Real := expectation(2.0 * X)
+
+# `X > 0.0` is an EVENT, not a proposition: its truth depends on the draw. It
+# therefore cannot be asserted directly with `require`; it has to be spoken about
+# through its probability, which is what makes the claim below say what it means.
+require probability(X > 0.0) = 0.5
+require probability(X > 0.0 | Y > 0.0) >= 0.5
+
+# The joint law is a Distribution over an ordered pair. It is not a random
+# variable and not a value, so no arithmetic and no comparison applies to it.
+def joint_xy : Distribution[Product[Real, Real]] := joint(X, Y)
+
+# Independence is a property of the laws, so it is an ordinary proposition and
+# may be asserted. Conditional independence uses the same `|` as everything else.
+require independent(X, Y)
+require independent(X, Y | Z)

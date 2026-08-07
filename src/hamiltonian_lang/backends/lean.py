@@ -66,21 +66,32 @@ from ..ast.nodes import (
     Comparison,
     ConceptDecl,
     ConceptMember,
+    ContinuityExpr,
     Declaration,
     DefineStmt,
+    DerivativeExpr,
     DistExpr,
     Expr,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Statement,
     UnaryOp,
@@ -886,6 +897,76 @@ class LeanBackend(Backend):
             self.drop(
                 f"{e.family} distribution expression",
                 "no Lean term denotes a distribution here; see the law statement.",
+                e.span.line,
+            )
+            return None
+
+        # -- V2 mathematical expression coverage (D-026) --------------------
+        #
+        # Two of the eleven are EXACT in Lean because Mathlib's `Set` is the same
+        # object HML's `Set[T]` is. The other nine are dropped, each with the specific
+        # reason -- consistent with this backend's standing policy of emitting only
+        # what is exact and inventing nothing (see the module docstring).
+
+        if isinstance(e, MembershipExpr):
+            element = self._expr(e.element)
+            collection = self._expr(e.collection)
+            if element is None or collection is None:
+                return None
+            return f"{element[0]} ∈ {collection[0]}", _PREC["="]
+
+        if isinstance(e, SetComprehension):
+            var_t = self.lean_type(e.var_type, "a set comprehension", e.span.line)
+            predicate = self._expr(e.predicate)
+            if var_t is None or predicate is None:
+                return None
+            return (
+                f"{{{_lean_name(e.var)} : {_top(var_t)} | {predicate[0]}}}",
+                _ATOM,
+            )
+
+        if isinstance(e, (MomentExpr, ProbabilityExpr, JointExpr, IndependenceExpr)):
+            self.drop(
+                f"expression {type(e).__name__.replace('Expr', '').lower()}",
+                "expectation, probability, joint laws and independence all need "
+                "Mathlib's measure theory: a `MeasureSpace` instance, a probability "
+                "measure and a measurability proof for the variable. None of that is "
+                "derivable from an HML declaration, and the same reasoning already "
+                "drops `law`/`prior`/`likelihood`.",
+                e.span.line,
+            )
+            return None
+
+        if isinstance(e, (LimitExpr, DerivativeExpr, IntegralExpr)):
+            self.drop(
+                f"expression {type(e).__name__.replace('Expr', '').lower()}",
+                "Mathlib has `Filter.Tendsto`, `deriv` and the interval integral, but "
+                "each is junk-valued or vacuous without a side hypothesis HML does not "
+                "state -- `deriv` returns 0 for a function that is not differentiable, "
+                "and the interval integral returns 0 for one that is not integrable. "
+                "Emitting the term without the hypothesis would produce a statement "
+                "that is provable for the wrong reason.",
+                e.span.line,
+            )
+            return None
+
+        if isinstance(e, ContinuityExpr):
+            self.drop(
+                "expression continuity",
+                "`ContinuousOn f D` needs `f` as a Lean function term over the same "
+                "carrier as `D`; HML's `Function[T -> U]` declaration provides a "
+                "variable, not a definition, so the claim would be about an opaque "
+                "symbol.",
+                e.span.line,
+            )
+            return None
+
+        if isinstance(e, RelationExpr):
+            self.drop(
+                f"expression {e.relation}",
+                "Mathlib has no predicate for association, correlation or causation, "
+                "and inventing one would make three distinct HML claims indexed by a "
+                "name Lean does not interpret.",
                 e.span.line,
             )
             return None

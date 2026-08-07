@@ -13,25 +13,36 @@ from ..ast.nodes import (
     CheckStmt,
     Comparison,
     ConceptDecl,
+    ContinuityExpr,
     Declaration,
     DefineStmt,
+    DerivativeExpr,
     DeriveStmt,
     DistExpr,
     Expr,
     GoalStmt,
+    IndependenceExpr,
     Index,
     InferStmt,
+    IntegralExpr,
+    JointExpr,
     LawStmt,
+    LimitExpr,
     Literal,
     LogicalOp,
+    MembershipExpr,
     Module,
     ModuleDecl,
+    MomentExpr,
     ObjectiveStmt,
+    ProbabilityExpr,
     ProvedStmt,
     ProveStmt,
     Quantifier,
     Ref,
+    RelationExpr,
     RequireStmt,
+    SetComprehension,
     SolveStmt,
     Statement,
     UnaryOp,
@@ -76,6 +87,11 @@ _PRIMARY_PREC = 10
 _ADDITIVE_PREC = 5
 
 
+#: `in` is a relation and sits exactly where the comparison operators sit, which is
+#: what `parse_comparison` implements. Non-associative, like them.
+_MEMBERSHIP_PREC = 4
+
+
 def _prec(e: Expr) -> int:
     if isinstance(e, (BinOp, Comparison, LogicalOp)):
         return _PRECEDENCE.get(e.op, 0)
@@ -83,6 +99,10 @@ def _prec(e: Expr) -> int:
         return _UNARY_PREC
     if isinstance(e, Quantifier):
         return 0
+    if isinstance(e, MembershipExpr):
+        return _MEMBERSHIP_PREC
+    # Every other V2 form is keyword-headed and parenthesis- or brace-delimited, so it
+    # is a primary and never needs wrapping.
     return _PRIMARY_PREC
 
 
@@ -144,7 +164,71 @@ def render_expr(e: Expr) -> str:
         t = e.var_type.render() if e.var_type is not None else "?"
         return f"{kw} {e.var} : {t} . {render_expr(e.body)}"
 
+    # -- V2 mathematical expression coverage (D-026) ------------------------
+    #
+    # Round-tripping these is not optional. `render_module` is the surface the
+    # round-trip gate re-parses, and the fallthrough below emits `<ClassName>`, which
+    # re-parses as a comparison against an undeclared name -- output that looks like
+    # source and is not. D-025 had to fix exactly this for `derive`.
+
+    if isinstance(e, MomentExpr):
+        return f"{e.kind}({_render_conditional(e.body, e.given)})"
+
+    if isinstance(e, ProbabilityExpr):
+        return f"probability({_render_conditional(e.event, e.given)})"
+
+    if isinstance(e, JointExpr):
+        return f"joint({', '.join(render_expr(p) for p in e.parts)})"
+
+    if isinstance(e, IndependenceExpr):
+        parts = ", ".join(render_expr(p) for p in e.parts)
+        if e.given:
+            parts += " | " + ", ".join(render_expr(g) for g in e.given)
+        return f"independent({parts})"
+
+    if isinstance(e, MembershipExpr):
+        left = _wrap(e.element, _MEMBERSHIP_PREC, "none", "left")
+        right = _wrap(e.collection, _MEMBERSHIP_PREC, "none", "right")
+        return f"{left} in {right}"
+
+    if isinstance(e, SetComprehension):
+        return f"{{{e.var} : {_binder_type(e)} | {render_expr(e.predicate)}}}"
+
+    if isinstance(e, LimitExpr):
+        return (
+            f"limit({render_expr(e.body)}, {e.var} : {_binder_type(e)} -> "
+            f"{render_expr(e.point)})"
+        )
+
+    if isinstance(e, DerivativeExpr):
+        return f"derivative({render_expr(e.body)}, {e.var} : {_binder_type(e)})"
+
+    if isinstance(e, IntegralExpr):
+        return (
+            f"integral({render_expr(e.body)}, {e.var} : {_binder_type(e)}, "
+            f"{render_expr(e.lower)}, {render_expr(e.upper)})"
+        )
+
+    if isinstance(e, ContinuityExpr):
+        return f"continuous({render_expr(e.function)}, on := {render_expr(e.domain)})"
+
+    if isinstance(e, RelationExpr):
+        return f"{e.relation}({render_expr(e.left)}, {render_expr(e.right)})"
+
     return f"<{type(e).__name__}>"
+
+
+def _binder_type(e: Expr) -> str:
+    t = getattr(e, "var_type", None)
+    return "?" if t is None else t.render()
+
+
+def _render_conditional(head: Expr, given: list[Expr]) -> str:
+    """``<head>`` or ``<head> | g1, g2`` — the shared body of a moment and P(...)."""
+    text = render_expr(head)
+    if given:
+        text += " | " + ", ".join(render_expr(g) for g in given)
+    return text
 
 
 def render_statement(st: Statement) -> str:
