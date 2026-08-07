@@ -5,6 +5,34 @@ prefer reversible choices.
 
 ---
 
+> ## ⚠ DECISION-ID COLLISION — read before citing D-026, D-027 or D-028
+>
+> **Three decision numbers were reused in error on 2026-08-07.** The V2 reasoning work
+> appended records numbered D-026, D-027 and D-028 while records with those numbers
+> already existed. Each of those three IDs therefore identifies **two** decisions:
+>
+> | ID | earlier record (2026-08-06) | later record (2026-08-07, V2) |
+> |---|---|---|
+> | D-026 | the partiality guard must follow definitions | the eleven critical coverage zeros |
+> | D-027 | the Tier-1 name lock is shared vocabulary | premises must be ESTABLISHED |
+> | D-028 | the verifier's dimension re-reader must honour parentheses | wire the refinement environment into the type checker |
+>
+> **Disambiguation rule:** the V2 records are dated 2026-08-07 and appear *after* D-033 in
+> file order. Cite them as "D-026 (V2)" and so on.
+>
+> **Why they were not renumbered.** The three collided records were already committed and
+> pushed, and roughly 65 sites across `src/`, `tests/`, `spec/` and `docs/` reference one
+> number or the other. Several references are genuinely ambiguous without reading their
+> surrounding context — `type_system/__init__.py` cites the V2 record, while
+> `tests/verification/test_dimension_text_parentheses.py` cites the earlier one. A bulk
+> renumber would have had a worse expected outcome than the collision it fixed. The
+> decision is to record the collision precisely rather than to risk corrupting the
+> references.
+>
+> **Prevention.** The architectural freeze that follows was renumbered to D-034…D-039
+> *before* it was committed, after this collision was discovered. Any future record must
+> take a number strictly greater than every number already present in this file.
+
 ## D-001 — Implementation language
 
 **Question.** What should v0 be written in?
@@ -1415,3 +1443,53 @@ module that states no assumption.
 **What this does NOT fix.** Maturity criterion 3.4 remains FAIL: `1/x`, `1/0`, `tan` and
 `0^-1` still compile with zero obligations. Narrowing a symbol's type is not the same as
 a coherent partiality policy, which the directive's §8 asks for and which is not built.
+
+---
+
+## D-034 … D-039 — the architectural freeze
+
+**Date:** 2026-08-07 · **Base:** `0715bfc` · **Full text:** `docs/hml_v2/ARCHITECTURE_FREEZE.md`
+
+Six architectural questions frozen as binding contracts before steps 2-9 implement them.
+Numbered D-034…D-039 after the collision notice at the top of this file was written; an
+earlier draft used D-029…D-034, every one of which was already taken.
+
+- **D-034 evidence semantics** — semantic identity and evidence never mix. `content_hash`
+  is invariant under verification; a status is evidence, not source; premise order IS
+  identity. Consequence stated plainly: *a content hash certifies what was claimed, never
+  that it holds.*
+- **D-035 Γ and scope** — Γ becomes a stack of frames (MODULE/QUANTIFIER/CONCEPT/SCOPE).
+  No fact escapes its frame; obligations discharge only against facts visible at their own
+  frame; `require`/`prove` never contribute facts; narrowing moves down the lattice only;
+  within a frame, order-independent (D-008 consistency).
+- **D-036 definedness** — one policy: TOTAL / GUARDED / CONTRACTED / PARTIAL_UNDECIDABLE.
+  Every operation classified in one registry; an unclassified operation is a **build
+  error**. Division, `tan`, negative powers, indexing, matrix inverse, conditional
+  probability and normalisation become CONTRACTED and always generate a precondition.
+  Totalisation (Lean-style) rejected *for HML specifically*: HML's product is surfacing
+  the condition to a model that must repair, and totalising hides the signal the repair
+  loop consumes.
+- **D-037 approximation** — a distinct relation, never equality; no coercion; does not
+  chain without explicit bound arithmetic; a bound or an explicit UNBOUNDED, never silence.
+- **D-038 certificates** — one evidence path for internal and external checkers alike.
+  `UNSUPPORTED` and `INCONCLUSIVE` never collapse; `REFUTED` means REJECTED, not OPEN; a
+  TIMEOUT is never an approximation of DISCHARGED.
+- **D-039 extension trust** — CORE / LIBRARY / USER, one-way. **A claim's effective trust
+  is the MINIMUM over its dependency closure.** No `trusted` keyword exists and none will;
+  a USER rule can never reach VERIFIED. Prevents "VERIFIED" degrading into "somebody wrote
+  a rule that said so".
+
+**Why freeze first.** V2 shipped three defects of one shape: a mechanism half-built, with
+the missing half being the half that made it load-bearing — `assume` not narrowing types;
+`push`/`pop` that nothing called; `goal` kept out of Γ and let into the premise pool.
+Freezing the contract before implementing is the countermeasure.
+
+**Verification.** `tests/reasoning/test_architecture_freeze.py` — 12 tests, all passing,
+pinning every frozen decision that is *already* true (E1, E3, E5, G3, G4, G5, X1, X3).
+Decisions describing unbuilt work are deliberately NOT tested: an xfail pretending to be a
+guard is worse than an absent test.
+
+**Explicitly not decided:** whether the AST needs a generic Apply/Bind/Attribute core
+(step 5's fork, being measured); the route to the 0.85 closure target; import syntax; and
+whether `prove` migrates to a goal (a real contract-vs-implementation divergence, deferred
+to step 6).

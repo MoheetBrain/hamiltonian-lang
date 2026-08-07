@@ -58,6 +58,15 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
+**A 16-step programme is now underway; step 1 (architectural freeze) is done.**
+`docs/hml_v2/ARCHITECTURE_FREEZE.md` freezes six decisions as binding contracts —
+evidence semantics, Γ/scope, definedness, approximation, verifier certificates and
+extension trust (D-034…D-039) — each with its rejected alternatives recorded. Twelve
+tests pin the decisions that already hold. **The freeze is a contract, not an
+implementation**: scoped Γ, precondition contracts, approximation and certificates are
+all still absent from the compiler. Steps 2–4 implement them next; step 5's AST fork
+(generic Apply/Bind/Attribute core vs bespoke nodes) is being measured, not assumed.
+
 **Phases III-IV are NOT done** — compositional-closure measurement, the extension/module
 mechanism, the synthetic trajectory generator, the 100+ specimen suite and the
 capability-audit rerun all remain. **No maturity-ladder claim is made until the audit is

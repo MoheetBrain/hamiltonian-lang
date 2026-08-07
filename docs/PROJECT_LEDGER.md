@@ -2846,3 +2846,52 @@ scoped assumptions, absent partiality obligations and absent approximation all s
 cheapest remaining level gate: 0.692 against a 0.70 Level 2 threshold. Then a coherent
 partiality policy (criterion 3.4), which the directive's §8 specifies and which is not
 built. Do not run any HML-vs-English model experiment until V2 is frozen.
+
+---
+
+## 2026-08-07 (fourth entry) — architectural freeze (programme step 1)
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `0715bfc` · **Stage:** step 1 of 16
+
+**Objective.** Freeze six architectural decisions as binding contracts so that steps 2-9
+are implementation rather than redesign.
+
+**Files and systems changed.** New `docs/hml_v2/ARCHITECTURE_FREEZE.md` and
+`tests/reasoning/test_architecture_freeze.py`; `DECISIONS.md` gains D-034…D-039.
+
+**What was completed.** Evidence semantics, Γ/scope, definedness, approximation, verifier
+certificates and extension trust are frozen, each with its rejected alternatives and the
+reason each is wrong *for HML specifically* rather than wrong in general. Twelve pinning
+tests lock the decisions that already hold.
+
+**Decisions made and why.** D-034…D-039. The two with the most downstream force:
+definedness becomes precondition contracts with a classification registry whose
+completeness is a **build error** rather than a review item (D-036 D4); and a claim's
+effective trust is the **minimum over its dependency closure** (D-039 X2), which is what
+makes the trust lattice do work instead of decorate.
+
+**Tests and verification actually executed.**
+- `.venv/bin/python -m pytest tests/reasoning/test_architecture_freeze.py -q` → **12 passed**
+- measured before writing D-031: `1.0/0.0`, `tan(x)` and `x^-1` all compile with **zero**
+  relevant obligations while `log`/`sqrt` are type-guarded — two policies, no principle
+
+**Failures and unresolved uncertainty.**
+- **The freeze is a contract, not an implementation.** Scoped Γ, precondition contracts,
+  approximation and certificates are all still absent from the compiler. Only the
+  already-true decisions are mechanically enforced; the rest are prose until their step
+  lands. Deliberately no xfail guards — they look like enforcement without being it.
+- The AST fork (generic Apply/Bind/Attribute core vs bespoke nodes) is **not** decided
+  here. Every frozen decision is written to hold under either answer; that claim is
+  untested until the compositionality study closes the fork.
+- `prove` still diverges from `GRAMMAR_CONTRACT.md` §1. Deferred to step 6, not resolved.
+- The commit protocol hook blocked this commit twice: once because the worktree/hook
+  interaction evaluates the primary directory, and once because an earlier ledger append
+  was inside a blocked compound command and so never ran. Recorded because the second was
+  a real omission on my part, not a tooling artefact.
+
+**Effect on the overall project.** Steps 2-9 have a specification. Measured maturity is
+unchanged: still LEVEL 1, closure still 0.692.
+
+**Next intended step.** Step 2 (harden the global reasoning graph) and step 4 (partiality
+contracts) in parallel; step 3 (scoped Γ) after step 4 to avoid colliding in the type
+checker. Step 5's fork verdict is pending.
