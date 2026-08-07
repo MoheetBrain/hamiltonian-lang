@@ -2436,3 +2436,116 @@ tracked; leaving 285 untracked would have made the cache silently machine-local.
 protocol choice it depends on is committed and dated ahead of the first result.
 
 **Next intended step.** The 8-call operational probe, then the SE headroom gate.
+
+---
+
+## 2026-08-07 — v1.2 falsified by its own probe; protocol v1.3, four harness defects fixed, one task excluded
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** V1 benchmark, still pre-run.
+
+**Objective.** Act on what the operational probe and the read-only task audit found, before
+any scientific call is made.
+
+**Files and systems changed.**
+
+- new `evaluation/v1_benchmark/answer_extraction.py` — the v1.3 scorer (D1, D2, D3)
+- new `evaluation/v1_benchmark/arms_v1_3.py` — the matched repair prompt (D4)
+- new `evaluation/v1_benchmark/run_experiment.py` — the single autonomous command + gate
+- `evaluation/v1_benchmark/protocol_v1_2.py` — v1.3 constants, `EXCLUDED_TASKS`, probe finding
+- `evaluation/v1_benchmark/driver.py` — wired to the v1.3 scorer and repair prompt; exclusion
+- `evaluation/v1_benchmark/analyse.py` — scoring-failure and revised-answer diagnostics
+- new `tests/evaluation/test_answer_extraction_v13.py` (32 tests)
+- `docs/evaluation/V1_PROTOCOL_AMENDMENT_v1_2.md` — the v1.3 section
+- **no change** to `tasks.py`, `arms.py`, `scoring.py` or `evaluation/corpus/cso.py`
+
+**What was completed.**
+
+**The probe falsified v1.2's central number.** Run on the two pre-declared tasks — `v1b_23`
+(largest measured envelope) and `v1b_06` (tied-hardest, tie broken by frozen order) — at the
+4096-token allowance, **both calls truncated and the run halted**:
+
+| task | completion tokens | reasoning chars | content chars |
+|---|---:|---:|---:|
+| `v1b_06_simpson_reversal` | 4096 (capped) | 10,617 | **0** |
+| `v1b_23_knowledge_closure_choice` | 4096 (capped) | 12,070 | 2,457 (cut off) |
+
+The cause is a model property v1.2 did not account for: **`gemma4:31b` is a reasoning
+model.** Its thinking trace is billed to `completion_tokens` but returned in a separate
+field — documented at module level in `evaluation/model_adapters/ollama.py`, and not
+connected to the budget decision when v1.2 was written. The trace alone costs ~3,000–4,000
+tokens, so at 4096 the answer field is empty or truncated. An empty `content` is an
+**absent answer** the scorer records as a failure of the representation: the exact artefact
+v1.2 existed to remove, reproduced one rung lower.
+
+**v1.3: allowance 4096 → 8192 per call, 8192 → 16384 per arm, identical in both arms.**
+Runtime reconfigured to `1 x 32768` (the mission's stated contingency). Total KV context is
+unchanged — `16384 x 2` became `32768 x 1` — so this costs no memory and trades parallelism
+for slot size. Model digest re-verified after the restart: unchanged.
+
+**Four harness defects, each demonstrated on the real scorer and independently reproduced
+before any code was changed.**
+
+| # | defect | evidence | direction of harm |
+|---|---|---|---|
+| D1 | the **first** `<ANSWER>` span was scored | `"…<ANSWER>2.5</ANSWER> wait, wrong. Final: <ANSWER>2.2857</ANSWER>"` → `2.5`, incorrect | penalises the second call **exactly when it works**, in both arms |
+| D2 | the first number-like substring was mined out | `16/7 → 16.0`, `sqrt(76) → 76.0`, `ln(5/2) → 5.0` | **differential** — a formal arm is likelier to write exact forms, so it falls on the **treatment** |
+| D3 | no marker → the whole reply was searched | `"flipped 10 times … Var(H) = 2.5."` scored **correct** against key 10 | a formatting failure scored as reasoning success; inflates **both** arms |
+| D4 | SE carried its whole first reply; HML carried only the fence | `hml_repair_prompt` never receives `r1.content` | handicaps the **treatment** |
+
+D2 touches 9 of 24 tasks. D4 contradicts the frozen design's own claim that the arms
+*"differ in exactly one respect"* — they differed in two.
+
+Fixed in a **v1.3 layer, not in `cso.py`**, which scored eval001 and ACQ0 and whose numbers
+must stay reproducible.
+
+**A bug in my own fix, caught by its test.** The closed-form parser rewrote `ln → math.log`
+and then `log → math.log` in successive passes, so `ln(5/2)` became `math.math.log(5/2)` and
+failed — silently reintroducing D2 for every logarithm. Now a single pass over an
+alternation, which cannot re-enter its own output.
+
+**A second bug caught pre-data, in the decision rules.** Continuation condition 3 read
+`hml_repaired >= 1.5 * se_repaired`, which is **true when both are zero** — "HML corrects 50%
+more" was satisfiable by nothing happening at all. A strict `>` was added.
+
+**`v1b_11_negation_scope_choice` excluded** for a pre-run defect on two independent counts:
+its options are not mutually exclusive (B is a correct formalisation on its own; D asserts B
+and C both are, and is not itself a formalisation), and the choice scorer requires exactly
+one option letter, so `<ANSWER>D (both B and C are correct)</ANSWER>` scores **False** while
+a bare `<ANSWER>D</ANSWER>` scores True — the task penalises a model for explaining a
+correct choice. The corpus file is not edited; the exclusion lives in
+`protocol_v1_2.EXCLUDED_TASKS` and appears in every manifest. **23 valid paired tasks
+remain, against a required 20.**
+
+**Tests and verification actually executed.**
+
+| check | command | result |
+|---|---|---|
+| v1.3 scorer + matched carry | `pytest tests/evaluation/test_answer_extraction_v13.py -q` | **32 passed** |
+| decision rules + statistics | `pytest tests/evaluation/test_v1_analyse.py -q` | **27 passed** |
+| driver guarantees | `pytest tests/evaluation/test_v1_driver.py -q` | **15 passed** |
+| whole evaluation suite | `pytest tests/evaluation/ -q` | **all passed** |
+| envelope fit at 8192 / 32768 | `python -m evaluation.v1_benchmark.calibrate_envelope` | **all_fit=True**, worst HML repair 27,120 / 32,768 |
+| all 24 gold keys under v1.3 | direct check | **24/24 correct** |
+| headroom bands at N=23 | direct check | ideal 8–15, usable 6–17 |
+| digest after server restart | `/api/tags` | **unchanged** |
+
+**Independent audits (read-only, pre-run).** Two reviewers. Key verification: **24/24 keys
+re-derived and confirmed**, including all seven convention-traps. Task audit: raised the
+four defects above, all of which I reproduced myself before acting; it also certified no
+duplicates (max prose Jaccard 0.244), zero worked demonstrations, and byte-identical problem
+text across arms.
+
+**Failures and unresolved uncertainty.**
+
+- **Still no scientific call.** Nothing here is evidence about HML.
+- The allowance has now been raised **twice**, the second time in response to a measurement.
+  Both changes are dated before any scientific result. Neither was made with an outcome in
+  view, and both are recorded rather than folded into a claim of the original configuration.
+- Serial execution at `1 x 32768` is materially slower than the previous two-slot
+  arrangement. The run is crash-safe and resumable, so the cost is wall time, not risk.
+- 4 pre-existing `ruff` errors remain in `evaluation/h2_screen/`. Untouched.
+
+**Effect.** The measurement now scores what the model actually answered, gives both arms the
+same prior working, cannot silently truncate, and runs to a verdict from one command.
+
+**Next intended step.** Complete the 8-call probe at v1.3, then the SE headroom gate.

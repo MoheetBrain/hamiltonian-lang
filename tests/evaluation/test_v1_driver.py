@@ -23,6 +23,7 @@ from evaluation.v1_benchmark.driver import (
     run_arm,
     scientific_input_hash,
 )
+from evaluation.v1_benchmark.protocol_v1_2 import PER_CALL_COMPLETION_ALLOWANCE
 from evaluation.v1_benchmark.tasks import build_tasks
 
 
@@ -172,7 +173,7 @@ def test_hml_arm_preserves_module_diagnostics_and_verdict(paths: RunPaths) -> No
     assert len(rec["calls"]) == 2
     for c in rec["calls"]:
         assert c["system"] and c["user"] and c["prompt_sha256"]
-        assert c["requested_max_tokens"] == 4096
+        assert c["requested_max_tokens"] == PER_CALL_COMPLETION_ALLOWANCE
 
 
 def test_both_arms_make_exactly_two_calls_per_task(paths: RunPaths) -> None:

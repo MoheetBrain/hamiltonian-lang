@@ -28,7 +28,35 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**DEVELOPMENTAL PROTOCOL v1.2 COMMITTED; THE DECISIVE SE-vs-HML-V1 RUN IS ARMED BUT NOT YET
+**DEVELOPMENTAL PROTOCOL v1.3 — v1.2 WAS FALSIFIED BY ITS OWN PROBE, AND FOUR HARNESS
+DEFECTS WERE FOUND AND FIXED. NO SCIENTIFIC CALL HAS BEEN MADE.**
+
+The operational probe ran the two pre-declared tasks at v1.2's 4096-token allowance and
+**both truncated**. The cause is a model property v1.2 did not account for: `gemma4:31b` is
+a reasoning model whose thinking trace is billed to `completion_tokens` but returned in a
+separate field. On `v1b_06` the trace consumed the entire allowance and returned **zero
+characters of content** — an absent answer, which is exactly the artefact the amendment
+exists to prevent, reproduced one rung lower.
+
+- **Allowance raised to 8192 per call / 16384 per arm**, identically in both arms.
+- **Runtime reconfigured to `1 x 32768`** — the mission's stated contingency. Total KV
+  context is unchanged (`16384 x 2` → `32768 x 1`), so it costs no memory; it trades
+  parallelism for slot size. Digest re-verified after restart.
+- **Four harness defects, demonstrated and repaired** (all independently reproduced before
+  any change): **D1** the *first* `<ANSWER>` span was scored rather than the last, which
+  penalised the second call exactly when it worked; **D2** the first number-like substring
+  was mined out of the answer, so `16/7 → 16.0` and `ln(5/2) → 5.0` — a **differential**
+  error, since a formal arm is likelier to write exact forms, so it fell on the treatment;
+  **D3** a reply with no marker was scored against its whole text, so
+  `"flipped 10 times … Var(H) = 2.5"` scored **correct** against key 10; **D4** SE carried
+  its whole first reply into call two while HML carried only the extracted fence, which
+  handicapped the treatment and contradicted the design's own claim that the arms "differ
+  in exactly one respect".
+- **`v1b_11_negation_scope_choice` excluded** for a pre-run defect: its options are not
+  mutually exclusive and the choice scorer cannot accept an explained answer. **23 valid
+  paired tasks remain against a required 20.**
+
+Previously: **DEVELOPMENTAL PROTOCOL v1.2 COMMITTED; THE DECISIVE SE-vs-HML-V1 RUN IS ARMED BUT NOT YET
 RUN.** The 24-task benchmark has an amended runtime budget, a crash-safe driver, and two
 pre-run defects fixed. No scientific call has been made at the time of this commit.
 

@@ -28,10 +28,10 @@ from evaluation.v1_benchmark.arms import (
     MODEL_DIGEST,
     TEMPERATURE,
     hml_initial_prompt,
-    hml_repair_prompt,
     se_initial_prompt,
     se_review_prompt,
 )
+from evaluation.v1_benchmark.arms_v1_3 import hml_repair_prompt_v13
 from evaluation.v1_benchmark.diagnostics_budget import bound_diagnostics
 from evaluation.v1_benchmark.envelope import (
     RESERVE_TOKENS,
@@ -118,7 +118,9 @@ def main() -> int:
         elif (arm, stage) == ("HML-V1", "initial"):
             p = hml_initial_prompt(task.cso, surface_spec=HML_SPEC)
         else:
-            p = hml_repair_prompt(task.cso, module, diags, surface_spec=HML_SPEC)
+            # v1.3 repair carries the prior working AS WELL AS the module, so the
+            # conservative bound must include both at the allowance ceiling.
+            p = hml_repair_prompt_v13(task.cso, carried, module, diags, surface_spec=HML_SPEC)
 
         tokens = measure(p.system, p.user, adapter)
         chars = len(p.system) + len(p.user)

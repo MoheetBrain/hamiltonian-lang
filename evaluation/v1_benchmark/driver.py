@@ -50,8 +50,10 @@ from typing import Any
 
 from evaluation.corpus.renderers import HML_SPEC, SCHEMA_A_PRIME
 from evaluation.model_adapters.ollama import Generation, OllamaAdapter, OllamaConfig
+from evaluation.v1_benchmark import answer_extraction
 from evaluation.v1_benchmark import arms as arms_mod
 from evaluation.v1_benchmark import scoring as scoring_mod
+from evaluation.v1_benchmark.answer_extraction import score_answer_v13
 from evaluation.v1_benchmark.arms import (
     MODEL,
     MODEL_DIGEST,
@@ -63,8 +65,10 @@ from evaluation.v1_benchmark.arms import (
     se_initial_prompt,
     se_review_prompt,
 )
+from evaluation.v1_benchmark.arms_v1_3 import hml_repair_prompt_v13
 from evaluation.v1_benchmark.diagnostics_budget import bound_diagnostics
 from evaluation.v1_benchmark.protocol_v1_2 import (
+    EXCLUDED_TASKS,
     NUM_PARALLEL,
     PER_CALL_COMPLETION_ALLOWANCE,
     PER_SLOT_CONTEXT,
@@ -200,7 +204,14 @@ def scientific_input_hash() -> dict[str, str]:
             score_answer, scoring_mod.classify_diagnostics, scoring_mod.CompileVerdict
         ),
         "compiler": _source_hash(compile_source),
-        "extraction": _source_hash(extract_hml, arms_mod.strip_answer_block),
+        "extraction": _source_hash(
+            extract_hml,
+            arms_mod.strip_answer_block,
+            answer_extraction.extract_final_answer,
+            answer_extraction.parse_numeric,
+            answer_extraction.score_answer_v13,
+        ),
+        "repair_prompt_v13": _source_hash(hml_repair_prompt_v13),
         "diagnostics_budget": _source_hash(bound_diagnostics),
     }
 
@@ -228,6 +239,7 @@ def build_manifest(paths: RunPaths, *, task_ids: list[str], note: str) -> dict[s
         "surface": "FROZEN_L1_SURFACE (HML_SPEC)",
         "surface_sha256": hashlib.sha256(HML_SPEC.encode()).hexdigest(),
         "frozen_task_order": task_ids,
+        "excluded_tasks": EXCLUDED_TASKS,
         "n_tasks": len(task_ids),
         "scientific_input_hash": scientific_input_hash(),
         "arms": [str(Arm.SE), str(Arm.HML_V1)],
@@ -311,13 +323,15 @@ def _run_se_task(task: BenchTask, adapter: OllamaAdapter) -> dict[str, Any]:
     g1 = adapter.generate(p1.system, p1.user)
     c1 = _call_record("initial", p1, g1)
     _guard_call(c1, task.id, str(Arm.SE))
-    first_ok, first_norm = score_answer(cso, g1.content)
+    first_ok, first_norm, first_diag = score_answer_v13(cso.answer, g1.content)
 
     p2 = se_review_prompt(cso, g1.content)
     g2 = adapter.generate(p2.system, p2.user)
     c2 = _call_record("review", p2, g2)
     _guard_call(c2, task.id, str(Arm.SE))
-    final_ok, final_norm = score_answer(cso, g2.content)
+    final_ok, final_norm, final_diag = score_answer_v13(cso.answer, g2.content)
+    c1["scoring"] = first_diag
+    c2["scoring"] = final_diag
 
     return {
         "task_id": task.id,
@@ -344,19 +358,27 @@ def _run_hml_task(task: BenchTask, adapter: OllamaAdapter, surface: str) -> dict
     g1 = adapter.generate(p1.system, p1.user)
     c1 = _call_record("initial", p1, g1)
     _guard_call(c1, task.id, str(Arm.HML_V1))
-    first_ok, first_norm = score_answer(cso, g1.content)
+    first_ok, first_norm, first_diag = score_answer_v13(cso.answer, g1.content)
 
     module = extract_hml(g1.content)
     verdict = classify_diagnostics(module)
     bounded = bound_diagnostics(verdict.rendered)
 
-    p2 = hml_repair_prompt(
-        cso, module or "(no module emitted)", bounded.text, surface_spec=surface
+    # v1.3: carry the full prior reply, exactly as the SE arm does, so that compiler
+    # diagnostics are the ONLY thing distinguishing the two arms' second calls.
+    p2 = hml_repair_prompt_v13(
+        cso,
+        g1.content,
+        module or "(no module emitted)",
+        bounded.text,
+        surface_spec=surface,
     )
     g2 = adapter.generate(p2.system, p2.user)
     c2 = _call_record("repair", p2, g2)
     _guard_call(c2, task.id, str(Arm.HML_V1))
-    final_ok, final_norm = score_answer(cso, g2.content)
+    final_ok, final_norm, final_diag = score_answer_v13(cso.answer, g2.content)
+    c1["scoring"] = first_diag
+    c2["scoring"] = final_diag
 
     repaired = extract_hml(g2.content)
     final_verdict = classify_diagnostics(repaired) if repaired else verdict
@@ -544,12 +566,22 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--note", default="")
     ap.add_argument("--workers", type=int, default=NUM_PARALLEL)
     ap.add_argument("--init-only", action="store_true")
+    ap.add_argument(
+        "--include-excluded",
+        action="store_true",
+        help="run tasks excluded for a documented pre-run defect (probe use only)",
+    )
     args = ap.parse_args(argv)
 
     paths = RunPaths(args.run_id)
     paths.ensure()
     all_tasks = build_tasks()
     order = [t.id for t in all_tasks]
+    if not args.include_excluded:
+        dropped = [t for t in order if t in EXCLUDED_TASKS]
+        order = [t for t in order if t not in EXCLUDED_TASKS]
+        for d in dropped:
+            print(f"EXCLUDED (pre-run defect) {d}: {EXCLUDED_TASKS[d]}", file=sys.stderr)
     if args.tasks:
         order = [t for t in order if t in set(args.tasks)]
     build_manifest(paths, task_ids=order, note=args.note)

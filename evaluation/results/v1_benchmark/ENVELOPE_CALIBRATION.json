@@ -1,9 +1,9 @@
 {
   "model": "gemma4:31b",
   "digest": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
-  "per_call_completion_allowance": 4096,
+  "per_call_completion_allowance": 8192,
   "reserve_tokens": 256,
-  "per_slot_context": 16384,
+  "per_slot_context": 32768,
   "rule": "measured_prompt_tokens + allowance + reserve <= per_slot_context",
   "note": "Call-two rows are upper bounds. The carried body is synthetic and sized as a completion that consumed the entire allowance, and the HML module filler is denser than the ratio used to size it, so the measured repair envelope stands for a module LARGER than the 4096-token allowance can produce. The bound is therefore conservative in the safe direction. Diagnostics are at the v1.2 cap.",
   "english_chars_per_token": 4.4,
@@ -18,9 +18,9 @@
       "chars": 4400,
       "measured_prompt_tokens": 1199,
       "chars_per_token": 3.67,
-      "required_total": 5551,
-      "per_slot_context": 16384,
-      "headroom": 10833,
+      "required_total": 9647,
+      "per_slot_context": 32768,
+      "headroom": 23121,
       "fits": true
     },
     {
@@ -28,12 +28,12 @@
       "stage": "repair",
       "task_id": "v1b_23_knowledge_closure_choice",
       "synthetic_carry": true,
-      "chars": 13688,
-      "measured_prompt_tokens": 6505,
-      "chars_per_token": 2.104,
-      "required_total": 10857,
-      "per_slot_context": 16384,
-      "headroom": 5527,
+      "chars": 62120,
+      "measured_prompt_tokens": 18672,
+      "chars_per_token": 3.327,
+      "required_total": 27120,
+      "per_slot_context": 32768,
+      "headroom": 5648,
       "fits": true
     },
     {
@@ -44,9 +44,9 @@
       "chars": 1667,
       "measured_prompt_tokens": 405,
       "chars_per_token": 4.116,
-      "required_total": 4757,
-      "per_slot_context": 16384,
-      "headroom": 11627,
+      "required_total": 8853,
+      "per_slot_context": 32768,
+      "headroom": 23915,
       "fits": true
     },
     {
@@ -54,12 +54,12 @@
       "stage": "review",
       "task_id": "v1b_23_knowledge_closure_choice",
       "synthetic_carry": true,
-      "chars": 19273,
-      "measured_prompt_tokens": 3323,
-      "chars_per_token": 5.8,
-      "required_total": 7675,
-      "per_slot_context": 16384,
-      "headroom": 8709,
+      "chars": 37295,
+      "measured_prompt_tokens": 6326,
+      "chars_per_token": 5.896,
+      "required_total": 14774,
+      "per_slot_context": 32768,
+      "headroom": 17994,
       "fits": true
     }
   ]

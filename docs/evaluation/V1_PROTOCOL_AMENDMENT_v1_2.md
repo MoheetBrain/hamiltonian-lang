@@ -165,3 +165,131 @@ arm and is noted as a limitation, not fixed.
 - Raising the ceiling removes a truncation artefact. It does not make the measurement
   fair in any other respect; the unmatched dimensions recorded in `arms.MATCHING`
   (prompt length, notation familiarity) are unchanged and still bias **against** HML-V1.
+
+---
+
+# Developmental protocol v1.3 — superseding v1.2, still before any scientific call
+
+v1.2 above was committed (`ec5750c`) before any model call. The **operational probe then
+falsified its central number**, and four harness defects were demonstrated by a read-only
+audit. Both are repaired here. **No scientific call has been made at the time of writing;
+v1.3 is still a pre-run protocol.**
+
+## 1. The probe falsified the 4096-token allowance
+
+The probe ran the two pre-declared tasks — `v1b_23` (largest measured envelope) and
+`v1b_06` (tied-hardest at predicted accuracy 0.45, tie broken by frozen task order) —
+through the SE arm at the v1.2 allowance. **Both calls truncated and the run halted.**
+
+| task | completion tokens | reasoning chars | content chars |
+|---|---:|---:|---:|
+| `v1b_06_simpson_reversal` | 4096 (capped) | 10,617 | **0** |
+| `v1b_23_knowledge_closure_choice` | 4096 (capped) | 12,070 | 2,457 (cut off) |
+
+The cause is a property of the model that the v1.2 amendment did not account for:
+**`gemma4:31b` is a reasoning model.** Its thinking trace is billed to `completion_tokens`
+but returned in a *separate* `reasoning` field — a behaviour `evaluation/model_adapters/
+ollama.py` documents at module level. The trace alone costs ~10,600–12,100 characters
+(~3,000–4,000 tokens), so at a 4096 allowance it consumes the entire budget and the answer
+field is empty or truncated.
+
+An empty `content` field is an **absent answer**, which the scorer records as a failure of
+the representation under test. That is precisely the artefact the amendment exists to
+remove, so 4096 does not merely underperform — it reproduces the exact failure mode v1.2 was
+written to prevent, one rung lower.
+
+**v1.3 therefore sets `PER_CALL_COMPLETION_ALLOWANCE = 8192` and
+`TOTAL_COMPLETION_ALLOWANCE_PER_ARM = 16384`, applied identically to both arms.**
+
+This is a deviation from the figure specified for this run. It is recorded as one. The
+alternative — running at 4096 — would have produced a guaranteed-invalid measurement.
+
+## 2. Runtime reconfigured to the single 32,768-token slot
+
+At an 8192 allowance the conservative call-two envelope no longer fits a 16,384 slot, so the
+mission's stated contingency applies. The server was restarted as:
+
+```
+OLLAMA_NUM_PARALLEL=1  OLLAMA_CONTEXT_LENGTH=32768  OLLAMA_KEEP_ALIVE=4h
+```
+
+Total KV context is **unchanged** — it was `16384 x 2` and is now `32768 x 1` — so this
+costs no additional memory. It trades parallelism for slot size. Model digest re-verified
+after the restart: `6316f0629137b426…`, identical to the pin.
+
+Re-measured envelopes (`max_tokens=1` calls; call-two rows are upper bounds with the carried
+body **and** the module both at the allowance ceiling, which double-counts and is therefore
+conservative):
+
+| arm | stage | prompt tokens | required | headroom vs 32,768 |
+|---|---|---:|---:|---:|
+| SE | initial | 405 | 8,853 | 23,915 |
+| SE | review | 6,326 | 14,774 | 17,994 |
+| HML-V1 | initial | 1,199 | 9,647 | 23,121 |
+| HML-V1 | repair | 18,672 | 27,120 | **5,648** |
+
+## 3. Four harness defects, demonstrated and repaired
+
+Found by a read-only audit and **independently reproduced** before any change was made.
+Fixed in `evaluation/v1_benchmark/answer_extraction.py` and `arms_v1_3.py` — deliberately
+*not* in `evaluation/corpus/cso.py`, which scored eval001 and ACQ0 and whose historical
+numbers must stay reproducible.
+
+| # | defect | demonstrated | direction of harm |
+|---|---|---|---|
+| **D1** | the **first** `<ANSWER>` span was scored, not the last | `"…<ANSWER>2.5</ANSWER> wait, wrong. Final: <ANSWER>2.2857</ANSWER>"` → scored `2.5`, **incorrect** | penalises the second call **exactly when it works** — it defeats the two-call design in both arms |
+| **D2** | the first number-like substring was mined out of the answer | `16/7 → 16.0`, `sqrt(76) → 76.0`, `ln(5/2) → 5.0`, `-1/15 → -1.0` | **differential**: a formal arm is likelier to answer `16/7` than `2.2857`, so it falls preferentially on the **treatment** and biases the paired contrast |
+| **D3** | a reply with no marker was scored against its whole text | `"The coin is flipped 10 times … Var(H) = 2.5."` scored **CORRECT** against key 10 | a formatting failure scored as a reasoning success; inflates **both** arms toward saturation |
+| **D4** | SE carried its whole first reply into call two; HML carried **only the extracted fence** | `hml_repair_prompt` never receives `r1.content` | handicaps the **treatment**; a kill verdict resting on it would not be trustworthy |
+
+D2 affects 9 of 24 tasks (those with an exact closed-form key). D4 contradicts the frozen
+design's own stated intent, that the arms *"differ in exactly one respect."* They differed
+in two; v1.3 makes that sentence true.
+
+Regression tests: `tests/evaluation/test_answer_extraction_v13.py` (32 tests). Each defect
+is pinned **twice** — once asserting the fix, once asserting the frozen scorer really did
+misbehave — so the justification for the fix cannot silently lapse.
+
+### A bug found in the fix itself
+
+The closed-form parser first rewrote `ln → math.log` and then `log → math.log` as separate
+passes, so `ln(5/2)` became `math.math.log(5/2)` and failed to parse — silently reintroducing
+D2 for every logarithm. It is now a single pass over an alternation, which cannot re-enter
+its own output. Pinned by
+`test_logarithm_substitution_does_not_re_enter_itself`.
+
+### Why none of this can flatter either arm
+
+All four are applied by the same code path to both arms, before any scientific call, and
+none consults the arm, the task, or the key. D1, D2 and D4 currently penalise the treatment;
+D3 currently rewards non-answers in both arms. The net direction is not predictable in
+advance and was not chosen with any result in view.
+
+## 4. One task excluded, for a pre-run defect
+
+**`v1b_11_negation_scope_choice` is excluded.** Two independent reasons, neither derived
+from a model outcome:
+
+1. **The options are not mutually exclusive.** B is a correct formalisation on its own, C is
+   too, and D asserts that both are. The stem calls all five "candidate formalisations" and
+   asks for "the correct option" with no "most complete" instruction — so B is defensible,
+   and the intended answer D is not itself a formalisation.
+2. **The scorer cannot accept an explained answer.** The choice branch requires exactly one
+   option letter in the answer span, and this task's correct answer *intrinsically names B
+   and C*. Verified: `<ANSWER>D (both B and C are correct)</ANSWER>` scores **False**, while
+   a bare `<ANSWER>D</ANSWER>` scores True. The task penalises a model for explaining a
+   correct choice.
+
+**23 valid paired tasks remain, against a required minimum of 20.**
+
+The corpus file is **not** edited; the exclusion lives in `protocol_v1_2.EXCLUDED_TASKS` and
+is recorded in every run manifest, so it is auditable and reversible.
+
+## 5. What v1.3 still cannot claim
+
+- It is **not** the original configuration, and no report derived from it may say it is.
+- The allowance was raised **twice**, the second time in response to a probe measurement.
+  Both changes are dated before any scientific call; neither was made with a result in view.
+- Notation familiarity and prompt length remain unmatched and still bias **against** HML-V1.
+- The HML arm still repairs its module without the language specification in context. This
+  is matched (SE likewise loses its schema) and is left as frozen.
