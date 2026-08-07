@@ -58,6 +58,15 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
+**The AST fork is decided on measurement: no rewrite (D-041).** The 48 composition
+specimens were encoded and executed for the first time — STRICT closure **20/48 = 0.417**
+(the legacy 13-probe subset reads 0.692 at the same SHA; they are different instruments).
+Failure attribution over 28 failures: GRAMMAR 14 · TYPE 8 · COMPILER 3 · CONSTRAINT 2 ·
+SCOPE 1 · CANONICAL 0 · BACKEND 0. A generic Apply/Bind/Attribute core would reach
+**0.563 — below the Level 2 threshold** — while targeted repairs reach **0.854**. The
+rewrite is neither necessary nor sufficient. Circular probability laws are now rejected
+(HML-S607, D-042).
+
 **An explicit evidence graph now backs the reasoning layer** (`reasoning/evidence.py`,
 D-040). Acyclicity previously rested on a single textual-order rule that was sound only
 for single-module source-order construction and never saw `proved` edges; there is now a

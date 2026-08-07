@@ -260,6 +260,7 @@ class Resolver:
         # exactly what makes cycles possible; they must therefore be detected explicitly.
         self._check_definition_cycles()
         self._check_concept_cycles()
+        self._check_law_cycles()
         return self.table
 
 
@@ -415,6 +416,57 @@ class Resolver:
                 notes=[
                     "a definition must be reducible to non-circular terms; every "
                     "inference needs traceable dependencies (governing principle 3)"
+                ],
+            )
+
+    def _check_law_cycles(self) -> None:
+        """A probability law may not depend on itself, directly or transitively.
+
+        ``prior a ~ Normal(location := b, ...)`` says *a*'s law is specified in terms of
+        *b*. If *b*'s law is in turn specified in terms of *a*, the pair specifies no
+        distribution at all -- there is no joint density to factor, and the "model" is
+        not a model. Measured before this check existed: such a module compiled clean
+        with zero diagnostics, which is authoritative-looking output for something that
+        denotes nothing. Found by the compositional-failure study (CT-022).
+
+        Note the direction. The edge runs from the law's *target* to every symbol its
+        distribution mentions, because that is the direction of dependency: to know a's
+        law you must first know b. `given` symbols are conditioning variables and are
+        edges for the same reason.
+
+        Self-reference through a `given` (``law x | x ~ ...``) is caught by the same
+        walk, since a one-node cycle is still a cycle.
+        """
+        laws: dict[str, LawStmt] = {}
+        for st in self.module.statements:
+            if isinstance(st, LawStmt) and st.target:
+                laws.setdefault(st.target, st)
+
+        graph: dict[str, list[str]] = {name: [] for name in laws}
+        for name, st in laws.items():
+            deps: list[str] = []
+            if st.distribution is not None:
+                for arg in st.distribution.args:
+                    deps.extend(self._refs_in(arg.value))
+            deps.extend(g.name for g in st.given)
+            graph[name] = [d for d in deps if d in laws]
+
+        cycle = self._find_cycle(graph)
+        if cycle is not None:
+            head = laws[cycle[0]]
+            self.diags.error(
+                "HML-S607",
+                "circular probability law: " + " -> ".join(cycle),
+                head.span,
+                correction=(
+                    "break the cycle -- give one of these symbols a law that does not "
+                    "depend on the others, or declare it as a 'param'"
+                ),
+                notes=[
+                    "a set of mutually dependent laws specifies no joint distribution: "
+                    "there is no density to factor and nothing to infer from",
+                    "detected because module scope is order-independent (D-008), which "
+                    "is exactly what makes such a cycle expressible",
                 ],
             )
 

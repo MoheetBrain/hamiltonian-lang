@@ -1550,3 +1550,119 @@ VERIFIED) are already enforced elsewhere and pinned by
 `tests/reasoning/test_architecture_freeze.py`. E10 is D-034. E8 has a node field and a
 validator check but no import mechanism to exercise it yet — the field exists so the
 import work lands against a contract rather than inventing one.
+
+---
+
+## D-041 — the AST fork: do NOT introduce a generic Apply/Bind/Attribute core
+
+**Date:** 2026-08-07 · **After:** `a69261f` · **Decides:** directive §7/§8
+**Evidence:** `docs/hml_v2/COMPOSITIONALITY_STUDY.md`
+
+**The question.** Two research reports recommended replacing HML's 21 position-specific
+expression node kinds with a generic internal core (APPLICATION / BINDING / ATTRIBUTION).
+Directive filter A forbade accepting that on recommendation and required measurement
+first. This record is that decision.
+
+**What was measured.** The 48 `COMPOSITION_TESTS.json` specimens had never been executed —
+they are prose, so running them meant *writing* 48 HML encodings. Done, plus 57 controls
+and 29 mechanical checks on the checked tree (rendered types, canonical-hash inequalities,
+print/reparse stability, declared backend losses), so "it compiled" is never the verdict.
+
+```
+STRICT     20/48 = 0.417
+FRAMEWORK  20/38 = 0.526   (10 UNSUPPORTED excluded)
+```
+
+Failure attribution over the 28 failures:
+
+| class | n |
+|---|---|
+| GRAMMAR | 14 |
+| TYPE | 8 |
+| COMPILER | 3 |
+| CONSTRAINT | 2 |
+| SCOPE | 1 |
+| **CANONICAL** | **0** (12 predicted) |
+| **BACKEND** | **0** (6 predicted) |
+| SPECIMEN | 0 |
+
+**Decision: REJECT the rewrite.** Three measurements decide it, and the third is decisive:
+
+1. **21 of 28 failures never touch `ast/nodes.py`.** They are a missing builtin signature,
+   a registry entry, a type rule, or a pass.
+2. **The 7 that need something new reduce to two additions, not three primitives** —
+   *abstraction* (there is no derivative-at-a-point anywhere in HML, because
+   `derivative(...)` yields a value) and *a binder over statements* (`law` is a statement
+   and `forall` an expression, so indexed families of laws are unwritable).
+3. **The generic core alone reaches 27/48 = 0.563 — below the 0.70 Level 2 threshold.**
+   Targeted repairs alone reach **41/48 = 0.854**, clearing the 0.85 target. *The rewrite
+   is neither necessary nor sufficient; the repairs are both.*
+
+**What is accepted instead.** Local repairs, the two targeted additions, and a ~40-line
+generic **binder protocol** (`binder_of` / `scoped_children`) — not a generic node set.
+This addresses the real measured duplication: 79 binder dispatch sites across 298 lines in
+17 files, of which **7 handle only `Quantifier`**. Live consequence already present:
+`free_names` returns `[]` for `integral(y, x : Real, 0.0, 1.0)` where `y` is free, latent
+only because an unrelated guard masks it.
+
+**Costs of the rejected option, recorded so the decision can be revisited on evidence.**
+v1 canonical identity dies wholesale — the `uses_v2` mechanism cannot protect it; the 53
+`HML-T*` rejection rules would be rewritten with no regression baseline; D-003's
+*parse-time* refusal of positional distribution arguments degrades to a checker error; a
+generic surface costs ×1.69 tokens against a directive that optimises for LLM writability.
+
+**The strongest argument against this decision**, recorded because it is good: D-026 added
+four binders one commit earlier and 7 of 17 consumers are *already* stale with one latent
+unsoundness — a project that cannot keep four binders in sync will not keep eight. The
+rebuttal is that this argues for removing the traversals, not the classes, which is what
+the binder protocol does. **Falsification condition:** if the binder protocol lands and
+consumers still drift, or if a third and fourth new binder are needed within the next two
+milestones, reopen this decision.
+
+**Confidence: ~0.75.** Not higher, because the two additions are real and their eventual
+shape may yet argue for generality.
+
+---
+
+## D-042 — circular probability laws are rejected (HML-S607)
+
+**Date:** 2026-08-07 · **Found by:** the compositionality study, specimen CT-022
+
+`prior a ~ Normal(location := b, ...)` with `prior b ~ Normal(location := a, ...)`
+**compiled clean with zero diagnostics.** Such a pair specifies no joint distribution:
+there is no density to factor and nothing to infer from. It is authoritative-looking
+output for something that denotes nothing — this project's worst failure mode.
+
+Implemented in the resolver beside the existing definition- and concept-cycle checks,
+reusing `_find_cycle`. Edges run from a law's target to every symbol its distribution and
+its `given` list mention, which is the direction of dependency.
+
+**This check immediately found a latent defect in an existing test fixture.**
+`tests/roundtrip/test_importers.py` contained `law m ~ Normal(location := m, scale := s)`
+— a self-referential law that had gone unnoticed because nothing checked for one. The
+fixture's subject is Stan's closed lower bound, not `m`'s law, so the fixture was
+corrected rather than the check relaxed.
+
+**Verification.** `pytest`: 6279 passed, 0 failed. Rejected: mutual pairs, 3-cycles,
+self-reference through a parameter, self-reference through `given`. Accepted: two- and
+three-level hierarchical models, and every shipped probabilistic example. Hash stability:
+0 changes.
+
+---
+
+## Correction to the compositionality study: CT-018
+
+The study reported three silent composition losses. **Two reproduce; one is overstated.**
+
+CT-018 claimed `E[X | G]` types as `Real`, "identical to unconditional `E[X]`". Measured:
+
+| conditioning on | `E[X]` | `E[X | ·]` | same identity? |
+|---|---|---|---|
+| a `RandomVariable[Real]` | `Real` | `RandomVariable[Real]` | no |
+| a deterministic `Real` | `Real` | `Real` | **no** |
+
+Conditioning on a random variable yields a random variable, which is correct. Conditioning
+on a *deterministic* quantity yields a value — also correct, since conditioning on a
+degenerate variable returns a constant. And in both cases the **canonical identities
+differ**, so the two expressions are not conflated. This is therefore not a silent loss.
+CT-022 and CT-038 are real; CT-038 is exactly what D-036's precondition contracts close.

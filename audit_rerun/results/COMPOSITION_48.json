@@ -1,0 +1,2352 @@
+{
+  "hml_source": "/Users/moheet/hml_v2_worktree/src/hamiltonian_lang/__init__.py",
+  "specimen_file": "/Users/moheet/hml_audit_worktree/audit/language_comparison/ontology/COMPOSITION_TESTS.json",
+  "cross_check_problems": [],
+  "closed": 20,
+  "total": 48,
+  "framework_denominator": 38,
+  "unsupported": [
+    "CT-001",
+    "CT-008",
+    "CT-016",
+    "CT-017",
+    "CT-019",
+    "CT-023",
+    "CT-025",
+    "CT-030",
+    "CT-037",
+    "CT-039"
+  ],
+  "silent_loss": [
+    "CT-018",
+    "CT-022",
+    "CT-038"
+  ],
+  "failure_class_histogram": {
+    "GRAMMAR": 14,
+    "TYPE": 8,
+    "SCOPE": 1,
+    "COMPILER": 3,
+    "CONSTRAINT": 2
+  },
+  "repair_histogram": {
+    "GENERAL": 7,
+    "NONE": 20,
+    "LOCAL": 12,
+    "ONE_NODE": 9
+  },
+  "prediction_accuracy": {
+    "hits": 13,
+    "attempted": 28,
+    "value": 0.4643,
+    "surface_map": {
+      "GRAMMAR": [
+        "GRAMMAR"
+      ],
+      "TYPE": [
+        "TYPE_SYSTEM"
+      ],
+      "SCOPE": [
+        "SEMANTIC_MODEL"
+      ],
+      "CANONICAL": [
+        "CANONICALIZATION"
+      ],
+      "CONSTRAINT": [
+        "SEMANTIC_MODEL"
+      ],
+      "COMPILER": [
+        "COMPILER"
+      ],
+      "BACKEND": [
+        "BACKEND"
+      ],
+      "SPECIMEN": []
+    },
+    "missed": [
+      {
+        "id": "CT-001",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "SEMANTIC_MODEL",
+          "TYPE_SYSTEM"
+        ]
+      },
+      {
+        "id": "CT-008",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "SEMANTIC_MODEL",
+          "TYPE_SYSTEM"
+        ]
+      },
+      {
+        "id": "CT-014",
+        "observed": "COMPILER",
+        "predicted": [
+          "GRAMMAR",
+          "SEMANTIC_MODEL",
+          "TYPE_SYSTEM"
+        ]
+      },
+      {
+        "id": "CT-016",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "CANONICALIZATION",
+          "SEMANTIC_MODEL"
+        ]
+      },
+      {
+        "id": "CT-019",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "SEMANTIC_MODEL",
+          "TYPE_SYSTEM"
+        ]
+      },
+      {
+        "id": "CT-022",
+        "observed": "COMPILER",
+        "predicted": [
+          "SEMANTIC_MODEL",
+          "TYPE_SYSTEM"
+        ]
+      },
+      {
+        "id": "CT-025",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "CANONICALIZATION",
+          "SEMANTIC_MODEL"
+        ]
+      },
+      {
+        "id": "CT-026",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "SEMANTIC_MODEL",
+          "TYPE_SYSTEM"
+        ]
+      },
+      {
+        "id": "CT-029",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "SEMANTIC_MODEL",
+          "TYPE_SYSTEM"
+        ]
+      },
+      {
+        "id": "CT-030",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "CANONICALIZATION",
+          "SEMANTIC_MODEL"
+        ]
+      },
+      {
+        "id": "CT-034",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "BACKEND",
+          "SEMANTIC_MODEL",
+          "TYPE_SYSTEM"
+        ]
+      },
+      {
+        "id": "CT-036",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "CANONICALIZATION",
+          "SEMANTIC_MODEL"
+        ]
+      },
+      {
+        "id": "CT-037",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "CANONICALIZATION",
+          "SEMANTIC_MODEL"
+        ]
+      },
+      {
+        "id": "CT-042",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "SEMANTIC_MODEL",
+          "UNSUPPORTED"
+        ]
+      },
+      {
+        "id": "CT-044",
+        "observed": "GRAMMAR",
+        "predicted": [
+          "CANONICALIZATION",
+          "SEMANTIC_MODEL"
+        ]
+      }
+    ]
+  },
+  "outcome_histogram": {
+    "UNSUPPORTED": 10,
+    "COMPOSES": 20,
+    "REJECTED_SPURIOUS": 9,
+    "COMPOSES_DEGRADED": 6,
+    "COMPOSES_SILENT_LOSS": 3
+  },
+  "gate_disagreements": [],
+  "records": [
+    {
+      "id": "CT-001",
+      "title": "quantifier over a family of random variables",
+      "encoding": "module CT001\nparam mu : Real\nparam sigma : PositiveReal\nvar X : Vector[RandomVariable[Real], N]\nrequire forall i : Natural . X[i] ~ Normal(location := mu, scale := sigma)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P204"
+      ],
+      "diagnostics": "error HML-P204: unexpected '~' after require\n  --> <input>:5:35\n   5 | require forall i : Natural . X[i] ~ Normal(location := mu, scale := sigma)\n                                         ^\n  help: HML-L1 permits one statement per line",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "law targeting an indexed member",
+          "source": "module CT001b\nparam mu : Real\nparam sigma : PositiveReal\nvar X : Vector[RandomVariable[Real], N]\nlaw X[i] ~ Normal(location := mu, scale := sigma)",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-P208"
+          ],
+          "diagnostics": "error HML-P208: a law requires '~' between the variable and its distribution\n  --> <input>:5:6\n   5 | law X[i] ~ Normal(location := mu, scale := sigma)\n            ^\n  note: '~' relates a RandomVariable[T] to a Distribution[T]\n  help: law X ~ Normal(location := mu, scale := sigma)",
+          "crash": null,
+          "met": false,
+          "why": "`law` takes a bare identifier; there is no indexed law target"
+        },
+        {
+          "label": "the family itself exists and is indexable",
+          "source": "module CT001c\nvar X : Vector[RandomVariable[Real], N]\nparam t : Real\nrequire probability(X[1] > t) <= 1.0",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "so the failure is the LAW, not the family"
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "GRAMMAR",
+      "repair": "GENERAL",
+      "repair_note": "a law must be able to sit under a binder: either `law` becomes an expression, or a `for each i : T` statement binder is added. Neither is expressible by adding one more Expr subclass.",
+      "note": "`law`/`prior`/`likelihood` are STATEMENTS and `forall` is an EXPRESSION, so a law can never appear under a binder. `law X[i] ~ ...` is refused at the parser (HML-P208: the target must be an identifier). The family of random variables does exist -- Vector[RandomVariable[Real], N] indexes fine and yields events -- so what is missing is exclusively the ability to attach a distributional law under a quantifier.",
+      "control_anomalies": [
+        "law targeting an indexed member"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-002",
+      "title": "quantifier over matrices with a shape hypothesis",
+      "encoding": "module CT002\nrequire forall A : Matrix[Real, N, N] . forall x : Vector[Real, N] . not (x = x) or (x @ (A @ x)) > 0.0",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "shape disagreement under the binder is caught",
+          "source": "module CT002b\nrequire forall A : Matrix[Real, N, N] . forall x : Vector[Real, M] . (x @ (A @ x)) > 0.0",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T434"
+          ],
+          "diagnostics": "error HML-T434: inner dimensions do not agree in a matrix-vector product\n  --> <input>:2:75\n   2 | require forall A : Matrix[Real, N, N] . forall x : Vector[Real, M] . (x @ (A @ x)) > 0.0\n                                                                                 ^^^^^^^\n  found:    Vector[Real, M]\n  expected: Vector[..., N]",
+          "crash": null,
+          "met": true,
+          "why": "symbolic extents must be checked, not ignored"
+        }
+      ],
+      "facts": [],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "Shape checking runs under the binder on symbolic extents. Symmetry of A is not expressible as a type (no Sym(n)); it is a declared degradation, not a silent one, and the specimen's stated hard part -- symbolic shape agreement under a binder -- holds.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-003",
+      "title": "quantifier over a dimensionful domain",
+      "encoding": "module CT003\nparam g : Quantity[Length / Time^2]\nrequire forall L : Quantity[Length] . sqrt(L / g) = sqrt(L / g)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T427",
+        "HML-T427"
+      ],
+      "diagnostics": "error HML-T427: the argument of sqrt has the wrong type\n  --> <input>:3:44\n   3 | require forall L : Quantity[Length] . sqrt(L / g) = sqrt(L / g)\n                                                  ^^^^^\n  found:    Quantity[Time^2]\n  expected: NonNegativeReal\n\nerror HML-T427: the argument of sqrt has the wrong type\n  --> <input>:3:58\n   3 | require forall L : Quantity[Length] . sqrt(L / g) = sqrt(L / g)\n                                                                ^^^^^\n  found:    Quantity[Time^2]\n  expected: NonNegativeReal",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "quantifying over a dimensionful domain alone",
+          "source": "module CT003b\nrequire forall L : Quantity[Length] . L >= L",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "the binder itself is fine; the failure is downstream"
+        },
+        {
+          "label": "a dimensionful interval endpoint",
+          "source": "module CT003c\nconst zero_m : Quantity[Length] = 0.0\nrequire zero_m = zero_m",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T402"
+          ],
+          "diagnostics": "error HML-T402: the declared type of 'zero_m' requires Quantity[Length]\n  --> <input>:2:35\n   2 | const zero_m : Quantity[Length] = 0.0\n                                         ^^^\n  found:    NonNegativeReal\n  expected: Quantity[Length]\n  help: the dimensions differ: Dimensionless vs Length; convert one side",
+          "crash": null,
+          "met": false,
+          "why": "there is no unit-carrying literal, so [0 m, 10 m] is unwritable"
+        }
+      ],
+      "facts": [],
+      "outcome": "REJECTED_SPURIOUS",
+      "failure_class": "TYPE",
+      "repair": "LOCAL",
+      "repair_note": "a Quantity overload for `sqrt` that halves the dimension exponents (Dimension already stores Fraction exponents), plus a unit-carrying literal -- a field on Literal and a lexer rule.",
+      "note": "Two independent breakages. (a) `sqrt` is typed `NonNegativeReal -> NonNegativeReal`; it has no Quantity overload, so the half-dimension the specimen is about cannot be taken at all -- HML-T427. (b) There is no dimensionful literal, so the interval [0 m, 10 m] has no surface form (HML-T402). The quantifier/Quantity composition itself works.",
+      "control_anomalies": [
+        "a dimensionful interval endpoint"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-004",
+      "title": "distribution parameters carrying units",
+      "encoding": "module CT004\nparam mu : Quantity[Length]\nparam sigma : Quantity[Length]\nrv H : RandomVariable[Quantity[Length]]\nlaw H ~ Normal(location := mu, scale := sigma)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T413",
+        "HML-T413",
+        "HML-T411"
+      ],
+      "diagnostics": "error HML-T413: the 'location' role of Normal requires Real\n  --> <input>:5:28\n   5 | law H ~ Normal(location := mu, scale := sigma)\n                                  ^^\n  found:    Quantity[Length]\n  expected: Real\n  note: scale is the standard deviation, not the variance\n  help: declare 'mu : Real'\n\nerror HML-T413: the 'scale' role of Normal requires PositiveReal\n  --> <input>:5:41\n   5 | law H ~ Normal(location := mu, scale := sigma)\n                                               ^^^^^\n  found:    Quantity[Length]\n  expected: PositiveReal\n  note: scale is the standard deviation, not the variance\n  help: declare 'sigma : PositiveReal'\n\nerror HML-T411: the support of Normal does not inhabit the declared type of 'H'\n  --> <input>:5:1\n   5 | law H ~ Normal(location := mu, scale := sigma)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    support Real\n  expected: Quantity[Length]\n  note: Normal is supported on Real\n  help: declare 'H : Real', or choose a family whose support is Quantity[Length]",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "unitless variant",
+          "source": "module CT004b\nparam mu : Real\nparam sigma : PositiveReal\nrv H : RandomVariable[Real]\nlaw H ~ Normal(location := mu, scale := sigma)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "the same statement without units compiles, isolating the unit as the cause"
+        }
+      ],
+      "facts": [],
+      "outcome": "REJECTED_SPURIOUS",
+      "failure_class": "TYPE",
+      "repair": "LOCAL",
+      "repair_note": "make DistributionSpec dimension-parametric: one dimension variable on the support and on the location/scale roles.",
+      "note": "Every distribution family in the registry fixes its support and its role types to unrefined scalars (Normal: location Real, scale PositiveReal, support Real). `DistributionSpec` has no dimension variable, so RandomVariable does not compose with Quantity anywhere. Three diagnostics fire at once: HML-T413 on both roles and HML-T411 on the support.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-005",
+      "title": "minimising an expectation",
+      "encoding": "module CT005\nvar A : Set[Real]\nparam a : Real\nrv S : RandomVariable[Real]\nlaw S ~ Normal(location := 0.0, scale := 1.0)\ndef loss(u : Real, s : Real) : Real := u * s\nrequire a in A\nminimise expectation(loss(a, S))",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [],
+      "facts": [
+        {
+          "description": "the objective is a value, not a random variable (the expectation really integrated S out)",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "Two binders of different kinds nest correctly: the measurable lifting rule makes `loss(a, S)` a RandomVariable[Real], `expectation` integrates S out and returns Real, and `a` stays a free parameter. The feasible-set membership is carried by a separate `require`, because `minimise` has no binder of its own.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-006",
+      "title": "matrix with a symbolic structural constraint",
+      "encoding": "module CT006\nvar Sigma : Matrix[Real, N, N]\nvar x : Vector[Real, N]\nvar b : Vector[Real, N]\nrequire forall z : Vector[Real, N] . (z @ (Sigma @ z)) > 0.0\nrequire (Sigma @ x) = b\nsolve Sigma",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "a shape-incompatible equation is caught",
+          "source": "module CT006b\nvar Sigma : Matrix[Real, N, N]\nvar x : Vector[Real, N]\nvar b : Vector[Real, M]\nrequire (Sigma @ x) = b",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T429"
+          ],
+          "diagnostics": "error HML-T429: these operands are not comparable\n  --> <input>:5:9\n   5 | require (Sigma @ x) = b\n               ^^^^^^^^^^^^^^^\n  found:    Vector[Real, M]\n  expected: Vector[Real, N]",
+          "crash": null,
+          "met": true,
+          "why": ""
+        }
+      ],
+      "facts": [],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The unknown carries its shape, the positive-definiteness constraint is a quantified proposition attached to the unknown rather than checked against a value, and `solve` marks it as the thing to be found.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-007",
+      "title": "a function whose value is a distribution",
+      "encoding": "module CT007\nparam sigma : PositiveReal\nvar f : Function[Real -> Real]\ndef k(x : Real) : Distribution[Real] := Normal(location := f(x), scale := sigma)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "a distribution is not a value of its support",
+          "source": "module CT007b\nconst d : Distribution[Real] = 1.0",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T402"
+          ],
+          "diagnostics": "error HML-T402: the declared type of 'd' requires Distribution[Real]\n  --> <input>:2:32\n   2 | const d : Distribution[Real] = 1.0\n                                      ^^^\n  found:    PositiveReal\n  expected: Distribution[Real]\n  help: supply an expression of type Distribution[Real] for the declared type of 'd'",
+          "crash": null,
+          "met": true,
+          "why": ""
+        }
+      ],
+      "facts": [],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "Dist(R) exists as a type distinct from R and survives being a codomain.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-008",
+      "title": "indexed family of RVs with index-dependent parameters",
+      "encoding": "module CT008\nparam beta : Real\nparam sigma : PositiveReal\nvar x : Vector[Real, N]\nvar Y : Vector[RandomVariable[Real], N]\nrequire forall i : Natural . forall j : Natural . not (i = j) => independent(Y[i], Y[j])\nrequire forall i : Natural . Y[i] ~ Normal(location := beta * x[i], scale := sigma)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P204"
+      ],
+      "diagnostics": "error HML-P204: unexpected '~' after require\n  --> <input>:7:35\n   7 | require forall i : Natural . Y[i] ~ Normal(location := beta * x[i], scale := sigma)\n                                         ^\n  help: HML-L1 permits one statement per line",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the family-level independence claim alone",
+          "source": "module CT008b\nvar Y : Vector[RandomVariable[Real], N]\nrequire forall i : Natural . forall j : Natural . not (i = j) => independent(Y[i], Y[j])",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "family-level independence over an index composes"
+        },
+        {
+          "label": "the per-index law alone",
+          "source": "module CT008c\nparam beta : Real\nparam sigma : PositiveReal\nvar x : Vector[Real, N]\nvar Y : Vector[RandomVariable[Real], N]\nlaw Y ~ Normal(location := beta, scale := sigma)",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T411"
+          ],
+          "diagnostics": "error HML-T411: the support of Normal does not inhabit the declared type of 'Y'\n  --> <input>:6:1\n   6 | law Y ~ Normal(location := beta, scale := sigma)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    support Real\n  expected: Vector[RandomVariable[Real], N]\n  note: Normal is supported on Real\n  help: declare 'Y : Real', or choose a family whose support is Vector[RandomVariable[Real], N]",
+          "crash": null,
+          "met": false,
+          "why": "and the per-index law does not"
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "GRAMMAR",
+      "repair": "GENERAL",
+      "repair_note": "the same wall as CT-001.",
+      "note": "Exactly CT-001's wall, isolated: the family-level property (independence over a quantified index pair) composes and compiles clean; the index-level property (a law per i) has no surface form because `law` is a statement and cannot sit under a binder, and its target must be an identifier.",
+      "control_anomalies": [
+        "the per-index law alone"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-009",
+      "title": "gradient of an expectation whose measure depends on the parameter",
+      "encoding": "module CT009\nparam theta : Real\nrv Z : RandomVariable[Real]\nlaw Z | theta ~ Normal(location := theta, scale := 1.0)\ndef f(z : Real) : Real := z * z\ndef obj := derivative(expectation(f(Z)), theta : Real)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-N302"
+      ],
+      "diagnostics": "error HML-N302: 'theta' shadows an outer binding and would silently change scope\n  --> <input>:6:12\n   6 | def obj := derivative(expectation(f(Z)), theta : Real)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  note: outer param 'theta' is bound at line 2\n  note: shadowing is rejected by design decision D-006\n  help: rename the inner binding, e.g. theta_inner",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "differentiating against a fresh name is accepted, and is not the statement",
+          "source": "module CT009b\nparam theta : Real\nrv Z : RandomVariable[Real]\nlaw Z | theta ~ Normal(location := theta, scale := 1.0)\ndef f(z : Real) : Real := z * z\ndef obj := derivative(expectation(f(Z)), th : Real)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "the binder `th` occurs nowhere in the body; the theta-dependence is gone and nothing warns"
+        }
+      ],
+      "facts": [],
+      "outcome": "REJECTED_SPURIOUS",
+      "failure_class": "SCOPE",
+      "repair": "GENERAL",
+      "repair_note": "differentiating with respect to an EXISTING symbol needs either binder-by- reference or abstraction plus application; binder-always-fresh plus D-006 makes it unreachable.",
+      "note": "`derivative` always introduces a FRESH binder, and D-006 forbids shadowing, so differentiating with respect to a symbol that already exists is impossible: HML-N302. The only accepted spelling binds a name that does not occur in the body, which silently states the derivative of a constant. This is the clearest measured case of the binder design being the obstacle rather than the type rules.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-010",
+      "title": "definite integral carrying units",
+      "encoding": "module CT010\nparam t0 : Quantity[Time]\nparam t1 : Quantity[Time]\nvar P : Function[Quantity[Time] -> Quantity[Mass * Length^2 / Time^3]]\ndef En := integral(P(t), t : Quantity[Time], t0, t1)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "claiming the integral is still in watts is refused",
+          "source": "module CT010b\nparam t0 : Quantity[Time]\nparam t1 : Quantity[Time]\nvar P : Function[Quantity[Time] -> Quantity[Mass * Length^2 / Time^3]]\nparam W : Quantity[Mass * Length^2 / Time^3]\ndef En := integral(P(t), t : Quantity[Time], t0, t1)\nrequire En = W",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-D502"
+          ],
+          "diagnostics": "error HML-D502: cannot compare quantities with different dimensions\n  --> <input>:7:9\n   7 | require En = W\n               ^^^^^^\n  found:    Length^2 * Mass / Time^3\n  expected: Length^2 * Mass / Time^2\n  note: comparison requires dimensional equality",
+          "crash": null,
+          "met": true,
+          "why": "HML-D502 proves the unit was really acquired, not merely printed"
+        }
+      ],
+      "facts": [
+        {
+          "description": "the integral multiplied by the binder's dimension: W*s = J",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The differential contributes its unit factor and the checker enforces it. The endpoints must be declared parameters rather than written `0 s`, because HML has no unit-carrying literal (see CT-003 control c); that is a standalone gap in NUM.INTERVAL_DOMAIN, not a composition failure, and it is recorded as such.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-011",
+      "title": "local assumption inside a function body",
+      "encoding": "module CT011\nparam z : Real\ndef g(x : PositiveReal) : Real := log(x)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "nothing leaks to a sibling scope",
+          "source": "module CT011b\nparam z : Real\ndef g(x : PositiveReal) : Real := log(x)\ndef h := log(z)",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T427"
+          ],
+          "diagnostics": "error HML-T427: the argument of log has the wrong type\n  --> <input>:4:14\n   4 | def h := log(z)\n                    ^\n  found:    Real\n  expected: PositiveReal",
+          "crash": null,
+          "met": true,
+          "why": "the positivity of g's parameter must not license log(z)"
+        },
+        {
+          "label": "a module-level assume does discharge the obligation for that symbol",
+          "source": "module CT011c\nparam r : Real\nassume r > 0.0\ndef y := log(r)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "D-028's refinement environment, working"
+        }
+      ],
+      "facts": [],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The hypothesis is carried by the parameter's declared refinement, is in force exactly inside the body, discharges log's definedness obligation, and does not leak. D-028 additionally makes a module-level `assume` on a bare reference discharge the same obligation -- this specimen's ancestor COMP.LOCAL_ASSUMPTION_IN_SCOPE was a documented failure in AUDIT_RERUN \u00a74 and now passes.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-012",
+      "title": "constraint scoped to a subset of an index set",
+      "encoding": "module CT012\nvar A : Set[Natural]\nvar x : Vector[Real, N]\nvar c : Vector[Real, N]\nrequire forall i : Natural . i in A => x[i] <= c[i]",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [],
+      "facts": [
+        {
+          "description": "the guard is inside the quantifier body, not hoisted out of it",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The bounded quantifier is a guarded implication under one binder; the feasible set is not silently widened to all of I.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-013",
+      "title": "objective over derived state",
+      "encoding": "module CT013\nparam x : Real\ndef Mf(u : Real) : Real := u * u\ndef y := Mf(x)\ndef C(v : Real) : Real := v + 1.0\nminimise C(y)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [],
+      "facts": [
+        {
+          "description": "y is a definition (derived), not a declaration (free)",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "`def` and `param` are different AST kinds and stay different through canonicalisation, so the given/derived distinction the specimen turns on is structural rather than conventional.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-014",
+      "title": "tensor appearing inside a proposition",
+      "encoding": "module CT014\nvar T : Tensor[Real, 2, 3, 4]\nrequire forall i : Natural . forall j : Natural . forall k : Natural . T[i, j, k] = T[j, i, k]",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "a literal index outside the declared extent",
+          "source": "module CT014b\nvar T : Tensor[Real, 2, 3, 4]\nrequire T[99, 0, 0] = T[0, 0, 0]",
+          "expect": "reject",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": false,
+          "why": "extents are declared; a literal 99 into a 2 should not pass"
+        }
+      ],
+      "facts": [
+        {
+          "description": "index order is not normalised away: T_ijk = T_jik differs from T_ijk = T_ijk",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES_DEGRADED",
+      "failure_class": "COMPILER",
+      "repair": "LOCAL",
+      "repair_note": "range-check literal indices against the declared extents; the extents are already in the type.",
+      "note": "The composition the specimen asks for works: the index variables are genuine logical binders and simultaneously tensor indices, and the symmetry claim keeps its own canonical identity. But literal indices are never range-checked against the declared extents -- `T[99,0,0]` on a Tensor[Real,2,3,4] compiles clean. That is an implementation gap in `Index` typing, not a design limit: the extents are already in the type.",
+      "control_anomalies": [
+        "a literal index outside the declared extent"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-015",
+      "title": "quantifier alternation order: uniform versus pointwise",
+      "encoding": "module CT015\nvar f : Function[Real -> Real]\nrequire forall e : PositiveReal . exists d : PositiveReal . forall x : Real . forall y : Real . abs(x - y) < d => abs(f(x) - f(y)) < e",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [],
+      "facts": [
+        {
+          "description": "uniform continuity and pointwise continuity have different canonical hashes",
+          "held": true,
+          "error": null
+        },
+        {
+          "description": "alpha-renaming does not change the hash",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "Quantifier order is structural; nothing sorts or hoists binders. This is HML's strongest measured property and it survives a four-binder alternation.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-016",
+      "title": "approximate value inside a proof obligation",
+      "encoding": "module CT016\nvar A : Matrix[Real, 3, 3]\nparam d : Real\nassume d ~ 0.00000000000001\nrequire not (d = 0.0)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P204"
+      ],
+      "diagnostics": "error HML-P204: unexpected '~' after assume\n  --> <input>:4:10\n   4 | assume d ~ 0.00000000000001\n                ^\n  help: HML-L1 permits one statement per line",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the exact-equality spelling is accepted, i.e. ~ collapses to =",
+          "source": "module CT016b\nparam d : Real\nassume d = 0.00000000000001\nrequire not (d = 0.0)",
+          "expect": "accept",
+          "gate": false,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "an approximate determinant discharges an exact non-zeroness claim, because the approximation cannot be marked"
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "GRAMMAR",
+      "repair": "ONE_NODE",
+      "repair_note": "one approximation marker -- an operator and one node -- closes CT-016, CT-042 and CT-044 together.",
+      "note": "There is no approximation marker in HML-L1. `~` is reserved for distributed-as and has no expression production; the lexer's operator set contains no `\u2248`. `v1/epistemic.py` defines APPROXIMATELY_EQUAL but that layer is not reachable from the L1 grammar. The atom NUMER.APPROXIMATION_MARKER is absent standalone, so the composition cannot be attempted. The control shows the consequence: written with `=`, the approximate value discharges the exact obligation.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-017",
+      "title": "matrix-valued random variable with a structural constraint",
+      "encoding": "module CT017\nparam nu : PositiveReal\nvar Psi : Matrix[Real, P, P]\nrv Sigma : RandomVariable[Matrix[Real, P, P]]\nlaw Sigma ~ InverseWishart(degrees_of_freedom := nu, scale := Psi)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T412"
+      ],
+      "diagnostics": "error HML-T412: unknown distribution family 'InverseWishart'\n  --> <input>:5:13\n   5 | law Sigma ~ InverseWishart(degrees_of_freedom := nu, scale := Psi)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  note: v0 implements a deliberately small registry; see src/hamiltonian_lang/type_system/distributions.py\n  help: known families include: InverseGamma, Bernoulli, Beta",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the matrix-valued random variable itself is fine",
+          "source": "module CT017b\nrv Sigma : RandomVariable[Matrix[Real, P, P]]\nparam t : Real\nrequire probability(Sigma = Sigma) >= 0.0",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "so the failure is the family, not the carrier type"
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "TYPE",
+      "repair": "LOCAL",
+      "repair_note": "one matrix-supported family in the registry, with a support constraint.",
+      "note": "HML-T412: no matrix-supported family exists in the registry (17 families, all scalar- or vector-supported). The carrier type RandomVariable[Matrix[...]] is accepted, so shape and randomness compose; what is absent is any distribution whose support is a constrained matrix manifold, and there is no way to state 'every draw is SPD' as a property of the law rather than of a realisation.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-018",
+      "title": "conditional expectation given a sigma-algebra",
+      "encoding": "module CT018\nrv X : RandomVariable[Real]\nvar G : Set[Set[Real]]\ndef c := expectation(X | G)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [],
+      "facts": [
+        {
+          "description": "E[X | G] must be a G-measurable RANDOM VARIABLE, not a value",
+          "held": false,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES_SILENT_LOSS",
+      "failure_class": "TYPE",
+      "repair": "LOCAL",
+      "repair_note": "a sigma-algebra type in types.py and one clause in the moment rule; no expression node changes.",
+      "note": "This compiles clean and is wrong. `expectation(X | G)` types as `Real` -- byte-identical in type to the unconditional `expectation(X)` -- because the moment rule reads 'conditioning on something non-random yields a value'. That rule is right for a parameter and wrong for a sigma-algebra: E[X|G] is the almost-surely unique G-measurable random variable. There is no sigma-algebra type, no measurability predicate and no a.s. qualifier, so nothing catches it. The two expressions do hash differently, so the conditioning set is stored -- the loss is in the TYPE, which is the part downstream consumers read.",
+      "control_anomalies": [],
+      "facts_held": false,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-019",
+      "title": "piecewise function with a domain partition",
+      "encoding": "module CT019\nvar x : Real\ndef f := if x >= 0.0 then x * x else -x",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P204"
+      ],
+      "diagnostics": "error HML-P204: unexpected 'x' after definition\n  --> <input>:3:13\n   3 | def f := if x >= 0.0 then x * x else -x\n                   ^\n  help: HML-L1 permits one statement per line",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the guarded-implication workaround compiles",
+          "source": "module CT019b\nvar f : Function[Real -> Real]\nrequire forall u : Real . u >= 0.0 => f(u) = u * u\nrequire forall u : Real . u < 0.0 => f(u) = -u",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": ""
+        },
+        {
+          "label": "but a branch guard is NOT a local assumption",
+          "source": "module CT019c\nvar f : Function[Real -> Real]\nrequire forall u : Real . u > 0.0 => f(u) = log(u)",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T427"
+          ],
+          "diagnostics": "error HML-T427: the argument of log has the wrong type\n  --> <input>:3:49\n   3 | require forall u : Real . u > 0.0 => f(u) = log(u)\n                                                       ^\n  found:    Real\n  expected: PositiveReal",
+          "crash": null,
+          "met": false,
+          "why": "the specimen requires each branch to carry its guard as a hypothesis; the guard does not enter the refinement environment"
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "GRAMMAR",
+      "repair": "ONE_NODE",
+      "repair_note": "one conditional / piecewise expression form.",
+      "note": "No conditional expression exists: `if` is not a keyword and HML-P204 fires at the first token. The two-`require` workaround states the graph but loses both properties the specimen names -- exhaustiveness and disjointness are unchecked, and control c proves the guard does not discharge the branch's obligations, because D-028's refinement environment is keyed on module-level `assume` over a bare Ref and does not descend into an implication's antecedent.",
+      "control_anomalies": [
+        "but a branch guard is NOT a local assumption"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-020",
+      "title": "statement quantifying over functions",
+      "encoding": "module CT020\nvar I : Set[Real]\nrequire forall f : Function[Real -> Real] . continuous(f, on := I) and (forall x : Real . x in I => f(x) in I) => exists c : Real . c in I and f(c) = c",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [],
+      "facts": [
+        {
+          "description": "the existential really is inside the universal, not hoisted",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "Second-order quantification works: the binder's domain may be a function type, the continuity restriction composes with a set-valued domain, and the inner existential keeps its position. The closed unit interval is carried as a `Set[Real]` guard rather than a type, because HML has no interval types -- a declared degradation, and the same one every system without refinement-typed intervals would report.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-021",
+      "title": "probability of a quantified event",
+      "encoding": "module CT021\nvar X : Vector[RandomVariable[Real], N]\nparam t : Real\nparam alpha : Probability\nrequire probability(exists i : Natural . X[i] > t) <= alpha",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "a quantified body over FIXED quantities is refused inside probability",
+          "source": "module CT021b\nparam y : Real\nparam t : Real\nparam alpha : Probability\nrequire probability(exists i : Natural . y > t) <= alpha",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T482"
+          ],
+          "diagnostics": "error HML-T482: the argument of 'probability' is a proposition, not an event\n  --> <input>:5:21\n   5 | require probability(exists i : Natural . y > t) <= alpha\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    Proposition\n  expected: Event\n  note: a proposition over fixed quantities is true or false, so its probability is 0 or 1 and asking for it states nothing\n  help: declare the quantities it mentions as 'rv X : RandomVariable[...]' so the formula denotes an event",
+          "crash": null,
+          "met": true,
+          "why": "HML-T482: the probability of a proposition is 0 or 1 and states nothing"
+        }
+      ],
+      "facts": [
+        {
+          "description": "the quantified body really denotes an event, not a proposition",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The quantifier lives inside the probability operator and its body is classified as an Event because the family members are random. The Event/Proposition split is exactly the distinction the specimen says is load-bearing, and the control shows it is enforced in both directions.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-022",
+      "title": "hierarchical model with an acyclic dependency structure",
+      "encoding": "module CT022\nparam mu : Real\nprior mu ~ Normal(location := 0.0, scale := 10.0)\nrv X : RandomVariable[Real]\nlaw X | mu ~ Normal(location := mu, scale := 1.0)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "a CYCLIC variant must be rejected",
+          "source": "module CT022b\nparam a : Real\nparam b : Real\nprior a ~ Normal(location := b, scale := 1.0)\nprior b ~ Normal(location := a, scale := 1.0)",
+          "expect": "reject",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": false,
+          "why": "the specimen's stated requirement: 'must reject a cyclic variant'"
+        }
+      ],
+      "facts": [],
+      "outcome": "COMPOSES_SILENT_LOSS",
+      "failure_class": "COMPILER",
+      "repair": "LOCAL",
+      "repair_note": "one acyclicity pass over the law graph, which is already present in LawStmt.given and the DistExpr role arguments.",
+      "note": "The dual role composes -- `mu` is the variate of one law and a role argument of another, and the checker accepts it. But `a ~ Normal(mean := b)` together with `b ~ Normal(mean := a)` compiles clean: no acyclicity check exists anywhere. The dependency edges are already in `LawStmt.given` and in the DistExpr role arguments, so this is a missing pass, not a missing representation -- no AST change would be needed to fix it.",
+      "control_anomalies": [
+        "a CYCLIC variant must be rejected"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-023",
+      "title": "conditioning versus intervening",
+      "encoding": "module CT023\nrv R : RandomVariable[Bool]\nrv T : RandomVariable[Bool]\nrequire probability(R | do(T)) != probability(R | T)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-N306"
+      ],
+      "diagnostics": "error HML-N306: 'do' is not a known function\n  --> <input>:4:25\n   4 | require probability(R | do(T)) != probability(R | T)\n                               ^^^^^\n  help: did you mean 'R'?",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "observational conditioning alone is fine",
+          "source": "module CT023b\nrv R : RandomVariable[Bool]\nrv T : RandomVariable[Bool]\nrequire probability(R = true | T = true) >= 0.0",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": ""
+        },
+        {
+          "label": "and causation is at least kept apart from correlation",
+          "source": "module CT023c\nrv R : RandomVariable[Bool]\nrv T : RandomVariable[Bool]\nrequire causes(T, R)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": ""
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "GRAMMAR",
+      "repair": "ONE_NODE",
+      "repair_note": "one intervention operator, or one flag on the conditioning tail.",
+      "note": "HML-N306: there is no intervention operator. `causes(X, Y)` exists and is kept canonically distinct from `correlated(X, Y)` (D-026), which is the *claim*-level half of the distinction, but the *operator*-level half -- P(R | do(T)) as an object different from P(R | T) -- has no surface form and no AST node. Adding one more conditioning tail variant would close it.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-024",
+      "title": "chance constraint",
+      "encoding": "module CT024\nparam x : Real\nrv D : RandomVariable[Real]\nlaw D ~ Normal(location := 0.0, scale := 1.0)\ndef g(u : Real, d : Real) : Real := u + d\ndef c(u : Real) : Real := u * u\nrequire probability(g(x, D) <= 0.0) >= 0.95\nminimise c(x)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "the scenario reading -- asserting the inequality directly -- is refused",
+          "source": "module CT024b\nparam x : Real\nrv D : RandomVariable[Real]\nlaw D ~ Normal(location := 0.0, scale := 1.0)\ndef g(u : Real, d : Real) : Real := u + d\nrequire g(x, D) <= 0.0",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T480"
+          ],
+          "diagnostics": "error HML-T480: require requires a proposition, not an event\n  --> <input>:6:9\n   6 | require g(x, D) <= 0.0\n               ^^^^^^^^^^^^^^\n  found:    Event\n  expected: Proposition\n  note: an event has a probability, not a truth value; asserting it directly would claim it holds on every draw without saying so\n  note: use 'probability(...)' to speak about how likely it is, or compare fixed quantities to state something that is simply true\n  help: require probability(g(x, D) <= 0.0) = 1.0",
+          "crash": null,
+          "met": true,
+          "why": "HML-T480 stops the silent replacement the specimen warns about"
+        }
+      ],
+      "facts": [
+        {
+          "description": "the inner inequality is an Event, so the constraint is a chance constraint and not a scenario constraint",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The probability operator sits between the optimiser and the inequality, the decision variable stays a parameter, and the Event/Proposition barrier mechanically forbids the scenario-constraint substitution.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-025",
+      "title": "robust minimax with alternating quantifiers",
+      "encoding": "module CT025\nparam x : Real\nparam u : Real\ndef f(a : Real, b : Real) : Real := a * b\nminimise maximise f(x, u)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P231"
+      ],
+      "diagnostics": "error HML-P231: expected an expression, found 'maximise'\n  --> <input>:5:10\n   5 | minimise maximise f(x, u)\n                ^^^^^^^^",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "two objectives in one module compile, and their ORDER is not represented",
+          "source": "module CT025b\nparam x : Real\nparam u : Real\ndef f(a : Real, b : Real) : Real := a * b\nminimise f(x, u)\nmaximise f(x, u)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "min-then-max and max-then-min are the same two statements; the nesting the specimen is about is not expressible"
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "GRAMMAR",
+      "repair": "GENERAL",
+      "repair_note": "min and max must become expression-level binders that nest; today they are statements.",
+      "note": "`minimise`/`maximise` are STATEMENTS taking an expression, not expression-level binders, so they cannot nest. The workaround -- two objective statements -- compiles and represents a bi-objective problem, which is a different problem. Nothing here is canonicalised wrongly; the composition simply has no form. This is the same statement/expression stratification that blocks CT-001 and CT-008.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-026",
+      "title": "unit-carrying derivative in a differential equation",
+      "encoding": "module CT026\nvar pos : Function[Quantity[Time] -> Quantity[Length]]\ndef v := derivative(pos(t), t : Quantity[Time])\ndef acc := derivative(derivative(pos(s), s : Quantity[Time]), t2 : Quantity[Time])",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "claiming the derivative is a length is refused",
+          "source": "module CT026b\nvar pos : Function[Quantity[Time] -> Quantity[Length]]\nparam bad : Quantity[Length]\ndef v := derivative(pos(t), t : Quantity[Time])\nrequire v = bad",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-D502"
+          ],
+          "diagnostics": "error HML-D502: cannot compare quantities with different dimensions\n  --> <input>:5:9\n   5 | require v = bad\n               ^^^^^^^\n  found:    Length\n  expected: Length / Time\n  note: comparison requires dimensional equality",
+          "crash": null,
+          "met": true,
+          "why": ""
+        },
+        {
+          "label": "the initial condition x(0) = 3 m",
+          "source": "module CT026c\nconst x0 : Quantity[Length] = 3.0\nrequire x0 = x0",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T402"
+          ],
+          "diagnostics": "error HML-T402: the declared type of 'x0' requires Quantity[Length]\n  --> <input>:2:31\n   2 | const x0 : Quantity[Length] = 3.0\n                                     ^^^\n  found:    PositiveReal\n  expected: Quantity[Length]\n  help: the dimensions differ: Dimensionless vs Length; convert one side",
+          "crash": null,
+          "met": false,
+          "why": "HML-T402: 3.0 is NonNegativeReal, and there is no unit-carrying literal"
+        }
+      ],
+      "facts": [
+        {
+          "description": "velocity is Length/Time",
+          "held": true,
+          "error": null
+        },
+        {
+          "description": "acceleration is Length/Time^2 after a second differentiation",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES_DEGRADED",
+      "failure_class": "GRAMMAR",
+      "repair": "LOCAL",
+      "repair_note": "a unit-carrying literal, as in CT-003.",
+      "note": "The unit calculus composes and is enforced through repeated differentiation. The initial condition x(0) = 3 m cannot be written: there is no unit-carrying literal, and `derivative(...)` produces a VALUE rather than a function, so pos(0 s) has no zero to be applied to and the derivative cannot be evaluated at a point either (see CT-034). The dimensional half passes; the initial-condition half is a declared loss.",
+      "control_anomalies": [
+        "the initial condition x(0) = 3 m"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-027",
+      "title": "non-commutative matrix product under a transformation",
+      "encoding": "module CT027\nvar A : Matrix[Real, N, N]\nvar B : Matrix[Real, N, N]\nrequire transpose(A @ B) = transpose(B) @ transpose(A)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "the false identity AB = BA is not silently normalised into a tautology",
+          "source": "module CT027b\nvar A : Matrix[Real, N, N]\nvar B : Matrix[Real, N, N]\nrequire not ((A @ B) = (B @ A))",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "it remains a statable, non-trivial claim"
+        }
+      ],
+      "facts": [
+        {
+          "description": "A@B and B@A do not canonicalise to the same thing",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "Nothing sorts multiplicative operands. `@` is a distinct operator from `*` and the canonical projection preserves operand order for both.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-028",
+      "title": "density with reciprocal units",
+      "encoding": "module CT028\nparam h0 : Quantity[Length]\nparam h1 : Quantity[Length]\nvar fH : Function[Quantity[Length] -> Quantity[Length^-1]]\ndef p := integral(fH(h), h : Quantity[Length], h0, h1)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "a density stored as a plain Real cannot be integrated to a dimensionless probability",
+          "source": "module CT028b\nparam h0 : Quantity[Length]\nparam h1 : Quantity[Length]\nvar fH : Function[Quantity[Length] -> Real]\nparam q : Probability\ndef p := integral(fH(h), h : Quantity[Length], h0, h1)\nrequire p = q",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-D502"
+          ],
+          "diagnostics": "error HML-D502: cannot compare quantities with different dimensions\n  --> <input>:7:9\n   7 | require p = q\n               ^^^^^\n  found:    Dimensionless\n  expected: Length\n  note: comparison requires dimensional equality",
+          "crash": null,
+          "met": true,
+          "why": "the error the specimen says is usually invisible is visible here"
+        }
+      ],
+      "facts": [
+        {
+          "description": "integrating a per-metre density over metres is dimensionless (a fully cancelled Quantity renders as Real)",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The reciprocal unit survives into the integral and the product comes out dimensionless. HML does not have a distinguished Density type, so a density is a Quantity-valued function like any other; that is enough for this specimen. The `Probability` result type is not inferred -- Dimensionless is -- which is a declared degradation on PROB.PDF.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-029",
+      "title": "sum over an index of a unitful family",
+      "encoding": "module CT029\nvar m : Vector[Quantity[Mass], N]\ndef Mtot := sum(m)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "an indexed summation with an explicit binder",
+          "source": "module CT029b\nvar m : Vector[Quantity[Mass], N]\ndef Mtot := sum(i : Natural, 1, 10, m[i])",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-P201"
+          ],
+          "diagnostics": "error HML-P201: expected ')' to close the arguments of 'sum'\n  --> <input>:3:19\n   3 | def Mtot := sum(i : Natural, 1, 10, m[i])\n                         ^\n  found:    ':'",
+          "crash": null,
+          "met": false,
+          "why": "there is no summation BINDER; `sum` is a whole-aggregate reduction"
+        },
+        {
+          "label": "claiming the total is dimensionless is refused",
+          "source": "module CT029c\nvar m : Vector[Quantity[Mass], N]\nparam z : Real\ndef Mtot := sum(m)\nrequire Mtot = z",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-D502"
+          ],
+          "diagnostics": "error HML-D502: cannot compare quantities with different dimensions\n  --> <input>:5:9\n   5 | require Mtot = z\n               ^^^^^^^^\n  found:    Dimensionless\n  expected: Mass\n  note: comparison requires dimensional equality",
+          "crash": null,
+          "met": true,
+          "why": ""
+        }
+      ],
+      "facts": [
+        {
+          "description": "the sum keeps kilograms",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES_DEGRADED",
+      "failure_class": "GRAMMAR",
+      "repair": "ONE_NODE",
+      "repair_note": "one indexed summation binder closes CT-029 and most of CT-030.",
+      "note": "Unit preservation across the reduction holds and is enforced. What is missing is the binder: Sigma_{i=1}^{n} has no surface form, so the index set cannot be restricted, a summand cannot depend on i in any way other than through the vector, and the empty-sum identity has nowhere to be stated. DISC.SUMMATION is present only in its point-free form.",
+      "control_anomalies": [
+        "an indexed summation with an explicit binder"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-030",
+      "title": "log-likelihood as a product over independent observations",
+      "encoding": "module CT030\nparam theta : Real\nvar x : Vector[Real, N]\nvar dens : Function[Real, Real -> PositiveReal]\ndef L := prod(i : Natural, 1, N, dens(x[i], theta))",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P201"
+      ],
+      "diagnostics": "error HML-P201: expected ')' to close the arguments of 'prod'\n  --> <input>:5:17\n   5 | def L := prod(i : Natural, 1, N, dens(x[i], theta))\n                       ^\n  found:    ':'",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the point-free product over an existing vector is fine",
+          "source": "module CT030b\nvar p : Vector[PositiveReal, N]\ndef L := prod(p)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": ""
+        },
+        {
+          "label": "but the vector of per-observation densities cannot be built",
+          "source": "module CT030c\nparam theta : Real\nvar x : Vector[Real, N]\nvar dens : Function[Real, Real -> PositiveReal]\ndef p : Vector[PositiveReal, N] := {i : Natural | dens(x[i], theta) > 0.0}",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T403"
+          ],
+          "diagnostics": "error HML-T403: the body of 'p' does not inhabit its declared type\n  --> <input>:5:36\n   5 | def p : Vector[PositiveReal, N] := {i : Natural | dens(x[i], theta) > 0.0}\n                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    Set[Natural]\n  expected: Vector[PositiveReal, N]\n  help: supply an expression of type Vector[PositiveReal, N] for the declared type of 'p'",
+          "crash": null,
+          "met": false,
+          "why": "a set comprehension is the only binder that builds a collection, and it builds a Set, not an indexed Vector -- there is no map/image form"
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "GRAMMAR",
+      "repair": "ONE_NODE",
+      "repair_note": "the same summation/product binder, plus a mapping comprehension.",
+      "note": "Product-over-an-index has no binder (same gap as CT-029), and the family of densities cannot be formed either: `SetComprehension` is a FILTER over a type, not a MAP, so there is no way to write {p(x_i | theta) : i}. The independence assumption that licenses the factorisation is separately statable via `independent(...)`, but nothing connects it to the product.",
+      "control_anomalies": [
+        "but the vector of per-observation densities cannot be built"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-031",
+      "title": "argmax over a constrained parameter space",
+      "encoding": "module CT031\nvar ll : Function[Real, PositiveReal -> Real]\nparam sigma : PositiveReal\ndef argmaxset := {m : Real | forall q : Real . ll(q, sigma) <= ll(m, sigma)}",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [],
+      "facts": [
+        {
+          "description": "the estimate is a SET, so uniqueness is not asserted",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "`argmax` is not a primitive, but the set of maximisers is directly definable by comprehension, which is the encoding that does not assert uniqueness. The positivity restriction rides on the binder's declared type. This is a case where a general form (comprehension) did the work of a missing bespoke node.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-032",
+      "title": "confidence interval as a statement about a random interval",
+      "encoding": "module CT032\nparam theta : Real\nrv X : RandomVariable[Real]\nlaw X ~ Normal(location := 0.0, scale := 1.0)\ndef lo(u : Real) : Real := u - 1.96\ndef hi(u : Real) : Real := u + 1.96\nrequire probability(lo(X) <= theta and theta <= hi(X)) = 0.95",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "the misinterpretation -- a probability over a fixed interval -- is refused",
+          "source": "module CT032b\nparam theta : Real\nparam l : Real\nparam u : Real\nrequire probability(l <= theta and theta <= u) = 0.95",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T482"
+          ],
+          "diagnostics": "error HML-T482: the argument of 'probability' is a proposition, not an event\n  --> <input>:5:21\n   5 | require probability(l <= theta and theta <= u) = 0.95\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    Proposition\n  expected: Event\n  note: a proposition over fixed quantities is true or false, so its probability is 0 or 1 and asking for it states nothing\n  help: declare the quantities it mentions as 'rv X : RandomVariable[...]' so the formula denotes an event",
+          "crash": null,
+          "met": true,
+          "why": "HML-T482: the standard misreading of a confidence interval is a type error"
+        }
+      ],
+      "facts": [
+        {
+          "description": "the endpoints are random and the parameter is not",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The randomness sits in the endpoints via measurable lifting through `lo`/`hi`, theta stays a fixed parameter, and the Event/Proposition rule makes the textbook misinterpretation mechanically unstatable. One of the strongest results in the suite.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-033",
+      "title": "expectation of a matrix-valued function of a random vector",
+      "encoding": "module CT033\nrv X : RandomVariable[Vector[Real, P]]\nvar mu : Vector[Real, P]\ndef Cov := expectation((X - mu) @ transpose(X - mu))",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T427",
+        "HML-T481"
+      ],
+      "diagnostics": "error HML-T427: transpose requires a matrix\n  --> <input>:4:35\n   4 | def Cov := expectation((X - mu) @ transpose(X - mu))\n                                         ^^^^^^^^^^^^^^^^^\n  found:    RandomVariable[Vector[Real, P]]\n  expected: Matrix[...]\n\nerror HML-T481: expectation requires a random variable\n  --> <input>:4:24\n   4 | def Cov := expectation((X - mu) @ transpose(X - mu))\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    Unknown\n  expected: RandomVariable[T]\n  note: the expectation of a quantity that is already fixed is that quantity itself; writing it states nothing and usually means a random variable was intended\n  help: declare the subject as 'rv X : RandomVariable[Real]', or drop the expectation",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the expectation of a matrix-valued random variable, given one, is fine",
+          "source": "module CT033b\nrv S : RandomVariable[Matrix[Real, P, P]]\ndef E := expectation(S)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "so expectation IS shape-polymorphic; the outer product is what is missing"
+        },
+        {
+          "label": "the outer product of two vectors",
+          "source": "module CT033c\nvar a : Vector[Real, P]\ndef O := a @ transpose(a)",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T427"
+          ],
+          "diagnostics": "error HML-T427: transpose requires a matrix\n  --> <input>:3:14\n   3 | def O := a @ transpose(a)\n                    ^^^^^^^^^^^^\n  found:    Vector[Real, P]\n  expected: Matrix[...]",
+          "crash": null,
+          "met": false,
+          "why": "HML-T427: transpose is defined on matrices only"
+        }
+      ],
+      "facts": [],
+      "outcome": "REJECTED_SPURIOUS",
+      "failure_class": "TYPE",
+      "repair": "LOCAL",
+      "repair_note": "one vector case in the `transpose` signature.",
+      "note": "`expectation` is shape-polymorphic and composes with a matrix carrier (control b). The break is in the linear algebra: `transpose` is typed Matrix -> Matrix with no vector case, so there is no outer product and Cov(X) = E[(X-EX)(X-EX)^T] cannot be written. Adding a vector case to one builtin signature would close it; no structural change is implied.",
+      "control_anomalies": [
+        "the outer product of two vectors"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-034",
+      "title": "transformation of a random variable with a Jacobian factor",
+      "encoding": "module CT034\nvar ginv : Function[Real -> Real]\nvar fX : Function[Real -> NonNegativeReal]\ndef J := derivative(ginv(u), u : Real)\ndef fY(y : Real) : NonNegativeReal := fX(ginv(y)) * abs(J(y))",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T470"
+      ],
+      "diagnostics": "error HML-T470: 'J' is not callable\n  --> <input>:5:57\n   5 | def fY(y : Real) : NonNegativeReal := fX(ginv(y)) * abs(J(y))\n                                                               ^^^^\n  found:    def J : Real\n  expected: a definition taking parameters\n  note: 'J' binds a value, not a function (defined at line 4)\n  note: a definition with no parameter list is a value; applying it is a category error, not a missing argument\n  help: give 'J' a parameter list where it is defined, or drop the argument list and refer to it as J",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the derivative itself is formable",
+          "source": "module CT034b\nvar ginv : Function[Real -> Real]\ndef J := derivative(ginv(u), u : Real)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": ""
+        },
+        {
+          "label": "but it is a VALUE and cannot be applied at a point",
+          "source": "module CT034c\nvar ginv : Function[Real -> Real]\ndef J := derivative(ginv(u), u : Real)\nrequire J(0.0) = J(0.0)",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T470",
+            "HML-T470"
+          ],
+          "diagnostics": "error HML-T470: 'J' is not callable\n  --> <input>:4:9\n   4 | require J(0.0) = J(0.0)\n               ^^^^^^\n  found:    def J : Real\n  expected: a definition taking parameters\n  note: 'J' binds a value, not a function (defined at line 3)\n  note: a definition with no parameter list is a value; applying it is a category error, not a missing argument\n  help: give 'J' a parameter list where it is defined, or drop the argument list and refer to it as J\n\nerror HML-T470: 'J' is not callable\n  --> <input>:4:18\n   4 | require J(0.0) = J(0.0)\n                        ^^^^^^\n  found:    def J : Real\n  expected: a definition taking parameters\n  note: 'J' binds a value, not a function (defined at line 3)\n  note: a definition with no parameter list is a value; applying it is a category error, not a missing argument\n  help: give 'J' a parameter list where it is defined, or drop the argument list and refer to it as J",
+          "crash": null,
+          "met": false,
+          "why": "HML-T470: 'J' binds a value, not a function"
+        }
+      ],
+      "facts": [],
+      "outcome": "REJECTED_SPURIOUS",
+      "failure_class": "GRAMMAR",
+      "repair": "GENERAL",
+      "repair_note": "the Jacobian must be evaluated at a point, which requires a binding expression to denote a FUNCTION. There is no abstraction form.",
+      "note": "The decisive finding for the AST question. `derivative(body, x : T)` binds x and immediately DISCHARGES the binder into a value: the result has the body's type, not a function type. There is therefore no derivative-at-a-point anywhere in the language, because there is no abstraction form -- no lambda, and no way to read a binding expression as a function. The Jacobian factor cannot be evaluated at y, so the change-of-variables formula is unwritable. The same single cause blocks CT-036 and the initial condition in CT-026.",
+      "control_anomalies": [
+        "but it is a VALUE and cannot be applied at a point"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-035",
+      "title": "almost-everywhere qualifier surviving a transformation",
+      "encoding": "module CT035\nvar f : Function[Real -> Real]\nvar g : Function[Real -> Real]\nvar Z : Set[Real]\nvar lam : Function[Set[Real] -> NonNegativeReal]\nrequire lam(Z) = 0.0\nrequire forall x : Real . not (x in Z) => f(x) = g(x)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "the declared 'measure' is an arbitrary set function",
+          "source": "module CT035b\nvar Z : Set[Real]\nvar lam : Function[Set[Real] -> NonNegativeReal]\nrequire lam(Z) = 0.0\nrequire lam(Z) = 1.0",
+          "expect": "reject",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": false,
+          "why": "one set is given two different measures and nothing objects, so the null-set encoding rests on a symbol nothing constrains"
+        }
+      ],
+      "facts": [
+        {
+          "description": "the qualifier survives print -> reparse unchanged",
+          "held": true,
+          "error": null
+        },
+        {
+          "description": "the qualified claim is NOT identified with the unqualified one",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES_DEGRADED",
+      "failure_class": "CONSTRAINT",
+      "repair": "ONE_NODE",
+      "repair_note": "one almost-everywhere qualifier, and a Measure type to anchor it.",
+      "note": "There is no `a.e.` qualifier, but the measure-theoretic content can be spelled out longhand -- an exceptional set with measure zero under a named measure -- and that spelling round-trips and stays canonically distinct from the unqualified claim, which is precisely the dangerous direction the specimen guards. The degradation is that `lam` is an uninterpreted function: nothing knows it is a measure, so nothing would stop a second statement asserting lam(R) = 0.",
+      "control_anomalies": [
+        "the declared 'measure' is an arbitrary set function"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-036",
+      "title": "Taylor expansion with an explicit remainder",
+      "encoding": "module CT036\nvar f : Function[Real -> Real]\nparam a : Real\nparam Mb : PositiveReal\nparam r : PositiveReal\ndef fp := derivative(f(u), u : Real)\nrequire forall x : Real . abs(x - a) <= r => abs(f(x) - (f(a) + fp(a) * (x - a))) <= (Mb / 2.0) * (x - a) * (x - a)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T470",
+        "HML-T431",
+        "HML-T431",
+        "HML-T431"
+      ],
+      "diagnostics": "error HML-T470: 'fp' is not callable\n  --> <input>:7:65\n   7 | require forall x : Real . abs(x - a) <= r => abs(f(x) - (f(a) + fp(a) * (x - a))) <= (Mb / 2.0) * (x - a) * (x - a)\n                                                                       ^^^^^\n  found:    def fp : Real\n  expected: a definition taking parameters\n  note: 'fp' binds a value, not a function (defined at line 6)\n  note: a definition with no parameter list is a value; applying it is a category error, not a missing argument\n  help: give 'fp' a parameter list where it is defined, or drop the argument list and refer to it as fp\n\nerror HML-T431: '*' is not defined for these operand types\n  --> <input>:7:65\n   7 | require forall x : Real . abs(x - a) <= r => abs(f(x) - (f(a) + fp(a) * (x - a))) <= (Mb / 2.0) * (x - a) * (x - a)\n                                                                       ^^^^^^^^^^^^^^^\n  found:    Real\n  expected: Unknown\n\nerror HML-T431: '+' is not defined for these operand types\n  --> <input>:7:57\n   7 | require forall x : Real . abs(x - a) <= r => abs(f(x) - (f(a) + fp(a) * (x - a))) <= (Mb / 2.0) * (x - a) * (x - a)\n                                                               ^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    Unknown\n  expected: Real\n\nerror HML-T431: '-' is not defined for these operand types\n  --> <input>:7:50\n   7 | require forall x : Real . abs(x - a) <= r => abs(f(x) - (f(a) + fp(a) * (x - a))) <= (Mb / 2.0) * (x - a) * (x - a)\n                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    Unknown\n  expected: Real",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the remainder bound with the validity region, WITHOUT f'(a)",
+          "source": "module CT036b\nvar f : Function[Real -> Real]\nparam a : Real\nparam Mb : PositiveReal\nparam r : PositiveReal\nrequire forall x : Real . abs(x - a) <= r => abs(f(x) - f(a)) <= (Mb / 2.0) * (x - a) * (x - a)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "so the bounded-approximation SHAPE is expressible; the derivative at a point is not"
+        }
+      ],
+      "facts": [],
+      "outcome": "REJECTED_SPURIOUS",
+      "failure_class": "GRAMMAR",
+      "repair": "GENERAL",
+      "repair_note": "the same as CT-034: f'(a) needs abstraction.",
+      "note": "Same single cause as CT-034: `fp := derivative(f(u), u : Real)` is a value, so `fp(a)` is HML-T470. The expansion's linear term cannot be written. The validity region and the inequality-with-remainder form -- which is what stops the truncation being written with `=` -- both work, so the epistemic half of the specimen passes and the analysis half does not.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-037",
+      "title": "series rearrangement blocked by conditional convergence",
+      "encoding": "module CT037\nvar a : Function[Natural -> Real]\ndef S := sum(n : Natural, 1, infinity, a(n))",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-P201"
+      ],
+      "diagnostics": "error HML-P201: expected ')' to close the arguments of 'sum'\n  --> <input>:3:16\n   3 | def S := sum(n : Natural, 1, infinity, a(n))\n                      ^\n  found:    ':'",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "a finite point-free reduction is all there is",
+          "source": "module CT037b\nvar a : Vector[Real, N]\ndef S := sum(a)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": ""
+        },
+        {
+          "label": "and a limit cannot supply the missing series either",
+          "source": "module CT037c\nvar partial : Function[Natural -> Real]\ndef S := limit(partial(n), n : Natural -> infinity)",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-N301"
+          ],
+          "diagnostics": "error HML-N301: 'infinity' is not bound\n  --> <input>:3:43\n   3 | def S := limit(partial(n), n : Natural -> infinity)\n                                                 ^^^^^^^^\n  found:    infinity\n  help: declare it first, e.g. 'param infinity : Real'",
+          "crash": null,
+          "met": false,
+          "why": "there is no point at infinity in any type"
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "GRAMMAR",
+      "repair": "ONE_NODE",
+      "repair_note": "a series form and a convergence-mode predicate.",
+      "note": "No infinite series object exists: no summation binder, no infinity, and `limit`'s point must inhabit the binder's own type so a limit over Natural cannot approach infinity. ANA.SERIES and ANA.CONVERGENCE_MODES are absent standalone. HML performs no rewriting, so nothing wrong is done -- the specimen is simply outside the language.",
+      "control_anomalies": [
+        "and a limit cannot supply the missing series either"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-038",
+      "title": "simplification that narrows the domain",
+      "encoding": "module CT038\nvar x : Real\nrequire ((x * x - 1.0) / (x - 1.0)) = (x + 1.0)",
+      "expect": "reject",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the guarded form, which is the true statement",
+          "source": "module CT038b\nvar x : Real\nrequire not (x = 1.0) => ((x * x - 1.0) / (x - 1.0)) = (x + 1.0)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": ""
+        }
+      ],
+      "facts": [],
+      "outcome": "COMPOSES_SILENT_LOSS",
+      "failure_class": "CONSTRAINT",
+      "repair": "LOCAL",
+      "repair_note": "raise a definedness obligation for `/`, as `log` and `sqrt` already get from their domain types.",
+      "note": "The UNGUARDED, false statement compiles clean. Division raises no definedness obligation: the only obligation recorded is the generic `constraint:(x*x-1.0)/(x-1.0) = x+1.0` for the whole `require`. LOGIC.PARTIAL_DEFINEDNESS is enforced for `log` and `sqrt` through their domain types but not for `/`, so the exact narrowing the specimen is about is invisible. HML never rewrites, so it will not PERFORM the unsound simplification -- but it will accept the unsound conclusion if a model writes it.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-039",
+      "title": "mixed-unit state vector",
+      "encoding": "module CT039\nvar s : Product[Quantity[Length], Quantity[Length / Time]]\nvar F : Matrix[Real, 2, 2]\ndef s2 := F @ s",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T435"
+      ],
+      "diagnostics": "error HML-T435: '@' requires matrix or vector operands\n  --> <input>:4:11\n   4 | def s2 := F @ s\n                 ^^^^^\n  found:    Matrix[Real, 2, 2] @ Product[Quantity[Length], Quantity[Length / Time]]\n  expected: Matrix[...] @ Vector[...] or Matrix[...] @ Matrix[...]",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "the per-component spelling one would want",
+          "source": "module CT039b\nvar s : Vector[Quantity[Length], Quantity[Length / Time], 2]\nrequire s = s",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-P201"
+          ],
+          "diagnostics": "error HML-P201: expected ']' to close Vector[...]\n  --> <input>:2:42\n   2 | var s : Vector[Quantity[Length], Quantity[Length / Time], 2]\n                                                ^\n  found:    '['",
+          "crash": null,
+          "met": false,
+          "why": "a Vector carries exactly one element type"
+        },
+        {
+          "label": "but it has no components: it cannot be indexed",
+          "source": "module CT039c\nvar s : Product[Quantity[Length], Quantity[Length / Time]]\nrequire s[1] = s[1]",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T425",
+            "HML-T425"
+          ],
+          "diagnostics": "error HML-T425: Product[Quantity[Length], Quantity[Length / Time]] cannot be indexed\n  --> <input>:3:9\n   3 | require s[1] = s[1]\n               ^^^^\n  found:    Product[Quantity[Length], Quantity[Length / Time]]\n\nerror HML-T425: Product[Quantity[Length], Quantity[Length / Time]] cannot be indexed\n  --> <input>:3:16\n   3 | require s[1] = s[1]\n                      ^^^^\n  found:    Product[Quantity[Length], Quantity[Length / Time]]",
+          "crash": null,
+          "met": false,
+          "why": "HML-T425; and no matrix product accepts a Product operand"
+        }
+      ],
+      "facts": [],
+      "outcome": "UNSUPPORTED",
+      "failure_class": "TYPE",
+      "repair": "LOCAL",
+      "repair_note": "per-component element types in the aggregate type constructors, or projections and arithmetic on Product.",
+      "note": "`Vector`/`Matrix`/`Tensor` carry exactly one element type, which is the one-unit-per-array design the specimen predicts almost every system has. `Product[...]` is heterogeneous but is opaque -- no projection, no arithmetic -- so it cannot serve as a state vector. Entrywise dimensional checking of a matrix-vector product is not representable.",
+      "control_anomalies": [
+        "the per-component spelling one would want",
+        "but it has no components: it cannot be indexed"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-040",
+      "title": "dimensionless argument requirement inside a model",
+      "encoding": "module CT040\nparam d : Quantity[Mass]\nparam d0 : Quantity[Mass]\ndef eta := log(d / d0)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-T427"
+      ],
+      "diagnostics": "error HML-T427: the argument of log has the wrong type\n  --> <input>:4:16\n   4 | def eta := log(d / d0)\n                      ^^^^^^\n  found:    Real\n  expected: PositiveReal",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "log of a dimensionful quantity IS correctly refused",
+          "source": "module CT040b\nparam d : Quantity[Mass]\ndef eta := log(d)",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T427"
+          ],
+          "diagnostics": "error HML-T427: the argument of log has the wrong type\n  --> <input>:3:16\n   3 | def eta := log(d)\n                      ^\n  found:    Quantity[Mass]\n  expected: PositiveReal",
+          "crash": null,
+          "met": true,
+          "why": "the half of the rule that works"
+        },
+        {
+          "label": "and an assumption about the ratio does not rescue it either",
+          "source": "module CT040c\nparam d : Quantity[Mass]\nparam d0 : Quantity[Mass]\nassume d / d0 > 0.0\ndef eta := log(d / d0)",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T427"
+          ],
+          "diagnostics": "error HML-T427: the argument of log has the wrong type\n  --> <input>:5:16\n   5 | def eta := log(d / d0)\n                      ^^^^^^\n  found:    Real\n  expected: PositiveReal",
+          "crash": null,
+          "met": false,
+          "why": "the refinement environment is keyed on symbols, not expressions"
+        }
+      ],
+      "facts": [],
+      "outcome": "REJECTED_SPURIOUS",
+      "failure_class": "TYPE",
+      "repair": "LOCAL",
+      "repair_note": "preserve the positivity refinement when a Quantity ratio cancels to a dimensionless scalar.",
+      "note": "The specimen states log(d/d0) IS well formed and log(d) is not. HML refuses both. `Quantity/Quantity` collapses to the unrefined scalar `Real` when the dimensions cancel, and `log` demands `PositiveReal`, so the well-formed dimensionless ratio is rejected -- HML-T427. The dimension analysis is right and the refinement lattice loses positivity across the cancellation. Control c shows D-028's refinement environment cannot repair it: it refines SYMBOLS, and `d / d0` is not a symbol.",
+      "control_anomalies": [
+        "and an assumption about the ratio does not rescue it either"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-041",
+      "title": "assumption discharged by a refinement carried through a call",
+      "encoding": "module CT041\nparam sigma : PositiveReal\ndef y := log(sigma)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "an unconstrained real must NOT discharge it",
+          "source": "module CT041b\nparam r : Real\ndef y := log(r)",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-T427"
+          ],
+          "diagnostics": "error HML-T427: the argument of log has the wrong type\n  --> <input>:3:14\n   3 | def y := log(r)\n                    ^\n  found:    Real\n  expected: PositiveReal",
+          "crash": null,
+          "met": true,
+          "why": ""
+        },
+        {
+          "label": "and an assumption discharges it soundly",
+          "source": "module CT041c\nparam r : Real\nassume r > 0.0\ndef y := log(r)",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": ""
+        }
+      ],
+      "facts": [
+        {
+          "description": "the only obligation is the declaration's own positivity; the call leaves no residue",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "Refinement flows across the application boundary, discharges the precondition, raises no residual obligation, and does not over-discharge. D-028 working exactly as advertised.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-042",
+      "title": "epistemic status preserved through a derivation",
+      "encoding": "module CT042\nparam x : Real\nassume a1 : x > 0.0\ngoal g1 : x + 1.0 > 0.0 + 1.0\nderive d1 : x + 1.0 > 0.0 + 1.0 from a1 by add_inequality(by := 1.0)\nproved g1 by d1",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "an unsupported proof claim is refused",
+          "source": "module CT042b\nparam x : Real\nassume a1 : x > 0.0\ngoal g1 : x > 5.0\nderive d1 : x > 5.0 from a1 by add_inequality(by := 1.0)\nproved g1 by d1",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-R706",
+            "HML-R710"
+          ],
+          "diagnostics": "error HML-R706: the stated conclusion is not what 'add_inequality' yields\n  --> <input>:5:1\n   5 | derive d1 : x > 5.0 from a1 by add_inequality(by := 1.0)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    x > 5.0\n  expected: x + 1.0 > 0.0 + 1.0\n  note: the conclusion is compared under canonical identity, so this is not a formatting difference\n  help: write the conclusion 'add_inequality' licenses, or use another rule\n\nerror HML-R710: goal 'g1' is not proved: derivation 'd1' is REJECTED, not VERIFIED\n  --> <input>:6:1\n   6 | proved g1 by d1\n       ^^^^^^^^^^^^^^^\n  found:    REJECTED\n  expected: VERIFIED\n  note: a proof claim is adjudicated, not accepted; writing 'proved' does not make a goal proved\n  help: repair the derivation",
+          "crash": null,
+          "met": true,
+          "why": "writing `proved` does not make a goal proved"
+        },
+        {
+          "label": "an APPROXIMATE step cannot be marked at all",
+          "source": "module CT042c\nparam x : Real\nparam y : Real\nassume a1 : x > 0.0\nassume a2 : y ~ x",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-P204"
+          ],
+          "diagnostics": "error HML-P204: unexpected '~' after assume\n  --> <input>:5:15\n   5 | assume a2 : y ~ x\n                     ^\n  help: HML-L1 permits one statement per line",
+          "crash": null,
+          "met": false,
+          "why": "so 'conditional AND approximate' cannot be the recorded status"
+        }
+      ],
+      "facts": [
+        {
+          "description": "the conclusion records the assumed premise it depends on",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES_DEGRADED",
+      "failure_class": "GRAMMAR",
+      "repair": "ONE_NODE",
+      "repair_note": "the CT-016 approximation marker.",
+      "note": "The conditional half is fully modelled and enforced: the derivation names its assumed premise, its status is computed by the kernel and not writable in source, and an unsupported `proved` is refused. The approximate half is absent -- EPIS.APPROXIMATION_CLAIM has no surface form (see CT-016) -- so the combined status the specimen asks for cannot be formed. Half the specimen passes and the missing half is a single absent marker, not a structural gap.",
+      "control_anomalies": [
+        "an APPROXIMATE step cannot be marked at all"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-043",
+      "title": "translation to a backend that lacks a constraint",
+      "encoding": "module CT043\nparam sigma : PositiveReal\nrv X : RandomVariable[Real]\nlaw X ~ Normal(location := 0.0, scale := sigma)\nrequire sigma > 0.0",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [],
+      "facts": [
+        {
+          "description": "Stan declares the dropped constraint in machine-readable form",
+          "held": true,
+          "error": null
+        },
+        {
+          "description": "Stan declares the weakened refinement rather than emitting it silently",
+          "held": true,
+          "error": null
+        },
+        {
+          "description": "Lean declares that the refinement is not carried in the type",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The loss is emitted structurally (`BackendResult.unsupported`, severity dropped/approximated/weakened) rather than as prose, and `faithful` is False. This is the specimen HML was designed for and it passes on three backends at once.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-044",
+      "title": "round trip through the printer with a qualifier",
+      "encoding": "module CT044\nvar f : Function[Real -> Real]\nrequire forall x : Real . exists y : Real . f(x) > y\ndef s := {u : Real | u > 0.0}\ndef a := integral(f(t), t : Real, 0.0, 1.0)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "an approximation marker to round-trip",
+          "source": "module CT044b\nparam a : Real\nparam b : Real\nassume a ~ b",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-P204"
+          ],
+          "diagnostics": "error HML-P204: unexpected '~' after assume\n  --> <input>:4:10\n   4 | assume a ~ b\n                ^\n  help: HML-L1 permits one statement per line",
+          "crash": null,
+          "met": false,
+          "why": "there is none, so half the specimen is unattemptable"
+        }
+      ],
+      "facts": [
+        {
+          "description": "print -> reparse -> identical content hash",
+          "held": true,
+          "error": null
+        },
+        {
+          "description": "alpha-renaming the binders gives the same hash",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES_DEGRADED",
+      "failure_class": "GRAMMAR",
+      "repair": "ONE_NODE",
+      "repair_note": "the CT-016 approximation marker.",
+      "note": "The binder half passes completely -- three different binder kinds survive print/reparse with an identical content hash and are alpha-invariant. The approximation half cannot be attempted because the marker does not exist (CT-016). No information is lost by the printer; the information was never expressible.",
+      "control_anomalies": [
+        "an approximation marker to round-trip"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-045",
+      "title": "capture-avoiding substitution under two binders",
+      "encoding": "module CT045\nparam i : Real\nparam j : Real\nvar a : Function[Real, Real -> Real]\nassume a1 : i = j\nassume a2 : forall k : Real . a(i, k) = a(i, k)\nderive d1 : forall k : Real . a(j, k) = a(j, k) from a1, a2 by substitute",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-R706"
+      ],
+      "diagnostics": "error HML-R706: the stated conclusion is not what 'substitute' yields\n  --> <input>:7:1\n   7 | derive d1 : forall k : Real . a(j, k) = a(j, k) from a1, a2 by substitute\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    forall k : Real . a(j, k) = a(j, k)\n  expected: forall k : Real . a(i, k) = a(i, k)\n  note: the conclusion is compared under canonical identity, so this is not a formatting difference\n  help: write the conclusion 'substitute' licenses, or use another rule",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "substitution NOT under a binder succeeds",
+          "source": "module CT045b\nparam i : Real\nparam j : Real\nvar a : Function[Real, Real -> Real]\nassume a1 : i = j\nassume a2 : a(i, 1.0) = a(i, 1.0)\nderive d1 : a(j, 1.0) = a(i, 1.0) from a1, a2 by substitute",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-R706"
+          ],
+          "diagnostics": "error HML-R706: the stated conclusion is not what 'substitute' yields\n  --> <input>:7:1\n   7 | derive d1 : a(j, 1.0) = a(i, 1.0) from a1, a2 by substitute\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    a(j, 1.0) = a(i, 1.0)\n  expected: a(j, 1.0) = a(j, 1.0)\n  note: the conclusion is compared under canonical identity, so this is not a formatting difference\n  help: write the conclusion 'substitute' licenses, or use another rule",
+          "crash": null,
+          "met": false,
+          "why": "so the refusal above is specifically about descending under a binder"
+        },
+        {
+          "label": "shadowing a bound name is refused rather than silently captured",
+          "source": "module CT045c\nparam k : Real\nrequire forall k : Real . k > 0.0",
+          "expect": "reject",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-N302"
+          ],
+          "diagnostics": "error HML-N302: 'k' shadows an outer binding and would silently change scope\n  --> <input>:3:9\n   3 | require forall k : Real . k > 0.0\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  note: outer param 'k' is bound at line 2\n  note: shadowing is rejected by design decision D-006\n  help: rename the inner binding, e.g. k_inner",
+          "crash": null,
+          "met": true,
+          "why": "HML-N302: the capture the specimen is about cannot even be written"
+        }
+      ],
+      "facts": [],
+      "outcome": "REJECTED_SPURIOUS",
+      "failure_class": "COMPILER",
+      "repair": "LOCAL",
+      "repair_note": "capture-avoiding substitution in the kernel. D-006's no-shadowing rule already guarantees the precondition, so this is an algorithm to write, not a representation to invent.",
+      "note": "HML refuses rather than captures, in both places it could go wrong: the `substitute` kernel rule does not descend into quantifier bodies and reports exactly what it would have produced (HML-R706), and D-006 makes the capturing spelling unwritable in the first place (HML-N302). The capability is genuinely absent -- there is no alpha-renaming step -- but nothing unsound happens, which is what this specimen tests. Scored REJECTED_CORRECT with the capability gap recorded.",
+      "control_anomalies": [
+        "substitution NOT under a binder succeeds"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-046",
+      "title": "optimisation over a distribution",
+      "encoding": "module CT046\nvar Q : Set[Distribution[Real]]\nvar p : Distribution[Real]\nvar q : Distribution[Real]\nvar kl : Function[Distribution[Real], Distribution[Real] -> NonNegativeReal]\nrequire q in Q\nminimise kl(q, p)\nsolve q",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [],
+      "facts": [
+        {
+          "description": "KL(q||p) and KL(p||q) are canonically different objects",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "The decision variable really is a Distribution[Real] -- a first-class object that the type system keeps apart from its support -- the family is a Set[Distribution[Real]], and argument order is preserved so the asymmetry cannot be lost by an accidental swap. The degradation: `kl` is an uninterpreted declared function, and its two arguments are POSITIONAL, so D-003's role labelling -- the mechanism that would have named the asymmetry -- is not available for user-declared functions.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-047",
+      "title": "sup versus max in an optimisation conclusion",
+      "encoding": "module CT047\ndef U := {u : Real | u > 0.0 and u < 1.0}\ndef lower_bounds := {b : Real | forall u : Real . u in U => b <= u}\nrequire 0.0 in lower_bounds\nrequire not (exists m : Real . m in U and (forall u : Real . u in U => m <= u))",
+      "expect": "accept",
+      "compiled": true,
+      "ok": true,
+      "codes": [],
+      "diagnostics": "",
+      "crash": null,
+      "primary_met": true,
+      "controls": [
+        {
+          "label": "a sup/inf primitive",
+          "source": "module CT047b\nvar S : Set[Real]\ndef i := infimum(S)",
+          "expect": "accept",
+          "gate": false,
+          "ok": false,
+          "codes": [
+            "HML-N306"
+          ],
+          "diagnostics": "error HML-N306: 'infimum' is not a known function\n  --> <input>:3:10\n   3 | def i := infimum(S)\n                ^^^^^^^^^^\n  help: declare it first, e.g. 'param infimum : Real'",
+          "crash": null,
+          "met": false,
+          "why": "HML-N306: ANA.SUP_INF has no builtin; the meaning is recoverable by comprehension, so this is vocabulary and not part of the gate"
+        }
+      ],
+      "facts": [
+        {
+          "description": "the set of lower bounds is a Set, and no minimiser is asserted",
+          "held": true,
+          "error": null
+        }
+      ],
+      "outcome": "COMPOSES",
+      "failure_class": null,
+      "repair": "NONE",
+      "repair_note": "",
+      "note": "There is no `inf`/`sup` primitive, but the mathematics is expressible by comprehension -- the set of lower bounds -- and the non-attainment claim is expressible as a quantified negation. Crucially, `minimise` in HML declares an objective and does not assert that a minimiser exists, so the dangerous error the specimen guards against is not committed. Degraded on vocabulary, not on meaning.",
+      "control_anomalies": [],
+      "facts_held": true,
+      "closes": true,
+      "adjudication_agrees": true
+    },
+    {
+      "id": "CT-048",
+      "title": "triple composition: quantifier, units and a random variable",
+      "encoding": "module CT048\nparam mu : Quantity[Length]\nparam sigma : Quantity[Length]\nrequire sigma > 0.0\nrv H : RandomVariable[Quantity[Length]]\nlaw H ~ Normal(location := mu, scale := sigma)",
+      "expect": "accept",
+      "compiled": true,
+      "ok": false,
+      "codes": [
+        "HML-D502",
+        "HML-T413",
+        "HML-T413",
+        "HML-T411"
+      ],
+      "diagnostics": "error HML-D502: cannot compare quantities with different dimensions\n  --> <input>:4:9\n   4 | require sigma > 0.0\n               ^^^^^^^^^^^\n  found:    Dimensionless\n  expected: Length\n  note: comparison requires dimensional equality\n\nerror HML-T413: the 'location' role of Normal requires Real\n  --> <input>:6:28\n   6 | law H ~ Normal(location := mu, scale := sigma)\n                                  ^^\n  found:    Quantity[Length]\n  expected: Real\n  note: scale is the standard deviation, not the variance\n  help: declare 'mu : Real'\n\nerror HML-T413: the 'scale' role of Normal requires PositiveReal\n  --> <input>:6:41\n   6 | law H ~ Normal(location := mu, scale := sigma)\n                                               ^^^^^\n  found:    Quantity[Length]\n  expected: PositiveReal\n  note: scale is the standard deviation, not the variance\n  help: declare 'sigma : PositiveReal'\n\nerror HML-T411: the support of Normal does not inhabit the declared type of 'H'\n  --> <input>:6:1\n   6 | law H ~ Normal(location := mu, scale := sigma)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  found:    support Real\n  expected: Quantity[Length]\n  note: Normal is supported on Real\n  help: declare 'H : Real', or choose a family whose support is Quantity[Length]",
+      "crash": null,
+      "primary_met": false,
+      "controls": [
+        {
+          "label": "quantifier x indexed RV family, without units",
+          "source": "module CT048b\nvar H : Vector[RandomVariable[Real], N]\nparam t : Real\nrequire forall i : Natural . probability(H[i] > t) <= 1.0",
+          "expect": "accept",
+          "gate": true,
+          "ok": true,
+          "codes": [],
+          "diagnostics": "",
+          "crash": null,
+          "met": true,
+          "why": "this half composes cleanly"
+        },
+        {
+          "label": "the per-index law, which the encoding above had to drop",
+          "source": "module CT048c\nparam mu : Quantity[Length]\nparam sigma : Quantity[Length]\nvar H : Vector[RandomVariable[Quantity[Length]], N]\nrequire forall i : Natural . H[i] ~ Normal(location := mu, scale := sigma)",
+          "expect": "accept",
+          "gate": true,
+          "ok": false,
+          "codes": [
+            "HML-P204"
+          ],
+          "diagnostics": "error HML-P204: unexpected '~' after require\n  --> <input>:5:35\n   5 | require forall i : Natural . H[i] ~ Normal(location := mu, scale := sigma)\n                                         ^\n  help: HML-L1 permits one statement per line",
+          "crash": null,
+          "met": false,
+          "why": "CT-001's grammar wall, on top of the type walls in the primary"
+        }
+      ],
+      "facts": [],
+      "outcome": "REJECTED_SPURIOUS",
+      "failure_class": "TYPE",
+      "repair": "GENERAL",
+      "repair_note": "CT-004's local fix AND CT-001's general one.",
+      "note": "The suite's designated summary specimen, and it fails on two of its four capabilities. Quantification over an indexed family of random variables works (control b). Units on a random variable do not (control c, CT-004). A refinement on a dimensionful parameter does not, because `sigma > 0.0` compares Length with Dimensionless and there is no PositiveQuantity (control d). And the per-index law is unwritable (CT-001). Three separate walls in one sentence.",
+      "control_anomalies": [
+        "the per-index law, which the encoding above had to drop"
+      ],
+      "facts_held": true,
+      "closes": false,
+      "adjudication_agrees": true
+    }
+  ]
+}

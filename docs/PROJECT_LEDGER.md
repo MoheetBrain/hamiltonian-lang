@@ -2993,3 +2993,61 @@ executable checks. Measured maturity is unchanged.
 
 **Next intended step.** §4 scoped Γ, then §5 partiality contracts. The compositionality
 study and the 486-atom probe are running in parallel.
+
+---
+
+## 2026-08-07 (seventh entry) — the AST fork decided; circular laws rejected
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `a69261f`
+**Stage:** directive §7/§8 decided; §3 extended
+
+**Objective.** Decide, from measurement rather than recommendation, whether HML's
+position-specific AST is the cause of compositional failure — and fix what the
+measurement exposed.
+
+**Files and systems changed.** `semantics/__init__.py` gains `_check_law_cycles`
+(HML-S607); new `tests/semantics/test_law_cycles.py`; a corrected fixture in
+`tests/roundtrip/test_importers.py`; `DECISIONS.md` D-041, D-042 and a correction;
+`docs/hml_v2/COMPOSITIONALITY_STUDY.md` and the 48-specimen harness.
+
+**What was completed.** The 48 composition specimens were encoded and executed for the
+first time. The AST fork is decided: **do not rewrite.** Circular probability laws are now
+rejected.
+
+**Decisions made and why.** D-041 rejects the generic Apply/Bind/Attribute core on three
+measurements, the decisive one being that the generic core *alone* reaches 27/48 = 0.563 —
+below the Level 2 threshold — while targeted repairs alone reach 41/48 = 0.854. The
+rewrite is neither necessary nor sufficient. Accepted instead: local repairs, two targeted
+additions (abstraction; a binder over statements), and a ~40-line binder protocol.
+
+**Tests and verification actually executed.**
+- 48-specimen composition: **STRICT 20/48 = 0.417**, FRAMEWORK 20/38 = 0.526
+- failure attribution over 28 failures: GRAMMAR 14 · TYPE 8 · COMPILER 3 · CONSTRAINT 2 ·
+  SCOPE 1 · **CANONICAL 0** (12 predicted) · **BACKEND 0** (6 predicted) · SPECIMEN 0
+- `.venv/bin/python -m pytest` → **6279 passed, 0 failed** (6270 before)
+- law cycles: mutual pairs, 3-cycles, self-via-parameter and self-via-`given` all rejected;
+  two- and three-level hierarchies and every shipped probabilistic example accepted
+- hash stability: **0 changed**
+
+**Failures and unresolved uncertainty.**
+- **The two closure figures measure different things and must never be trended together.**
+  0.692 is 9/13 on the legacy subset; 0.417 is 20/48 on the full set. Same SHA, different
+  instruments.
+- **One of the study's three reported silent losses does not reproduce.** CT-018 claimed
+  conditional expectation types identically to unconditional; measured, the types differ
+  when conditioning on a random variable, and the canonical identities differ in *both*
+  cases. Corrected in DECISIONS.md rather than repeated. CT-022 and CT-038 are real.
+- **The law-cycle check found a latent defect in an existing test fixture** —
+  `law m ~ Normal(location := m, ...)`. The fixture was corrected; had the check been
+  written to accommodate it, a real unsoundness would have been preserved to keep a test
+  green.
+- D-041's confidence is **~0.75**, not higher: the two targeted additions are real and
+  their eventual shape may yet argue for generality. A falsification condition is recorded.
+- CT-038 (unguarded division) is **not fixed** — it is what D-036's precondition contracts
+  exist to close, and that work has not started.
+
+**Effect on the overall project.** The largest architectural question in the programme is
+closed on evidence, and closed *against* the rewrite. The measured closure ceiling for the
+accepted plan is 0.854.
+
+**Next intended step.** §4 scoped Γ, then §5 partiality contracts (which closes CT-038).

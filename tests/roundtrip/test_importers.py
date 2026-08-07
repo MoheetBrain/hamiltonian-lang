@@ -240,9 +240,15 @@ def test_stan_cannot_express_strict_positivity():
     every scale parameter in every family is strictly positive, most probabilistic models
     fall outside the round-trippable Stan subset.
     """
+    # The observed quantity and the location are distinct symbols. The original fixture
+    # wrote `law m ~ Normal(location := m, ...)`, giving m's own law a dependency on m --
+    # a self-referential law that specifies no distribution. It went unnoticed because
+    # nothing checked for law cycles until HML-S607 (CT-022). The subject of this test is
+    # Stan's closed lower bound, not m's law, so the fixture is corrected rather than the
+    # check relaxed.
     src = (
-        "module P\n\nparam m : Real\nparam s : PositiveReal\n\n"
-        "law m ~ Normal(location := m, scale := s)\n"
+        "module P\n\nparam mu : Real\nparam s : PositiveReal\nparam y : Real\n\n"
+        "law y ~ Normal(location := mu, scale := s)\n"
     )
     r = _compiled(src)
     back = from_stan(render("stan", r.module, r.symbols).text)
