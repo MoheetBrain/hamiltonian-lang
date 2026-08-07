@@ -58,6 +58,13 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
+**Research-integration decisions are recorded** in
+`docs/hml_v2/RESEARCH_INTEGRATION_DECISIONS.md`: 14 recommendations classified against
+measured state, with the generic Apply/Bind AST core explicitly DEFERRED pending failure
+attribution rather than accepted on recommendation. Measured corrections to inherited
+figures: tests are 6252 (not 6240); the full 48-specimen composition set closes **20/48**,
+which is not the same measurement as the 0.692 reported over a 13-specimen subset.
+
 **A 16-step programme is now underway; step 1 (architectural freeze) is done.**
 `docs/hml_v2/ARCHITECTURE_FREEZE.md` freezes six decisions as binding contracts —
 evidence semantics, Γ/scope, definedness, approximation, verifier certificates and

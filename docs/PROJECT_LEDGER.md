@@ -2895,3 +2895,54 @@ unchanged: still LEVEL 1, closure still 0.692.
 **Next intended step.** Step 2 (harden the global reasoning graph) and step 4 (partiality
 contracts) in parallel; step 3 (scoped Γ) after step 4 to avoid colliding in the type
 checker. Step 5's fork verdict is pending.
+
+---
+
+## 2026-08-07 (fifth entry) — research-integration decision record
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `34079d0`
+**Stage:** gate before the architectural-completion work
+
+**Objective.** Classify every enumerated research recommendation against measured
+repository state before writing any code.
+
+**Files and systems changed.** New `docs/hml_v2/RESEARCH_INTEGRATION_DECISIONS.md`.
+
+**What was completed.** Fourteen recommendations classified with repository evidence:
+2 ALREADY/PARTIALLY implemented, 6 ACCEPT, 4 ACCEPT_WITH_MODIFICATION, 2 DEFER, 0 REJECT.
+
+**Decisions made and why.** The two that most change the plan:
+- **Generic Apply/Bind core is DEFERRED, not accepted.** Adopting it on the reports'
+  say-so before failure attribution is the exact failure mode the directive names first.
+- **"Fewer than 10 rules" is rejected as a target.** Rule count is a vanity metric; the
+  quantity to minimise is TCB size at fixed trusted semantic power.
+
+**Tests and verification actually executed.**
+- `.venv/bin/python -m pytest` → **6252 passed, 0 failed** (directive said 6240 — stale)
+- `git rev-parse HEAD` → **34079d0** (directive said 0715bfc — stale by one commit)
+- ontology: **486 atoms, 64 critical** — confirmed
+- extensibility: **0 of 6** probed forms accepted (`import`, user type, user relation,
+  user distribution, `fn … -> T`, `signature`) — confirms extensibility is absent
+- CHECKED-as-premise measured: a step resting on a CHECKED premise inherits its open
+  obligation and stays CHECKED — the directive's provisional-use rule already holds
+- `grep -rn "def .*cycle" src/hamiltonian_lang/reasoning/` → **no match**: acyclicity rests
+  entirely on the textual-order rule, which is the §3 E9 gap
+
+**Failures and unresolved uncertainty.**
+- **I do not have the text of either research report** — only the enumerated
+  recommendations. The classification cannot speak to reasoning or caveats that did not
+  survive into that list. Stated at the top of the record.
+- **The two closure figures are not comparable.** 0.692 is 9/13 over the subset the audit
+  probed; the full 48-specimen file had no runner until now and first executes at
+  **20/48**. Recorded so the two are never reported as one trend.
+- Stage 7's attribution has not run, so the AST question is open, not answered.
+- The commit protocol hook blocked this commit once because the ledger and status edits
+  were placed in the same compound command as `git commit`; the hook evaluates before
+  execution, so those edits never ran. Third occurrence of the same operator error this
+  session — recorded rather than silently retried.
+
+**Effect on the overall project.** Implementation is now gated by a written decision per
+recommendation rather than by the reports' authority.
+
+**Next intended step.** §3 evidence-graph hardening (lead, confined to `reasoning/`), with
+full-ontology probing dispatched in parallel as it touches no source.
