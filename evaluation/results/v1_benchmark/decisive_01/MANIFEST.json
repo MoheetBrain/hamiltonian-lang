@@ -1,0 +1,137 @@
+{
+  "run_id": "decisive_01",
+  "created_utc": "2026-08-07T05:14:05Z",
+  "note": "Decisive SE-versus-HML-V1 measurement, developmental protocol v1.3. 23 valid paired tasks (v1b_11 excluded pre-run). Probe passed 8/8 clean.",
+  "protocol": "developmental-v1.3",
+  "amendment": {
+    "protocol": "developmental-v1.3",
+    "supersedes": "v1 frozen budget inherited from ACQ0; and v1.2's 4096 allowance",
+    "amended": {
+      "per_call_completion_allowance": {
+        "from": 1024,
+        "via_v1_2": 4096,
+        "to": 8192
+      },
+      "total_completion_allowance_per_arm": {
+        "from": 2048,
+        "via_v1_2": 8192,
+        "to": 16384
+      },
+      "runtime": {
+        "recorded_in_arms_py": "4 x 8192",
+        "measured_at_v1_2": "2 x 16384",
+        "reconfigured_for_v1_3": "1 x 32768"
+      }
+    },
+    "probe_finding_forcing_v1_3": {
+      "at_allowance": 4096,
+      "tasks": [
+        "v1b_06_simpson_reversal",
+        "v1b_23_knowledge_closure_choice"
+      ],
+      "both_truncated": true,
+      "v1b_06": {
+        "completion_tokens": 4096,
+        "reasoning_chars": 10617,
+        "content_chars": 0
+      },
+      "v1b_23": {
+        "completion_tokens": 4096,
+        "reasoning_chars": 12070,
+        "content_chars": 2457
+      },
+      "conclusion": "The reasoning trace alone costs ~10,600-12,100 characters (~3,000-4,000 tokens). At 4096 the trace consumes the budget and the answer is empty or cut off. An empty content field is an ABSENT answer that the scorer records as a failure of the representation under test -- precisely the artefact the amendment exists to remove."
+    },
+    "harness_fixes": [
+      {
+        "id": "D1_last_answer_marker",
+        "was": "the FIRST <ANSWER> span was scored",
+        "now": "the LAST complete span is scored",
+        "why": "Both arms' second call says 'correct anything you find wrong, then give your final answer'. Scoring the first span penalises the second call exactly when it works, and contradicts the system prompt's 'nothing after the closing marker'."
+      },
+      {
+        "id": "D2_exact_closed_forms",
+        "was": "the first number-like substring was taken: 16/7 -> 16.0, ln(5/2) -> 5.0",
+        "now": "the whole answer is parsed (decimals, fractions, sqrt/ln/log/exp/pi) or rejected",
+        "why": "9 of 24 keys have an exact closed form. The error is DIFFERENTIAL: an arm reasoning in a formal representation is more likely to answer 16/7 than 2.2857, so the mis-scoring falls preferentially on the treatment and biases the paired contrast rather than merely adding noise."
+      },
+      {
+        "id": "D3_missing_marker_scored_against_whole_reply",
+        "was": "no marker -> the entire reply was searched, producing spurious passes",
+        "now": "no marker -> incorrect, recorded as no_answer_marker",
+        "why": "Demonstrated: 'The coin is flipped 10 times ... Var(H) = 2.5.' scored CORRECT against key 10. A formatting failure was scored as a reasoning success, inflating both arms toward saturation."
+      },
+      {
+        "id": "D4_unmatched_second_call_carry",
+        "was": "SE carried its whole first reply; HML carried only the extracted fence",
+        "now": "both arms carry their whole first reply; HML additionally gets diagnostics",
+        "why": "The frozen design states the arms differ in exactly one respect. They differed in two. The asymmetry handicaps the TREATMENT, so a kill verdict resting on it would not be trustworthy."
+      }
+    ],
+    "applied_identically_to_both_arms": true,
+    "held_fixed": [
+      "temperature 0.0",
+      "same model and pinned digest",
+      "same two calls per task per arm",
+      "same tasks in the same frozen order",
+      "same deterministic scorer",
+      "matched mathematical information",
+      "matched revision opportunity"
+    ],
+    "rationale": "The eval001 screen truncated 11 of 285 completions at a 2400-token cap and its closing commit required the cap be raised before any corpus was measured for real. At 1024 the artefact would fall preferentially on the HML arm, which must emit a module in addition to its reasoning and is therefore the more verbose arm by construction. That would anti-correlate a measurement artefact with the treatment.",
+    "this_is_not_the_original_configuration": true
+  },
+  "model": "gemma4:31b",
+  "model_digest_pinned": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "temperature": 0.0,
+  "per_call_completion_allowance": 8192,
+  "total_completion_allowance_per_arm": 16384,
+  "calls_per_task_per_arm": 2,
+  "runtime_measured": "1 x 32768",
+  "per_slot_context": 32768,
+  "num_parallel": 1,
+  "surface": "FROZEN_L1_SURFACE (HML_SPEC)",
+  "surface_sha256": "13b54b91e51e2726f0bb2f8e3ca9f57b7649c7d86f4fc4b5c54edc7e8da54eba",
+  "frozen_task_order": [
+    "v1b_01_radical_extraneous",
+    "v1b_02_vieta_reciprocal_squares",
+    "v1b_03_mobius_iteration_period",
+    "v1b_04_conditional_min_given_max",
+    "v1b_05_sd_of_linear_combination",
+    "v1b_06_simpson_reversal",
+    "v1b_07_law_of_total_variance",
+    "v1b_08_quantifier_order_repair",
+    "v1b_09_negation_prenex_prefix",
+    "v1b_10_vacuous_truth_count",
+    "v1b_12_kinematic_viscosity_dimension",
+    "v1b_13_permittivity_from_dimensionless",
+    "v1b_14_pendulum_consistency_count",
+    "v1b_15_sylvester_rank_range",
+    "v1b_16_defective_matrix_trace",
+    "v1b_17_determinant_scalar_similarity",
+    "v1b_18_frullani_integral",
+    "v1b_19_implicit_second_derivative",
+    "v1b_20_series_order_limit",
+    "v1b_21_two_detector_posterior",
+    "v1b_22_correlated_testimony",
+    "v1b_23_knowledge_closure_choice",
+    "v1b_24_licensed_conclusion_choice"
+  ],
+  "excluded_tasks": {
+    "v1b_11_negation_scope_choice": "Pre-run defect on two independent counts. (1) The option set is not mutually exclusive: option B is a correct formalisation on its own, option C is too, and option D asserts that both are. The stem calls all five 'candidate formalisations' and asks for 'the correct option' with no 'most complete' instruction, so B is defensible and the intended answer D is not itself a formalisation. (2) The choice scorer requires exactly one option letter to appear in the answer span, and this task's correct answer intrinsically names B and C -- verified: '<ANSWER>D (both B and C are correct)</ANSWER>' scores False while a bare '<ANSWER>D</ANSWER>' scores True. The task therefore penalises a model for explaining a correct choice."
+  },
+  "n_tasks": 23,
+  "scientific_input_hash": {
+    "tasks": "87643af386e4defc28d4a349af3b85dbe414a546b563f764dc3c6518364fc87c",
+    "prompts": "94e3e6695a20faa77933ef1fdf545d41420db31f5a2ae0d063aacfaa3e387c4e",
+    "scorer": "fd3146b1ed39a6166e1664a761073bec5f00321866aab271a49918726a5b8207",
+    "compiler": "ebcc1400f6134fcff1e52087d6482ef4296501836f49a862ee501c59b744c84e",
+    "extraction": "036f9fbd10cf5e240b5b805c360929245c065703f72bf5a28319bf3c24c4dce5",
+    "repair_prompt_v13": "f7cfa7dde8a0420aafb9f2bff588c8ea733f06746fda3e94e8e66810782222d6",
+    "diagnostics_budget": "b5e388436a0aed4f7bcff2db9f0baac4d99bfa0e0d8ac2281c7a3b351eeff4a1"
+  },
+  "arms": [
+    "SE",
+    "HML-V1"
+  ]
+}

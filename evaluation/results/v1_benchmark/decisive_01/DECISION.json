@@ -1,0 +1,24 @@
+{
+  "verdict": "HML_BENCHMARK_FAILED_NO_SIGNAL",
+  "protocol": "developmental-v1.3",
+  "run_id": "decisive_01",
+  "reason": "The SE control scored 23/23, which falls in the INSUFFICIENT band. A corpus the control saturates or floors cannot discriminate between representations, so no HML call was made and no HML compute was spent.",
+  "headroom_gate": {
+    "se_correct": 23,
+    "n": 23,
+    "accuracy": 1.0,
+    "band": "INSUFFICIENT",
+    "ideal_interval": [
+      8,
+      15
+    ],
+    "usable_interval": [
+      6,
+      17
+    ],
+    "proceed_to_hml": false,
+    "rule": "For 24 tasks: ideal 8-16 correct, usable 6-18 excluding the ideal interval, insufficient 0-5 or 19-24. Scaled proportionally for N in 20-23."
+  },
+  "hml_arm_run": false,
+  "wall_clock_s": 8187.1
+}

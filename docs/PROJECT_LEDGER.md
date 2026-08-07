@@ -2549,3 +2549,67 @@ text across arms.
 same prior working, cannot silently truncate, and runs to a verdict from one command.
 
 **Next intended step.** Complete the 8-call probe at v1.3, then the SE headroom gate.
+
+---
+
+## 2026-08-07 — Decisive run: SE headroom gate INSUFFICIENT at 23/23; HML_BENCHMARK_FAILED_NO_SIGNAL
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** V1 benchmark, closed.
+
+**Objective.** Obtain the highest-integrity developmental signal available from the frozen
+24-task benchmark, SE versus HML-V1, and return one project decision.
+
+**Files and systems changed.** New `docs/evaluation/V1_HEADROOM_GATE_REPORT.md` and the run
+artefacts under `evaluation/results/v1_benchmark/decisive_01/`. No source change.
+
+**What was completed.** The complete SE arm on 23 valid paired tasks under developmental
+protocol v1.3. The headroom gate was evaluated on the complete SE matrix **before any
+treatment call**, returned INSUFFICIENT, and the driver stopped without making a single
+HML-V1 call.
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| records complete | **23/23**, all arm SE, 0 HML records |
+| truncations / transport errors | **0 / 0** |
+| scoring outcomes | **46/46 calls `ok`** |
+| answer markers | exactly one per reply, 0 anomalies |
+| scientific-input drift across the run | **NONE** |
+| result reconstruction by re-scoring raw content | **23/23, exact match to stored values** |
+| SE final correct | **23/23 (100%)** |
+| SE first-call correct | **23/23** |
+| second call changed the answer | 2 (final still 23/23) |
+| cost | 46 calls, 132,571 completion tokens, 2.27 h wall |
+
+**Decisions made and why.**
+
+- **No HML arm.** Mission section 7 requires it and the design enforces it: a corpus the
+  control saturates cannot discriminate between representations, so spending treatment
+  compute would buy nothing and would let the gate be argued with after the fact.
+- **The verdict is about the corpus.** No HML scientific call exists, so nothing here is
+  evidence for or against HML.
+
+**Failures and unresolved uncertainty.**
+
+- **Two purpose-built corpora lost to saturation in a row.** eval001 at 0.961; this at 1.000
+  against a predicted 0.556. Every difficulty figure was `PREDICTED_NOT_MEASURED` and none
+  carried signal: all three tied-hardest tasks and every convention trap were answered
+  correctly.
+- **Headroom is a function of the completion budget.** At 4096 the probe truncated and
+  `v1b_06` returned zero characters of content; at 8192 the model scored 23/23. This corpus
+  has no usable headroom at any allowance yet identified.
+- **The budget raise and the saturation are causally linked.** The v1.2 -> v1.3 raise was
+  necessary and was committed before any scientific call, but it is what moved the corpus
+  from floor to ceiling. Recorded so a reader can weigh it.
+- It is not established that a corpus this model cannot saturate exists within the
+  mathematics this benchmark targets.
+
+**Effect.** The 24-task benchmark is retired for H2. H2 remains untested: there is still no
+valid measurement of whether HML changes an answer, and — per the parallel language audit —
+still no valid measurement of whether a model can write HML at all.
+
+**Next intended step.** Build an H2 corpus by measuring first: calibrate SE accuracy at the
+run budget, admit only tasks the control gets wrong at that allowance, and select until the
+control lands inside the 8-15 band. Two corpora designed from intuitions about difficulty
+have now failed; difficulty must be measured before a task is admitted.

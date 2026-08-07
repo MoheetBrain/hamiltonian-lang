@@ -28,6 +28,44 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**THE 24-TASK V1 BENCHMARK IS RETIRED FOR H2 — `HML_BENCHMARK_FAILED_NO_SIGNAL`.**
+The SE control scored **23/23 (100%)** against a usable headroom band of 6-17, so the gate
+returned INSUFFICIENT and **no HML-V1 call was made**. See
+`docs/evaluation/V1_HEADROOM_GATE_REPORT.md`.
+
+**This is a verdict about the corpus, not about HML.** No HML scientific call exists.
+
+Run `decisive_01`, developmental protocol v1.3: 23 valid paired tasks, 46 calls, 2.27 h,
+132,571 completion tokens. Integrity complete -- 0 truncations, 0 transport errors, all 46
+calls scored `ok`, exactly one answer marker per reply, one model digest, **zero drift in the
+scientific-input hash across the whole run**, and all 23 results reconstruct exactly by
+re-scoring the raw content.
+
+**Two purpose-built corpora have now been lost to saturation in a row** -- eval001 at mean
+accuracy 0.961, and this one at 1.000 against a predicted 0.556. All three tied-hardest tasks
+and every convention trap were answered correctly. The difficulty estimates, all marked
+`PREDICTED_NOT_MEASURED`, carried no signal.
+
+**The transferable finding is that headroom is a function of the completion budget.** On the
+same tasks with the same model at temperature 0: at 4096 tokens the probe truncated and
+`v1b_06` returned **zero characters of content**; at 8192 the model scored 23/23. The
+reasoning trace alone costs ~3,000-4,000 tokens. Below ~5,000 the corpus floors on a
+measurement artefact; above it, it ceilings. A corpus must be calibrated **at the budget it
+will be run at**, and a difficulty estimate that ignores the completion budget is not an
+estimate of difficulty.
+
+Recorded plainly: the v1.2 -> v1.3 budget raise was necessary (4096 produced no answer at
+all) and is also what moved this corpus from floor to ceiling. Both changes were committed
+before any scientific call, but the budget decision and the saturation outcome are causally
+linked.
+
+**Where the value landed.** The measurement returned no signal; the pre-run work returned
+four demonstrated scorer/prompt defects, two harness defects, one excluded task, and 24/24
+independently re-derived answer keys. Had the corpus not saturated, the run would have
+proceeded on a scorer that mis-scored exact-form answers **differentially by arm** -- which
+could have produced a confident, wrong verdict.
+
+
 **DEVELOPMENTAL PROTOCOL v1.3 — v1.2 WAS FALSIFIED BY ITS OWN PROBE, AND FOUR HARNESS
 DEFECTS WERE FOUND AND FIXED. NO SCIENTIFIC CALL HAS BEEN MADE.**
 

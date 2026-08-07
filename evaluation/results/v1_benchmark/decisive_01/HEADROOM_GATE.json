@@ -1,0 +1,16 @@
+{
+  "se_correct": 23,
+  "n": 23,
+  "accuracy": 1.0,
+  "band": "INSUFFICIENT",
+  "ideal_interval": [
+    8,
+    15
+  ],
+  "usable_interval": [
+    6,
+    17
+  ],
+  "proceed_to_hml": false,
+  "rule": "For 24 tasks: ideal 8-16 correct, usable 6-18 excluding the ideal interval, insufficient 0-5 or 19-24. Scaled proportionally for N in 20-23."
+}

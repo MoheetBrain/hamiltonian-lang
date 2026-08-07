@@ -1,0 +1,9 @@
+{
+  "run_id": "decisive_01",
+  "arm": "SE",
+  "total": 23,
+  "done": 23,
+  "failed": 0,
+  "started_utc": "2026-08-07T05:14:05Z",
+  "errors": []
+}
