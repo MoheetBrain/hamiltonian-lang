@@ -3799,3 +3799,86 @@ first time.
 higher level (L5, then L7 if needed) to find a difficulty where `gemma4:e4b` lands in
 30–70%; endpoint A is the other candidate for headroom. Reported as
 `HML_NO_SUITABLE_DEVELOPMENT_MODEL`.
+
+## 2026-08-08 — developmental ladder: gemma3:4b lands at 3/6 and is FROZEN
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Stage.** Signal pivot, developmental model
+selection — resolved. **Starting SHA.** `2ce2d29`.
+
+**Objective.** Run the SE-only micro-screen down a fixed model ladder and stop at the first
+candidate whose Endpoint-B pair BOTH-CORRECT score falls in 2–4/6.
+
+**Protocol.** One frozen 6-pair / 12-call micro-screen reused unchanged for every candidate:
+`pair_offset=6` (unseen by `gemma4:e4b`, which used offset 4), L3, structured English only,
+temperature 0, `max_tokens` 8192, one stateless call per item. Tasks, prompts and difficulty
+were identical across models — only the model changed.
+
+**Ladder result.**
+
+| # | model | params | pair BOTH-CORRECT | single-item | trunc | mean ctok | mean latency | verdict |
+|---|---|---|---|---|---|---|---|---|
+| 1 | `gemma4:e2b` | 5.1B | **6/6 = 1.00** | 12/12 = 1.00 | 0 | 995.8 | 7.6 s | too strong → next |
+| 2 | `gemma3:4b` | 4.3B | **3/6 = 0.50** | 7/12 = 0.583 | 0 | 180.0 | 3.8 s | **TARGET — SELECTED** |
+| 3 | `llama3.2:3b` | 3.2B | — | — | — | — | — | **NOT RUN** (ladder stopped on the rule) |
+
+Both screens were clean: zero truncations, zero invalid responses, zero errors, no pairs
+dropped. Neither number is censored.
+
+**`gemma3:4b` per-pair profile — a genuinely mixed organism, which is the point.**
+
+| contrast | pair | result |
+|---|---|---|
+| OPERAND_ORDER | 300011, 300012 | both-correct ×2 |
+| QUANTIFIER_ORDER | 300011 | both-correct |
+| QUANTIFIER_ORDER | 300010 | one member wrong |
+| IMPLICATION_DIRECTION | 300028, 300032 | both members wrong ×2 |
+
+Perfect on algebra, half on quantifier order, nothing on implication direction. Its failures
+are substantive rather than procedural: **12/12 responses were valid and correctly
+formatted**, and the logic misses are the classic error of answering TRUE/FALSE where the
+constraints leave the query UNDETERMINED. So this is a model that follows instructions and
+reasons imperfectly — competent but weak, which is exactly the developmental organism the
+protocol asks for, and not a model to be rejected for non-compliance.
+
+**Decision by the pre-registered rule (2–4/6 ⇒ target found): STOP and FREEZE.**
+`llama3.2:3b` was deliberately not run.
+
+**Frozen** in `evaluation/arena/results/FREEZE_gemma3-4b.json`: model name and digest
+(`a2af6cc3eb7fa8be…`, 4.3B, Q4_K_M), runtime (temperature 0, `max_tokens` 8192, one
+stateless call per item), the system prompt and instruction block with their SHA-256 hashes,
+the endpoint implementation and its scoring rule, the selection result, and the generator and
+scorer versions. The file lists explicitly what may no longer change.
+
+**A caveat recorded rather than buried: `gemma3:4b` is a different family** from the gemma4
+candidates. That reintroduces the architecture/pretraining confound the original directive
+wanted avoided. It is acceptable here because the pilot compares SE, AST and HML **within
+this one frozen model**, so family never enters the contrast — but it does mean this
+organism's results cannot be pooled with, or compared against, the gemma4 screens.
+
+**Tests and verification actually executed.**
+
+| check | exact command | actual result |
+|---|---|---|
+| e2b screen | `run_screen micro --model gemma4:e2b --pair-offset 6 --max-tokens 8192` | exit 0; 12/12 valid; 6/6 pairs |
+| gemma3:4b screen | `run_screen micro --model gemma3:4b --pair-offset 6 --max-tokens 8192` | exit 0; 12/12 valid; 3/6 pairs |
+
+No other engineering was performed and no other tests were re-run: nothing outside the
+results directory and the freeze record changed.
+
+**Failures and unresolved uncertainty.**
+
+- **Zero AST or HML model calls have still been made.** The PILOT band (500 000+) is
+  untouched, and DEV_SELECTION offsets 0, 4 and 6 are now burned.
+- **Endpoint B at L3 is saturated for every gemma4 candidate tried** (e4b and e2b both 6/6).
+  Headroom exists for `gemma3:4b` specifically, not for the endpoint in general.
+- **N=6 pairs.** The 0.50 is a selection signal, not an estimate. The rule anticipated this:
+  the earlier directive continues a target-band candidate to 12 pairs before freezing the
+  number, and that continuation has not been run.
+
+**Effect on the project.** A developmental organism exists for the first time in this
+programme. The blocking question — whether any locally runnable model sits in the headroom
+band on this endpoint — is answered yes.
+
+**Next intended step.** The acquisition sanity check (6 literal state-recovery items per arm,
+ACQUISITION band, ≥5/6 required for AST and for HML), then the first Endpoint-B
+representation pilot on fresh PILOT seeds. Neither may run before this freeze is in git.

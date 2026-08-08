@@ -248,9 +248,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--level", default="L3")
     ap.add_argument("--max-tokens", type=int, default=4096)
+    ap.add_argument(
+        "--pair-offset", type=int, default=None,
+        help="override the stage's pair offset, so a new candidate is screened on items "
+             "no earlier candidate has seen",
+    )
     a = ap.parse_args(argv)
 
-    cfg = STAGES[a.stage]
+    cfg = dict(STAGES[a.stage])
+    if a.pair_offset is not None:
+        cfg["pair_offset"] = a.pair_offset
     spec = RunSpec(
         run_id=f"{a.stage}-{a.model}-{time.strftime('%Y%m%dT%H%M%S')}",
         model=a.model, level=a.level, max_tokens=a.max_tokens, **cfg,

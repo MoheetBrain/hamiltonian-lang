@@ -58,19 +58,30 @@ The runner is repaired — records are now written incrementally, and
 `tests/arena/test_runner_preflight.py` drives CLI → calls → JSONL → summary → reload with a
 fake client before any model is touched.
 
-**THE MODEL-SIZE SEARCH IS CLOSED: `gemma4:e4b` SATURATES ENDPOINT B AT L3.** A clean
-12-call SE-only micro-screen (6 fresh pairs at `pair_offset=4`, `max_tokens` 8192,
-**0 truncations**) returned **6/6 pairs both-correct and 12/12 items**, mean 1004 completion
-tokens, 15.4 s per call, ~3 minutes total. By the pre-registered rule (5–6/6 ⇒ stop), the
-search ends: even the smallest in-family candidate tried is too strong. `gemma4:e2b` was
-deliberately not tried. Note `gemma4:4b` **does not exist** — the family's 4B-class tag is
-`e4b` (8.0B raw, Q4_K_M, digest `c6eb396dbd59…`).
+**A DEVELOPMENTAL ORGANISM IS FROZEN: `gemma3:4b` at 3/6 pairs.** The SE-only micro-screen
+was run down a fixed ladder, one frozen 6-pair / 12-call set (offset 6, L3, temp 0,
+`max_tokens` 8192) reused unchanged for every candidate:
 
-**This is the third independent instrument to find no headroom** for this model family — SE
-textbook calibration (10/10 valid), the synthetic difficulty lab (9/9), and now the arena at
-8B (12/12). **A representation pilot run on a saturated control cannot detect an HML
-advantage in either direction**, which is the trap that already voided `eval001` and the
-24-task v1 benchmark. The Endpoint-B pilot must not be run at L3.
+| model | params | pair BOTH-CORRECT | single-item | trunc | mean ctok | mean lat | verdict |
+|---|---|---|---|---|---|---|---|
+| `gemma4:e4b` | 8.0B | 6/6 | 12/12 | 0 | 1004 | 15.4 s | too strong |
+| `gemma4:e2b` | 5.1B | 6/6 | 12/12 | 0 | 996 | 7.6 s | too strong |
+| **`gemma3:4b`** | **4.3B** | **3/6 = 0.50** | **7/12 = 0.583** | **0** | **180** | **3.8 s** | **SELECTED** |
+| `llama3.2:3b` | 3.2B | — | — | — | — | — | not run (rule stopped the ladder) |
+
+Every screen was clean — no truncations, no invalid responses, nothing dropped. `gemma3:4b`
+is perfect on algebra, half on quantifier order and zero on implication direction, with
+**12/12 correctly formatted responses**: it follows instructions and reasons imperfectly,
+which is the organism the protocol wants. Frozen in
+`evaluation/arena/results/FREEZE_gemma3-4b.json` — model + digest `a2af6cc3eb7fa8be…`,
+runtime, prompt hashes, endpoint, scoring, and generator/scorer versions.
+
+**Caveat recorded, not buried:** `gemma3:4b` is a *different family* from the gemma4
+candidates. Acceptable because the pilot compares SE/AST/HML **within** this one frozen
+model, so family never enters the contrast — but its results cannot be pooled with or
+compared against the gemma4 screens. Note also that Endpoint B at L3 remains saturated for
+every gemma4 candidate tried; headroom exists for this organism specifically, not for the
+endpoint in general. And N=6 pairs makes 0.50 a selection signal, not an estimate.
 
 **Zero AST or HML model calls have ever been made**, so no treatment arm is contaminated and
 the PILOT seed band is untouched.
@@ -807,7 +818,8 @@ property it asserted was false, because it never produced `def` parameters.
 **The signal pivot supersedes the ordering below.** Broad compiler completion is
 deliberately not resumed. The live sequence is:
 
-0. **Find difficulty somewhere other than model size — this is blocking.** Endpoint B at L3
+0. **Acquisition sanity check, then the Endpoint-B pilot.** The organism is frozen. Run 6 literal state-recovery items per arm on ACQUISITION seeds; require >=5/6 for AST and for HML before any pilot. Then 12 fresh PILOT pairs, SE/AST/HML.
+1. ~~Find difficulty other than model size.~~ Superseded for this organism, but still open for the endpoint: Endpoint B at L3
    is saturated at 8B, so the pilot cannot run there. Re-screen SE-only at **L5**, then L7
    if needed, looking for a level where `gemma4:e4b` lands in 30–70% pair both-correct.
    Endpoint A (next-action) is the other candidate for headroom and has never been run
