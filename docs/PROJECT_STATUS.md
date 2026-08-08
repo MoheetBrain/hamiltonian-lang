@@ -58,6 +58,16 @@ of 0.70, and coverage is `NOT_ASSESSED` with 408/486 atoms unprobed. Criterion 3
 transformations that check their own preservation, which the ladder names as the
 distinguishing Level 3 capability — moved FAIL → PASS.
 
+**READ `docs/handoff/HML_HANDOFF_2026-08-08_SIGNAL_PIVOT.md` FIRST.** It is the
+authoritative, verified entry point for a fresh context and supersedes any stale figure
+elsewhere in this file.
+
+**STRATEGIC PIVOT.** The plan is no longer "finish HML → harder maths → paired benchmark".
+It is a neutral semantic world factory rendered three ways (structured English / generic
+AST / HML) feeding representation microbenchmarks — next-action prediction, paired minimal
+contrasts, corruption detection. **A generic AST is a required control**: without it, any
+HML benefit could be a benefit of structure in general.
+
 **SYNTHETIC CALIBRATION ALSO SATURATED — `SYNTHETIC_STATE_COMPLEXITY_SATURATED`.** A
 neutral machine-generated difficulty lab (four families, deterministic oracles, validated
 offline with independent cross-checks) returned **9 valid / 9 correct / 0 truncations**

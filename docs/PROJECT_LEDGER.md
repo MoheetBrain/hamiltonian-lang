@@ -3364,3 +3364,46 @@ headroom for this model. The bottleneck is not HML's completeness.
 **Next intended step.** Return to the user. Four options are costed in the report: weaker
 model, broader domain, different endpoint, or accept the negative finding. All are
 scientific-direction decisions.
+
+---
+
+## 2026-08-08 — context checkpoint and strategic pivot
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `5ce1054`
+**Stage:** HML-CONTEXT-CHECKPOINT-2026-08-08. No implementation, no model calls.
+
+**Objective.** Leave a lossless, reproducible checkpoint for a fresh Claude context.
+
+**Files changed.** New `docs/handoff/HML_HANDOFF_2026-08-08_SIGNAL_PIVOT.md`.
+
+**Verified at checkpoint time, not inherited.**
+- worktree `/Users/moheet/hml_v2_worktree`, branch `feature/hml-reasoning-kernel-v2`
+- HEAD == remote == `5ce1054`; tree clean; only `ollama serve` running (idle)
+- `pytest` → **6342 passed, 5 skipped, 0 failed**
+- composition → **STRICT 22/48**, FRAMEWORK 22/38
+- all six calibration result files committed; nothing withheld
+
+**Two accounting discrepancies resolved.**
+1. **Recorded vs actual calls.** The JSON files record 21 calls; **22 were actually made**.
+   One was consumed by the first `cal1.py` run, which crashed on a field-name error
+   (`c.text` vs `c.content`) *after* the completion returned. It appears in no JSON and is
+   charged to the budget in the handoff rather than quietly dropped.
+2. **CAL3.json is dangerous to read raw.** It records `total=4, correct=2`, but both
+   failures are `finish_reason=length` at exactly 8192 — truncation, not error, one of them
+   mid-way through a *correct* argument. The JSON has no truncation-aware `valid` field;
+   the exclusion lives only in `SE_CALIBRATION_REPORT.md`. Reading it as "2/4, headroom
+   found" would send a fresh context down a dead end, so the handoff flags it explicitly.
+
+**Effect on the overall project.** The recommended research architecture has changed. It is
+no longer "finish HML → find harder maths → paired benchmark" but a neutral semantic world
+factory rendered three ways (structured English / generic AST / HML) feeding representation
+microbenchmarks. **A generic AST is now a required control** — without it, any HML benefit
+could be a benefit of structure in general and would be attributed wrongly.
+
+**Failures and unresolved uncertainty.** Unchanged and recorded in the handoff: no valid
+HML-vs-SE result exists; zero HML model calls have ever been made; 31 enforcement gaps
+remain (6 critical, none audited for reachability); the saturation finding is bounded by a
+generator that varied step *count* rather than step *difficulty*.
+
+**Next intended step.** Build the representation arena on top of the existing neutral
+generator. Do not make another full-problem model call first.
