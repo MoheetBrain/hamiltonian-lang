@@ -4579,3 +4579,102 @@ scores 12/24 items but **0/12 pairs**.
 
 Run pilot B1. Report pair BOTH-CORRECT for SE / AST / HML, paired discordances, error
 families, tokens and latency, with no significance claim at N=12.
+
+## 2026-08-08 — FIRST REPRESENTATION RESULT. Pilot B1: SE 5/12, HML 1/12, AST 0/12.
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Starting SHA.** `a5811ff` (frozen
+manifest). **The first Endpoint-B treatment calls ever made in this programme.**
+
+### Result — structured English beats HML, and HML beats the generic AST
+
+12 `IMPLICATION_DIRECTION` pairs × 2 twins × 3 arms = 72 calls. `gemma3:4b` @
+`a2af6cc3eb7fa8be…`, temp 0, `max_tokens` 8192, fresh stateless context per call,
+deterministically shuffled order. **0 truncations, 0 invalid, 0 errors.**
+
+| arm | pairs BOTH-CORRECT | items | invalid | trunc | mean ptok | mean ctok | mean lat |
+|---|---|---|---|---|---|---|---|
+| **SE** | **5/12 = 0.417** | **15/24 = 0.625** | 0 | 0 | 347.4 | 158.3 | 1.8 s |
+| **HML** | **1/12 = 0.083** | **10/24 = 0.417** | 0 | 0 | 285.3 | 177.9 | 2.2 s |
+| **AST** | **0/12 = 0.000** | **6/24 = 0.250** | 0 | 0 | 505.2 | 121.4 | 1.4 s |
+
+Ordering: **SE > HML > AST**, on both pairs and items.
+
+### Paired item-level discordances (N = 24)
+
+| comparison | B-correct / A-wrong | A-correct / B-wrong | Δ̂ |
+|---|---|---|---|
+| HML vs SE | 3 | 8 | **−0.208** |
+| AST vs SE | 0 | 9 | **−0.375** |
+| HML vs AST | 6 | 2 | **+0.167** |
+
+Every discordance points the same way as the headline. **HML never beat SE on a pair, and
+AST never beat SE on a single item.**
+
+### Error families — deterministic oracle, no LLM judge
+
+| arm | UND→TRUE | UND→FALSE | TRUE→UND | FALSE→UND | TRUE→FALSE | FALSE→TRUE |
+|---|---|---|---|---|---|---|
+| SE | 3 | 3 | 0 | 2 | 1 | 0 |
+| HML | 5 | 5 | 2 | 1 | 0 | 1 |
+| AST | 7 | 5 | 0 | 1 | 2 | 3 |
+
+Every failure in every arm is `WRONG_SEMANTIC_CONCLUSION` — **zero** `INVALID_FORMAT`,
+`TRUNCATED` or `MODEL_ERROR`. The dominant error everywhere is collapsing `UNDETERMINED`
+into a definite verdict: SE 6/9 of its errors, HML 10/14, AST 12/18. The model does not
+refuse to answer; it over-commits.
+
+### Guessing baselines on this exact corpus
+
+Always-`TRUE` 7/24 items, always-`FALSE` 5/24, always-`UNDETERMINED` 12/24 — and **0/12
+pairs for all three**. Pair scoring did the job it was chosen for. Note **AST's 6/24 = 25%
+is below the 33% a uniform 3-way guess would give**, and below every constant strategy.
+
+### What this supports
+
+> On 12 minimal-contrast implication-direction pairs at L3, with `gemma3:4b`, structured
+> English scored 5/12 pairs and 15/24 items; HML scored 1/12 and 10/24; a generic JSON AST
+> scored 0/12 and 6/24. No truncations or format failures in any arm.
+
+Per the pre-declared interpretation table, **SE > HML ⇒ `HML_REPRESENTATION_HARM_SIGNAL`**.
+On this endpoint, at this difficulty, with this model, **formalisation cost dominates**: the
+prose baseline the project has been trying to beat since inception beat both formal
+representations.
+
+### What this does NOT support — stated because the temptation runs the other way
+
+- **Not a refutation of HML.** One endpoint, one semantic mechanism, one difficulty level,
+  one 4.3B model, N=12. **No significance is claimed and none is computable at this N.**
+- **Not "structure fails".** HML > AST on both metrics (Δ̂ = +0.167), so the two structured
+  arms are not interchangeable — whatever hurt AST hurt it more.
+- **Not a quantifier-scope result.** B2 was deliberately excluded because the AST control
+  cannot read binder nesting. This says nothing about the mechanism HML was designed for.
+- **Not a length effect in HML's favour or against it.** HML had the *shortest* prompts
+  (285 mean tokens vs SE 347, AST 505) and still lost to SE. The AST arm is 1.8× SE, so its
+  last place is confounded with length; HML's is not.
+- **The acquisition gate does not explain HML's result.** HML scored 5/6 there and 8/8 on
+  the binder diagnostic — it can read its own notation. This is a reasoning result, not a
+  readability one. That distinction is exactly why the gate was run first.
+
+### Verification
+
+`pytest -q tests/arena` → 201 passed. `ruff check` → clean.
+`run_screen pilot --model gemma3:4b --max-tokens 8192` → exit 0, 72 calls, 0 truncations.
+Every prompt hash matches `PILOT_MANIFEST_B1.json`, frozen before the first call.
+
+### Failures and unresolved uncertainty
+
+- **N=12 pairs.** SE 5/12 vs HML 1/12 is four pairs. The direction is consistent across
+  every discordance measure, but the magnitude is not estimable here.
+- **`GENERIC_AST_V2` is still not built**, so the AST arm's 0/12 conflates encoding cost
+  with a 1.8× length penalty and cannot be cleanly attributed.
+- Endpoint B2 (quantifier scope) remains unrun and is where HML's design claim actually
+  lives.
+
+### Next intended step
+
+Preserve this result before touching HML. The pre-declared rule is not to redesign after one
+pilot. The informative follow-ups, in order of value: (1) `GENERIC_AST_V2` — an S-expression
+control would separate "compact structure" from "structure at all" and give AST a fair
+showing; (2) endpoint B2 on quantifier scope once that control exists; (3) endpoint A
+(next-action), which tests `S_t → a_t → S_{t+1}` and is the mechanism HML's reasoning spine
+was actually built for.

@@ -42,7 +42,32 @@ executable**: that generator builds its English inline and discards the structur
 nothing survives to render a second way. The arena rebuilds the worlds structure-first;
 `difficulty-lab-1.0.0` is untouched and byte-identical.
 
-**No HML-vs-SE reasoning result exists yet.** The arena is instrumentation, not evidence.
+**THE FIRST HML-vs-SE REASONING RESULT EXISTS. IT IS NEGATIVE FOR HML.**
+
+Pilot B1 (12 `IMPLICATION_DIRECTION` minimal-contrast pairs, 72 calls, `gemma3:4b`, temp 0,
+0 truncations, 0 invalid):
+
+| arm | pairs BOTH-CORRECT | items | mean prompt tokens |
+|---|---|---|---|
+| **SE** | **5/12 = 0.417** | 15/24 = 0.625 | 347 |
+| **HML** | **1/12 = 0.083** | 10/24 = 0.417 | 285 |
+| **AST** | **0/12 = 0.000** | 6/24 = 0.250 | 505 |
+
+Ordering **SE > HML > AST**. Paired discordances all agree: HML vs SE Δ̂ = −0.208, AST vs SE
+Δ̂ = −0.375, HML vs AST Δ̂ = +0.167. Per the pre-declared table, SE > HML ⇒
+**`HML_REPRESENTATION_HARM_SIGNAL`** — on this endpoint, at this difficulty, with this
+model, formalisation cost dominates.
+
+**Not explainable away, and the obvious escapes are closed:** HML had the *shortest* prompts
+and still lost to SE, so this is not a length penalty. HML scored 5/6 on acquisition and 8/8
+on the binder diagnostic, so it is not a readability failure. Every error in every arm was a
+wrong semantic conclusion — zero format failures, zero truncations. The dominant error is
+collapsing `UNDETERMINED` into a definite verdict (HML 10 of its 14 errors).
+
+**Equally, this is not a refutation.** N=12 pairs, one semantic mechanism, one level, one
+4.3B model; no significance is claimed or computable. Quantifier scope — the mechanism HML
+was designed for — is endpoint B2 and remains unrun, deliberately excluded because the AST
+control cannot read binder nesting.
 
 **The first SE-only developmental screen is INVALID and no model has been selected.**
 `gemma4:12b` (11.9B, Q4_K_M, digest `4eb23ef187e2c546…`) was pulled as the first of at most
