@@ -58,11 +58,21 @@ def _item(w: World, kind: str, question: str, answer: str, space, **kw) -> Item:
 
 
 def _sort_item(w: World, rng: random.Random) -> Item:
+    """The declared sort of a named symbol.
+
+    The gloss is arm-neutral and identical in all three prompts. It exists because the
+    *answer space* is written in AST/HML vocabulary (`Real`, `Proposition`) while SE
+    renders "are propositions" / "are exact rational numbers". Without it, two arms are
+    handed their native token and SE has to translate -- which is a notation advantage
+    smuggled in through the answer line rather than the state.
+    """
     d = rng.choice([d for d in w.decls if d.sort in ("Real", "Proposition")])
     return _item(
         w, "SORT",
         f"What sort is declared for {d.name}? This is stated directly in the state above; "
-        "no reasoning is required.",
+        "no reasoning is required.\n"
+        "Answer `Real` if it is declared as a real/rational number, or `Proposition` if it "
+        "is declared as a proposition.",
         d.sort, ("Real", "Proposition"),
     )
 
@@ -71,12 +81,23 @@ def _fact_content_item(w: World, rng: random.Random) -> Item:
     """Forced choice among rendered propositions -- one is the labelled fact."""
     idx = rng.randrange(len(w.facts))
     target = w.facts[idx]
-    others = [f for j, f in enumerate(w.facts) if j != idx]
+    # Distractors must differ from the answer in *rendered text*, not merely in fact
+    # index. A logic world can state the same proposition under two labels, and then two
+    # options read identically and the oracle names only one of them -- 11 of 600 items.
+    from ..ir import canonical
+
+    seen = {canonical(target.prop)}
+    others = []
+    for f in (x for j, x in enumerate(w.facts) if j != idx):
+        c = canonical(f.prop)
+        if c not in seen:
+            seen.add(c)
+            others.append(f)
     rng.shuffle(others)
     opts = [Option("", target.prop, role="correct")]
     opts += [Option("", f.prop, role="other_fact") for f in others[:3]]
     if len(opts) < 4:
-        raise ValueError("not enough facts for a four-way choice")
+        raise ValueError("not enough distinct facts for a four-way choice")
     rng.shuffle(opts)
     opts = [Option(LETTERS[i], o.prop, o.role) for i, o in enumerate(opts)]
     answer = next(o.key for o in opts if o.role == "correct")
@@ -112,28 +133,56 @@ def _relation_lookup_item(w: World, rng: random.Random) -> Item:
 
 
 def _binder_order_item(w: World, rng: random.Random) -> Item:
+    """Which binder is outermost in the world's claim.
+
+    `show_query=True` is load-bearing: the claim lives only in `renderer.question(world)`,
+    and without the QUERY block this item was a coin flip in all three arms -- the only
+    occurrence of `forall`/`exists` in the whole prompt was the answer line. The gloss is
+    arm-neutral, for the same reason as in `_sort_item`: SE writes "for every" and "there
+    exists", not `forall` and `exists`.
+    """
     claim = w.query.claim
     if not isinstance(claim, Quant):
         raise ValueError("claim is not quantified")
     return _item(
         w, "BINDER_ORDER",
-        "In the claim in the question above, which quantifier is written OUTERMOST -- that "
-        "is, which one binds first? Read it off the text; no reasoning is required.",
+        "In the QUERY above, which quantifier is written OUTERMOST -- that is, which one "
+        "binds first? Read it off the text; no reasoning is required.\n"
+        "Answer `forall` for a universal quantifier (\"for every\") or `exists` for an "
+        "existential one (\"there exists\").",
         claim.kind, ("forall", "exists"),
+        show_query=True,
     )
 
 
 def _goal_target_item(w: World, rng: random.Random) -> Item:
+    """Which symbol the world's query is about.
+
+    Two defects were repaired here together, and fixing either alone would have been
+    worse than fixing neither:
+
+    1. `show_query=True` -- the target lives only in `renderer.question(world)`, so
+       without the QUERY block there was nothing in the prompt to read it off.
+    2. Distractors are **sampled**, not taken in declaration order. The old
+       `[n for n in names if n != target][:3]` always yielded `{P1, P2, P3} + target`,
+       so whenever the target was `P5` or `P6` the answer space had a visible gap and
+       the answer could be read off the answer line with the state ignored entirely --
+       true for 76 of 200 seeds, and true for the next planned seed set. Repairing the
+       query block without this would have let the item pass for the wrong reason.
+    """
     names = [d.name for d in w.decls if d.sort in ("Real", "Proposition")]
     if w.query.target not in names:
         raise ValueError("no named target")
-    space = [w.query.target] + [n for n in names if n != w.query.target][:3]
-    space.sort()
+    others = [n for n in names if n != w.query.target]
+    if len(others) < 3:
+        raise ValueError("not enough distractors for a non-leaking answer space")
+    space = sorted([w.query.target, *rng.sample(others, 3)])
     return _item(
         w, "GOAL_TARGET",
-        "Which symbol is the question above asking about? Read it off the question; no "
+        "Which symbol is the QUERY above asking about? Read it off the QUERY; no "
         "reasoning is required.",
         w.query.target, space,
+        show_query=True,
     )
 
 
@@ -145,7 +194,23 @@ def build_items(seeds, level: str = "L3") -> list[Item]:
     """
     out: list[Item] = []
     seeds = list(seeds)
-    for i, builder in enumerate((_sort_item, _fact_content_item, _fact_count_item)):
+
+    # SORT alternates its source family by seed parity. Drawn only from
+    # FINITE_LOGIC_WORLD, every declaration is a `Proposition`, the distractor `Real`
+    # never appears anywhere in the prompt, and the answer is `Proposition` for every
+    # seed tested -- an item no model can fail without reading, which cannot contribute
+    # evidence to a 5/6 bar. ALGEBRAIC_DEPENDENCY_GRAPH declares `Real`, so the answer
+    # now varies with the state.
+    sort_family = random.Random(f"acq|sort_family|{seeds[0]}").choice(
+        ["ALGEBRAIC_DEPENDENCY_GRAPH", "FINITE_LOGIC_WORLD"]
+    )
+    out.append(
+        _sort_item(
+            generate(sort_family, level, seeds[0]),
+            random.Random(f"acq|_sort_item|{seeds[0]}"),
+        )
+    )
+    for i, builder in enumerate((_fact_content_item, _fact_count_item), start=1):
         w = generate("FINITE_LOGIC_WORLD", level, seeds[i])
         out.append(builder(w, random.Random(f"acq|{builder.__name__}|{seeds[i]}")))
     for i, builder in enumerate(

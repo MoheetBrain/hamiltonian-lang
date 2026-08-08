@@ -4167,3 +4167,123 @@ world's own query in the prompt — and re-run acquisition a third time on fresh
 (b) accept the four-item semantic reading (HML 4/4, AST 3/4) and lower or restate the gate.
 Both are protocol changes and neither should be taken unilaterally after two failures.
 Reported as `HML_ACQUISITION_INSUFFICIENT`.
+
+## 2026-08-08 — pre-run audit: 4 sub-agents, 2 retractions, 11 instrument defects; STOPPED before any call
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Starting SHA.** `2209151`.
+**STOPPED before spending a single model call**, per the standing rule that an objective
+defect requiring a model-visible change must be reported, not silently repaired.
+
+### State verified before touching anything
+
+Branch/LOCAL/REMOTE all `2209151`, tree clean, no git locks, no concurrent process, no file
+modified in the preceding ten minutes. Model freeze intact: `gemma3:4b`, digest
+`a2af6cc3eb7fa8be…`, **matching the live installed model exactly**; temp 0, `max_tokens`
+8192, isolated stateless call per item. **0 Endpoint-B AST/HML treatment calls; 0 PILOT-band
+calls.**
+
+### Two retractions — both are corrections to things this project had written down
+
+**RETRACTION 1 — `BINDER_ORDER` was unanswerable, so a recorded interpretation is void.**
+`docs/PROJECT_STATUS.md` previously drew a conclusion from AST's `BINDER_ORDER` miss
+("opposite to the direction a 'structure helps' hypothesis predicts"). The item was
+**unanswerable in all three arms** by the same mechanism as `GOAL_TARGET`: `build_prompt`
+evaluates `item.question or renderer.question(world)`, and every acquisition item sets a
+question, so `World.query` was never rendered for any acquisition item in any arm. The
+claim exists only inside `renderer.question`. The sole occurrence of `forall`/`exists` in
+the entire prompt was the answer line. All three arms guessed; SE and HML were lucky. **HML's
+"4/4 on pilot-relevant distinctions" was 3/3 plus a coin flip.** The conclusion is withdrawn.
+
+**RETRACTION 2 — a miscount.** The acquisition-attempt-#1 entry says three discarded
+replies held the correct answer. It was **four**: AST `P3`, AST `exists`, AST `Proposition`,
+SE `Proposition`. Corrected here per the append-only rule, which permits correcting a
+demonstrable factual error provided the correction is recorded in the entry itself. The
+earlier entries are otherwise left exactly as written.
+
+### Defects found and repaired (acquisition-only; 0 of 72 pilot prompts changed)
+
+| # | defect | repair |
+|---|---|---|
+| D1 | `BINDER_ORDER` unanswerable (query shadowed) | `Item.show_query` + a separate `QUERY` block that cannot be shadowed |
+| D2 | `GOAL_TARGET` unanswerable, same mechanism | same |
+| D3 | `GOAL_TARGET` answer space leaked the answer — distractors were always `{P1,P2,P3}`, so a target of `P5`/`P6` was readable off the answer line with the state ignored (76/200 seeds, **including the next planned seed set**) | distractors now sampled |
+| D4 | `SORT` unfailable — always drawn from a logic world, answer `Proposition` for every seed tested, distractor `Real` never present | family now a deterministic seed-derived draw; answer varies 26/34 over 60 bases |
+| D6 | closed answer spaces handed AST/HML their native tokens while SE had to translate (`for every` → `forall`, `propositions` → `Proposition`) | arm-neutral gloss, identical bytes in all three prompts |
+| D7 | `FACT_CONTENT` options could duplicate the answer's text (11/600 items) | distractors de-duplicated by canonical form |
+| D9 | acquisition path had no `assert_band` — a mistyped `--acq-seed-base 500001` would silently burn PILOT seeds | `assert_band` added |
+| S1 | `extract_bare` resolved a refusal by line position; `* forall\n* exists` scored **correct** because `normalise` strips a bullet | reject when more than one declared answer appears as a standalone line |
+| S2 | strict `FINAL:` regex spanned newlines — `FINAL:\n\nforall\nexists` extracted `forall`, contradicting last-wins | restricted to horizontal whitespace. **Verified: 0 of 96 frozen extractions change**, so no historical score moves |
+| S3 | `SCORER_VERSION` unchanged across a behaviour-changing edit; attempt #1 no longer re-scores to its committed numbers (12/18) | bumped to `arena-scorer-1.1.0`; attempt #1 is **not** rescored — it stays frozen as INVALID_INSTRUMENT evidence |
+| G1 | stage/band guard keyed on a free-form `stage` string; `stage="ACQUISITION", band="PILOT"` ran | stage must exist and must match its band |
+| G2 | the pilot's `assert_disjoint` compared against dev offsets 0–5 of two contrasts — excluding every offset actually spent — and could not fail anyway | now covers all burned offsets (0,4,6,8) and compares item ids as well as seeds |
+
+`FACT_COUNT` was **kept unchanged**, as instructed. Recorded for the record: the true count
+is 11 (verified three ways), the lure is zero-based labels (`f0…f10` → "10", which is exactly
+what all three arms answered), and SE alone carries a 12th unlabelled line
+("All of the following are true.") inside its FACTS block. That asymmetry cannot be repaired
+without editing SE pilot prompts, so it stands and is documented. It makes SE harder, and SE
+is not the gate.
+
+### **THE BLOCKING FINDING — the HML arm leaks the contrast, and fixing it is model-visible**
+
+`renderers/hml.py` emits `module Arena_{world_id}` as the first line of every HML state.
+For minimal-contrast twins the world id **names the edit**:
+
+```
+module Arena_qnt_L3_500001   |   module Arena_qnt_L3_500001_swap
+module Arena_log_L3_500000   |   module Arena_log_L3_500000_flip3
+```
+
+**12/12 pilot twins carry a `_swap`/`_flipN` suffix in HML. 0/12 in SE or AST** — neither
+control renders `world_id` at all. Independently reproduced by the lead agent.
+
+It does not reveal the answer (which twin is TRUE varies pair to pair). It does reveal, to
+the treatment arm only: that the item is one of a minimal-contrast pair, which member it is,
+the name of the operation applied, and — for `IMPLICATION_DIRECTION` — **the label index of
+the edited assumption** (`_flip3` ↔ fact `f3`, holding in all 6 pairs). The surface loci at
+which twins differ are SE 1, AST 1, **HML 2**.
+
+The existing 1800/1800 parity evidence is blind to this by construction: `_assemble` blanks
+`world_id` and `canonical_world` never reads it.
+
+**This is exactly the "contaminated HML success" the protocol forbids.** Running the pilot
+as-is would produce a number a reviewer could dismiss. Repairing it requires editing the HML
+renderer, which is a **model-visible representation change**, and the standing instruction is
+to STOP and explain rather than repair silently. So the run is halted here, before any call.
+
+**Model selection is not affected** — it was structured-English only, and HML has never been
+used to select anything.
+
+### Tests and verification actually executed
+
+| check | result |
+|---|---|
+| `pytest -q tests/arena` | **196 passed**, 0 failed |
+| `ruff check evaluation/arena tests/arena` | All checks passed |
+| pilot prompt SHAs before vs after all repairs | **72 compared, 0 changed** |
+| parity over the real pilot set (sub-agent C) | 24 worlds, 72 round trips, **0 failures**; 1008 per-observable comparisons, 0 mismatches |
+| adversarial parity sweep (sub-agent C) | 200 000 worlds / 600 000 round trips in the PILOT band, **0 failures** |
+| contamination audit (sub-agent D) | **10/10 PASS**; 96/96 recorded prompts reproduce bit-for-bit; no result file ever modified (`git log --name-status` shows only `A`, never `M`) |
+| scorer audit (sub-agent B) | 37 existing tests pass; over-acceptance and leak paths enumerated above |
+
+### Failures and unresolved uncertainty
+
+- **The pilot has not been run and must not be until the module-name question is decided.**
+- `IMPLICATION_DIRECTION` flips are **always atom → atom** (3289/3289 sampled): the pilot
+  never tests implication direction under nesting, which is where notation most plausibly
+  misleads.
+- `RELATION_LOOKUP` is a table lookup in SE/AST but an *evaluation* of a 13-disjunct formula
+  in HML; the item's own "no reasoning is required" is false in that arm.
+- Gate power: with two 2-way items, blind guessing scores ≈2.7/6 and clears 5/6 about 4% of
+  the time per arm.
+- `ACQUISITION_INSTRUMENT_FINAL` was deliberately **not** frozen: the instrument is not final
+  while the HML renderer question is open, since acquisition renders HML too.
+
+### Next intended step
+
+User decision on the HML module name. Options: (a) drop the `module` line from the HML state
+and put the module header only in `compilable()` (compiler-facing, never model-facing);
+(b) render a content-free constant such as `module Arena`; (c) give SE and AST a matching
+identifier so all three leak equally. (a) or (b) remove the asymmetry; (c) preserves it
+symmetrically and costs tokens. Any of them changes HML pilot prompts, so the choice must be
+authorised. Reported as `HML_MEASUREMENT_INVALID` — the instrument, not HML, is what failed.

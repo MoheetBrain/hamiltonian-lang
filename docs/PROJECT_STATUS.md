@@ -84,7 +84,10 @@ compared against the gemma4 screens. Note also that Endpoint B at L3 remains sat
 every gemma4 candidate tried; headroom exists for this organism specifically, not for the
 endpoint in general. And N=6 pairs makes 0.50 a selection signal, not an estimate.
 
-**MODEL CONFIRMED AND FINAL-FROZEN: `gemma3:4b` at 8/12 DEV pairs (0.667), 18/24 items.**
+**MODEL CONFIRMED AND FINAL-FROZEN: `gemma3:4b` — 5/6 out-of-sample, 8/12 pooled.**
+Stated precisely because the two halves play different roles: offset 6 scored **3/6 and is
+the set that *selected* the model**; offset 8 scored **5/6 and is the only genuinely
+out-of-sample half**. The headline 8/12 (0.667) pools selection with confirmation.
 Six additional fresh pairs (offset 8) gave 5/6, added to the earlier 3/6. Inside the 4–8
 target band, so `FREEZE_FINAL_gemma3-4b.json` supersedes the provisional freeze. Three
 caveats are recorded in it: 8/12 is on the **upper edge** and outside the preferred 5–7; the
@@ -126,10 +129,16 @@ identically to all arms; **the reasoning-pilot scorer is untouched** and still r
 - **`FACT_COUNT` is failed identically by all three arms** (byte-identical `10` against a
   true 11) — a counting failure of the model, shared by the control, carrying no
   representation signal.
-- **On the four items testing distinctions the pilot depends on, HML scored 4/4 and AST
-  3/4.** AST's miss is `BINDER_ORDER` — the pilot's headline contrast — answering `exists`
-  where the outermost binder is `forall`. n=1, suggestive only, but opposite to the
-  direction a "structure helps" hypothesis predicts.
+- **RETRACTED (2026-08-08, pre-run audit): `BINDER_ORDER` was ALSO unanswerable.** This
+  document previously read: *"On the four items testing distinctions the pilot depends on,
+  HML scored 4/4 and AST 3/4. AST's miss is `BINDER_ORDER` … opposite to the direction a
+  'structure helps' hypothesis predicts."* **That inference is unsound and is withdrawn.**
+  `build_prompt` uses `item.question or renderer.question(world)`, so a non-empty item
+  question *shadows* the world query — and every acquisition item sets one. The claim lives
+  only in `renderer.question`, so the only occurrence of `forall`/`exists` in any of the
+  three prompts was the answer line itself. All three arms were guessing a coin flip with
+  nothing to read; SE and HML were lucky, AST was not. HML's "4/4 on pilot-relevant
+  distinctions" was really 3/3 plus a coin flip.
 
 It would be easy to argue the gate "really" passed for HML. That argument is deliberately
 **not** made: the pre-registered bar is 5/6, HML scored 4/6, and one instrument repair has

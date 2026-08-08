@@ -39,6 +39,21 @@ from .worlds import ARENA_VERSION
 
 __all__ = ["RunSpec", "SYSTEM_PROMPT", "build_dev_pairs", "run_screen"]
 
+#: Every DEV_SELECTION pair offset any candidate has consumed (0 = the lost 12B run,
+#: 4 = e4b, 6 = e2b / gemma3:4b / llama3.2:3b, 8 = the gemma3:4b confirmation).
+#: Offset 6 was spent on three candidates, which is a deliberate common-item ladder for
+#: bracketing -- not the "fresh items per candidate" the `build_dev_pairs` docstring
+#: describes. Recorded here so the two are not silently in conflict.
+_BURNED_DEV_OFFSETS = (0, 4, 6, 8)
+
+#: The band each stage is allowed to draw from. Enforced in `run_screen`, not just in the
+#: CLI's STAGES table, so a directly-constructed RunSpec cannot mislabel a run.
+_STAGE_BANDS = {
+    "DEV_SELECTION": "DEV_SELECTION",
+    "ACQUISITION": "ACQUISITION",
+    "PILOT": "PILOT",
+}
+
 #: Identical for every arm and every stage. Recorded in the freeze.
 SYSTEM_PROMPT = (
     "You are a careful reasoner. Read the state exactly as given and answer the question. "
@@ -125,6 +140,19 @@ def run_screen(
     """
     from ..model_client import ModelClient, ModelConfig
 
+    # Stage and band must agree. The arm guard below keys on `stage`, which is free-form
+    # text; `RunSpec(stage="PILOT", band="DEV_SELECTION", arms=(...))` therefore slipped
+    # past it, and `stage="ACQUISITION", band="PILOT"` would have applied bare scoring
+    # while burning pilot seeds. Unreachable through the CLI, where STAGES pairs them --
+    # but a guard that protects a label rather than the seed range it is named for is not
+    # a guard.
+    if spec.stage not in _STAGE_BANDS:
+        raise ValueError(f"unknown stage {spec.stage!r}; expected one of {sorted(_STAGE_BANDS)}")
+    if spec.band != _STAGE_BANDS[spec.stage]:
+        raise ValueError(
+            f"stage {spec.stage!r} must draw from band {_STAGE_BANDS[spec.stage]!r}, "
+            f"not {spec.band!r}"
+        )
     if spec.stage == "DEV_SELECTION" and tuple(spec.arms) != ("SE",):
         raise ValueError(
             "developmental selection must be structured-English only; seeing AST or HML "
@@ -280,6 +308,10 @@ def main(argv: list[str] | None = None) -> int:
         items = acquisition.build_items(
             range(a.acq_seed_base, a.acq_seed_base + 6), level=a.level
         )
+        # `build_dev_pairs` asserts its band; the acquisition path did not, so a mistyped
+        # `--acq-seed-base 500001` would have silently burned PILOT seeds -- a named stop
+        # condition for this programme.
+        assert_band([i.world.seed for i in items], "ACQUISITION")
         pairs = None
     else:
         pairs = build_dev_pairs(
@@ -289,10 +321,27 @@ def main(argv: list[str] | None = None) -> int:
         items = [it for p in pairs for it in p]
         if a.stage == "pilot":
             # The named stop condition: no development seed may appear in the pilot.
-            dev = build_dev_pairs("DEV_SELECTION", spec.level, 6, spec.contrasts)
+            #
+            # This compared against dev indices 0..5 of the pilot's own two contrasts --
+            # which excluded the offsets actually spent (0,4,6,8) and every OPERAND_ORDER
+            # item, and could not fail anyway since 300000+ and 500000+ are numerically
+            # disjoint by construction. Now it covers every offset any candidate consumed
+            # and compares item ids, which is the thing that could genuinely collide.
+            burned_seeds, burned_ids = [], []
+            for off in _BURNED_DEV_OFFSETS:
+                for p in build_dev_pairs(
+                    "DEV_SELECTION", spec.level, 4, contrast.CONTRASTS, pair_offset=off
+                ):
+                    for it in p:
+                        burned_seeds.append(it.world.seed)
+                        burned_ids.append(it.item_id)
             assert_disjoint(
                 [it.world.seed for p in pairs for it in p], "PILOT",
-                [it.world.seed for p in dev for it in p], "DEV_SELECTION",
+                burned_seeds, "DEV_SELECTION",
+            )
+            assert_disjoint(
+                [it.item_id for p in pairs for it in p], "PILOT items",
+                burned_ids, "DEV_SELECTION items",
             )
 
     print(f"stage={a.stage} model={a.model} arms={spec.arms} "

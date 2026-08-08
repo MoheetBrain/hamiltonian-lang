@@ -62,6 +62,15 @@ class Item:
     #: arm's own notation and addressed by shared labels, so the *question* is identical
     #: across arms while the notation under audit is not.
     derivation: tuple[Prop, ...] = ()
+    #: Render the world's own query in its own block, in addition to the item question.
+    #:
+    #: `build_prompt` uses `item.question or renderer.question(world)`, so a non-empty
+    #: item question *shadows* the world query. Every acquisition item sets a question,
+    #: so `World.query` was never rendered for any of them -- which made BINDER_ORDER
+    #: (needs `query.claim`) and GOAL_TARGET (needs `query.target`) unanswerable in all
+    #: three arms. Contrast items carry `question=""` and leave this False, so the pilot
+    #: prompts are byte-identical either way; that is asserted by a test.
+    show_query: bool = False
     #: Pairs this item with its twin, for paired minimal contrasts.
     pair_id: str = ""
     metrics: dict = field(default_factory=dict)
@@ -78,6 +87,12 @@ def build_prompt(item: Item, renderer, *, instructions: str) -> str:
     if item.derivation:
         out += ["", "PROPOSED DERIVATION", ""]
         out += [f"  d{i}. {renderer.prop(p)}" for i, p in enumerate(item.derivation)]
+
+    # The world's own query, rendered in the arm's notation, for items that ask *about*
+    # the query rather than answering it. Kept as a separate block so it cannot be
+    # shadowed by the item question the way the `or` below shadows it.
+    if item.show_query:
+        out += ["", "QUERY", "", renderer.question(item.world)]
 
     # An empty question means "ask the world's own query". Contrast items must do this,
     # because the claim under test has to be rendered in the arm's own notation -- a

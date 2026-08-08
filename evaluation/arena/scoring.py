@@ -34,9 +34,19 @@ __all__ = [
     "pair_score",
 ]
 
-SCORER_VERSION = "arena-scorer-1.0.0"
+#: Bumped from 1.0.0 when `allow_bare` was added. The old version string stayed put across
+#: a behaviour-changing edit, so `ACQ_gemma3-4b.json` (attempt #1) no longer re-scores to
+#: its committed numbers from this tree -- 12/18 reproduce. That file is frozen historical
+#: evidence, marked INVALID_INSTRUMENT, and is NOT rescored; the version bump is what makes
+#: the discrepancy legible instead of mysterious. Every MICRO file still reproduces 12/12.
+SCORER_VERSION = "arena-scorer-1.1.0"
 
-_FINAL = re.compile(r"^\s*FINAL:\s*(.+?)\s*$", re.MULTILINE)
+#: `\s` matches newlines, so `FINAL:\s*` used to span a line break: `FINAL:\n\nforall\nexists`
+#: extracted `forall` -- the *first* following line -- contradicting this module's own
+#: last-wins rule. Restricted to horizontal whitespace so the marker and its answer must
+#: share a line. Verified against every frozen record: 0 of 96 extractions change, so no
+#: historical score moves and model selection is untouched.
+_FINAL = re.compile(r"^[ \t]*FINAL:[ \t]*(\S.*?)[ \t]*$", re.MULTILINE)
 
 
 @dataclass(frozen=True)
@@ -109,6 +119,17 @@ def extract_bare(response: str, answer_space: tuple[str, ...]) -> str | None:
     if not text:
         return None
     lines = [ln for ln in text.splitlines() if ln.strip()]
+
+    # A reply that NAMES more than one declared answer has not chosen; it has enumerated.
+    # Resolving that by line position would hand credit to a refusal -- and because
+    # `normalise` strips a leading `*`, the markdown a model uses to list options
+    # ("* forall\n* exists") is exactly the shape that leaked. With `FINAL:` the model
+    # declares which answer is final; with a bare reply there is no declaration, so
+    # ambiguity must be rejected rather than guessed at.
+    named = {got for ln in lines if (got := normalise(ln, answer_space))}
+    if len(named) > 1:
+        return None
+
     for candidate in (text, lines[-1] if lines else ""):
         got = normalise(candidate, answer_space)
         if got:
