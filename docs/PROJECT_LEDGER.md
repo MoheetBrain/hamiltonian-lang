@@ -4392,3 +4392,100 @@ about 4% of the time per arm.
 
 **Next.** Commit and push, confirm LOCAL == REMOTE and a clean tree, then spend the third
 and final acquisition run on seeds 400201–400206.
+
+## 2026-08-08 — FINAL acquisition: HML 5/6 PASSES, AST control 4/6 FAILS. Case B. Pilot NOT run.
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Starting SHA.** `4be6c74` (the frozen
+instrument). **STOPPED at the predeclared Case B. Zero pilot calls. PILOT band untouched.**
+
+### Result — the first valid acquisition measurement in this programme
+
+Frozen instrument, seeds 400201–400206, `gemma3:4b` @ `a2af6cc3eb7fa8be…`, temp 0,
+`max_tokens` 8192, isolated call per item.
+
+| KIND | SE | AST | HML |
+|---|---|---|---|
+| SORT | correct | correct | correct |
+| FACT_CONTENT | correct | correct | correct |
+| RELATION_LOOKUP | correct | correct | correct |
+| GOAL_TARGET | correct | correct | correct |
+| **BINDER_ORDER** | correct | **WRONG** | correct |
+| FACT_COUNT | WRONG | WRONG | WRONG |
+| **total** | **5/6** | **4/6** | **5/6** |
+
+0 invalid, 0 truncations, 0 errors in all 18 calls. Mean completion tokens SE 23.7 /
+AST 25.0 / **HML 48.5**; latency 0.5 / 0.5 / 0.6 s.
+
+**Gate: HML ≥ 5/6 → PASS. AST ≥ 5/6 → FAIL (4/6). This is predeclared Case B: stop, do not
+run the pilot, report the AST control as insufficient.** No fourth attempt is permitted and
+none was made. No answer was rescored, no item was deleted, the threshold was not moved.
+
+### The repairs are vindicated by the data, not just by argument
+
+`GOAL_TARGET` went from **wrong in all three arms** (attempt #2) to **correct in all three**
+(attempt #3). That is the direct signature of the diagnosed defect: the item was unanswerable
+because the world query was shadowed and never rendered, and rendering it in its own `QUERY`
+block made it answerable in every arm at once. Nothing else about the item changed except
+the sampled distractors.
+
+`BINDER_ORDER` is now genuinely answerable — the claim is in the prompt — so this attempt's
+result is a real observation where attempt #2's was a coin flip.
+
+`FACT_COUNT` failed in all three arms with the byte-identical reply `10\nFINAL: 10`, exactly
+as predicted from the zero-based-label lure (`f0…f10` → "10") recorded in the freeze before
+the run. It was kept unchanged, as instructed.
+
+### What this supports, and what it does not
+
+**Supported:** on six literal state-recovery items with the world query visible,
+`gemma3:4b` recovered 5/6 from HML and 5/6 from structured English, and 4/6 from the generic
+AST. HML cleared the pre-registered readability bar; the AST control did not.
+
+**Not supported — and the temptation here is obvious, so it is written down:**
+
+- **This is not evidence that HML is a better reasoning representation.** It is a
+  *readability* gate, deliberately requiring no reasoning. Zero Endpoint-B reasoning calls
+  have been made in any arm.
+- **"AST is harder to read than HML" is not established.** AST's deficit is a single item,
+  n=1. The honest statement is that the control failed the gate, not that the control is
+  worse.
+- **HML's own miss is not HML-specific.** `FACT_COUNT` failed identically in every arm.
+- HML used roughly twice the completion tokens of either control on these items (48.5 vs
+  23.7/25.0).
+
+### Why Case B blocks the pilot, in substance rather than by rule
+
+The AST arm is the *control that makes the experiment interpretable*: without it, an HML
+advantage cannot be separated from a generic benefit of structure. Its single failure is on
+`BINDER_ORDER` — which is **half the frozen pilot composition** (6 of 12 pairs are
+`QUANTIFIER_ORDER`). A control that may not reliably read binder order out of its own
+notation would make an HML > AST result on quantifier-order pairs uninterpretable: the gap
+could be reasoning, or it could be that the control could not see the distinction. Running
+the pilot now would spend 72 calls on a number that could not be defended.
+
+### Tests and verification actually executed
+
+| check | exact command | actual result |
+|---|---|---|
+| arena suite | `pytest -q tests/arena` | **201 passed**, 0 failed |
+| lint | `ruff check evaluation/arena tests/arena` | All checks passed |
+| final acquisition | `run_screen acq --model gemma3:4b --acq-seed-base 400201 --max-tokens 8192` | exit 0; SE 5/6, AST 4/6, HML 5/6; 0 invalid, 0 truncations |
+
+### Failures and unresolved uncertainty
+
+- **The AST control has not cleared its readability gate**, and the protocol allows no
+  further acquisition attempt.
+- **Still zero representation evidence.** The PILOT band remains untouched; three
+  ACQUISITION seed sets are now burned (400001–6, 400101–6, 400201–6).
+- AST's deficit rests on one item.
+- `FACT_COUNT`'s lure is now understood and, on this evidence, will fail in every arm on any
+  future run of this instrument.
+
+### Next intended step
+
+User decision, since no fourth attempt is authorised and every option is a protocol change:
+(a) accept the AST control as-is and run the pilot with its readability limitation recorded
+as a stated caveat; (b) improve the AST arm's binder rendering — a model-visible change to a
+control, which would require re-validating parity and re-freezing; or (c) treat the AST
+control as unusable for `QUANTIFIER_ORDER` and re-scope the pilot to
+`IMPLICATION_DIRECTION` only, which halves it. Reported as `HML_MEASUREMENT_INVALID`.

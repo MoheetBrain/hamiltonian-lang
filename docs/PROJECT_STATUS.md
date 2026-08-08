@@ -105,68 +105,37 @@ negative control confirms a binder swap is observable in every arm. `EXECUTES` a
 `IS_PROVEN` are recorded not-applicable **with an assertion**, not skipped. Constitution:
 `docs/semantics/HML_SEMANTIC_CONSTITUTION_V1.md`.
 
-**ACQUISITION GATE FAILED TWICE. THE PILOT HAS NOT BEEN RUN.**
+**FINAL ACQUISITION: HML 5/6 PASSES, AST CONTROL 4/6 FAILS. Case B — pilot NOT run.**
 
-*Attempt 1 — `INVALID_INSTRUMENT`, permanently.* Six of eighteen responses had no `FINAL:`
-line and three held the correct answer, so AST's 0/6 was an artefact. Not carried forward.
+Attempts #1 and #2 are permanently `INVALID_INSTRUMENT` / instrument-defective and are not
+carried forward. Attempt #3 ran on the frozen instrument (seeds 400201–400206) and is the
+first valid acquisition measurement in this programme:
 
-*Attempt 2 — repaired scoring, fresh seeds 400101–400106.* `extract_bare` now accepts a
-reply that **is** a declared answer (whole reply or last line, exact match), applied
-identically to all arms; **the reasoning-pilot scorer is untouched** and still requires a
-`FINAL:` line, guarded by a test. Five bare answers were recovered. Result:
+| KIND | SE | AST | HML |
+|---|---|---|---|
+| SORT · FACT_CONTENT · RELATION_LOOKUP · GOAL_TARGET | correct | correct | correct |
+| **BINDER_ORDER** | correct | **WRONG** | correct |
+| FACT_COUNT | WRONG | WRONG | WRONG |
+| **total** | **5/6** | **4/6** | **5/6** |
 
-| arm | score | BINDER_ORDER | FACT_CONTENT | RELATION_LOOKUP | SORT | FACT_COUNT | GOAL_TARGET |
-|---|---|---|---|---|---|---|---|
-| SE | 4/6 | correct | correct | correct | correct | WRONG | WRONG |
-| AST | **3/6** | **WRONG** | correct | correct | correct | WRONG | WRONG |
-| HML | **4/6** | correct | correct | correct | correct | WRONG | WRONG |
+0 invalid, 0 truncations across all 18 calls. **HML cleared the ≥5/6 bar; the AST control
+did not.** No rescoring, no item deleted, threshold unmoved, no fourth attempt.
 
-**Required ≥5/6 for AST and HML. Both fail.** Diagnosis, stated in both directions:
+**The repairs are vindicated by the data:** `GOAL_TARGET` went from wrong in *all three*
+arms to correct in *all three* — the exact signature of the diagnosed defect (the world
+query was shadowed and never rendered). `FACT_COUNT` failed identically in every arm with
+the byte-identical `10\nFINAL: 10`, as predicted from the zero-based-label lure recorded in
+the freeze *before* the run.
 
-- **`GOAL_TARGET` is a broken item of mine** — it asks about "the question above", but the
-  acquisition question *replaces* the world's query, so no such question is in the prompt.
-  Unanswerable by construction; all arms answered `P3` with nothing to read.
-- **`FACT_COUNT` is failed identically by all three arms** (byte-identical `10` against a
-  true 11) — a counting failure of the model, shared by the control, carrying no
-  representation signal.
-- **RETRACTED (2026-08-08, pre-run audit): `BINDER_ORDER` was ALSO unanswerable.** This
-  document previously read: *"On the four items testing distinctions the pilot depends on,
-  HML scored 4/4 and AST 3/4. AST's miss is `BINDER_ORDER` … opposite to the direction a
-  'structure helps' hypothesis predicts."* **That inference is unsound and is withdrawn.**
-  `build_prompt` uses `item.question or renderer.question(world)`, so a non-empty item
-  question *shadows* the world query — and every acquisition item sets one. The claim lives
-  only in `renderer.question`, so the only occurrence of `forall`/`exists` in any of the
-  three prompts was the answer line itself. All three arms were guessing a coin flip with
-  nothing to read; SE and HML were lucky, AST was not. HML's "4/4 on pilot-relevant
-  distinctions" was really 3/3 plus a coin flip.
+**This is a readability gate, not evidence about reasoning.** Zero Endpoint-B reasoning
+calls have been made in any arm. "AST is harder to read than HML" is **not** established —
+its deficit is one item, n=1. HML's own miss is not HML-specific. HML used ~2× the
+completion tokens of either control (48.5 vs 23.7/25.0).
 
-It would be easy to argue the gate "really" passed for HML. That argument is deliberately
-**not** made: the pre-registered bar is 5/6, HML scored 4/6, and one instrument repair has
-already been authorised. Repairing until the gate clears is what makes a result
-unfalsifiable.
-
-**THE HML MODULE-NAME LEAK IS CLOSED, AND THE ACQUISITION INSTRUMENT IS FROZEN.**
-A pre-run audit by four read-only sub-agents found that `HmlRenderer.state` led every HML
-state with `module Arena_{world_id}` — and for a minimal-contrast twin that id *names the
-edit* (`..._swap`, `..._flip3`, the latter also giving the label index of the edited
-assumption). **12/12 pilot twins were marked in HML; 0/12 in SE or AST**, neither of which
-renders `world_id` at all. Round-trip parity was blind to it by construction: `_assemble`
-blanks `world_id` and `canonical_world` never reads it. Repaired (option A): the header now
-lives in `compilable()` only. Measured — SE **0/24** prompts changed, AST **0/24**, HML
-**24/24**, leak occurrences now **0/24**, parity 24 worlds / 0 failures, HML compiles 24/24.
-Two regression tests lock it: no arm may render `world_id`/`_swap`/`_flipN`/`Arena_`, and
-twins must differ at **at most one surface locus in every arm**.
-
-The same audit repaired ten further instrument defects — `BINDER_ORDER` and `GOAL_TARGET`
-were both *unanswerable* (the world query was shadowed by the item question and never
-rendered), `GOAL_TARGET`'s answer space leaked the answer, `SORT` was unfailable, and the
-acquisition scorer accepted a refusal that named both answers. All are acquisition-only:
-**0 of 72 pilot prompts changed** by any of them, proved by SHA comparison.
-
-`evaluation/arena/results/ACQUISITION_INSTRUMENT_FINAL.json` freezes seeds 400201–400206,
-the six item kinds **and their answer keys**, per-arm prompt hashes, module file hashes,
-scorer `arena-scorer-1.1.0`, and the 5/6 threshold with no-post-hoc-rescoring,
-no-item-deletion and no-fourth-attempt recorded as part of the freeze.
+**Why this blocks the pilot:** the AST arm is the control that makes the experiment
+interpretable at all, and its failure is on `BINDER_ORDER` — half the frozen pilot
+composition is `QUANTIFIER_ORDER`. An HML > AST result there could be reasoning, or could be
+that the control could not see the distinction.
 
 **Pilot composition was decided and documented before any pilot call** —
 `docs/evaluation/PILOT_COMPOSITION_DECISION.md`: 6 `QUANTIFIER_ORDER` + 6
