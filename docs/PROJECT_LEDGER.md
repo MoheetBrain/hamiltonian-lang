@@ -3939,3 +3939,125 @@ No other engineering performed; nothing outside the results directory changed.
 
 **Next intended step.** Unchanged: acquisition sanity check on ACQUISITION seeds (≥5/6 for
 AST and for HML), then the first Endpoint-B representation pilot on fresh PILOT seeds.
+
+## 2026-08-08 — model CONFIRMED at 8/12; semantic audit passes; ACQUISITION INSTRUMENT INVALID
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Stage.** Signal pivot. **Starting SHA.**
+`ae2defd`. **STOPPED before the pilot.**
+
+**Correction to the incoming directive.** It recorded `llama3.2:3b` as "UNTESTED, not
+failed". It was in fact tested at the user's request in the previous turn, on the identical
+frozen set: **0/6 pairs, 4/12 items, with two responses containing no `FINAL:` line**.
+Committed at `ae2defd`. It is tested and rejected, and it brackets `gemma3:4b` from below.
+
+### 1. Model confirmation — PASSED, at the top edge
+
+Six additional completely fresh DEV pairs (`pair_offset=8`; offsets 0/4/6 already burned),
+same frozen prompt, endpoint, scoring, temperature 0, `max_tokens` 8192, isolated contexts.
+Zero overlap with all 48 previously burned items, verified before the run.
+
+| set | pairs both-correct | items |
+|---|---|---|
+| offset 6 (earlier) | 3/6 | 7/12 |
+| offset 8 (new) | 5/6 | 11/12 |
+| **TOTAL** | **8/12 = 0.667** | **18/24 = 0.75** |
+
+0 truncations, 0 invalid, mean 178.5 completion tokens, 2.66 s per call.
+
+**Inside the 4–8 target band, so a FINAL freeze was created** — but three caveats are
+recorded in it rather than smoothed over:
+
+1. **8/12 sits exactly on the upper boundary** and outside the preferred 5–7 band.
+2. **The two halves disagree sharply** (3/6 then 5/6). At six pairs per half the point
+   estimate is unstable; 0.667 should be read as a band, not a number.
+3. **`OPERAND_ORDER` is 4/4 — saturated.** All discriminating power comes from
+   `QUANTIFIER_ORDER` (2/4) and `IMPLICATION_DIRECTION` (2/4). Since the pilot's contrast
+   composition is frozen at 2/2/2, **one third of pilot pairs are expected to be
+   non-discriminating**. The composition was deliberately *not* changed: altering task
+   semantics after model selection would invalidate the selection.
+
+`evaluation/arena/results/FREEZE_FINAL_gemma3-4b.json` supersedes the provisional freeze,
+which is preserved as historical rather than rewritten.
+
+### 2. Semantic audit — PASSED, no production change needed
+
+`tests/arena/test_semantic_audit.py`, **62 checks, all passing**, read-only and test-only.
+The seven judgment classes are kept separate rather than collapsed into one `VALID` flag:
+PARSES and TYPECHECKS are checked independently (a file can parse and still fail
+resolution); `HAS_DEFINED_DENOTATION` holds vacuously because the generator emits no
+division; `IS_SEMANTICALLY_EQUIVALENT` is checked property-by-property for exactly what the
+pilot depends on — entities and stable identities, types, free vs bound variables, binder
+order and scope, assumptions with labels, implication direction, goal/query; the oracle
+answer is verified to be *literally shared* across arms while the three prompts differ.
+`EXECUTES` and `IS_PROVEN` are recorded **not-applicable with an assertion** that no pilot
+item contains `derive` or `proved`, rather than silently skipped.
+
+A negative control was added: swapping binder order must be *observable* in every arm. If it
+were not, the headline endpoint would measure nothing.
+
+**No missing invariant was found, so no production code was touched and no model-visible
+prompt, difficulty, scoring rule or task semantic was changed.** The 1800/1800 round-trip
+result is re-asserted, not replaced. `docs/semantics/HML_SEMANTIC_CONSTITUTION_V1.md`
+records denotational, operational and proof/axiomatic meaning plus the deferred backlog.
+
+### 3. Acquisition — **THE INSTRUMENT IS INVALID. No conclusion about HML.**
+
+Raw gate result: SE 2/6, **AST 0/6, HML 2/6** — both structured arms below the ≥5/6 hurdle.
+**That reading is wrong, and reporting it as an HML acquisition failure would have been a
+serious false conclusion.**
+
+**Six of eighteen responses contained no `FINAL:` line at all, and three of those held the
+correct answer**, discarded by the formatting rule:
+
+| arm | item | raw response | truth |
+|---|---|---|---|
+| AST | BINDER_ORDER | `exists` | **correct**, scored wrong |
+| AST | GOAL_TARGET | `P3` | **correct**, scored wrong |
+| AST | SORT | `Proposition` | **correct**, scored wrong |
+| SE | SORT | `Proposition` | **correct**, scored wrong |
+
+Charitably recomputed, the arms are SE 3/6, **AST 3/6**, HML 2/6 — AST's headline 0/6 is
+entirely an artefact. That recomputation is a *diagnosis*, not a result, and is not offered
+as one.
+
+**Root cause, and why it is instrument and not treatment.** On the Endpoint-B reasoning
+items this model produced a `FINAL:` line every time — 24/24 valid across both dev screens.
+The acquisition items ask for a single word, and on those the model frequently answers with
+the bare word and omits the line. That is an interaction between the prompt shape and the
+model, and it hits all three arms. **SE — the format this model demonstrably handles at
+18/24 on real reasoning — also fails at 2/6.** A literal-recovery instrument that the
+known-good control fails is measuring itself.
+
+Two further observations, recorded but not conclusions: `FACT_COUNT` was answered 10 against
+a true 11 in **all three arms** (a consistent off-by-one, non-discriminating), and
+`RELATION_LOOKUP` was correct in SE but wrong in AST and HML (n=1; suggestive at most).
+
+**Consequence: STOPPED before the pilot.** Zero pilot calls were made and the PILOT seed
+band is untouched. The acquisition seeds are burned.
+
+**Deliberately NOT done:** the instrument was not repaired and re-run. Having already seen
+HML's score, silently fixing and re-running is exactly the contamination the protocol warns
+against. The fix is proposed for authorisation instead.
+
+**Tests and verification actually executed.**
+
+| check | exact command | actual result |
+|---|---|---|
+| model confirmation | `run_screen micro --model gemma3:4b --pair-offset 8 --max-tokens 8192` | exit 0; 12/12 valid; 5/6 pairs |
+| semantic audit | `pytest -q tests/arena/test_semantic_audit.py` | **62 passed** |
+| arena suite | `pytest -q tests/arena` | **179 passed**, 0 failed |
+| lint | `ruff check evaluation/arena tests/arena` | All checks passed |
+| acquisition | `run_screen acq --model gemma3:4b --max-tokens 8192` | exit 0; **instrument invalid**, see above |
+
+**Failures and unresolved uncertainty.**
+
+- **No representation evidence exists.** HML has now been shown to a model for the first
+  time, on six literal-recall items whose measurement is void.
+- The confirmed 8/12 is at the band edge with unstable halves.
+- One third of frozen pilot pairs are expected to be non-discriminating.
+
+**Next intended step.** Repair the acquisition instrument — the minimal fix is to accept a
+bare single-token answer when it lies in the declared answer space, applied identically to
+all arms and to the scorer's `valid` accounting — then re-run acquisition on **fresh**
+ACQUISITION seeds. This is a scorer change, not a treatment change, but it must be
+authorised because the previous result has been seen. Reported as `HML_MEASUREMENT_INVALID`.

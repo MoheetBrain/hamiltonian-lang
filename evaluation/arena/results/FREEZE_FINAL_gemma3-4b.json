@@ -1,0 +1,83 @@
+{
+  "record_type": "FINAL_MODEL_FREEZE",
+  "supersedes": "FREEZE_gemma3-4b.json (provisional, 6 pairs)",
+  "frozen_at": "2026-08-08",
+  "git_sha_at_freeze": "ae2defd717858147f66211e2e73821552f8796e2",
+  "model": {
+    "name": "gemma3:4b",
+    "digest": "a2af6cc3eb7fa8be8504abaf9b04e88f17a119ec3f04a3addf55f92841195f5a",
+    "parameter_size": "4.3B",
+    "quantization": "Q4_K_M",
+    "family_caveat": "gemma3, not gemma4. Acceptable only because the pilot contrasts SE/AST/HML WITHIN this one model; results are not poolable with the gemma4 screens."
+  },
+  "runtime": {
+    "base_url": "http://localhost:11434/v1",
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "top_p": 1.0,
+    "isolated_stateless_call_per_item": true
+  },
+  "prompts": {
+    "system_prompt_sha256": "5f5eb2344f1c274087ed86204dd869830376e2713c7ac370761129e458131c3a",
+    "instructions_sha256": "479ab217d844b61c7bff7f6d2ac2e315bd204e6e96e218f0ce984465c520e294",
+    "system_prompt": "You are a careful reasoner. Read the state exactly as given and answer the question. Follow the requested answer format exactly.",
+    "instructions": "You are given a formal description of a state, and a question about it.\nEverything needed to answer is stated. Nothing is implied by convention."
+  },
+  "endpoint": {
+    "name": "CONTRAST (Endpoint B)",
+    "level": "L3",
+    "contrasts": [
+      "QUANTIFIER_ORDER",
+      "IMPLICATION_DIRECTION",
+      "OPERAND_ORDER"
+    ],
+    "scoring": "pair BOTH-CORRECT; truncated responses unscored and drop the pair whole"
+  },
+  "versions": {
+    "arena": "arena-1.0.0",
+    "scorer": "arena-scorer-1.0.0"
+  },
+  "confirmation": {
+    "dev_pairs_total": 12,
+    "pair_both_correct": 8,
+    "pair_both_correct_rate": 0.6667,
+    "single_item_correct": 18,
+    "single_item_total": 24,
+    "single_item_accuracy": 0.75,
+    "truncations": 0,
+    "invalid": 0,
+    "target_band": "4-8/12",
+    "preferred_band": "5-7/12",
+    "inside_target": true,
+    "inside_preferred": false,
+    "per_contrast_pairs": {
+      "IMPLICATION_DIRECTION": "2/4",
+      "OPERAND_ORDER": "4/4",
+      "QUANTIFIER_ORDER": "2/4"
+    },
+    "half_by_half": {
+      "offset_6": "3/6 pairs",
+      "offset_8": "5/6 pairs"
+    },
+    "caveats": [
+      "8/12 sits on the UPPER EDGE of the acceptable band and outside the preferred 5-7.",
+      "Large half-to-half swing (3/6 then 5/6) means the point estimate is unstable at N=6 per half.",
+      "OPERAND_ORDER is 4/4 -- saturated. Discriminating power comes only from QUANTIFIER_ORDER (2/4) and IMPLICATION_DIRECTION (2/4). One third of pilot pairs are expected to be non-discriminating."
+    ]
+  },
+  "burned_dev_pair_offsets": [
+    0,
+    4,
+    6,
+    8
+  ],
+  "do_not_change": [
+    "model or digest",
+    "temperature or max_tokens",
+    "system prompt or instructions",
+    "endpoint implementation or scoring",
+    "level/difficulty",
+    "contrast composition",
+    "generator or scorer version"
+  ]
+}

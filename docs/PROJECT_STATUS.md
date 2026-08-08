@@ -84,8 +84,37 @@ compared against the gemma4 screens. Note also that Endpoint B at L3 remains sat
 every gemma4 candidate tried; headroom exists for this organism specifically, not for the
 endpoint in general. And N=6 pairs makes 0.50 a selection signal, not an estimate.
 
-**Zero AST or HML model calls have ever been made**, so no treatment arm is contaminated and
-the PILOT seed band is untouched.
+**MODEL CONFIRMED AND FINAL-FROZEN: `gemma3:4b` at 8/12 DEV pairs (0.667), 18/24 items.**
+Six additional fresh pairs (offset 8) gave 5/6, added to the earlier 3/6. Inside the 4–8
+target band, so `FREEZE_FINAL_gemma3-4b.json` supersedes the provisional freeze. Three
+caveats are recorded in it: 8/12 is on the **upper edge** and outside the preferred 5–7; the
+halves disagree sharply (3/6 then 5/6), so the estimate is unstable; and **`OPERAND_ORDER`
+is 4/4 — saturated**, so one third of frozen pilot pairs are expected to be
+non-discriminating. The composition was deliberately not changed, because altering task
+semantics after selection would invalidate the selection.
+
+**SEMANTIC AUDIT PASSED — 62 checks, read-only, no production change.**
+`tests/arena/test_semantic_audit.py` keeps the seven judgment classes separate rather than
+collapsing them into one `VALID` flag, and verifies exactly the properties the pilot depends
+on: entities, types, free/bound variables, binder order and scope, assumptions, implication
+direction, goal/query, and that the oracle answer is *literally shared* across arms. A
+negative control confirms a binder swap is observable in every arm. `EXECUTES` and
+`IS_PROVEN` are recorded not-applicable **with an assertion**, not skipped. Constitution:
+`docs/semantics/HML_SEMANTIC_CONSTITUTION_V1.md`.
+
+**ACQUISITION INSTRUMENT IS INVALID — no conclusion about HML, and the pilot is BLOCKED.**
+Raw gate: SE 2/6, AST 0/6, HML 2/6. That reading is wrong. **Six of eighteen responses
+contained no `FINAL:` line, and three of those held the correct answer** — AST answered
+`exists`, `P3`, `Proposition`, all correct, all discarded by the formatting rule. Charitably
+recomputed the arms are SE 3/6, AST 3/6, HML 2/6; AST's 0/6 is entirely an artefact. Root
+cause: the acquisition items ask for a single word, and on those this model often answers
+with the bare word — whereas on Endpoint-B reasoning items it produced a `FINAL:` line
+24/24. **SE, the control this model handles at 18/24 on real reasoning, also fails at 2/6**,
+which is the tell that the instrument is measuring itself. The instrument was deliberately
+**not** repaired-and-rerun: having seen HML's score, that would be contamination.
+
+**Zero pilot calls have been made.** The PILOT seed band is untouched; ACQUISITION seeds are
+burned.
 
 **CI IS GREEN ON THIS BRANCH.** The reproducible environment repair proven on
 `integration/m1.5-paper-derived-closeout` @ `8e1c4df` was never propagated here, so this
