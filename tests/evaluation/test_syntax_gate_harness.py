@@ -61,7 +61,22 @@ def test_model_call_concurrency_is_pinned_to_the_measured_optimum():
 
 
 def test_scoring_uses_the_cores_that_model_calls_cannot():
-    assert SCORING_WORKERS >= MAX_WORKERS
+    """Scoring must not be throttled below what the machine can actually give it.
+
+    The bare ``SCORING_WORKERS >= MAX_WORKERS`` was a portability error: ``MAX_WORKERS``
+    is a *measured Ollama slot count* (a frozen scientific constant), while
+    ``SCORING_WORKERS`` is *this machine's CPU capacity*. On the 18-core host the two
+    happened to satisfy the inequality; on a 2-CPU CI runner it read ``2 >= 4`` and
+    failed, asserting that hardware must exceed a constant it has nothing to do with.
+
+    The invariant that was actually meant is throttle-freedom: scoring gets every core
+    available, up to the point where more would not help. That is portable, and it still
+    catches the regression this test was written for -- ``HML_JOBS=1`` leaking into
+    scoring gives ``1 >= min(4, cpu)`` and fails on any machine with 2 or more cores.
+    """
+    import os
+
+    assert SCORING_WORKERS >= min(MAX_WORKERS, os.cpu_count() or 1)
 
 
 def test_the_conformance_serial_knob_does_not_throttle_scoring():
@@ -95,8 +110,11 @@ def test_the_conformance_serial_knob_does_not_throttle_scoring():
     )
     assert result.returncode == 0, result.stderr
     scoring, model = (int(x) for x in result.stdout.split())
-    assert scoring >= model, (
-        f"HML_JOBS=1 leaked into scoring concurrency again: {scoring} < {model}"
+    # Same portability correction as `test_scoring_uses_the_cores_that_model_calls_cannot`:
+    # compare against what this machine can supply, not against the frozen slot count.
+    expected = min(model, os.cpu_count() or 1)
+    assert scoring >= expected, (
+        f"HML_JOBS=1 leaked into scoring concurrency again: {scoring} < {expected}"
     )
 
 

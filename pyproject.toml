@@ -14,8 +14,28 @@ classifiers = ["Private :: Do Not Upload"]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "hypothesis>=6", "ruff>=0.6", "mypy>=1.11", "jsonschema>=4"]
+# SymPy is NOT a core dependency: `equivalence/sympy_bridge.py` and the obligation
+# checkers import it under `try/except ImportError` and set `SYMPY_AVAILABLE = False`,
+# so the compiler runs without it. It IS required to exercise symbolic equivalence,
+# counterexample search, answer equivalence, negation checking and the partiality
+# obligations -- which conformance runs. CI installed only `[dev]`, so every one of those
+# paths reported "sympy is not importable in this environment" and the suite failed for an
+# environment reason rather than a semantic one.
+#
+# Pinned `>=1.14,<2`: `v1/backend_support.py` records the toolchain probe at 1.14.0 and
+# the stored verifier evidence references sympy-1.14.0, so an older minor is outside the
+# contract those records describe. The upper bound stops a major release changing
+# simplification behaviour underneath a frozen result.
+equivalence = ["sympy>=1.14,<2"]
 tokenizers = ["tiktoken>=0.7"]
+dev = [
+    "pytest>=8",
+    "hypothesis>=6",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "jsonschema>=4",
+    "hamiltonian-lang[equivalence]",
+]
 
 [project.scripts]
 hml = "hamiltonian_lang.cli:main"

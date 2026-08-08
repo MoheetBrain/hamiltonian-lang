@@ -3407,3 +3407,65 @@ generator that varied step *count* rather than step *difficulty*.
 
 **Next intended step.** Build the representation arena on top of the existing neutral
 generator. Do not make another full-problem model call first.
+
+---
+
+## 2026-08-08 — port the reproducible CI environment repair to reasoning-kernel-v2
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Worktree.** `/Users/moheet/hml_v2_worktree`
+· **Stage.** CI environment repair, ported.
+
+**Objective.** Make this branch green using the already-proven fix, without importing stale
+documentation from the branch it was proven on.
+
+**What happened.** The CI repair was developed and verified on
+`integration/m1.5-paper-derived-closeout` @ `8e1c4df`, which GitHub reports SUCCESS. That is
+a **divergent branch**: this one never received the fix and stayed red at `354a657` for the
+same environment reason. The failures were never semantic.
+
+**The three ported defects, unchanged from `8e1c4df`.**
+
+1. **SymPy was never installed by CI.** `pip install -e ".[dev]"` listed no SymPy, and
+   `equivalence/sympy_bridge.py` imports it under `try/except` with
+   `SYMPY_AVAILABLE = False`, so nothing failed at import — it surfaced downstream as
+   "sympy is not importable in this environment" across symbolic equivalence, counterexample
+   search, answer equivalence, negation checking, verifier obligations, partiality and
+   fixture reachability. Now an `equivalence = ["sympy>=1.14,<2"]` extra that `[dev]`
+   depends on. Optional rather than core: the compiler genuinely runs without it, and
+   `dependencies = []` stays true. Pinned to the 1.14.0 toolchain probe with a major-version
+   ceiling.
+2. **A portability error.** `SCORING_WORKERS >= MAX_WORKERS` compares this machine's CPU
+   count against a frozen measured Ollama slot count; a 2-CPU runner reads `2 >= 4`. Both
+   assertions now test throttle-freedom,
+   `SCORING_WORKERS >= min(MAX_WORKERS, os.cpu_count())`. **`MAX_WORKERS = 4` untouched.**
+3. **Unbounded workflow concurrency** — per-ref group with `cancel-in-progress`.
+
+**Decisions made and why.** `git cherry-pick -n` then `git checkout HEAD -- docs/` rather
+than a plain cherry-pick: `PROJECT_STATUS.md` and `PROJECT_LEDGER.md` conflicted because the
+source commit's text is written about the integration branch. Importing it would have put
+false branch-specific history into this branch's record. Only the three functional files
+were taken. The untracked `evaluation/arena/` was left untouched throughout.
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| docs differ from feature HEAD after restore | **0 files** |
+| `tests/evaluation/test_syntax_gate_harness.py` | 28 passed |
+| `tests/equivalence` + `tests/verification` | all pass |
+| local `./scripts/conformance.sh` | **CONFORMANCE: PASS** |
+| fresh clone of this branch + clean `[dev]` venv | sympy **1.14.0** installed |
+| clean-venv `./scripts/conformance.sh` | **CONFORMANCE: PASS** |
+
+**Failures and unresolved uncertainty.**
+
+- GitHub Actions had **not yet reported** when this entry was written. Not declared repaired
+  until GitHub itself reports success on this branch's new HEAD.
+- `recovery/session-limit-2026-08-05` and `hml-v1-concept-kernel` remain red. That reflects
+  their last historical commits and is deliberately not rewritten.
+
+**Effect.** This branch — the one carrying the actual V2 development state and the signal
+pivot — can run CI again.
+
+**Next intended step.** Confirm GitHub reports SUCCESS, then the Representation Arena per
+`docs/handoff/HML_HANDOFF_2026-08-08_SIGNAL_PIVOT.md`.

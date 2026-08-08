@@ -6,6 +6,12 @@ on:
     branches: ["**"]
   pull_request:
 
+# Rapid pushes on a research branch queued a full conformance run each, and every run but
+# the last was answering a question about a commit nobody was waiting on any more.
+concurrency:
+  group: conformance-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   conformance:
     runs-on: ubuntu-latest

@@ -28,6 +28,13 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**CI IS GREEN ON THIS BRANCH.** The reproducible environment repair proven on
+`integration/m1.5-paper-derived-closeout` @ `8e1c4df` was never propagated here, so this
+branch stayed red for an environment reason while the fix sat on a divergent branch. Ported
+now: SymPy declared as an `equivalence` extra (`>=1.14,<2`) that `[dev]` installs, the
+scoring-worker test made portable, and workflow concurrency bounded. No mathematical
+semantics changed and no test weakened.
+
 **HML V2 REASONING KERNEL — PHASE I LANDED (branch `feature/hml-reasoning-kernel-v2`).**
 The language now has a surface form for a reasoning *transition*, which the language
 audit found it entirely lacked (0/19 transformation forms representable in `.hml`).
