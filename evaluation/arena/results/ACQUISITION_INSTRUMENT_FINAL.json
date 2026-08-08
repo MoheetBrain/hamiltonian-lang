@@ -1,0 +1,161 @@
+{
+  "schema": "ACQUISITION_INSTRUMENT_FINAL/1",
+  "frozen_at": "2026-08-08",
+  "git_sha_at_freeze": "c6db73b0fa2987fa7a9cbdd1825ea720ea9a85fc",
+  "model_freeze_reference": "evaluation/arena/results/FREEZE_FINAL_gemma3-4b.json",
+  "model": {
+    "name": "gemma3:4b",
+    "digest": "a2af6cc3eb7fa8be8504abaf9b04e88f17a119ec3f04a3addf55f92841195f5a"
+  },
+  "runtime": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "isolated_stateless_call_per_item": true
+  },
+  "threshold": {
+    "rule": "AST >= 5/6 AND HML >= 5/6",
+    "SE": "diagnostic control only, NOT a gate",
+    "no_post_hoc_rescoring": true,
+    "no_item_deletion_after_results": true,
+    "no_fourth_attempt": true
+  },
+  "seed_range": {
+    "base": 400201,
+    "seeds": [
+      400201,
+      400202,
+      400203,
+      400204,
+      400205,
+      400206
+    ],
+    "band": "ACQUISITION",
+    "disjoint_from": {
+      "attempt_1": [
+        400001,
+        400006
+      ],
+      "attempt_2": [
+        400101,
+        400106
+      ]
+    }
+  },
+  "item_kinds": [
+    "SORT",
+    "FACT_CONTENT",
+    "FACT_COUNT",
+    "RELATION_LOOKUP",
+    "BINDER_ORDER",
+    "GOAL_TARGET"
+  ],
+  "answer_keys": {
+    "SORT": {
+      "answer": "Proposition",
+      "space": [
+        "Real",
+        "Proposition"
+      ],
+      "show_query": false
+    },
+    "FACT_CONTENT": {
+      "answer": "C",
+      "space": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "show_query": false
+    },
+    "FACT_COUNT": {
+      "answer": "11",
+      "space": [
+        "10",
+        "11",
+        "12",
+        "13",
+        "9"
+      ],
+      "show_query": false
+    },
+    "RELATION_LOOKUP": {
+      "answer": "FALSE",
+      "space": [
+        "TRUE",
+        "FALSE"
+      ],
+      "show_query": false
+    },
+    "BINDER_ORDER": {
+      "answer": "exists",
+      "space": [
+        "forall",
+        "exists"
+      ],
+      "show_query": true
+    },
+    "GOAL_TARGET": {
+      "answer": "P5",
+      "space": [
+        "P2",
+        "P3",
+        "P4",
+        "P5"
+      ],
+      "show_query": true
+    }
+  },
+  "file_hashes": {
+    "evaluation/arena/endpoints/acquisition.py": "4ab8ab1750523da150ca61a9e23284b3d7155dca0bf7925f94c52f29fb5fa0d8",
+    "evaluation/arena/endpoints/common.py": "d4bb64fdfc06ab0ae430f3a19c28e8f8b933d03aa19a7f11aaaaf2f6142d2ec4",
+    "evaluation/arena/scoring.py": "470dbf3087f8ea4a37d24afda7e48910ba10ec9d526119f3f9ed059a1ab65fe7",
+    "evaluation/arena/renderers/english.py": "7acb691de7a2751cc96a4b7b61f1b19863be0511a9842eb163beaf3e9d16926f",
+    "evaluation/arena/renderers/ast_json.py": "78f1102e43ed307d4102920ff98bb0f9d5a0c3aad07a890b0c2b962c3e2cd9e9",
+    "evaluation/arena/renderers/hml.py": "5bee9dc28f801b0c543e4c94292c1fedce0320f3af3f5b33dfcf440b0b662b61"
+  },
+  "scorer": {
+    "version": "arena-scorer-1.1.0",
+    "allow_bare_rule": "acquisition ONLY; a reply that IS a declared answer (whole reply or last line, exact match after decoration stripping) is accepted; a reply naming more than one declared answer is REJECTED",
+    "pilot_scorer": "UNCHANGED - still requires a declared FINAL: line"
+  },
+  "prompt_sha256_first16": {
+    "SORT|SE": "ff0a777529b6325b",
+    "SORT|AST": "f83ecabb3fe8fbca",
+    "SORT|HML": "68ed34f63f3598b7",
+    "FACT_CONTENT|SE": "7b6919d482c8fbe0",
+    "FACT_CONTENT|AST": "438ef2eb77647c6a",
+    "FACT_CONTENT|HML": "2173627e14af171c",
+    "FACT_COUNT|SE": "a15a9ed57fd25112",
+    "FACT_COUNT|AST": "70660e14c5defd67",
+    "FACT_COUNT|HML": "d9b7eb2f0d9df58e",
+    "RELATION_LOOKUP|SE": "0e5c6d32fb2a5f45",
+    "RELATION_LOOKUP|AST": "7b14599a01ad8528",
+    "RELATION_LOOKUP|HML": "38afca855ce6a515",
+    "BINDER_ORDER|SE": "1976e15d5480d36d",
+    "BINDER_ORDER|AST": "d05222e5f4bd9af0",
+    "BINDER_ORDER|HML": "dd8724eed1c8c902",
+    "GOAL_TARGET|SE": "f5c9df8af8a59d3a",
+    "GOAL_TARGET|AST": "107e2ba8cdd0fab2",
+    "GOAL_TARGET|HML": "211d602763efeda7"
+  },
+  "system_prompt_sha256": "5f5eb2344f1c274087ed86204dd869830376e2713c7ac370761129e458131c3a",
+  "instructions_sha256": "479ab217d844b61c7bff7f6d2ac2e315bd204e6e96e218f0ce984465c520e294",
+  "arena_version": "arena-1.0.0",
+  "repairs_since_attempt_2": [
+    "GOAL_TARGET+BINDER_ORDER: world query now rendered in its own QUERY block",
+    "GOAL_TARGET: distractors sampled (answer space no longer leaked the answer)",
+    "SORT: source family seed-derived so the answer is not constant",
+    "SORT+BINDER_ORDER: arm-neutral gloss (answer space had used AST/HML vocabulary)",
+    "FACT_CONTENT: distractors de-duplicated by canonical form",
+    "HML renderer: module header moved to compilable() - it leaked the contrast operation",
+    "extract_bare: rejects a reply naming more than one declared answer",
+    "FINAL: regex no longer spans newlines (0 of 96 historical extractions change)",
+    "assert_band on the acquisition path; stage/band consistency guard"
+  ],
+  "known_limitations_carried_into_this_run": [
+    "FACT_COUNT kept unchanged as instructed; true count 11, lure is zero-based labels f0..f10, and SE alone carries a 12th unlabelled line inside FACTS. Makes SE harder; SE is not the gate.",
+    "RELATION_LOOKUP is a table lookup in SE/AST but an evaluation of a 13-disjunct formula in HML.",
+    "Blind guessing scores about 2.7/6; P(>=5/6 by guessing) about 4% per arm."
+  ]
+}

@@ -93,7 +93,25 @@ class HmlRenderer:
         return f"Arena_{w.world_id}"
 
     def state(self, w: World) -> str:
-        lines = [f"module {self.module_name(w)}", ""]
+        """The model-visible HML state. **Emits no `module` header, deliberately.**
+
+        The header used to lead every state, and it carried `world_id` -- which for a
+        minimal-contrast twin *names the edit*: `Arena_qnt_L3_500001` against
+        `Arena_qnt_L3_500001_swap`, `Arena_log_L3_500000` against `..._flip3`. 12 of 12
+        pilot twins were marked that way in HML and 0 of 12 in SE or AST, neither of which
+        renders `world_id` at all. It never leaked the answer, but it told the treatment
+        arm alone that the item was one of a pair, which member it was, the operation
+        applied, and -- for `IMPLICATION_DIRECTION` -- the label index of the edited
+        assumption. Twins differed at one surface locus in the controls and two in HML.
+
+        The round-trip parity evidence could not see this: `decoders._assemble` blanks
+        `world_id` and `canonical_world` never reads it. It was found by a pre-run audit,
+        before any HML reasoning call had been made.
+
+        The header is a compiler requirement, not something a reader needs, so it now
+        lives in `compilable()` only.
+        """
+        lines: list[str] = []
 
         if w.relation is not None:
             dom = " or ".join(f"x = {e}" for e in w.domain)
@@ -144,7 +162,9 @@ class HmlRenderer:
         The goal is stated, never asserted, so nothing here leaks the answer: `hml
         check` reports a goal as OPEN whether it is true or false.
         """
-        src = self.state(w)
+        # The `module` header is added here and nowhere else: the compiler needs it, the
+        # model must never see it (see `state`).
+        src = f"module {self.module_name(w)}\n\n{self.state(w)}"
         q = w.query
         if q.kind == "TRUTH":
             return f"{src}\n\ngoal q1 : {self.prop(q.claim)}\n"

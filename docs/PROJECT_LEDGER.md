@@ -4341,3 +4341,54 @@ confirms no other undeclared dependency is reachable by the suite.
 
 **Next intended step.** Confirm GitHub green, then the Representation Arena per the signal
 pivot handoff.
+
+## 2026-08-08 — HML module-name leak closed (option A); ACQUISITION_INSTRUMENT_FINAL frozen
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Starting SHA.** `df48457`.
+Authorised repair of the blocking finding, then the instrument freeze. **Still zero
+Endpoint-B AST/HML calls at the time of this commit.**
+
+**The repair (option A).** `HmlRenderer.state` no longer emits a `module` header; it is
+added in `compilable()` only, which is the compiler-facing path the model never sees. The
+header carried `world_id`, and for a minimal-contrast twin that id names the edit —
+`Arena_qnt_L3_500001` vs `..._swap`, `Arena_log_L3_500000` vs `..._flip3`, the latter also
+giving the label index of the edited assumption. `decode_hml` now supplies a **constant**
+`module Arena` before parsing; deriving it from the world would reintroduce the identifier.
+
+**Measured effect, which is exactly what it should be:**
+
+| quantity | result |
+|---|---|
+| SE pilot prompts changed | **0 / 24** |
+| AST pilot prompts changed | **0 / 24** |
+| HML pilot prompts changed | **24 / 24** |
+| HML prompts still containing `world_id`, `_swap` or `_flipN` | **0 / 24** |
+| parity over the pilot set after the change | 24 worlds, **0 failures** |
+| HML still compiles | **24 / 24** |
+
+Two regression tests were added so this cannot return: no arm may render `world_id`,
+`_swap`, `_flipN` or `Arena_`; and twins must differ at **at most one surface locus in every
+arm** — which is the property that actually failed before (HML differed at two).
+
+**`ACQUISITION_INSTRUMENT_FINAL.json` frozen** before any call: seeds 400201–400206 (band
+ACQUISITION, disjoint from both burned attempts), the six item kinds and their answer keys,
+per-arm prompt hashes, file hashes for the six modules that determine an item, the scorer
+version `arena-scorer-1.1.0`, the `allow_bare` rule, the model freeze reference, and the
+5/6 threshold with `no_post_hoc_rescoring`, `no_item_deletion_after_results` and
+`no_fourth_attempt` recorded as part of the freeze rather than as intentions.
+
+The frozen keys are `SORT=Proposition`, `FACT_CONTENT=C`, `FACT_COUNT=11`,
+`RELATION_LOOKUP=FALSE`, `BINDER_ORDER=exists`, `GOAL_TARGET=P5` — written down **before**
+the run so no answer can be reinterpreted afterwards.
+
+**Limitations carried into the run, recorded in the freeze itself:** `FACT_COUNT` unchanged
+as instructed (lure is zero-based labels; SE alone carries a 12th unlabelled line, which
+makes SE harder and SE is not the gate); `RELATION_LOOKUP` is a lookup in SE/AST but an
+evaluation of a 13-disjunct formula in HML; blind guessing scores ≈2.7/6 and clears 5/6
+about 4% of the time per arm.
+
+**Verification.** `pytest -q tests/arena` → **201 passed**, 0 failed.
+`ruff check evaluation/arena tests/arena` → All checks passed.
+
+**Next.** Commit and push, confirm LOCAL == REMOTE and a clean tree, then spend the third
+and final acquisition run on seeds 400201–400206.

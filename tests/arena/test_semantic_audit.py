@@ -33,6 +33,8 @@ The existing 1800/1800 round-trip result stands as evidence and is not replaced.
 
 from __future__ import annotations
 
+import re
+
 import pytest
 from evaluation.arena.decoders import decode_ast, decode_english, decode_hml
 from evaluation.arena.ir import BVar, Conn, Elem, Quant, canonical, walk
@@ -264,3 +266,73 @@ def test_F_and_G_are_not_applicable_to_endpoint_b():
             assert "derive " not in src and "proved " not in src
             res = compile_source(src, f"<{w.world_id}>")
             assert res.ok()
+
+
+# ---------------------------------------------------------------------------
+# Arm-neutrality of the prompt surface (the module-name leak)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("arm", ARMS)
+def test_no_arm_exposes_the_world_id(arm):
+    """`world_id` names the contrast operation, so no arm may render it.
+
+    HML used to lead its state with `module Arena_{world_id}`, and for a minimal-contrast
+    twin that id is `..._swap` or `..._flip3` -- the second naming the label index of the
+    edited assumption. 12/12 twins were marked in HML, 0/12 in SE or AST. It never leaked
+    the answer, but it told the treatment arm alone that the item was one of a pair, which
+    member it was, and what had been done to it.
+
+    Round-trip parity cannot catch this: `_assemble` blanks `world_id` and
+    `canonical_world` never reads it. Hence an explicit surface test.
+    """
+    from evaluation.arena.endpoints import contrast
+
+    r = ARM_RENDERERS[arm]
+    for kind in ("QUANTIFIER_ORDER", "IMPLICATION_DIRECTION"):
+        for a, b in contrast.build_pairs(kind, "L3", range(500_000, 500_040))[:4]:
+            for item in (a, b):
+                text = r.state(item.world) + "\n" + r.question(item.world)
+                assert item.world.world_id not in text
+                assert "_swap" not in text
+                assert not re.search(r"_flip\d", text)
+                assert "Arena_" not in text
+
+
+def test_twins_differ_at_exactly_one_surface_locus_in_every_arm():
+    """A twin pair must differ only where the semantic edit is -- in all three arms.
+
+    Before the module header was moved into `compilable()`, HML twins differed at two
+    loci (the edit and the module name) while SE and AST differed at one.
+    """
+    import difflib
+
+    from evaluation.arena.endpoints import contrast
+
+    for kind in ("QUANTIFIER_ORDER", "IMPLICATION_DIRECTION"):
+        for a, b in contrast.build_pairs(kind, "L3", range(500_000, 500_040))[:4]:
+            for arm in ARMS:
+                r = ARM_RENDERERS[arm]
+                la = (r.state(a.world) + "\n" + r.question(a.world)).splitlines()
+                lb = (r.state(b.world) + "\n" + r.question(b.world)).splitlines()
+                changed = [
+                    x for x in difflib.ndiff(la, lb) if x.startswith(("+ ", "- "))
+                ]
+                # One replaced line shows as one '-' and one '+'.
+                assert len(changed) <= 2, (
+                    f"{arm} twins differ at more than one locus for {a.world.world_id}: "
+                    f"{changed}"
+                )
+
+
+def test_hml_still_compiles_without_a_model_visible_module_header():
+    """The header moved to `compilable()`; the compiler path must be unaffected."""
+    from hamiltonian_lang import compile_source
+
+    r = ARM_RENDERERS["HML"]
+    for family in FAMILIES:
+        for s in SEEDS:
+            w = generate(family, "L3", s)
+            assert not r.state(w).lstrip().startswith("module ")
+            assert r.compilable(w).lstrip().startswith("module ")
+            assert compile_source(r.compilable(w), f"<{w.world_id}>").ok()

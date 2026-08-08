@@ -145,6 +145,29 @@ It would be easy to argue the gate "really" passed for HML. That argument is del
 already been authorised. Repairing until the gate clears is what makes a result
 unfalsifiable.
 
+**THE HML MODULE-NAME LEAK IS CLOSED, AND THE ACQUISITION INSTRUMENT IS FROZEN.**
+A pre-run audit by four read-only sub-agents found that `HmlRenderer.state` led every HML
+state with `module Arena_{world_id}` — and for a minimal-contrast twin that id *names the
+edit* (`..._swap`, `..._flip3`, the latter also giving the label index of the edited
+assumption). **12/12 pilot twins were marked in HML; 0/12 in SE or AST**, neither of which
+renders `world_id` at all. Round-trip parity was blind to it by construction: `_assemble`
+blanks `world_id` and `canonical_world` never reads it. Repaired (option A): the header now
+lives in `compilable()` only. Measured — SE **0/24** prompts changed, AST **0/24**, HML
+**24/24**, leak occurrences now **0/24**, parity 24 worlds / 0 failures, HML compiles 24/24.
+Two regression tests lock it: no arm may render `world_id`/`_swap`/`_flipN`/`Arena_`, and
+twins must differ at **at most one surface locus in every arm**.
+
+The same audit repaired ten further instrument defects — `BINDER_ORDER` and `GOAL_TARGET`
+were both *unanswerable* (the world query was shadowed by the item question and never
+rendered), `GOAL_TARGET`'s answer space leaked the answer, `SORT` was unfailable, and the
+acquisition scorer accepted a refusal that named both answers. All are acquisition-only:
+**0 of 72 pilot prompts changed** by any of them, proved by SHA comparison.
+
+`evaluation/arena/results/ACQUISITION_INSTRUMENT_FINAL.json` freezes seeds 400201–400206,
+the six item kinds **and their answer keys**, per-arm prompt hashes, module file hashes,
+scorer `arena-scorer-1.1.0`, and the 5/6 threshold with no-post-hoc-rescoring,
+no-item-deletion and no-fourth-attempt recorded as part of the freeze.
+
 **Pilot composition was decided and documented before any pilot call** —
 `docs/evaluation/PILOT_COMPOSITION_DECISION.md`: 6 `QUANTIFIER_ORDER` + 6
 `IMPLICATION_DIRECTION` + 0 `OPERAND_ORDER`, calibrated from the SE-only control (4/4

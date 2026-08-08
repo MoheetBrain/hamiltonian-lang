@@ -468,7 +468,12 @@ def decode_hml(state: str, question: str, family: str) -> World:
     from hamiltonian_lang.ast import nodes as n
     from hamiltonian_lang.parser import parse
 
-    module, bag = parse(state, "<arena>")
+    # The model-visible state carries no `module` header -- it leaked the contrast operation
+    # through `world_id`, so it now lives only in `compilable()`. The compiler still needs
+    # one to parse, and this decoder is offline machinery, so a content-free header is
+    # supplied here. It is deliberately constant: anything derived from the world would
+    # reintroduce exactly the identifier that was removed.
+    module, bag = parse(f"module Arena\n\n{state}\n", "<arena>")
     if not bag.ok:
         raise DecodeError(f"HML arm did not parse: {[d.code for d in bag.errors][:3]}")
 
