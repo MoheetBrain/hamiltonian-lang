@@ -154,6 +154,9 @@ def run_screen(
         scored = score_response(
             item.item_id, c.content, item.answer, item.answer_space,
             finish_reason=c.finish_reason or ("error" if c.error else "stop"),
+            # Acquisition only. The reasoning pilot keeps the strict `FINAL:`-only rule,
+            # because relaxing it there would change what a scored reasoning answer means.
+            allow_bare=(spec.stage == "ACQUISITION"),
         )
         records.append({
             "n": n,
@@ -231,8 +234,14 @@ STAGES = {
                 n_per_contrast=4, pair_offset=0),
     "acq": dict(stage="ACQUISITION", band="ACQUISITION", arms=("SE", "AST", "HML"),
                 n_per_contrast=0, pair_offset=0),
+    # Pilot composition is calibrated from the SE-ONLY control arm, never from treatment:
+    # DEV_SELECTION showed OPERAND_ORDER at 4/4 (ceiling) against QUANTIFIER_ORDER 2/4 and
+    # IMPLICATION_DIRECTION 2/4. Including a saturated operator would spend a third of the
+    # pilot on pairs that cannot move. Zero Endpoint-B AST or HML calls had been made when
+    # this was decided -- see docs/evaluation/PILOT_COMPOSITION_DECISION.md.
     "pilot": dict(stage="PILOT", band="PILOT", arms=("SE", "AST", "HML"),
-                  n_per_contrast=4, pair_offset=0),
+                  n_per_contrast=6, pair_offset=0,
+                  contrasts=("QUANTIFIER_ORDER", "IMPLICATION_DIRECTION")),
 }
 
 
@@ -253,6 +262,10 @@ def main(argv: list[str] | None = None) -> int:
         help="override the stage's pair offset, so a new candidate is screened on items "
              "no earlier candidate has seen",
     )
+    ap.add_argument(
+        "--acq-seed-base", type=int, default=400_001,
+        help="first ACQUISITION seed; bump it to draw a completely fresh item set",
+    )
     a = ap.parse_args(argv)
 
     cfg = dict(STAGES[a.stage])
@@ -264,7 +277,9 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     if a.stage == "acq":
-        items = acquisition.build_items(range(400_001, 400_007), level=a.level)
+        items = acquisition.build_items(
+            range(a.acq_seed_base, a.acq_seed_base + 6), level=a.level
+        )
         pairs = None
     else:
         pairs = build_dev_pairs(

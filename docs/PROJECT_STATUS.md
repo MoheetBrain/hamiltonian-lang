@@ -102,16 +102,44 @@ negative control confirms a binder swap is observable in every arm. `EXECUTES` a
 `IS_PROVEN` are recorded not-applicable **with an assertion**, not skipped. Constitution:
 `docs/semantics/HML_SEMANTIC_CONSTITUTION_V1.md`.
 
-**ACQUISITION INSTRUMENT IS INVALID — no conclusion about HML, and the pilot is BLOCKED.**
-Raw gate: SE 2/6, AST 0/6, HML 2/6. That reading is wrong. **Six of eighteen responses
-contained no `FINAL:` line, and three of those held the correct answer** — AST answered
-`exists`, `P3`, `Proposition`, all correct, all discarded by the formatting rule. Charitably
-recomputed the arms are SE 3/6, AST 3/6, HML 2/6; AST's 0/6 is entirely an artefact. Root
-cause: the acquisition items ask for a single word, and on those this model often answers
-with the bare word — whereas on Endpoint-B reasoning items it produced a `FINAL:` line
-24/24. **SE, the control this model handles at 18/24 on real reasoning, also fails at 2/6**,
-which is the tell that the instrument is measuring itself. The instrument was deliberately
-**not** repaired-and-rerun: having seen HML's score, that would be contamination.
+**ACQUISITION GATE FAILED TWICE. THE PILOT HAS NOT BEEN RUN.**
+
+*Attempt 1 — `INVALID_INSTRUMENT`, permanently.* Six of eighteen responses had no `FINAL:`
+line and three held the correct answer, so AST's 0/6 was an artefact. Not carried forward.
+
+*Attempt 2 — repaired scoring, fresh seeds 400101–400106.* `extract_bare` now accepts a
+reply that **is** a declared answer (whole reply or last line, exact match), applied
+identically to all arms; **the reasoning-pilot scorer is untouched** and still requires a
+`FINAL:` line, guarded by a test. Five bare answers were recovered. Result:
+
+| arm | score | BINDER_ORDER | FACT_CONTENT | RELATION_LOOKUP | SORT | FACT_COUNT | GOAL_TARGET |
+|---|---|---|---|---|---|---|---|
+| SE | 4/6 | correct | correct | correct | correct | WRONG | WRONG |
+| AST | **3/6** | **WRONG** | correct | correct | correct | WRONG | WRONG |
+| HML | **4/6** | correct | correct | correct | correct | WRONG | WRONG |
+
+**Required ≥5/6 for AST and HML. Both fail.** Diagnosis, stated in both directions:
+
+- **`GOAL_TARGET` is a broken item of mine** — it asks about "the question above", but the
+  acquisition question *replaces* the world's query, so no such question is in the prompt.
+  Unanswerable by construction; all arms answered `P3` with nothing to read.
+- **`FACT_COUNT` is failed identically by all three arms** (byte-identical `10` against a
+  true 11) — a counting failure of the model, shared by the control, carrying no
+  representation signal.
+- **On the four items testing distinctions the pilot depends on, HML scored 4/4 and AST
+  3/4.** AST's miss is `BINDER_ORDER` — the pilot's headline contrast — answering `exists`
+  where the outermost binder is `forall`. n=1, suggestive only, but opposite to the
+  direction a "structure helps" hypothesis predicts.
+
+It would be easy to argue the gate "really" passed for HML. That argument is deliberately
+**not** made: the pre-registered bar is 5/6, HML scored 4/6, and one instrument repair has
+already been authorised. Repairing until the gate clears is what makes a result
+unfalsifiable.
+
+**Pilot composition was decided and documented before any pilot call** —
+`docs/evaluation/PILOT_COMPOSITION_DECISION.md`: 6 `QUANTIFIER_ORDER` + 6
+`IMPLICATION_DIRECTION` + 0 `OPERAND_ORDER`, calibrated from the SE-only control (4/4
+ceiling vs 2/4, 2/4).
 
 **Zero pilot calls have been made.** The PILOT seed band is untouched; ACQUISITION seeds are
 burned.

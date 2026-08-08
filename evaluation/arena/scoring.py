@@ -27,6 +27,7 @@ from fractions import Fraction
 __all__ = [
     "SCORER_VERSION",
     "extract_final",
+    "extract_bare",
     "normalise",
     "score_response",
     "Scored",
@@ -91,6 +92,30 @@ def _numeric_equal(a: str, b: str) -> bool:
         return False
 
 
+def extract_bare(response: str, answer_space: tuple[str, ...]) -> str | None:
+    """An unambiguous bare answer: the whole reply, or its last line, IS a declared answer.
+
+    Used **only** by the acquisition gate. A literal-recall question asks for one word, and
+    this model frequently replies with that word and nothing else -- no `FINAL:` line. The
+    first acquisition run discarded six such replies, three of which were correct, which
+    made the instrument measure its own prompt shape instead of whether an arm can be read.
+
+    Deliberately the least permissive rule that fixes that: the candidate text must equal a
+    member of the declared space **exactly** after decoration stripping. Prose that merely
+    *contains* the word does not match, so "the answer is TRUE" is still wrong. Applied
+    identically to SE, AST and HML.
+    """
+    text = (response or "").strip()
+    if not text:
+        return None
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    for candidate in (text, lines[-1] if lines else ""):
+        got = normalise(candidate, answer_space)
+        if got:
+            return got
+    return None
+
+
 def score_response(
     item_id: str,
     response: str,
@@ -98,12 +123,23 @@ def score_response(
     answer_space: tuple[str, ...],
     *,
     finish_reason: str = "stop",
+    allow_bare: bool = False,
 ) -> Scored:
+    """Score one response. `allow_bare` is the acquisition-only relaxation.
+
+    The reasoning pilot keeps `allow_bare=False` and therefore keeps the original rule --
+    only a declared `FINAL:` line counts. Relaxing the pilot scorer would change what a
+    scored reasoning answer means, which is a treatment change, not an instrument repair.
+    """
     if finish_reason != "stop":
         return Scored(item_id, False, False, "", f"not scored: finish_reason={finish_reason}")
 
     raw = extract_final(response)
     if raw is None:
+        if allow_bare:
+            bare = extract_bare(response, answer_space)
+            if bare:
+                return Scored(item_id, True, bare == expected, bare, "bare answer accepted")
         return Scored(item_id, True, False, "", "no FINAL: line")
 
     got = normalise(raw, answer_space)

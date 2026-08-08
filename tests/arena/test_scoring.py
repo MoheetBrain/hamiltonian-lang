@@ -116,3 +116,71 @@ def test_pre_flight_gate_passes():
     out = run_gate(levels=("L3",), n_seeds=6)
     failed = {k: v for k, v in out["checks"].items() if not v["ok"]}
     assert out["all_ok"], f"gate failed: {failed}"
+
+
+# ---------------------------------------------------------------------------
+# Acquisition-only bare-answer acceptance (the INVALID_INSTRUMENT repair)
+# ---------------------------------------------------------------------------
+
+BARE_CASES_ACCEPTED = [
+    ("whole reply is the answer", "exists", ("forall", "exists"), "exists"),
+    ("declared name", "P3", ("P1", "P2", "P3", "P4"), "P3"),
+    ("sort word", "Proposition", ("Real", "Proposition"), "Proposition"),
+    ("with trailing period", "Proposition.", ("Real", "Proposition"), "Proposition"),
+    ("decorated", "**TRUE**", ("TRUE", "FALSE"), "TRUE"),
+    ("case-insensitive", "true", ("TRUE", "FALSE"), "TRUE"),
+    ("last line is the answer", "some notes\nP3", ("P1", "P2", "P3"), "P3"),
+    ("numeric-as-string space", "11", ("9", "10", "11", "12"), "11"),
+]
+
+BARE_CASES_REJECTED = [
+    ("prose containing the word", "the answer is TRUE", ("TRUE", "FALSE")),
+    ("explanation only", "R(x, y) holds for (1,2), (2,3)", ("TRUE", "FALSE")),
+    ("word not in space", "maybe", ("TRUE", "FALSE")),
+    ("empty", "", ("TRUE", "FALSE")),
+    ("sentence ending in the word", "I think it is TRUE because", ("TRUE", "FALSE")),
+]
+
+
+@pytest.mark.parametrize("name,raw,space,want", BARE_CASES_ACCEPTED)
+def test_acquisition_accepts_an_unambiguous_bare_answer(name, raw, space, want):
+    from evaluation.arena.scoring import extract_bare
+
+    assert extract_bare(raw, space) == want
+    s = score_response("i", raw, want, space, allow_bare=True)
+    assert s.valid and s.correct, name
+
+
+@pytest.mark.parametrize("name,raw,space", BARE_CASES_REJECTED)
+def test_acquisition_rejects_anything_that_is_not_exactly_an_answer(name, raw, space):
+    from evaluation.arena.scoring import extract_bare
+
+    assert extract_bare(raw, space) is None, name
+    s = score_response("i", raw, space[0], space, allow_bare=True)
+    assert not s.correct, name
+
+
+def test_bare_acceptance_still_scores_a_wrong_bare_answer_wrong():
+    """The repair recovers discarded answers; it must not turn wrong ones into right ones."""
+    s = score_response("i", "P2", "P3", ("P1", "P2", "P3"), allow_bare=True)
+    assert s.valid and not s.correct and s.extracted == "P2"
+
+
+def test_pilot_scorer_is_unchanged_by_the_repair():
+    """The reasoning pilot keeps the strict FINAL:-only rule. This is the guard on that."""
+    for raw in ("TRUE", "exists", "P3"):
+        strict = score_response("i", raw, raw, ("TRUE", "FALSE", "exists", "forall", "P3"))
+        assert strict.valid and not strict.correct, "pilot scorer must ignore a bare answer"
+        assert strict.reason == "no FINAL: line"
+
+
+def test_bare_acceptance_never_overrides_a_declared_final_line():
+    """If a FINAL: line exists it wins, even when a bare match is also present."""
+    s = score_response("i", "TRUE\nFINAL: FALSE", "FALSE", ("TRUE", "FALSE"), allow_bare=True)
+    assert s.correct and s.extracted == "FALSE"
+
+
+def test_truncation_still_unscored_under_bare_acceptance():
+    s = score_response("i", "exists", "exists", ("forall", "exists"),
+                       finish_reason="length", allow_bare=True)
+    assert not s.valid and not s.correct

@@ -4061,3 +4061,109 @@ bare single-token answer when it lies in the declared answer space, applied iden
 all arms and to the scorer's `valid` accounting — then re-run acquisition on **fresh**
 ACQUISITION seeds. This is a scorer change, not a treatment change, but it must be
 authorised because the previous result has been seen. Reported as `HML_MEASUREMENT_INVALID`.
+
+## 2026-08-08 — acquisition repaired and re-run: gate FAILS (AST 3/6, HML 4/6). Pilot NOT run.
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Starting SHA.** `fd9f418`. **STOPPED at
+the acquisition gate for the second time. Zero pilot calls.**
+
+### 1. Scoring repair — acquisition only, as authorised
+
+`extract_bare` accepts a reply that **is** a declared answer: the whole reply, or its last
+non-empty line, equal to a member of the answer space after decoration stripping. Applied
+identically to SE, AST and HML. Prose that merely *contains* the word still fails, so "the
+answer is TRUE" is rejected.
+
+**The reasoning-pilot scorer is untouched** and still requires a declared `FINAL:` line;
+`test_pilot_scorer_is_unchanged_by_the_repair` guards that. Relaxing it there would change
+what a scored reasoning answer means — a treatment change, not an instrument repair.
+
+12 new tests (8 positive, 5 negative) plus three guards: a wrong bare answer still scores
+wrong, a `FINAL:` line always beats a bare match, and truncation stays unscored. Arena suite
+**196 passed**, ruff clean.
+
+The repair worked as intended: **5 bare answers were accepted** in the re-run that the old
+rule would have discarded.
+
+### 2. Pilot composition — decided and documented BEFORE any pilot call
+
+`docs/evaluation/PILOT_COMPOSITION_DECISION.md`: 6 `QUANTIFIER_ORDER` + 6
+`IMPLICATION_DIRECTION` + **0 `OPERAND_ORDER`**, calibrated from the **SE-only** control
+(4/4 ceiling vs 2/4 and 2/4). Zero Endpoint-B AST or HML calls existed when this was
+decided, which is what makes it calibration rather than treatment-informed selection. The
+record states the cost: two distinctions instead of three, and operand order left untested
+under AST and HML.
+
+### 3. Acquisition re-run on fresh seeds (400101–400106) — **GATE FAILS**
+
+| arm | score | invalid | trunc | mean ctok |
+|---|---|---|---|---|
+| SE | 4/6 | 0 | 0 | 24.7 |
+| AST | **3/6** | 0 | 0 | 23.8 |
+| HML | **4/6** | 0 | 0 | 42.3 |
+
+| kind | SE | AST | HML |
+|---|---|---|---|
+| SORT | correct | correct | correct |
+| FACT_CONTENT | correct | correct | correct |
+| RELATION_LOOKUP | correct | correct | correct |
+| **BINDER_ORDER** | correct | **WRONG** | correct |
+| FACT_COUNT | WRONG | WRONG | WRONG |
+| GOAL_TARGET | WRONG | WRONG | WRONG |
+
+**Required AST ≥ 5/6 and HML ≥ 5/6. Both fail. The pilot was not run.**
+
+### 4. Diagnosis — stated in both directions, because motivated reading is available here
+
+**`GOAL_TARGET` is a broken item and the defect is mine.** It asks "which symbol is the
+question above asking about?" — but `build_prompt` renders the *acquisition* question in
+place of the world's query, so no question naming the target appears anywhere in the prompt.
+The item is unanswerable by construction. All three arms answered `P3` with nothing to read.
+Verified by printing the rendered prompt.
+
+**`FACT_COUNT` is a legitimate item that all three arms fail identically** — every arm
+returned the byte-identical `'10\nFINAL: 10'` against a true count of 11. The facts are
+enumerated in all three renderings, so this is a counting failure of the model, shared by
+the control, and carries no representation signal.
+
+**On the four items that test distinctions the pilot actually depends on — sort, fact
+content, relation lookup, binder order — HML scored 4/4 and AST 3/4.** AST's single miss is
+`BINDER_ORDER`, answering `exists` where the outermost binder is `forall`. That is a genuine
+semantic-recovery failure, and binder order is the pilot's headline contrast. n=1, so it is
+suggestive only, but it is the opposite of the expected direction for a "structure helps"
+hypothesis and should not be discarded.
+
+**Why this is still reported as a gate failure rather than talked past.** HML's only
+non-broken miss is a counting task the control also fails, and it recovered every semantic
+property the pilot needs. It would be easy to argue the gate "really" passed. I am not
+making that argument: the pre-registered bar is 5/6, HML scored 4/6, and I have already had
+one instrument repair authorised. Repairing again until the gate clears is precisely the
+pattern that makes a result unfalsifiable. The verdict stands as measured.
+
+### Tests and verification actually executed
+
+| check | exact command | actual result |
+|---|---|---|
+| arena suite | `pytest -q tests/arena` | **196 passed**, 0 failed |
+| lint | `ruff check evaluation/arena tests/arena` | All checks passed |
+| fresh-seed disjointness | ad hoc | old vs new acquisition items: **0 overlap** |
+| acquisition #2 | `run_screen acq --model gemma3:4b --acq-seed-base 400101 --max-tokens 8192` | exit 0; SE 4/6, AST 3/6, HML 4/6; 5 bare answers accepted |
+
+Full 6k suite not re-run: nothing outside `evaluation/arena`, `tests/arena` and `docs`
+changed.
+
+### Failures and unresolved uncertainty
+
+- **The acquisition gate has now failed twice**, the first time on a void instrument and the
+  second on a real measurement with one broken item in it.
+- **Still zero representation evidence.** No Endpoint-B AST or HML call has ever been made;
+  the PILOT band is untouched. Two ACQUISITION seed sets are burned.
+- AST's binder-order miss is n=1.
+
+### Next intended step
+
+User decision. Either (a) fix `GOAL_TARGET` so it is answerable — it must include the
+world's own query in the prompt — and re-run acquisition a third time on fresh seeds, or
+(b) accept the four-item semantic reading (HML 4/4, AST 3/4) and lower or restate the gate.
+Both are protocol changes and neither should be taken unilaterally after two failures.
+Reported as `HML_ACQUISITION_INSUFFICIENT`.
