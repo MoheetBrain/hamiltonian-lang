@@ -3597,3 +3597,104 @@ the answers without a model judging anything. It does not yet say whether HML he
 **Next intended step.** SE-only developmental model selection on Endpoint B — treatment arms
 must not influence which model is chosen — then freeze, then the acquisition sanity check,
 then the first Endpoint-B representation pilot.
+
+## 2026-08-08 — arena committed; SE-only developmental screen INVALID (truncation + a lost run)
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Worktree.** `/Users/moheet/hml_v2_worktree`
+· **Stage.** Signal pivot — model-facing stage 1. **Starting SHA.** `6462463`.
+
+**Objective.** Commit the arena, then find a developmental model whose **structured-English**
+Endpoint-B pair accuracy lands in 30–70%. Treatment arms must not influence the choice, so
+the screen is SE-only by construction.
+
+**What was completed.**
+
+1. **The arena was committed and pushed** (`6462463`), local == remote, tree clean. Gate
+   green (306 items, 69 pairs, 8/8 checks), 100 arena tests, ruff clean.
+2. **`bands.py`** — disjoint seed bands (GATE 200k · DEV_SELECTION 300k · ACQUISITION 400k ·
+   PILOT 500k · CALIBRATION_LEGACY 900k) with `assert_band` / `assert_disjoint`. The named
+   contamination stop condition is now enforced by code rather than by memory.
+3. **`run_screen.py`** — the model-facing runner. Refuses to run a `DEV_SELECTION` stage with
+   any arm but `SE`; one stateless call per item, so twins and arms cannot see each other.
+4. **`endpoints/acquisition.py`** — six literal state-recovery items for the pre-pilot check.
+5. **`gemma4:12b` pulled** (11.9B, Q4_K_M, digest `4eb23ef187e2c546…`). Only the 31B was
+   installed, and the directive excludes it as first candidate; 12b is the nearest available
+   rung in the same family, which keeps architecture and pretraining confounds controlled.
+6. **`tests/arena/test_bands.py`** — 10 tests over band separation and both guards.
+
+**The screen ran, and its result is INVALID. Two separate failures.**
+
+**Failure 1 — a crash discarded 24 completed model calls.** `run_screen.py` had
+`if __name__ == "__main__": raise SystemExit(main())` placed *above* the definition of
+`_summarise`. Running the module as `__main__` therefore executed `main()` before that name
+was bound. All 24 SE calls completed over ~36 minutes; the run then died with
+`NameError: name '_summarise' is not defined` and **wrote nothing**. The console log is the
+only surviving record and is committed verbatim as
+`evaluation/arena/results/DEV_gemma4-12b_ATTEMPT1_LOST.console.txt`. This was my defect, it cost
+~36 minutes of real compute, and it is recorded rather than quietly re-run.
+
+**Failure 2 — 12 of 24 responses were truncated**, every one at exactly `max_tokens=4096`
+with `finish_reason=length`. `gemma4:12b` is a *thinking* model: the twelve responses that
+did finish averaged **2395** completion tokens, and the harder items ran past the ceiling.
+The budget was mine to set and was set too low.
+
+**Observed numbers, read off the committed log — reported because they were paid for, and
+NOT used to select anything.**
+
+| quantity | value |
+|---|---|
+| calls | 24 (12 pairs, SE only) |
+| valid | 12 · **truncated 12** · errors 0 |
+| single-item accuracy on valid responses | **12/12** |
+| pairs scored | **2 of 12** — the other 10 had a truncated member and were dropped whole |
+| pair both-correct | 2/2 on the two scorable pairs |
+| mean completion tokens (valid) | 2395 |
+| wall time | ~36 min |
+
+**With 10 of 12 pairs dropped the screen cannot place this model anywhere in the 30–70%
+band.** The 12/12 on valid items and 2/2 on scorable pairs must not be read as competence:
+the truncated items are exactly the ones the model found hard, so what survives is a sample
+biased toward the easy tail. No model has been selected.
+
+**Repairs made (no further model calls).**
+
+- The module-entry guard moved to the bottom of the file, below every function it reaches.
+- **Records are now written incrementally** to a `.jsonl` sidecar as each call returns, so no
+  future crash can destroy calls that have already been paid for.
+- `_summarise` is wrapped: a summary failure degrades to an error field instead of losing the
+  records, which are the expensive part.
+- Fixed a reporting defect found by the repair smoke test: the acquisition per-kind breakdown
+  keyed off a substring of the item id, so `FACT_CONTENT` and `FACT_COUNT` collapsed into one
+  cell. It now keys off the item's recorded kind. Verified 6/6 distinct kinds per arm.
+
+**Tests and verification actually executed.**
+
+| check | exact command | actual result |
+|---|---|---|
+| arena tests | `.venv/bin/python -m pytest -q tests/arena` | **110 passed**, 0 failed |
+| lint | `.venv/bin/ruff check evaluation/arena tests/arena` | **All checks passed** |
+| runner end-to-end, no model | `run_screen acq --model NO_SUCH_MODEL_XYZ` | exit 0; 18 records written to both `.json` and `.jsonl`; summary computed |
+| per-kind breakdown | same | 6 distinct kinds in each of SE/AST/HML |
+| arena gate (unchanged) | `.venv/bin/python -m evaluation.arena.validate` | exit 0, 8/8 PASS |
+
+The full 6k suite was **not** re-run for this commit: nothing outside `evaluation/arena/` and
+`tests/arena/` changed since the 6442-pass run.
+
+**Failures and unresolved uncertainty.**
+
+- **No developmental model has been selected.** One of at most three candidates has been
+  tried and its screen is void.
+- **Runtime is now a live feasibility problem.** 24 calls took ~36 min *while truncating half
+  of them*. Raising the ceiling makes each call longer, and the pilot is 72 calls across
+  three arms. A naive re-run could take several hours.
+- **Zero AST or HML model calls have been made.** No treatment arm has been observed, so
+  nothing about representations is contaminated by this failure.
+
+**Effect on the project.** The instrument is repaired and better than before — incremental
+persistence means this class of loss cannot recur. The scientific position is unchanged: no
+model selected, no representation evidence.
+
+**Next intended step.** Decide the token-budget and runtime question before spending more
+compute: raise `max_tokens` and accept a multi-hour pilot, disable the model's thinking mode,
+or drop to a smaller/faster candidate. Then re-run the SE-only screen. Reported to the user
+as `HML_ARENA_MEASUREMENT_INVALID`.

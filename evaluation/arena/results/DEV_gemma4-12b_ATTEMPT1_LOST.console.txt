@@ -1,0 +1,42 @@
+# DEV_SELECTION attempt 1 -- gemma4:12b -- RUN LOST TO A CRASH, console log is the only surviving record
+# 24 SE-only calls completed; run_screen died with NameError before writing results (see ledger 2026-08-08).
+# 12 of 24 responses hit finish_reason=length at exactly max_tokens=4096 -> truncation stop condition.
+# Recorded verbatim, not reconstructed. Superseded by attempt 2.
+
+stage=dev model=gemma4:12b arms=('SE',) items=24 calls=24
+  [  1/24] SE  B_qnt_L3_300004_swap               exp=FALSE  got=-      inv  4096tok   80.2s
+  [  2/24] SE  B_qnt_L3_300005                    exp=FALSE  got=FALSE  OK   1876tok   53.5s
+  [  3/24] SE  B_log_L3_300001                    exp=UNDETERMINED got=-      inv  4096tok  117.0s
+  [  4/24] SE  B_alg_L3_300002                    exp=40     got=-      inv  4096tok  117.1s
+  [  5/24] SE  B_log_L3_300016                    exp=FALSE  got=FALSE  OK   3259tok   96.3s
+  [  6/24] SE  B_log_L3_300007                    exp=FALSE  got=FALSE  OK   3176tok   95.3s
+  [  7/24] SE  B_log_L3_300002                    exp=FALSE  got=FALSE  OK   3930tok  119.2s
+  [  8/24] SE  B_alg_L3_300007_swapops            exp=73     got=73     OK   2401tok   74.6s
+  [  9/24] SE  B_alg_L3_300005_swapops            exp=-71    got=-      inv  4096tok  142.3s
+  [ 10/24] SE  B_log_L3_300007_flip2              exp=UNDETERMINED got=UNDETERMINED OK   3572tok  125.3s
+  [ 11/24] SE  B_qnt_L3_300002                    exp=TRUE   got=TRUE   OK   1554tok   52.9s
+  [ 12/24] SE  B_alg_L3_300001                    exp=436    got=-      inv  4096tok  130.9s
+  [ 13/24] SE  B_alg_L3_300007                    exp=-73    got=-73    OK   2730tok   82.0s
+  [ 14/24] SE  B_log_L3_300001_flip5              exp=TRUE   got=TRUE   OK   2002tok   55.9s
+  [ 15/24] SE  B_qnt_L3_300002_swap               exp=FALSE  got=-      inv  4096tok  111.4s
+  [ 16/24] SE  B_log_L3_300016_flip0              exp=UNDETERMINED got=-      inv  4096tok  104.4s
+  [ 17/24] SE  B_qnt_L3_300005_swap               exp=TRUE   got=-      inv  4096tok  111.0s
+  [ 18/24] SE  B_qnt_L3_300000                    exp=FALSE  got=FALSE  OK   1738tok   51.4s
+  [ 19/24] SE  B_qnt_L3_300004                    exp=TRUE   got=TRUE   OK    952tok   28.0s
+  [ 20/24] SE  B_alg_L3_300002_swapops            exp=-40    got=-      inv  4096tok  119.3s
+  [ 21/24] SE  B_log_L3_300002_flip10             exp=UNDETERMINED got=-      inv  4096tok  117.8s
+  [ 22/24] SE  B_qnt_L3_300000_swap               exp=TRUE   got=-      inv  4096tok  112.9s
+  [ 23/24] SE  B_alg_L3_300001_swapops            exp=-436   got=-      inv  4096tok  114.2s
+  [ 24/24] SE  B_alg_L3_300005                    exp=71     got=71     OK   1552tok   43.9s
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/moheet/hml_v2_worktree/evaluation/arena/run_screen.py", line 241, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/moheet/hml_v2_worktree/evaluation/arena/run_screen.py", line 235, in main
+    out = run_screen(spec, items, pairs=pairs, out_path=a.out)
+  File "/Users/moheet/hml_v2_worktree/evaluation/arena/run_screen.py", line 174, in run_screen
+    summary = _summarise(spec, pairs, records, items)
+              ^^^^^^^^^^
+NameError: name '_summarise' is not defined

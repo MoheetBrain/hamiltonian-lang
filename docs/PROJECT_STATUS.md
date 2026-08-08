@@ -43,8 +43,22 @@ nothing survives to render a second way. The arena rebuilds the worlds structure
 `difficulty-lab-1.0.0` is untouched and byte-identical.
 
 **No HML-vs-SE reasoning result exists yet.** The arena is instrumentation, not evidence.
-The next step is SE-only developmental model selection — treatment arms must not influence
-which model is chosen — then a freeze, then the first Endpoint-B pilot.
+
+**The first SE-only developmental screen is INVALID and no model has been selected.**
+`gemma4:12b` (11.9B, Q4_K_M, digest `4eb23ef187e2c546…`) was pulled as the first of at most
+three candidates — the 31B is excluded because it is known to saturate. The screen ran 24
+structured-English calls and failed twice: a misplaced module-entry guard crashed the runner
+after every call had completed, discarding all records (~36 min of compute, log preserved at
+`evaluation/arena/results/DEV_gemma4-12b_ATTEMPT1_LOST.console.txt`); and **12 of 24 responses were
+truncated** at `max_tokens=4096`, because `gemma4:12b` is a thinking model whose finished
+responses averaged 2395 completion tokens. Ten of twelve pairs were dropped whole, so the
+model cannot be placed in the 30–70% target band. Both faults were mine, not the model's.
+
+The runner is repaired — records are now written incrementally, so a crash can no longer
+destroy paid-for calls — but the **token-budget and runtime question is open and blocking**:
+24 calls took ~36 minutes *while truncating half*, and the pilot is 72 calls across three
+arms. **Zero AST or HML model calls have ever been made**, so no treatment arm is
+contaminated.
 
 **CI IS GREEN ON THIS BRANCH.** The reproducible environment repair proven on
 `integration/m1.5-paper-derived-closeout` @ `8e1c4df` was never propagated here, so this
@@ -778,19 +792,26 @@ property it asserted was false, because it never produced `def` parameters.
 **The signal pivot supersedes the ordering below.** Broad compiler completion is
 deliberately not resumed. The live sequence is:
 
-0. **SE-only developmental model selection.** Endpoint B, structured English **only** — the
+0. **Resolve the token-budget / runtime question — this is blocking.** `gemma4:12b` thinks
+   for ~2400 completion tokens on a finished Endpoint-B item and overran a 4096 ceiling on
+   half of them. Three options, none yet chosen: raise `max_tokens` to ~16k and accept a
+   multi-hour pilot; disable the model's thinking mode (faster, but a different organism);
+   or drop to `gemma4:4b` (faster, probably less competent). Then re-run the SE-only screen.
+1. **SE-only developmental model selection.** Endpoint B, structured English **only** — the
    AST and HML arms must not be run, because choosing a model after seeing treatment-arm
    performance would contaminate the experiment. Target 30–70% pair both-correct,
    preferably 40–60%. Development-only seeds, permanently excluded from the pilot. Maximum
    three candidates; the 31B model is known to saturate and is not the first candidate.
-1. **Freeze** model, digest, runtime, instructions, endpoint implementation, generator and
+   **One candidate has been consumed and its screen was void** (instrument failure, not a
+   verdict on the model).
+2. **Freeze** model, digest, runtime, instructions, endpoint implementation, generator and
    scorer versions. Generate a fresh held-out seed set.
-2. **Acquisition sanity check** — 6 literal state-recovery items per structured arm,
+3. **Acquisition sanity check** — 6 literal state-recovery items per structured arm,
    requiring no reasoning, on throwaway seeds. Require ≥5/6 for AST and for HML, so that
    unfamiliar syntax is not mistaken for a bad reasoning representation.
-3. **First Endpoint-B representation pilot** — 12 fresh contrast pairs, SE/AST/HML, fresh
+4. **First Endpoint-B representation pilot** — 12 fresh contrast pairs, SE/AST/HML, fresh
    context per item, deterministic order. No significance claims at N=12.
-4. **Endpoint A only if B is non-degenerate.**
+5. **Endpoint A only if B is non-degenerate.**
 
 The AST length confound (576 vs 329/338 tokens) is recorded and deliberately not yet fixed:
 an HML > AST result cannot be attributed entirely to HML semantics until a more compact
