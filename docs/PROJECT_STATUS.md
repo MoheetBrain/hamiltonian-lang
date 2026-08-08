@@ -28,6 +28,17 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**CI CONFORMANCE REPAIRED — ENVIRONMENT DEFECT, NOT A SEMANTIC REGRESSION.** GitHub
+Actions failed across symbolic equivalence, counterexamples, answer equivalence, negation
+checking, verifier obligations, partiality and fixture reachability. None of it was a
+semantic regression: `pip install -e ".[dev]"` did not install SymPy, so every
+sympy-backed path reported "sympy is not importable in this environment". SymPy is now a
+declared `equivalence` extra (pinned `>=1.14,<2`, matching the 1.14.0 toolchain probe)
+that `[dev]` depends on. Two further CI defects fixed: a portability error asserting
+`SCORING_WORKERS >= MAX_WORKERS` (machine CPU count versus a frozen Ollama slot count,
+which reads `2 >= 4` on a 2-CPU runner), and unbounded workflow concurrency. Verified by
+a fresh clone with a clean `[dev]`-only venv: **5743 passed, CONFORMANCE: PASS**.
+
 **THE 24-TASK V1 BENCHMARK IS RETIRED FOR H2 — `HML_BENCHMARK_FAILED_NO_SIGNAL`.**
 The SE control scored **23/23 (100%)** against a usable headroom band of 6-17, so the gate
 returned INSUFFICIENT and **no HML-V1 call was made**. See

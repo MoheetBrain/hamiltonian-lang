@@ -2613,3 +2613,63 @@ still no valid measurement of whether a model can write HML at all.
 run budget, admit only tasks the control gets wrong at that allowance, and select until the
 control lands inside the 8-15 band. Two corpora designed from intuitions about difficulty
 have now failed; difficulty must be measured before a task is admitted.
+
+---
+
+## 2026-08-08 — repair the GitHub conformance CI failure
+
+**Branch.** `integration/m1.5-paper-derived-closeout` · **Stage.** CI environment repair.
+
+**Objective.** Make conformance pass on a clean machine without weakening it.
+
+**Root causes — all three are environment or portability defects, not semantics.**
+
+1. **SymPy was never installed by CI.** `pyproject.toml`'s `dev` extra listed pytest,
+   hypothesis, ruff, mypy and jsonschema, and no SymPy. `equivalence/sympy_bridge.py` and
+   the obligation checkers import it under `try/except ImportError` and set
+   `SYMPY_AVAILABLE = False`, so the compiler runs without it and nothing failed loudly at
+   import — the failures surfaced downstream as "sympy is not importable in this
+   environment" across symbolic equivalence, counterexample search, answer equivalence,
+   negation checking, verifier obligations, partiality and fixture reachability.
+2. **A portability error in the concurrency test.** `SCORING_WORKERS >= MAX_WORKERS`
+   compares *this machine's CPU count* against a *frozen measured Ollama slot count*. On
+   the 18-core host it passed incidentally; on GitHub's 2-CPU runner it read `2 >= 4`.
+3. **Unbounded workflow concurrency.** Every push to every branch queued a full run, and
+   every run but the last answered a question about a superseded commit.
+
+**Decisions made and why.** SymPy is classified **B — a verification/equivalence optional
+dependency**, not a core one: the code genuinely degrades without it, and the package's
+`dependencies = []` promise is worth keeping. It is pinned `>=1.14,<2` because
+`v1/backend_support.py` records the toolchain probe at 1.14.0 and stored verifier evidence
+references sympy-1.14.0, so an older minor sits outside the contract those records
+describe; the upper bound stops a major release changing simplification behaviour beneath
+a frozen result. `[dev]` depends on `[equivalence]` so the CI install line is unchanged.
+
+`MAX_WORKERS = 4` was **not** touched — it is the measured slot count. The test now
+asserts throttle-freedom, `SCORING_WORKERS >= min(MAX_WORKERS, os.cpu_count())`, which is
+portable and still catches the `HML_JOBS=1` leak it was written for (verified: a throttled
+value of 1 is caught).
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| fresh venv, `pip install -e ".[dev]"` | sympy **1.14.0** installed |
+| formerly-failing suites in that venv | equivalence, sympy backend, partiality, backend_support — **all pass** |
+| regression still caught | throttled `SCORING_WORKERS=1` vs expected 4 — **CAUGHT** |
+| simulated 2-CPU runner | `2 >= min(4, 2)` — **True** |
+| full pytest, clean venv | **5743 passed**, 4 skipped, 7 xfailed, 7 xpassed |
+| local `./scripts/conformance.sh` | **CONFORMANCE: PASS** |
+| fresh clone + clean venv + conformance | **CONFORMANCE: PASS** |
+
+**Failures and unresolved uncertainty.**
+
+- No mathematical semantics were changed, and no test was weakened to turn CI green.
+- GitHub Actions had **not yet reported** at the time of this entry; the repair is not
+  final until GitHub itself reports success.
+
+**Effect.** Conformance is reproducible on a clean machine, and the suite's sympy-backed
+verification paths are actually exercised in CI rather than silently skipped.
+
+**Next intended step.** Confirm the GitHub Actions run, then the Representation Arena
+mission.
