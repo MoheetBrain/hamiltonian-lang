@@ -1,0 +1,394 @@
+{
+  "schema": "PILOT_MANIFEST/1",
+  "endpoint": "B1_IMPLICATION_DIRECTION",
+  "frozen_at": "2026-08-08",
+  "git_sha_at_freeze": "42d5bd8e7d7d6c8581c4e02c74e3804c5b1454cb",
+  "model": {
+    "name": "gemma3:4b",
+    "digest": "a2af6cc3eb7fa8be8504abaf9b04e88f17a119ec3f04a3addf55f92841195f5a"
+  },
+  "runtime": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "isolated_stateless_call_per_item": true,
+    "order_seed": 20260808
+  },
+  "composition": {
+    "QUANTIFIER_ORDER": 0,
+    "IMPLICATION_DIRECTION": 12,
+    "OPERAND_ORDER": 0,
+    "rationale": "Binder diagnostic showed the AST control cannot read binder nesting from JSON (answers exactly predicted by \"say forall if forall appears anywhere\"; 3/3 misses are exists-outer). QUANTIFIER_ORDER pairs are precisely {forall->exists, exists->forall}, so AST would fail one member of every pair for a READING reason. Deferred to endpoint B2 after AST-v2."
+  },
+  "arms": [
+    "SE",
+    "AST",
+    "HML"
+  ],
+  "level": "L3",
+  "pairs": 12,
+  "items": 24,
+  "calls": 72,
+  "scorer": {
+    "version": "arena-scorer-1.1.0",
+    "rule": "pair BOTH-CORRECT; STRICT FINAL: required (allow_bare is NOT applied to the pilot); truncation unscored and drops the pair whole"
+  },
+  "arena_version": "arena-1.0.0",
+  "system_prompt_sha256": "5f5eb2344f1c274087ed86204dd869830376e2713c7ac370761129e458131c3a",
+  "instructions_sha256": "479ab217d844b61c7bff7f6d2ac2e315bd204e6e96e218f0ce984465c520e294",
+  "pairs_frozen": [
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500000",
+      "seeds": [
+        500000,
+        500000
+      ],
+      "items": [
+        "B_log_L3_500000",
+        "B_log_L3_500000_flip3"
+      ],
+      "answers": [
+        "UNDETERMINED",
+        "FALSE"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500000": "9902bc2765330092",
+          "B_log_L3_500000_flip3": "253e87e87cab1314"
+        },
+        "AST": {
+          "B_log_L3_500000": "b20540a37e226f6f",
+          "B_log_L3_500000_flip3": "9aa0ef2969449e33"
+        },
+        "HML": {
+          "B_log_L3_500000": "cc9566b8081a3de9",
+          "B_log_L3_500000_flip3": "657faf2c8f492514"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500015",
+      "seeds": [
+        500015,
+        500015
+      ],
+      "items": [
+        "B_log_L3_500015",
+        "B_log_L3_500015_flip4"
+      ],
+      "answers": [
+        "UNDETERMINED",
+        "TRUE"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500015": "fc350de2bfcddc74",
+          "B_log_L3_500015_flip4": "06cc8f87f986459b"
+        },
+        "AST": {
+          "B_log_L3_500015": "61fba52e59e153c4",
+          "B_log_L3_500015_flip4": "2f784e1c9844cc22"
+        },
+        "HML": {
+          "B_log_L3_500015": "d7c04ea00aeeb285",
+          "B_log_L3_500015_flip4": "6b932e2f0bf22dd9"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500028",
+      "seeds": [
+        500028,
+        500028
+      ],
+      "items": [
+        "B_log_L3_500028",
+        "B_log_L3_500028_flip6"
+      ],
+      "answers": [
+        "FALSE",
+        "UNDETERMINED"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500028": "4b110d939210bc9d",
+          "B_log_L3_500028_flip6": "23357dc18a31ed88"
+        },
+        "AST": {
+          "B_log_L3_500028": "060ba651c36e055a",
+          "B_log_L3_500028_flip6": "da07bcf71480965e"
+        },
+        "HML": {
+          "B_log_L3_500028": "abef1691eadf79d3",
+          "B_log_L3_500028_flip6": "8d405b2865f0ca8f"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500031",
+      "seeds": [
+        500031,
+        500031
+      ],
+      "items": [
+        "B_log_L3_500031",
+        "B_log_L3_500031_flip0"
+      ],
+      "answers": [
+        "TRUE",
+        "UNDETERMINED"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500031": "c42aa0fa6806ec61",
+          "B_log_L3_500031_flip0": "142a22096876a867"
+        },
+        "AST": {
+          "B_log_L3_500031": "d4253aa70a5fb5c3",
+          "B_log_L3_500031_flip0": "1841698c45f157d7"
+        },
+        "HML": {
+          "B_log_L3_500031": "3f292c89e95b5664",
+          "B_log_L3_500031_flip0": "8cd8b702a442617d"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500033",
+      "seeds": [
+        500033,
+        500033
+      ],
+      "items": [
+        "B_log_L3_500033",
+        "B_log_L3_500033_flip2"
+      ],
+      "answers": [
+        "UNDETERMINED",
+        "TRUE"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500033": "1bf26845a502fe24",
+          "B_log_L3_500033_flip2": "4fe8b12c98e0eca0"
+        },
+        "AST": {
+          "B_log_L3_500033": "ac6001a6c020cbfb",
+          "B_log_L3_500033_flip2": "ba8b7aeb0b9ddd30"
+        },
+        "HML": {
+          "B_log_L3_500033": "d0cf33da19e1367d",
+          "B_log_L3_500033_flip2": "3ed45ef25d132ffb"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500034",
+      "seeds": [
+        500034,
+        500034
+      ],
+      "items": [
+        "B_log_L3_500034",
+        "B_log_L3_500034_flip9"
+      ],
+      "answers": [
+        "TRUE",
+        "UNDETERMINED"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500034": "af188ad14e833f84",
+          "B_log_L3_500034_flip9": "ede7efa8771ef275"
+        },
+        "AST": {
+          "B_log_L3_500034": "51e37a10d97da461",
+          "B_log_L3_500034_flip9": "2dab02c584a395c9"
+        },
+        "HML": {
+          "B_log_L3_500034": "df9abc3716be0352",
+          "B_log_L3_500034_flip9": "992fbd97dd6e8fdf"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500036",
+      "seeds": [
+        500036,
+        500036
+      ],
+      "items": [
+        "B_log_L3_500036",
+        "B_log_L3_500036_flip8"
+      ],
+      "answers": [
+        "FALSE",
+        "UNDETERMINED"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500036": "b1696497c8e876c3",
+          "B_log_L3_500036_flip8": "b86a847fae18a178"
+        },
+        "AST": {
+          "B_log_L3_500036": "4603b5c32adf9f62",
+          "B_log_L3_500036_flip8": "3d718bde98be7032"
+        },
+        "HML": {
+          "B_log_L3_500036": "ca4abb3206c5f59e",
+          "B_log_L3_500036_flip8": "667357d2348111cc"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500047",
+      "seeds": [
+        500047,
+        500047
+      ],
+      "items": [
+        "B_log_L3_500047",
+        "B_log_L3_500047_flip2"
+      ],
+      "answers": [
+        "UNDETERMINED",
+        "TRUE"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500047": "abdefe8fc120fd9f",
+          "B_log_L3_500047_flip2": "38293c5f98ab29a2"
+        },
+        "AST": {
+          "B_log_L3_500047": "6fe921d8499e691a",
+          "B_log_L3_500047_flip2": "97b220929f2eafbb"
+        },
+        "HML": {
+          "B_log_L3_500047": "2a3b64ef36bd0da0",
+          "B_log_L3_500047_flip2": "75aa7d151efbee91"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500054",
+      "seeds": [
+        500054,
+        500054
+      ],
+      "items": [
+        "B_log_L3_500054",
+        "B_log_L3_500054_flip10"
+      ],
+      "answers": [
+        "TRUE",
+        "UNDETERMINED"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500054": "7d0b39f9d792e854",
+          "B_log_L3_500054_flip10": "5da690642603b400"
+        },
+        "AST": {
+          "B_log_L3_500054": "d7a38e3f0a7cbb30",
+          "B_log_L3_500054_flip10": "28bb730637bcf0b7"
+        },
+        "HML": {
+          "B_log_L3_500054": "9aede88067334815",
+          "B_log_L3_500054_flip10": "bc216b716e0005ac"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500058",
+      "seeds": [
+        500058,
+        500058
+      ],
+      "items": [
+        "B_log_L3_500058",
+        "B_log_L3_500058_flip5"
+      ],
+      "answers": [
+        "FALSE",
+        "UNDETERMINED"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500058": "79c5eb65c850fc58",
+          "B_log_L3_500058_flip5": "26041481e29e835a"
+        },
+        "AST": {
+          "B_log_L3_500058": "8865314fef81d170",
+          "B_log_L3_500058_flip5": "f77e20b1ba86d536"
+        },
+        "HML": {
+          "B_log_L3_500058": "6cea2c6b110bef00",
+          "B_log_L3_500058_flip5": "d7e1dfc88e6e1fca"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500068",
+      "seeds": [
+        500068,
+        500068
+      ],
+      "items": [
+        "B_log_L3_500068",
+        "B_log_L3_500068_flip7"
+      ],
+      "answers": [
+        "FALSE",
+        "UNDETERMINED"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500068": "4cf3e3423ede1ff0",
+          "B_log_L3_500068_flip7": "351f8dd7f1f06cbc"
+        },
+        "AST": {
+          "B_log_L3_500068": "9f68d72b208a9a5b",
+          "B_log_L3_500068_flip7": "608ed4e6135bfe3c"
+        },
+        "HML": {
+          "B_log_L3_500068": "4c68ffbb4adbdef2",
+          "B_log_L3_500068_flip7": "973a59db25ac47a0"
+        }
+      }
+    },
+    {
+      "pair_id": "P_IMPLICATION_DIRECTION_L3_500081",
+      "seeds": [
+        500081,
+        500081
+      ],
+      "items": [
+        "B_log_L3_500081",
+        "B_log_L3_500081_flip4"
+      ],
+      "answers": [
+        "TRUE",
+        "UNDETERMINED"
+      ],
+      "prompt_sha256_first16": {
+        "SE": {
+          "B_log_L3_500081": "34dadb351ca31677",
+          "B_log_L3_500081_flip4": "127faaaed6048376"
+        },
+        "AST": {
+          "B_log_L3_500081": "dee2e23fb0f4a9cc",
+          "B_log_L3_500081_flip4": "045aebb75afbade1"
+        },
+        "HML": {
+          "B_log_L3_500081": "a7d816ef8bafbc30",
+          "B_log_L3_500081_flip4": "e980af75ff9101be"
+        }
+      }
+    }
+  ],
+  "preflight": {
+    "every_pair_flips": true,
+    "disjoint_from_DEV": true,
+    "parity_failures": 0,
+    "hml_compiles": "24/24"
+  }
+}

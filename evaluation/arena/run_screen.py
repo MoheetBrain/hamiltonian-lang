@@ -52,6 +52,7 @@ _STAGE_BANDS = {
     "DEV_SELECTION": "DEV_SELECTION",
     "ACQUISITION": "ACQUISITION",
     "PILOT": "PILOT",
+    "BINDER_DIAGNOSTIC": "DIAGNOSTIC",
 }
 
 #: Identical for every arm and every stage. Recorded in the freeze.
@@ -182,9 +183,12 @@ def run_screen(
         scored = score_response(
             item.item_id, c.content, item.answer, item.answer_space,
             finish_reason=c.finish_reason or ("error" if c.error else "stop"),
-            # Acquisition only. The reasoning pilot keeps the strict `FINAL:`-only rule,
-            # because relaxing it there would change what a scored reasoning answer means.
-            allow_bare=(spec.stage == "ACQUISITION"),
+            # Literal-recall stages only. Both ask for a single word, and this model
+            # often answers with the bare word; scoring that wrong would measure format
+            # compliance instead of reading. The reasoning pilot keeps the strict
+            # `FINAL:`-only rule, because relaxing it there would change what a scored
+            # reasoning answer means.
+            allow_bare=(spec.stage in ("ACQUISITION", "BINDER_DIAGNOSTIC")),
         )
         records.append({
             "n": n,
@@ -262,14 +266,24 @@ STAGES = {
                 n_per_contrast=4, pair_offset=0),
     "acq": dict(stage="ACQUISITION", band="ACQUISITION", arms=("SE", "AST", "HML"),
                 n_per_contrast=0, pair_offset=0),
+    # Control characterisation, not a gate: does an arm let the model read binder order?
+    "binder": dict(stage="BINDER_DIAGNOSTIC", band="DIAGNOSTIC", arms=("SE", "AST", "HML"),
+                   n_per_contrast=0, pair_offset=0),
     # Pilot composition is calibrated from the SE-ONLY control arm, never from treatment:
     # DEV_SELECTION showed OPERAND_ORDER at 4/4 (ceiling) against QUANTIFIER_ORDER 2/4 and
     # IMPLICATION_DIRECTION 2/4. Including a saturated operator would spend a third of the
     # pilot on pairs that cannot move. Zero Endpoint-B AST or HML calls had been made when
     # this was decided -- see docs/evaluation/PILOT_COMPOSITION_DECISION.md.
+    # B1: implication direction only. The binder diagnostic showed the AST control cannot
+    # read binder NESTING out of JSON -- its answers are exactly predicted by "say forall
+    # if forall appears anywhere", which fails every `exists`-outer claim. QUANTIFIER_ORDER
+    # pairs are precisely {forall->exists, exists->forall}, so AST would fail one member of
+    # every such pair for a READING reason, and an HML>AST gap there would be
+    # uninterpretable. Implication is `{"op":"implies","args":[A,B]}` -- argument order, not
+    # nesting depth -- and is unaffected. Quantifier scope becomes endpoint B2 after AST-v2.
     "pilot": dict(stage="PILOT", band="PILOT", arms=("SE", "AST", "HML"),
-                  n_per_contrast=6, pair_offset=0,
-                  contrasts=("QUANTIFIER_ORDER", "IMPLICATION_DIRECTION")),
+                  n_per_contrast=12, pair_offset=0,
+                  contrasts=("IMPLICATION_DIRECTION",)),
 }
 
 
@@ -304,7 +318,13 @@ def main(argv: list[str] | None = None) -> int:
         model=a.model, level=a.level, max_tokens=a.max_tokens, **cfg,
     )
 
-    if a.stage == "acq":
+    if a.stage == "binder":
+        from .endpoints import binder_diag
+
+        items = binder_diag.build_items()
+        assert_band([i.world.seed for i in items], "DIAGNOSTIC")
+        pairs = None
+    elif a.stage == "acq":
         items = acquisition.build_items(
             range(a.acq_seed_base, a.acq_seed_base + 6), level=a.level
         )

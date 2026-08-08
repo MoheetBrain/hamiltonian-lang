@@ -137,6 +137,14 @@ interpretable at all, and its failure is on `BINDER_ORDER` — half the frozen p
 composition is `QUANTIFIER_ORDER`. An HML > AST result there could be reasoning, or could be
 that the control could not see the distinction.
 
+**BINDER DIAGNOSTIC: the AST control cannot read binder nesting.** SE 8/8, HML 8/8,
+**AST 6/8** — and AST's answers are predicted on 5/5 configurations by "say `forall` if
+`forall` appears anywhere, else `exists`", a token-presence rule that never reads nesting.
+All three misses (2 diagnostic + the ACQ3 gate item) are `exists → forall`. The arm is not
+75% reliable at binder order; it is ~0% reliable and 75% lucky. Consequently the first pilot
+is **B1 = 12 × IMPLICATION_DIRECTION, 0 × QUANTIFIER_ORDER** — quantifier scope becomes
+endpoint B2, after a `GENERIC_AST_V2` exists. Frozen in `PILOT_MANIFEST_B1.json`.
+
 **Pilot composition was decided and documented before any pilot call** —
 `docs/evaluation/PILOT_COMPOSITION_DECISION.md`: 6 `QUANTIFIER_ORDER` + 6
 `IMPLICATION_DIRECTION` + 0 `OPERAND_ORDER`, calibrated from the SE-only control (4/4

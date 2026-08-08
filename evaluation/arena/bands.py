@@ -27,6 +27,10 @@ BANDS: dict[str, tuple[int, int]] = {
     "DEV_SELECTION": (300_000, 399_999),
     "ACQUISITION": (400_000, 499_999),
     "PILOT": (500_000, 599_999),
+    #: Control characterisation -- probing what an *arm* can read, not what the model can
+    #: reason. Its own band so a diagnostic can never consume a gate or pilot seed, and so
+    #: it is unmistakably not a fourth acquisition attempt.
+    "DIAGNOSTIC": (600_000, 699_999),
     "CALIBRATION_LEGACY": (900_000, 999_999),
 }
 

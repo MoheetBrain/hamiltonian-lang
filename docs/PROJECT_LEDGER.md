@@ -4489,3 +4489,93 @@ as a stated caveat; (b) improve the AST arm's binder rendering — a model-visib
 control, which would require re-validating parity and re-freezing; or (c) treat the AST
 control as unusable for `QUANTIFIER_ORDER` and re-scope the pilot to
 `IMPLICATION_DIRECTION` only, which halves it. Reported as `HML_MEASUREMENT_INVALID`.
+
+## 2026-08-08 — binder diagnostic: AST cannot read binder nesting. Pilot re-scoped to B1.
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Starting SHA.** `42d5bd8`.
+
+### The diagnostic — control characterisation, explicitly not a fourth acquisition attempt
+
+Own seed band (`DIAGNOSTIC`, 600 000+), so it cannot consume a gate or pilot seed. Eight
+items, two from each of the four binder combinations, giving a key balanced exactly 4
+`forall` / 4 `exists` — a model that always answers `forall` scores chance, not credit.
+`exists → exists` never occurs in the generator's claim shapes, so claims were constructed
+directly; legitimate because the answer is a property of surface text, with no entailment or
+truth evaluation involved.
+
+| arm | score | mean ctok | latency |
+|---|---|---|---|
+| SE | **8/8** | 6.0 | 0.3 s |
+| **AST** | **6/8** | 6.8 | 0.3 s |
+| HML | **8/8** | 6.5 | 0.3 s |
+
+0 invalid, 0 truncations.
+
+**6/8 falls between the two pre-declared bands (7–8 = noise, 3–5 = genuine). The count is
+ambiguous; the pattern is not.**
+
+| configuration | expected | AST answered | |
+|---|---|---|---|
+| `forall → exists` | forall | forall | ✅ |
+| `forall → forall` | forall | forall | ✅ |
+| `exists → exists` | exists | exists | ✅ |
+| **`exists → forall`** | **exists** | **forall** | ❌ ×2 |
+| **`exists → forall`** (the ACQ3 gate item) | **exists** | **forall** | ❌ |
+
+Both diagnostic misses are the *same* configuration, and they reproduce the acquisition
+failure exactly — that item was also `exists → forall`. Noise would scatter; this does not.
+
+**AST's answer is predicted, on 5 of 5 configurations, by the heuristic "say `forall` if
+`forall` appears anywhere, else `exists`".** That rule reads token presence and never reads
+nesting. It happens to be right on three of the four configurations, which is precisely why
+6/8 understates the problem: the arm is not 75% reliable at reading binder order, it is
+~0% reliable and 75% lucky.
+
+### Consequence — the pilot is re-scoped, not caveated
+
+`QUANTIFIER_ORDER` pairs are exactly `{forall → exists, exists → forall}`. The AST control
+would systematically fail one member of **every** such pair, for a *reading* reason. An
+HML > AST gap on quantifier scope would then be uninterpretable: reasoning, or a control
+that cannot see the distinction. Writing that up as a caveat afterwards would not fix it.
+
+So the first pilot is **B1 = 12 × `IMPLICATION_DIRECTION`, 0 × `QUANTIFIER_ORDER`**.
+Implication is `{"op":"implies","args":[A,B]}` — argument order, not nesting depth — and AST
+read `implies` nodes correctly in `FACT_CONTENT` on both attempts. Quantifier scope becomes
+**endpoint B2**, to be run after a `GENERIC_AST_V2` exists. This decomposes the endpoint by
+semantic mechanism rather than demanding one benchmark validate quantifier scope and
+implication simultaneously.
+
+**This is still control-informed, not treatment-informed:** zero Endpoint-B AST or HML
+reasoning calls have ever been made. The diagnostic measured *readability*, not reasoning.
+
+### Pilot frozen before any call — `PILOT_MANIFEST_B1.json`
+
+12 pairs, 24 items, 72 calls, arms SE/AST/HML, level L3, `gemma3:4b` @ `a2af6cc3eb7fa8be…`,
+temp 0, `max_tokens` 8192, order seed 20260808. Records every pair id, seed, item id,
+**answer**, and per-arm prompt hash. Scorer `arena-scorer-1.1.0`, pair BOTH-CORRECT,
+**strict `FINAL:` required — `allow_bare` is not applied to the pilot.**
+
+Pre-flight: every pair flips (12/12), disjoint from all burned DEV seeds, parity 24 worlds /
+0 failures, HML compiles 24/24, answer distribution UNDETERMINED 12 / TRUE 7 / FALSE 5 —
+every pair contains exactly one UNDETERMINED member, so a constant `UNDETERMINED` answer
+scores 12/24 items but **0/12 pairs**.
+
+### Verification
+
+`pytest -q tests/arena` → 201 passed. `ruff check` → clean.
+`run_screen binder --model gemma3:4b` → exit 0, 24 calls, 0 invalid, 0 truncations.
+
+### Failures and unresolved uncertainty
+
+- **`GENERIC_AST_V2` is not built.** Endpoint B2 (quantifier scope) is blocked until it is.
+  The S-expression encoding is the more promising candidate — compact, generic, naturally
+  nested — and would additionally separate "compact structure" from "structure at all".
+- AST's deficit is now 3/3 on one configuration and 0/5 elsewhere; that is a strong pattern
+  but still only three failures.
+- `FACT_COUNT` remains in the acquisition instrument and is understood to be measuring
+  counting rather than representation acquisition. Flagged for ACQUISITION_V2, not changed.
+
+### Next
+
+Run pilot B1. Report pair BOTH-CORRECT for SE / AST / HML, paired discordances, error
+families, tokens and latency, with no significance claim at N=12.
