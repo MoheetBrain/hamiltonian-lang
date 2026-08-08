@@ -35,6 +35,14 @@ dev = [
     "mypy>=1.11",
     "jsonschema>=4",
     "hamiltonian-lang[equivalence]",
+    # `evaluation/arena/budget.py::_encoder` does a bare `import tiktoken` -- deliberately
+    # bare, because a silently degraded token measurement is worse than a loud failure. The
+    # `tokenizers` extra already existed and `[dev]` did not pull it in, so the Arena's
+    # three budget tests failed on a clean runner while passing on a long-lived local venv
+    # that had accumulated the package. `.[dev]` is THE complete conformance environment:
+    # every extra the suite needs belongs here, or CI turns into whack-a-mole in the
+    # workflow file.
+    "hamiltonian-lang[tokenizers]",
 ]
 
 [project.scripts]

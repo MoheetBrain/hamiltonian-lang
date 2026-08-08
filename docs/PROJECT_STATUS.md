@@ -153,7 +153,17 @@ ceiling vs 2/4, 2/4).
 **Zero pilot calls have been made.** The PILOT seed band is untouched; ACQUISITION seeds are
 burned.
 
-**CI IS GREEN ON THIS BRANCH.** The reproducible environment repair proven on
+**CI IS GREEN ON THIS BRANCH.** Two dependency-declaration defects, same class, fixed in
+sequence: SymPy (ported from `8e1c4df`) and now **tiktoken**, which the Representation
+Arena introduced. `evaluation/arena/budget.py` does a bare `import tiktoken` — correctly
+bare, since a silently degraded token measurement beats no failure — but `[dev]` did not
+pull in the already-defined `tokenizers` extra, so a clean runner failed three Arena budget
+tests while a long-lived local venv passed. `.[dev]` is now the complete conformance
+environment. An AST audit of every third-party import confirms **tiktoken was the only
+genuine gap reachable by conformance**; numpy/scipy/transformers/yaml appear only under
+`audit_rerun/` and `experiments/`, which pytest never collects.
+
+Previously: **CI IS GREEN ON THIS BRANCH.** The reproducible environment repair proven on
 `integration/m1.5-paper-derived-closeout` @ `8e1c4df` was never propagated here, so this
 branch stayed red for an environment reason while the fix sat on a divergent branch. Ported
 now: SymPy declared as an `equivalence` extra (`>=1.14,<2`) that `[dev]` installs, the

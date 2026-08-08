@@ -4287,3 +4287,57 @@ and put the module header only in `compilable()` (compiler-facing, never model-f
 identifier so all three leak equally. (a) or (b) remove the asymmetry; (c) preserves it
 symmetrically and costs tokens. Any of them changes HML pilot prompts, so the choice must be
 authorised. Reported as `HML_MEASUREMENT_INVALID` — the instrument, not HML, is what failed.
+
+---
+
+## 2026-08-08 — include the tokenizer dependency in the dev conformance environment
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Stage.** CI dependency repair.
+
+**Objective.** Make CI green again after the Representation Arena introduced a second
+undeclared optional dependency.
+
+**Root cause.** `evaluation/arena/budget.py::_encoder` does a bare `import tiktoken`. The
+bare import is correct — a silently degraded token measurement would be worse than a loud
+failure — but `pyproject.toml` already defined `tokenizers = ["tiktoken>=0.7"]` and `[dev]`
+did not pull it in. CI installs exactly `pip install -e ".[dev]"`, so a clean runner never
+received the package while the long-lived local venv had accumulated it. Exactly three
+tests failed, all on `ModuleNotFoundError: No module named 'tiktoken'`:
+`test_budget_reports_a_lopsided_corpus`, `test_measure_counts_something_for_every_arm`,
+`test_pre_flight_gate_passes`.
+
+This is the same class as the SymPy defect fixed earlier, recurring because the Arena added
+a new extra without adding it to `[dev]`.
+
+**Decision.** Add `"hamiltonian-lang[tokenizers]"` to `[dev]` rather than changing the
+workflow to `pip install -e ".[dev,tokenizers]"`. The principle is that **`.[dev]` is THE
+complete conformance environment**; putting extras in the workflow instead turns CI into
+whack-a-mole in a file that is not the dependency manifest.
+
+**Audit against recurrence.** Every third-party import across the repository was extracted
+by AST walk and checked against the declared extras. Reachable by conformance
+(`src/`, `tests/`, `evaluation/`): **`tiktoken` was the only genuine gap.** `score` is a
+local sibling module (`evaluation/score.py`) and a false positive. `numpy`, `scipy`,
+`transformers`, `yaml` and `hml_probe` appear only under `audit_rerun/` and `experiments/`,
+which pytest never collects (`testpaths = ["tests"]`).
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| clean clone + `pip install -e ".[dev]"` | **tiktoken 0.13.0**, sympy 1.14.0 |
+| the three tests named in the CI log | **3 passed** |
+| clean-room `./scripts/conformance.sh` | **CONFORMANCE: PASS** |
+
+**Failures and unresolved uncertainty.**
+
+- GitHub Actions had not reported when this entry was written. Not declared repaired until
+  GitHub itself reports success.
+- No Arena test was weakened or skipped, no `ImportError` was caught to degrade token
+  measurement, and nothing was installed only into the local venv.
+
+**Effect.** `.[dev]` is once again a complete conformance environment, and the audit
+confirms no other undeclared dependency is reachable by the suite.
+
+**Next intended step.** Confirm GitHub green, then the Representation Arena per the signal
+pivot handoff.
