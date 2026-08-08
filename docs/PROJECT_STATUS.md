@@ -67,12 +67,13 @@ was run down a fixed ladder, one frozen 6-pair / 12-call set (offset 6, L3, temp
 | `gemma4:e4b` | 8.0B | 6/6 | 12/12 | 0 | 1004 | 15.4 s | too strong |
 | `gemma4:e2b` | 5.1B | 6/6 | 12/12 | 0 | 996 | 7.6 s | too strong |
 | **`gemma3:4b`** | **4.3B** | **3/6 = 0.50** | **7/12 = 0.583** | **0** | **180** | **3.8 s** | **SELECTED** |
-| `llama3.2:3b` | 3.2B | — | — | — | — | — | not run (rule stopped the ladder) |
+| `llama3.2:3b` | 3.2B | 0/6 = 0.00 | 4/12 = 0.333 | 0 | 108 | 0.8 s | too weak + 2 responses with no `FINAL:` line → rejected |
 
 Every screen was clean — no truncations, no invalid responses, nothing dropped. `gemma3:4b`
 is perfect on algebra, half on quantifier order and zero on implication direction, with
 **12/12 correctly formatted responses**: it follows instructions and reasons imperfectly,
-which is the organism the protocol wants. Frozen in
+which is the organism the protocol wants. The ladder **brackets** the choice — 6/6 above, 0/6 below, `gemma3:4b` alone in band — so it
+was not a knife-edge call between neighbours. Frozen in
 `evaluation/arena/results/FREEZE_gemma3-4b.json` — model + digest `a2af6cc3eb7fa8be…`,
 runtime, prompt hashes, endpoint, scoring, and generator/scorer versions.
 

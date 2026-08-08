@@ -3882,3 +3882,60 @@ band on this endpoint — is answered yes.
 **Next intended step.** The acquisition sanity check (6 literal state-recovery items per arm,
 ACQUISITION band, ≥5/6 required for AST and for HML), then the first Endpoint-B
 representation pilot on fresh PILOT seeds. Neither may run before this freeze is in git.
+
+## 2026-08-08 — llama3.2:3b completes the ladder at 0/6; gemma3:4b is bracketed and stands
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Stage.** Signal pivot, developmental
+selection — confirmatory. **Starting SHA.** `963c097`.
+
+**Objective.** Run the third ladder candidate, at the user's request, on the identical
+frozen micro-screen. The rule had stopped the ladder at `gemma3:4b`; this run is
+confirmatory and did **not** re-open the freeze.
+
+**Result.** Same 6 pairs (offset 6), same L3, SE only, temperature 0, `max_tokens` 8192.
+
+| model | params | pair BOTH-CORRECT | single-item | trunc | invalid | mean ctok | mean latency |
+|---|---|---|---|---|---|---|---|
+| `gemma4:e4b` | 8.0B | 6/6 = 1.00 | 12/12 = 1.00 | 0 | 0 | 1004 | 15.4 s |
+| `gemma4:e2b` | 5.1B | 6/6 = 1.00 | 12/12 = 1.00 | 0 | 0 | 996 | 7.6 s |
+| **`gemma3:4b`** | 4.3B | **3/6 = 0.50** | 7/12 = 0.583 | 0 | 0 | 180 | 3.8 s |
+| `llama3.2:3b` | 3.2B | **0/6 = 0.00** | 4/12 = 0.333 | 0 | 0 | 108 | 0.8 s |
+
+`llama3.2:3b` falls in the 0–1/6 band: too weak. No pair was both-correct.
+
+**It also failed instruction compliance, which is the disqualifying condition.** Two of
+twelve responses contained **no `FINAL:` line at all** (`B_log_L3_300032` and
+`B_log_L3_300032_flip9`). The scorer marked both wrong, which is correct protocol —
+unparseable is wrong, never retried — but the distinction matters for diagnosis. On
+`B_log_L3_300032` the model's prose actually reached the right conclusion ("the truth of P5
+is dependent on other facts that do not directly relate to P5", i.e. UNDETERMINED) and then
+simply never emitted the required line. So **4/12 understates its reasoning**, and the
+honest reading is: too weak *and* unable to hold the answer format. The earlier protocol
+names this case explicitly — "if it cannot reliably follow the instructions, reject it as an
+experimental organism". Rejected.
+
+**Effect on the selection: none, and that is the useful part.** The ladder now brackets the
+frozen organism on both sides — 6/6 above it (`e2b`, `e4b`), 0/6 below it (`llama3.2:3b`),
+`gemma3:4b` alone in the 2–4/6 target band, with 12/12 valid responses. The choice was
+made by rule on the first candidate to land in band; this run shows it was not a knife-edge
+call between neighbours.
+
+**`gemma3:4b` remains frozen. `FREEZE_gemma3-4b.json` is unchanged.**
+
+**Tests and verification actually executed.**
+
+| check | exact command | actual result |
+|---|---|---|
+| llama screen | `run_screen micro --model llama3.2:3b --pair-offset 6 --max-tokens 8192` | exit 0; 12/12 valid; **0/6** pairs; 2 responses with no `FINAL:` line |
+
+No other engineering performed; nothing outside the results directory changed.
+
+**Failures and unresolved uncertainty.**
+
+- **Zero AST or HML model calls have still been made.** PILOT band untouched.
+- N=6 pairs throughout. These are selection signals, not estimates.
+- The 0/6 conflates weakness with format non-compliance; the two were separated by hand
+  above rather than by the scorer, which by design does not distinguish them.
+
+**Next intended step.** Unchanged: acquisition sanity check on ACQUISITION seeds (≥5/6 for
+AST and for HML), then the first Endpoint-B representation pilot on fresh PILOT seeds.
