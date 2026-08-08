@@ -28,6 +28,24 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**THE REPRESENTATION ARENA EXISTS AND IS GREEN — `arena-1.0.0`, zero model calls.**
+`evaluation/arena/` renders one neutral semantic world in three provably
+information-matched notations — structured English (SE), a generic semantic AST (the
+required control), and real HML — and scores answers with deterministic oracles. Parity is
+**proved per world** by round trip, `canonical_world(decode_X(render_X(w))) ==
+canonical_world(w)`: measured **1800 round trips over 600 worlds, 0 failures**. The
+pre-flight gate passes all eight checks (306 items, 69 minimal-contrast pairs) and 100 arena
+tests pass. Design record: `docs/evaluation/ARENA_DESIGN.md`.
+
+The handoff's plan to bolt a rendering layer onto `difficulty_lab/families.py` was **not
+executable**: that generator builds its English inline and discards the structure, so
+nothing survives to render a second way. The arena rebuilds the worlds structure-first;
+`difficulty-lab-1.0.0` is untouched and byte-identical.
+
+**No HML-vs-SE reasoning result exists yet.** The arena is instrumentation, not evidence.
+The next step is SE-only developmental model selection — treatment arms must not influence
+which model is chosen — then a freeze, then the first Endpoint-B pilot.
+
 **CI IS GREEN ON THIS BRANCH.** The reproducible environment repair proven on
 `integration/m1.5-paper-derived-closeout` @ `8e1c4df` was never propagated here, so this
 branch stayed red for an environment reason while the fix sat on a divergent branch. Ported
@@ -442,7 +460,8 @@ structured English, LaTeX, or an existing formal representation.
 ## Current Branch
 
 Active development: `feature/hml-reasoning-kernel-v2` (worktree
-`/Users/moheet/hml_v2_worktree`, based on `3dd4216`). The scientific integration branch
+`/Users/moheet/hml_v2_worktree`, based on `3dd4216`, now carrying the CI repair `ff915ad`
+and the Representation Arena). The scientific integration branch
 `integration/m1.5-paper-derived-closeout` is unchanged and was not merged into.
 The language-audit worktree `/Users/moheet/hml_audit_worktree` is read-only evidence.
 V0 preserved on `main` at tag
@@ -483,6 +502,11 @@ views. Source spans are preserved through every stage.
   order and role assignment
 - Semantic graph with a closed edge vocabulary; triple output; transitive dependency query
 - `hml` CLI: `check render canonical hash graph obligations views`
+- **Representation Arena (`arena-1.0.0`)** — a structure-first neutral world factory over
+  three families, three renderers (SE / generic AST / HML), a decoder per arm proving
+  information parity by round trip, three endpoints (next-action, paired minimal contrast,
+  corruption), a truncation-aware scorer, a token-budget instrument and an eight-check
+  pre-flight gate. Every HML rendering compiles under the real compiler.
 
 ## Work Completed to Date
 
@@ -559,7 +583,26 @@ D-001..D-021 in `DECISIONS.md`. Load-bearing ones:
 
 ## Verification and Test Results
 
-**Current run — the repaired model-visible view, 2026-08-06.** Every number below was
+**Current run — 2026-08-08, the Representation Arena commit.** Executed, not estimated:
+
+| check | exact command | result |
+|---|---|---|
+| full suite | `.venv/bin/python -m pytest -q` | **6442 passed**, 5 skipped, 7 xfailed, 7 xpassed, **0 failed** |
+| arena tests | `.venv/bin/python -m pytest -q tests/arena` | **100 passed**, exit 0 |
+| arena pre-flight gate | `.venv/bin/python -m evaluation.arena.validate` | **exit 0, all 8 checks PASS** — 306 items, 69 pairs |
+| arena lint | `.venv/bin/ruff check evaluation/arena tests/arena` | **All checks passed** |
+| representation parity | 600 worlds x 3 arms | **1800 round trips, 0 failures** |
+| HML arm compiles | 214 worlds, real compiler, inside the gate | **214/214** |
+
+Baseline immediately before the arena was 6342 passed; the delta is exactly the 100 new
+tests. Arena prompt budget (`cl100k_base`, 306 items): SE **328.8** mean tokens, HML
+**338.0**, AST **576.3** — SE and HML within 2.8%, the AST control 1.75x the shortest arm.
+
+`ruff format` was **not** run and is not claimed: the repository is not format-clean (146 of
+220 files would be reformatted), so reformatting only the new files would make them
+inconsistent with the tree.
+
+**Earlier run — the repaired model-visible view, 2026-08-06.** Every number below was
 executed, not estimated:
 
 | check | result |
@@ -612,6 +655,27 @@ template actually compiles. This followed D-018: the earlier generator was green
 property it asserted was false, because it never produced `def` parameters.
 
 ## Known Failures and Limitations
+
+**Representation Arena — what it does not establish.**
+
+- **Zero model calls. Nothing in the arena is evidence about any model's behaviour.**
+- **HML has no uninterpreted predicate.** A declared `Predicate` is not callable
+  (`HML-T470`); the only callable form requires a body. A finite relation can therefore only
+  be stated in closed form, which forced all three arms to state it once in their own idiom
+  rather than by enumeration. An ontology gap independent of the arena.
+- **The AST control carries a length penalty** — 576 mean tokens against SE 329 and HML 338.
+  An HML > AST result therefore cannot yet be attributed entirely to HML semantics.
+- **The HML renderer had a latent semantic defect caught only by parity.** A relativised
+  nested quantifier parsed and meant the right thing solely because `implies` is
+  right-associative; nested quantifiers are now bracketed. Compiling was not sufficient to
+  detect it.
+- **`MIXED_STATE_COMPOSITION` is not ported**, and next-action covers two families rather
+  than three. All three ported families sit inside HML's covered ontology region, so the
+  handoff's structural tension — the families where the tested model is weak are the
+  families where HML's coverage is near zero — is untouched.
+- **`OPERAND_ORDER` contrast twins have answers that are exact negations** of each other.
+  Not exploitable within an independently scored item, but a corpus-level analysis should
+  know it.
 
 - **The ACQ0 instrument has now failed its own audit twice.** v1 was 0/41 admissible
   because the mathematics was authored in three places and disagreed. v2 was built to
@@ -710,6 +774,29 @@ property it asserted was false, because it never produced `def` parameters.
 - Q-03 (OpenMath licensing) blocks a reuse decision, not the build.
 
 ## Exact Next Actions
+
+**The signal pivot supersedes the ordering below.** Broad compiler completion is
+deliberately not resumed. The live sequence is:
+
+0. **SE-only developmental model selection.** Endpoint B, structured English **only** — the
+   AST and HML arms must not be run, because choosing a model after seeing treatment-arm
+   performance would contaminate the experiment. Target 30–70% pair both-correct,
+   preferably 40–60%. Development-only seeds, permanently excluded from the pilot. Maximum
+   three candidates; the 31B model is known to saturate and is not the first candidate.
+1. **Freeze** model, digest, runtime, instructions, endpoint implementation, generator and
+   scorer versions. Generate a fresh held-out seed set.
+2. **Acquisition sanity check** — 6 literal state-recovery items per structured arm,
+   requiring no reasoning, on throwaway seeds. Require ≥5/6 for AST and for HML, so that
+   unfamiliar syntax is not mistaken for a bad reasoning representation.
+3. **First Endpoint-B representation pilot** — 12 fresh contrast pairs, SE/AST/HML, fresh
+   context per item, deterministic order. No significance claims at N=12.
+4. **Endpoint A only if B is non-degenerate.**
+
+The AST length confound (576 vs 329/338 tokens) is recorded and deliberately not yet fixed:
+an HML > AST result cannot be attributed entirely to HML semantics until a more compact
+neutral control exists. No representation may be truncated to force equal length.
+
+The pre-pivot backlog, retained for the record and **not** currently active:
 
 0. **HML V2 phase II — close the 11 critical coverage zeros.** Expectation as an
    expression, conditional and joint probability, independence, set membership and

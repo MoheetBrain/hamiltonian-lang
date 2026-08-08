@@ -3469,3 +3469,131 @@ pivot — can run CI again.
 
 **Next intended step.** Confirm GitHub reports SUCCESS, then the Representation Arena per
 `docs/handoff/HML_HANDOFF_2026-08-08_SIGNAL_PIVOT.md`.
+
+## 2026-08-08 — the Representation Arena: three information-matched arms, proved by round trip
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Worktree.** `/Users/moheet/hml_v2_worktree`
+· **Stage.** Signal pivot — offline representation arena, `arena-1.0.0`.
+**Starting SHA.** `ff915ad` (the CI repair above, already pushed).
+
+**Objective.** Build the smallest neutral arena able to test whether HML gives a
+*representation-level* advantage over information-matched structured English and a generic
+semantic AST, on identical semantic worlds with identical questions and deterministic
+oracles. **No model call was to be made until the arena, oracles, parity checks and scoring
+tests were complete.** None was: **zero model calls in this entry.**
+
+**The handoff's plan was not executable as written, and this is the important finding.**
+`docs/handoff/HML_HANDOFF_2026-08-08_SIGNAL_PIVOT.md` §J directed that a rendering layer be
+added to `evaluation/h2/difficulty_lab/families.py`, emitting three views "of the *same*
+generated structure". **That generator does not retain its structure.** `_algebraic`,
+`_logic`, `_quantifier` and `_mixed` build their English inline and return a `Specimen`
+holding a prompt string, an answer and metrics; the dependency DAG, the constraint set and
+the relation table are gone by the time it returns. There is nothing left to render a second
+way. The arena therefore rebuilds the same worlds **structure-first** as `arena-1.0.0`.
+`difficulty-lab-1.0.0` is left byte-identical — its hashes are pinned in the handoff and the
+synthetic calibration results are recorded against it. The L1–L5 ladder is **copied, not
+imported**, so the frozen evidence gains no new importer;
+`test_levels_have_not_drifted_from_the_difficulty_lab` fails if the two ever diverge.
+
+**Files and systems changed.** All new, 25 files, 3875 lines:
+`evaluation/arena/{ir,worlds,oracles,decoders,parity,scoring,budget,corpus,validate}.py`,
+`evaluation/arena/renderers/{base,english,ast_json,hml}.py`,
+`evaluation/arena/endpoints/{common,next_action,contrast,corruption}.py`,
+`tests/arena/test_{worlds,parity,endpoints,scoring}.py`,
+`docs/evaluation/ARENA_DESIGN.md`. Nothing outside `evaluation/arena/`, `tests/arena/` and
+that one document was touched. **No compiler source was modified**; the arena imports the
+compiler but does not change it.
+
+**Decisions made and why.**
+
+1. **Parity is proved per world, not asserted.** `canonical_world(decode_X(render_X(w))) ==
+   canonical_world(w)` for all three arms. "Information-matched" is easy to claim and easy
+   to get wrong; an arm that quietly dropped a fact or stated a type the others left
+   implicit would look like a representation effect and be a content difference.
+2. **The HML decoder uses HML's own parser**, not a second implementation. A private parser
+   could disagree with the compiler and would then certify a rendering the compiler reads
+   differently — the "authoritative-looking output that is wrong" failure CLAUDE.md names as
+   the worst in this codebase. This also makes parity prove the HML arm *means* what the IR
+   means, not merely that it compiles.
+3. **A finite relation is stated in closed form in every arm.** The first design expanded it
+   into one fact per ordered pair so no arm could exploit a shorter closure idiom. That is
+   un-renderable in HML — see the ontology finding below — so enumeration was available to
+   two arms and not the third, and using it would have measured that gap rather than the
+   representation.
+4. **The generic AST control was compacted.** Fully tagged nodes at `indent=2` ran **4.7x**
+   structured English on the algebraic family. A control inflated that far is not a control:
+   every HML win would have been equally consistent with "HML beats verbose JSON". Recoded to
+   the standard lightweight idiom (a name is a JSON string, an integer a JSON number), which
+   is unambiguous because the IR's terms are only names and numbers. Keys were **not**
+   abbreviated to `n`/`o`/`a` — that buys tokens by making the control cryptic, the same
+   error inverted.
+5. **Answers are forced choice or one word from a closed set, never free-form.** If the model
+   had to *write* its answer in each arm's notation, HML would be scored partly on how hard
+   HML is to emit, which is a different question from whether it is a better representation
+   to reason from.
+6. **Next-action correctness is a per-option testable property.** "What is the next step?" has
+   no unique answer when two variables are simultaneously ready, which happens constantly in
+   a DAG; scoring it would punish a model for choosing a different valid step.
+
+**Two findings that stand independently of the arena.**
+
+- **HML has no uninterpreted predicate.** A declared `Predicate` is not callable
+  (`HML-T470`), and the only callable form, `def R(x, y) : Proposition := ...`, requires a
+  body. A finite relation can therefore only be given in closed form. This forced decision 3
+  above and is an ontology gap worth its own record.
+- **A latent semantic defect in the HML renderer, caught by parity.** The relativised
+  symmetry claim `forall x : Real . x in D implies forall y : Real . y in D implies R(x, y)
+  implies R(y, x)` parsed, and meant the right thing **only by luck of `implies` being
+  right-associative**. A quantifier body runs to the end of the expression, so an unbracketed
+  nested quantifier absorbs whatever follows. Nested quantifiers are now explicitly
+  bracketed. Correct by accident is not correct, and compiling was not enough to detect it —
+  only the round trip through the compiler's own parser was.
+
+**Tests and verification actually executed.**
+
+| check | exact command | actual result |
+|---|---|---|
+| arena tests | `.venv/bin/python -m pytest -q tests/arena` | **100 passed, 0 failed**, exit 0 |
+| pre-flight gate | `.venv/bin/python -m evaluation.arena.validate` | **exit 0, all 8 checks PASS**; 306 items, 69 pairs |
+| lint | `.venv/bin/ruff check evaluation/arena tests/arena` | **All checks passed** |
+| full suite (before this commit, tree at `ff915ad` + arena) | `.venv/bin/python -m pytest -q` | **6442 passed**, 5 skipped, 7 xfailed, 7 xpassed, **0 failed** |
+| parity sweep, wider than the gate | 600 worlds x 3 arms, ad hoc | **1800 round trips, 0 failures** |
+| HML arm compiles | 214 worlds via the real compiler, inside the gate | **214/214** |
+
+Baseline before the arena was 6342 passed; the delta is exactly the 100 new tests. The
+6442-pass run was executed against a working tree that already contained `ff915ad`.
+
+`ruff format` was **not** run: the repository is not format-clean (146 of 220 files would be
+reformatted), so formatting these files would make them inconsistent with the rest of the
+tree and is out of scope for this commit.
+
+**Measured budget** (`cl100k_base`, 306-item gate corpus, full prompt): SE **328.8** mean
+tokens, HML **338.0**, AST **576.3**. SE and HML are within 2.8%; the AST control is 1.75x
+the shortest arm and is the arm still carrying a length penalty.
+
+**Failures and unresolved uncertainty.**
+
+- **Nothing here is evidence about any model.** Zero model calls. The arena's own numbers are
+  properties of the code.
+- **The AST length confound is real and not removed.** An HML > AST result cannot yet be
+  attributed entirely to HML semantics. Deliberately not redesigned further before a pilot.
+- **`MIXED_STATE_COMPOSITION` is not ported.** Three families, all inside HML's covered
+  region — the handoff's structural tension (the families where the model is weak are the
+  families where HML's coverage is near zero) is untouched by this work.
+- **Next-action covers two families, not three.** A finite relation has no natural "next
+  result", so the quantifier family carries the contrast endpoint instead.
+- **`OPERAND_ORDER` twins have answers that are exact negations.** Not exploitable within an
+  item, since each is scored in isolation and twins are never shown together, but it is a
+  pattern a corpus-level analysis should be aware of.
+- **A concurrent session committed `ff915ad` to this branch mid-work.** It touched
+  `pyproject.toml`, a workflow, one test and both protocol documents, and nothing the arena
+  owns. Verified finished before this commit: no lock files, no processes on the worktree, no
+  file modified in the preceding ten minutes.
+
+**Effect on the project.** The offline half of the signal pivot exists and is checkable. The
+arena can pose one semantic question in three provably information-matched notations and score
+the answers without a model judging anything. It does not yet say whether HML helps.
+
+**Next intended step.** SE-only developmental model selection on Endpoint B — treatment arms
+must not influence which model is chosen — then freeze, then the acquisition sanity check,
+then the first Endpoint-B representation pilot.
