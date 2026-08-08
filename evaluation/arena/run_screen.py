@@ -60,6 +60,8 @@ class RunSpec:
     max_tokens: int = 4096
     order_seed: int = 20260808
     contrasts: tuple[str, ...] = contrast.CONTRASTS
+    #: Pairs to skip -- items already spent on an earlier candidate.
+    pair_offset: int = 0
     notes: str = ""
 
     def fingerprint(self) -> dict:
@@ -76,7 +78,9 @@ def _sha(s: str) -> str:
     return hashlib.sha256(s.encode()).hexdigest()
 
 
-def build_dev_pairs(band: str, level: str, n_per_contrast: int, contrasts) -> list:
+def build_dev_pairs(
+    band: str, level: str, n_per_contrast: int, contrasts, *, pair_offset: int = 0
+) -> list:
     """A balanced pair set drawn from one band.
 
     Balanced across the three contrast operators on purpose: selecting a model on
@@ -84,6 +88,11 @@ def build_dev_pairs(band: str, level: str, n_per_contrast: int, contrasts) -> li
     all three. `IMPLICATION_DIRECTION` is the scarce one -- most flips do not change the
     answer -- so the seed window is widened until the quota is met rather than the quota
     being quietly reduced.
+
+    `pair_offset` skips pairs already spent on an earlier candidate. The first
+    developmental attempt consumed indices 0..3 of each contrast, so a later screen asks
+    for `pair_offset=4` and gets items no model in this programme has seen. Reusing them
+    would measure a second model on a set whose difficulty is already known.
     """
     from .bands import band_range
 
@@ -91,19 +100,28 @@ def build_dev_pairs(band: str, level: str, n_per_contrast: int, contrasts) -> li
     out = []
     for kind in contrasts:
         got = contrast.build_pairs(kind, level, window[:4000])
-        if len(got) < n_per_contrast:
+        need = pair_offset + n_per_contrast
+        if len(got) < need:
             raise RuntimeError(
-                f"only {len(got)} {kind} pairs available in band {band}, need {n_per_contrast}"
+                f"only {len(got)} {kind} pairs available in band {band}, "
+                f"need {need} (offset {pair_offset} + {n_per_contrast})"
             )
-        out.extend(got[:n_per_contrast])
+        out.extend(got[pair_offset:need])
     assert_band([p[0].world.seed for p in out] + [p[1].world.seed for p in out], band)
     return out
 
 
-def run_screen(spec: RunSpec, items, *, pairs=None, out_path: str | None = None) -> dict:
+def run_screen(
+    spec: RunSpec, items, *, pairs=None, out_path: str | None = None, client=None
+) -> dict:
     """Run one stage. `items` is a flat list; `pairs` is supplied when pair scoring applies.
 
     Acquisition items have no twins, so they pass `items` only and are scored per item.
+
+    `client` exists so the preflight test can drive the whole path -- CLI, calls, JSONL,
+    summary, reload -- with a fake that never touches a model. The persistence path is the
+    one that already lost 24 paid-for calls once; it is not allowed to be exercised for the
+    first time by a real run again.
     """
     from ..model_client import ModelClient, ModelConfig
 
@@ -114,11 +132,12 @@ def run_screen(spec: RunSpec, items, *, pairs=None, out_path: str | None = None)
         )
     pairs = pairs or []
 
-    cfg = ModelConfig(
-        base_url=spec.base_url, model=spec.model,
-        temperature=spec.temperature, max_tokens=spec.max_tokens,
-    )
-    client = ModelClient(cfg)
+    if client is None:
+        cfg = ModelConfig(
+            base_url=spec.base_url, model=spec.model,
+            temperature=spec.temperature, max_tokens=spec.max_tokens,
+        )
+        client = ModelClient(cfg)
     identity = client.describe()
 
     # One work unit per (item, arm). Order is shuffled deterministically so that any drift
@@ -200,10 +219,20 @@ _INSTRUCTIONS = (
 )
 
 #: Fixed stage shapes, so a run cannot be quietly resized after its numbers are seen.
+#:
+#: `micro` is the cheap first look at a candidate: 6 pairs (2 per contrast operator) = 12
+#: calls, structured English only. `pair_offset=4` steps past the pairs the first
+#: developmental attempt already spent, so a second candidate is never screened on items
+#: whose difficulty is already known. `dev` continues the same candidate to 12 pairs.
 STAGES = {
-    "dev": dict(stage="DEV_SELECTION", band="DEV_SELECTION", arms=("SE",), n_per_contrast=4),
-    "acq": dict(stage="ACQUISITION", band="ACQUISITION", arms=("SE", "AST", "HML"), n_per_contrast=0),
-    "pilot": dict(stage="PILOT", band="PILOT", arms=("SE", "AST", "HML"), n_per_contrast=4),
+    "micro": dict(stage="DEV_SELECTION", band="DEV_SELECTION", arms=("SE",),
+                  n_per_contrast=2, pair_offset=4),
+    "dev": dict(stage="DEV_SELECTION", band="DEV_SELECTION", arms=("SE",),
+                n_per_contrast=4, pair_offset=0),
+    "acq": dict(stage="ACQUISITION", band="ACQUISITION", arms=("SE", "AST", "HML"),
+                n_per_contrast=0, pair_offset=0),
+    "pilot": dict(stage="PILOT", band="PILOT", arms=("SE", "AST", "HML"),
+                  n_per_contrast=4, pair_offset=0),
 }
 
 
@@ -231,11 +260,14 @@ def main(argv: list[str] | None = None) -> int:
         items = acquisition.build_items(range(400_001, 400_007), level=a.level)
         pairs = None
     else:
-        pairs = build_dev_pairs(spec.band, spec.level, spec.n_per_contrast, spec.contrasts)
+        pairs = build_dev_pairs(
+            spec.band, spec.level, spec.n_per_contrast, spec.contrasts,
+            pair_offset=spec.pair_offset,
+        )
         items = [it for p in pairs for it in p]
         if a.stage == "pilot":
             # The named stop condition: no development seed may appear in the pilot.
-            dev = build_dev_pairs("DEV_SELECTION", spec.level, spec.n_per_contrast, spec.contrasts)
+            dev = build_dev_pairs("DEV_SELECTION", spec.level, 6, spec.contrasts)
             assert_disjoint(
                 [it.world.seed for p in pairs for it in p], "PILOT",
                 [it.world.seed for p in dev for it in p], "DEV_SELECTION",

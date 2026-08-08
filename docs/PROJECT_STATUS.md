@@ -54,11 +54,26 @@ truncated** at `max_tokens=4096`, because `gemma4:12b` is a thinking model whose
 responses averaged 2395 completion tokens. Ten of twelve pairs were dropped whole, so the
 model cannot be placed in the 30–70% target band. Both faults were mine, not the model's.
 
-The runner is repaired — records are now written incrementally, so a crash can no longer
-destroy paid-for calls — but the **token-budget and runtime question is open and blocking**:
-24 calls took ~36 minutes *while truncating half*, and the pilot is 72 calls across three
-arms. **Zero AST or HML model calls have ever been made**, so no treatment arm is
-contaminated.
+The runner is repaired — records are now written incrementally, and
+`tests/arena/test_runner_preflight.py` drives CLI → calls → JSONL → summary → reload with a
+fake client before any model is touched.
+
+**THE MODEL-SIZE SEARCH IS CLOSED: `gemma4:e4b` SATURATES ENDPOINT B AT L3.** A clean
+12-call SE-only micro-screen (6 fresh pairs at `pair_offset=4`, `max_tokens` 8192,
+**0 truncations**) returned **6/6 pairs both-correct and 12/12 items**, mean 1004 completion
+tokens, 15.4 s per call, ~3 minutes total. By the pre-registered rule (5–6/6 ⇒ stop), the
+search ends: even the smallest in-family candidate tried is too strong. `gemma4:e2b` was
+deliberately not tried. Note `gemma4:4b` **does not exist** — the family's 4B-class tag is
+`e4b` (8.0B raw, Q4_K_M, digest `c6eb396dbd59…`).
+
+**This is the third independent instrument to find no headroom** for this model family — SE
+textbook calibration (10/10 valid), the synthetic difficulty lab (9/9), and now the arena at
+8B (12/12). **A representation pilot run on a saturated control cannot detect an HML
+advantage in either direction**, which is the trap that already voided `eval001` and the
+24-task v1 benchmark. The Endpoint-B pilot must not be run at L3.
+
+**Zero AST or HML model calls have ever been made**, so no treatment arm is contaminated and
+the PILOT seed band is untouched.
 
 **CI IS GREEN ON THIS BRANCH.** The reproducible environment repair proven on
 `integration/m1.5-paper-derived-closeout` @ `8e1c4df` was never propagated here, so this
@@ -792,18 +807,16 @@ property it asserted was false, because it never produced `def` parameters.
 **The signal pivot supersedes the ordering below.** Broad compiler completion is
 deliberately not resumed. The live sequence is:
 
-0. **Resolve the token-budget / runtime question — this is blocking.** `gemma4:12b` thinks
-   for ~2400 completion tokens on a finished Endpoint-B item and overran a 4096 ceiling on
-   half of them. Three options, none yet chosen: raise `max_tokens` to ~16k and accept a
-   multi-hour pilot; disable the model's thinking mode (faster, but a different organism);
-   or drop to `gemma4:4b` (faster, probably less competent). Then re-run the SE-only screen.
-1. **SE-only developmental model selection.** Endpoint B, structured English **only** — the
-   AST and HML arms must not be run, because choosing a model after seeing treatment-arm
-   performance would contaminate the experiment. Target 30–70% pair both-correct,
-   preferably 40–60%. Development-only seeds, permanently excluded from the pilot. Maximum
-   three candidates; the 31B model is known to saturate and is not the first candidate.
-   **One candidate has been consumed and its screen was void** (instrument failure, not a
-   verdict on the model).
+0. **Find difficulty somewhere other than model size — this is blocking.** Endpoint B at L3
+   is saturated at 8B, so the pilot cannot run there. Re-screen SE-only at **L5**, then L7
+   if needed, looking for a level where `gemma4:e4b` lands in 30–70% pair both-correct.
+   Endpoint A (next-action) is the other candidate for headroom and has never been run
+   against any model. Both are cheap: a 6-pair micro-screen is 12 calls and ~3 minutes.
+1. ~~SE-only developmental model **size** search.~~ **CLOSED by rule.** Two candidates
+   consumed: `gemma4:12b` (screen void — instrument failure, not a verdict on the model)
+   and `gemma4:e4b` (6/6 pairs, too strong). `gemma4:e2b` deliberately not tried. The
+   constraint that a model be chosen on structured English alone still holds for any future
+   screen.
 2. **Freeze** model, digest, runtime, instructions, endpoint implementation, generator and
    scorer versions. Generate a fresh held-out seed set.
 3. **Acquisition sanity check** — 6 literal state-recovery items per structured arm,

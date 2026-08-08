@@ -3698,3 +3698,104 @@ model selected, no representation evidence.
 compute: raise `max_tokens` and accept a multi-hour pilot, disable the model's thinking mode,
 or drop to a smaller/faster candidate. Then re-run the SE-only screen. Reported to the user
 as `HML_ARENA_MEASUREMENT_INVALID`.
+
+## 2026-08-08 — micro-screen: gemma4:e4b saturates Endpoint B; model-size search STOPPED
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Worktree.** `/Users/moheet/hml_v2_worktree`
+· **Stage.** Signal pivot, developmental model selection. **Starting SHA.** `6e19fc9`.
+
+**Objective.** Find a cheap competent developmental organism whose structured-English
+Endpoint-B pair accuracy lands in 30–70%. Not to characterise any particular model.
+
+**Runner preflight, executed before any model call.** `tests/arena/test_runner_preflight.py`
+drives the whole chain with a fake client: **CLI argv → `main()` → calls → incremental JSONL
+→ summary JSON → reload → assertions**. It goes through the *entry point* deliberately: the
+NameError that discarded 24 calls was only reachable via `main()`, so a test that called
+`run_screen` directly would never have caught it. Also covered: a truncated response yields
+`valid=0` and `single_item_accuracy is None` (not `0.0`); a forced `_summarise` failure after
+the calls land leaves all records on disk; the SE-only guard holds at CLI level. 7 tests,
+all pass.
+
+**`gemma4:4b` does not exist and the directive's step 1 could not be followed literally.**
+`ollama pull gemma4:4b` failed with `pull model manifest: file does not exist`. An earlier
+tag scrape of mine was wrong — the pattern matched `4b` inside `26b-a4b-it-bf16`. The real
+family tags are `e2b`, `e4b`, `12b`, `26b`, `31b`. The 4B-class in-family model is therefore
+**`gemma4:e4b`** (E-series naming; 8.0B raw parameters, Q4_K_M, digest
+`c6eb396dbd5992bbe3f5cdb947e8bbc0ee413d7c17e2beaae69f5d569cf982eb`). Using it keeps the
+architecture and pretraining control the directive asked for. A `gemma3:4b` appeared on this
+machine from another session and was **not** used — a different family would reintroduce
+exactly the confound the in-family choice avoids.
+
+**Micro-screen design.** 6 pairs = 12 isolated calls, structured English only, `max_tokens`
+8192, temperature 0, one stateless call per item. Balanced 2 quantifier / 2 logic / 2
+algebra. Drawn at `pair_offset=4`, so **zero overlap** with the items the 12B attempt
+consumed — verified by test, not by inspection.
+
+**Result — a clean, valid measurement.**
+
+| quantity | value |
+|---|---|
+| calls | 12 (6 pairs, SE only) |
+| truncations | **0** · invalid 0 · errors 0 |
+| pair BOTH-CORRECT | **6 / 6 = 1.00**, 0 dropped |
+| single-item | **12 / 12 = 1.00** |
+| mean completion tokens | 1003.9 (max observed 1943, ceiling 8192) |
+| mean prompt tokens | 317.5 |
+| mean latency | 15.4 s |
+| wall time | ~3 min |
+
+Every one of the six pairs was both-correct, across all three contrast operators.
+
+**Decision, by the pre-registered rule (5–6/6): STOP the model-size search.** Even the
+smallest in-family candidate is too strong on this endpoint. `gemma4:e2b` was **not** tried,
+because the rule says stop rather than keep shrinking.
+
+**What this supports, stated precisely.**
+
+> `gemma4:e4b` (8.0B, Q4_K_M) answers L3 Endpoint-B minimal-contrast pairs at 6/6 pairs and
+> 12/12 items, in structured English, with no truncation and ~1000 completion tokens.
+
+**What it does NOT support — do not write or imply any of these:**
+
+- HML has no effect. **No HML has ever been shown to any model.**
+- Endpoint B is saturated at every difficulty. Only **L3** was screened; L4–L7 are untested.
+- Endpoints A and C are saturated. Neither has been run against any model.
+- Smaller models would also saturate. `e2b` was deliberately not tried.
+- The 12B result corroborates this. That run is `INVALID_INSTRUMENT` and its 12/12 was
+  informative censoring — it must not be pooled with this.
+
+**The strategic problem this creates.** This is the **third** independent instrument to find
+no headroom for this model family: SE textbook calibration (10/10 valid), the synthetic
+difficulty lab (9/9), and now the arena's Endpoint B at 8B (12/12). A representation pilot
+run on a saturated control cannot detect an HML advantage in either direction — a ceiling
+leaves no room to move, which is the exact trap that voided `eval001` and the 24-task v1
+benchmark. **Running the Endpoint-B pilot at L3 now would produce an uninterpretable
+result.**
+
+**Tests and verification actually executed.**
+
+| check | exact command | actual result |
+|---|---|---|
+| runner preflight | `pytest -q tests/arena/test_runner_preflight.py` | **7 passed** |
+| arena tests | `pytest -q tests/arena` | **117 passed**, 0 failed |
+| lint | `ruff check evaluation/arena tests/arena` | **All checks passed** |
+| micro-screen | `run_screen micro --model gemma4:e4b --max-tokens 8192` | exit 0; 12/12 valid; 6/6 pairs |
+
+**Failures and unresolved uncertainty.**
+
+- **No developmental organism has been found**, and the size search is now closed by rule.
+  Two of at most three candidates are consumed (12B void, e4b too strong).
+- **The endpoint, not the model, is now the suspect.** Difficulty must come from somewhere
+  other than model size: higher levels, or an endpoint whose state is harder to hold.
+- **Zero AST or HML model calls have still been made.** Nothing about representations is
+  contaminated, and the PILOT seed band is untouched.
+
+**Effect on the project.** The developmental-organism question is answered negatively for
+this endpoint at this difficulty, cheaply (12 calls, ~3 minutes) and validly. The instrument
+is now trustworthy: preflight-tested, incrementally persisted, and it produced a clean run
+first time.
+
+**Next intended step.** Do not run the representation pilot at L3. Re-screen SE-only at a
+higher level (L5, then L7 if needed) to find a difficulty where `gemma4:e4b` lands in
+30–70%; endpoint A is the other candidate for headroom. Reported as
+`HML_NO_SUITABLE_DEVELOPMENT_MODEL`.
