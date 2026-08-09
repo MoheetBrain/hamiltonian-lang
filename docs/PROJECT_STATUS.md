@@ -42,6 +42,13 @@ executable**: that generator builds its English inline and discards the structur
 nothing survives to render a second way. The arena rebuilds the worlds structure-first;
 `difficulty-lab-1.0.0` is untouched and byte-identical.
 
+**ERROR-TOPOLOGY BRANCH CLOSED OFFLINE (0 calls).** The motivating signal is compatible
+with chance: HML made ~5 errors per family, and P(0 of a subtype | 5 errors) = (2/3)^5 =
+0.13. Error opportunity is also confounded with family — polarity errors exist only on logic
+items. A power simulation showed direction alone is a coin flip under the null. **Causal
+diagnosis scout frozen instead**: 5 matched conditions (SE, HML_BASIC, HML_EPI, HML_OBF,
+HML_VERIFY), 6 items, 30 calls, band 800 000+.
+
 **ENDPOINT A RESULT: the N=12 signal did NOT replicate. CASE B — advantage not
 demonstrated.** Micro-pilot (12 items) gave SE 3/12 vs HML 9/12, Δ̂ = +0.500. The
 independent 18-item expansion gave **11/18 in both arms, Δ̂ = 0.000**. Pooled 30 items:

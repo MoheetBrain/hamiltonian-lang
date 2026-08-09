@@ -1,0 +1,126 @@
+{
+  "schema": "CAUSAL_DIAGNOSIS_MANIFEST/1",
+  "frozen_at": "2026-08-08",
+  "git_sha_at_freeze": "b87736afb5f2f8b67647edcefe91596b0d0fac7f",
+  "question": "Why does current HML hurt frozen Gemma on B1? Mechanism triage, N=6, scout only.",
+  "conditions": {
+    "SE": "existing Structured English control, unchanged",
+    "HML_BASIC": "frozen B1 HML rendering, byte-identical",
+    "HML_EPI": "HML + oracle-derived epistemic status for every declared atom EXCEPT the query target",
+    "HML_OBF": "HML with one frozen keyword mapping; structure, labels, operators and nesting preserved",
+    "HML_VERIFY": "HML + deterministic verifier signals (query_proof_found / neg_query_proof_found)"
+  },
+  "DESIGN_DEVIATIONS_AND_LEAKAGE": {
+    "HML_EPI": "Spec asked for status(query)+status(neg_query). That is a TOTAL answer leak -- the two booleans determine TRUE/FALSE/UNDETERMINED exactly, collapsing the task to a 3-way lookup. Implemented instead over every declared atom EXCEPT the query target, which still operationalises H3 while leaving the query to be decided.",
+    "HML_VERIFY": "IS a near-total leak by construction, as the brief accepts. Readable ONLY as an upper bound / sanity check: if it does not approach ceiling the model cannot apply a two-bit lookup; if it does, the deficit is in DERIVING entailment, not in reading HML. NOT evidence about representation quality.",
+    "HML_OBF": "Does not compile by design; the compile invariant is waived for this condition only."
+  },
+  "obfuscation_map": {
+    "assume": "zeta1",
+    "goal": "zeta2",
+    "var": "zeta3",
+    "Proposition": "zeta4",
+    "implies": "zeta5",
+    "iff": "zeta6",
+    "and": "zeta7",
+    "or": "zeta8",
+    "not": "zeta9"
+  },
+  "model": {
+    "name": "gemma3:4b",
+    "digest": "a2af6cc3eb7fa8be8504abaf9b04e88f17a119ec3f04a3addf55f92841195f5a"
+  },
+  "runtime": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "isolated_stateless_call_per_item": true
+  },
+  "band": "CAUSAL_DIAGNOSIS (800000-899999)",
+  "calls": 30,
+  "scorer": {
+    "version": "arena-scorer-1.1.0",
+    "rule": "strict FINAL: required; truncation unscored"
+  },
+  "system_prompt_sha256": "5f5eb2344f1c274087ed86204dd869830376e2713c7ac370761129e458131c3a",
+  "instructions_sha256": "479ab217d844b61c7bff7f6d2ac2e315bd204e6e96e218f0ce984465c520e294",
+  "rules": {
+    "no_post_hoc_deletion": true,
+    "no_post_hoc_rescoring": true,
+    "no_treatment_combination": true,
+    "expansion": "only a condition beating HML_BASIC by >=2/6 AND matching its mechanism; +6 fresh items for SE, HML_BASIC and that condition only"
+  },
+  "items": [
+    {
+      "item_id": "CD_log_L3_800000",
+      "seed": 800000,
+      "answer": "UNDETERMINED",
+      "prompt_sha256_first16": {
+        "SE": "72de7a7cede3e1fc",
+        "HML_BASIC": "5b18dbd8a18a510f",
+        "HML_EPI": "3d38ab2514851467",
+        "HML_OBF": "7a0cfa9b49dfecc6",
+        "HML_VERIFY": "c05a47320165b0bb"
+      }
+    },
+    {
+      "item_id": "CD_log_L3_800000_flip7",
+      "seed": 800000,
+      "answer": "FALSE",
+      "prompt_sha256_first16": {
+        "SE": "cd547d0221e27ce1",
+        "HML_BASIC": "7d2e0a7279e1129b",
+        "HML_EPI": "83fdda29e55df7df",
+        "HML_OBF": "22b3e6318a723adc",
+        "HML_VERIFY": "31b8d721ded07cf3"
+      }
+    },
+    {
+      "item_id": "CD_log_L3_800001_flip8",
+      "seed": 800001,
+      "answer": "TRUE",
+      "prompt_sha256_first16": {
+        "SE": "81512b84a3dd9aa5",
+        "HML_BASIC": "bc300a0e06510523",
+        "HML_EPI": "41c95991bb6c1716",
+        "HML_OBF": "6aca0763ce45ced9",
+        "HML_VERIFY": "8b4edc63cbd83999"
+      }
+    },
+    {
+      "item_id": "CD_log_L3_800002",
+      "seed": 800002,
+      "answer": "TRUE",
+      "prompt_sha256_first16": {
+        "SE": "93429a9b5188c26c",
+        "HML_BASIC": "48c65e794d46b90f",
+        "HML_EPI": "e049ad8af1d280e2",
+        "HML_OBF": "f28e50e1b380981b",
+        "HML_VERIFY": "4e2893bca6637fc9"
+      }
+    },
+    {
+      "item_id": "CD_log_L3_800002_flip7",
+      "seed": 800002,
+      "answer": "UNDETERMINED",
+      "prompt_sha256_first16": {
+        "SE": "e5427573633e9ea6",
+        "HML_BASIC": "5b97f5d2c7839712",
+        "HML_EPI": "563887515ccebb41",
+        "HML_OBF": "50738a9ba87ffb06",
+        "HML_VERIFY": "fbba843819314c6b"
+      }
+    },
+    {
+      "item_id": "CD_log_L3_800022_flip4",
+      "seed": 800022,
+      "answer": "FALSE",
+      "prompt_sha256_first16": {
+        "SE": "6a9f5c77bfa56423",
+        "HML_BASIC": "39e9643223f44c51",
+        "HML_EPI": "07d4a1a31aa91616",
+        "HML_OBF": "df8b8ce877350929",
+        "HML_VERIFY": "aca04403171d1bc1"
+      }
+    }
+  ]
+}

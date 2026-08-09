@@ -35,6 +35,8 @@ BANDS: dict[str, tuple[int, int]] = {
     #: burned by developmental selection, the acquisition gate, the binder diagnostic or
     #: the B1 pilot.
     "ENDPOINT_A": (700_000, 799_999),
+    #: Causal diagnosis of the B1 loss -- five matched conditions, mechanism triage.
+    "CAUSAL_DIAGNOSIS": (800_000, 899_999),
     "CALIBRATION_LEGACY": (900_000, 999_999),
 }
 

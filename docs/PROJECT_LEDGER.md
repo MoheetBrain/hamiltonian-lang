@@ -4825,3 +4825,53 @@ prompt tokens), so no length advantage. 24 adversarial audit checks passed befor
 Do not escalate on this endpoint. If it is revisited, the informative variant is the
 qualitative one: whether HML genuinely suppresses invalid and polarity errors, tested with
 items designed to elicit exactly those, rather than more of the same.
+
+## 2026-08-08 — error-topology branch CLOSED offline; causal-diagnosis scout frozen
+
+**SHA at start.** `b87736a`. **Zero model calls in this entry.**
+
+**The proposed 68-call error-topology experiment was not run, on evidence.** An offline
+check of the existing 30 Endpoint-A items showed the motivating signal is compatible with
+chance: HML made only ~5 errors per family, and P(0 of a given subtype | 5 errors) = (2/3)^5
+= **0.13**. SE's severe errors came from 8 errors per family. A model that makes fewer
+errors makes fewer of every type; no change in error *composition* is demonstrated.
+
+A second, independent defect: **error opportunity is confounded with family.** Algebraic
+items offer `{premature, wrong_arithmetic, no_progress}`; logic items offer
+`{polarity, undetermined, no_progress}`. Polarity errors are only *available* on logic
+items, so "HML made 0 polarity errors" is partly "HML got more logic items right" (10/15 vs
+7/15). The two are not separable in that corpus.
+
+A power simulation (4000 trials) also showed that under a true null, a 30-item run shows
+"HML safer" **50% of the time** — direction alone is a coin flip, which is exactly how the
+Endpoint-A micro-pilot produced +0.500 from noise. Branch closed.
+
+**Causal diagnosis instrument frozen instead** (`CAUSAL_DIAGNOSIS_MANIFEST.json`), five
+matched conditions over identical fresh worlds, band 800 000+, 6 items × 5 conditions = 30
+calls. Answers balanced 2 TRUE / 2 FALSE / 2 UNDETERMINED.
+
+**Two leakage problems in the requested design, and what was done.**
+
+- **`HML_EPI` as specified is a total answer leak.** `status(query)` + `status(neg_query)`
+  jointly determine TRUE/FALSE/UNDETERMINED exactly, collapsing the task to a three-way
+  lookup; it would win trivially and say nothing about representation. Implemented instead
+  over **every declared atom except the query target** — still an explicit epistemic layer
+  where HML currently leaves it implicit, but the query stays to be decided. Verified
+  mechanically that the target never appears in the block.
+- **`HML_VERIFY` is a near-total leak by construction**, which the brief accepts. It is
+  implemented as asked but is readable **only as an upper bound and sanity check**: failure
+  to approach ceiling would mean the model cannot apply a two-bit lookup; success shows the
+  deficit is in *deriving* entailment rather than reading HML. It is not evidence about
+  representation quality and is recorded as such in the manifest.
+
+`HML_OBF` uses one frozen keyword map (`assume→zeta1`, `implies→zeta5`, …), preserving
+labels, operators, nesting and line count; it does not compile by design, and the compile
+invariant is waived for that condition only.
+
+**Offline audit, all passing:** unique item ids; one key shared by all conditions; no
+`world_id`, seed, `_swap`, `_flip` or answer in any prompt; `HML_EPI` omits the query
+target; `HML_OBF` preserves line count with every keyword replaced; `HML_VERIFY` emits
+structured signals not a class label; **`HML_BASIC` byte-identical to the frozen B1
+treatment**; 6/6 compile.
+
+**Next.** Commit, push, then spend 30 scout calls.

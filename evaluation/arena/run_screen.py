@@ -32,7 +32,7 @@ from pathlib import Path
 from .bands import assert_band, band_of
 from .budget import ENCODING
 from .endpoints import contrast
-from .endpoints.common import build_prompt
+from .endpoints.common import ANSWER_RULE, build_prompt
 from .parity import ARM_RENDERERS
 from .scoring import SCORER_VERSION, pair_score, score_response
 from .worlds import ARENA_VERSION
@@ -54,6 +54,7 @@ _STAGE_BANDS = {
     "PILOT": "PILOT",
     "BINDER_DIAGNOSTIC": "DIAGNOSTIC",
     "ENDPOINT_A": "ENDPOINT_A",
+    "CAUSAL_DIAGNOSIS": "CAUSAL_DIAGNOSIS",
 }
 
 #: Identical for every arm and every stage. Recorded in the freeze.
@@ -178,7 +179,17 @@ def run_screen(
 
     records = []
     for n, (item, arm) in enumerate(units, 1):
-        prompt = build_prompt(item, ARM_RENDERERS[arm], instructions=_INSTRUCTIONS)
+        if spec.stage == "CAUSAL_DIAGNOSIS":
+            from .endpoints.causal_diag import render_question, render_state
+
+            prompt = "\n".join([
+                _INSTRUCTIONS, "", "STATE", "", render_state(item.world, arm),
+                "", "QUESTION", "", render_question(item.world, arm),
+                "", f"Answer with exactly one of: {', '.join(item.answer_space)}.",
+                "", ANSWER_RULE,
+            ])
+        else:
+            prompt = build_prompt(item, ARM_RENDERERS[arm], instructions=_INSTRUCTIONS)
         # Latency is measured inside the client, around the request itself.
         c = client.complete(SYSTEM_PROMPT, prompt)
         scored = score_response(
@@ -273,6 +284,10 @@ STAGES = {
     # Endpoint A -- next-action selection, SE vs HML only. The AST control is omitted
     # because the binder diagnostic showed it cannot read nesting, and Endpoint A is not
     # where that question gets settled; adding it would spend calls on a known deficit.
+    # Mechanism triage: five conditions over identical worlds, one variable each.
+    "causal": dict(stage="CAUSAL_DIAGNOSIS", band="CAUSAL_DIAGNOSIS",
+                   arms=("SE", "HML_BASIC", "HML_EPI", "HML_OBF", "HML_VERIFY"),
+                   n_per_contrast=0, pair_offset=0),
     "nexta": dict(stage="ENDPOINT_A", band="ENDPOINT_A", arms=("SE", "HML"),
                   n_per_contrast=0, pair_offset=0),
     # Pilot composition is calibrated from the SE-ONLY control arm, never from treatment:
@@ -368,7 +383,12 @@ def main(argv: list[str] | None = None) -> int:
         model=a.model, level=a.level, max_tokens=a.max_tokens, **cfg,
     )
 
-    if a.stage == "nexta":
+    if a.stage == "causal":
+        from .endpoints import causal_diag
+
+        items = causal_diag.build_items(level=a.level, n=a.n_items)
+        pairs = None
+    elif a.stage == "nexta":
 
         items = _endpoint_a_items(a.acq_seed_base, a.n_items, a.level)
         assert_band([i.world.seed for i in items], "ENDPOINT_A")
