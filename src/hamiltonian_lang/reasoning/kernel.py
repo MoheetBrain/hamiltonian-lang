@@ -39,7 +39,8 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 
-from ..ast.nodes import BinOp, Comparison, Expr, LogicalOp, Ref, UnaryOp
+from ..ast.nodes import BinOp, Comparison, Expr, LogicalOp, Quantifier, Ref, UnaryOp
+from .binders import CaptureError, abstract, instantiate
 
 __all__ = [
     "ObligationSpec",
@@ -89,6 +90,16 @@ class RuleSpec:
         default=lambda premises, args: None
     )
     obligations: tuple[ObligationSpec, ...] = ()
+    #: Named conditions this rule needs that are **not** local to the premises: the
+    #: eigenvariable condition looks at the whole assumption context, and domain
+    #: conformance needs the type environment. The kernel is deliberately context-free, so
+    #: it cannot check them; it names them, and ``reasoning/check.py`` -- which holds the
+    #: module, the symbols and the evidence graph -- evaluates them from a static table.
+    #:
+    #: An unknown name is a REJECTION, so a rule can never be admitted by a side condition
+    #: nobody implemented. That direction matters: the alternative failure mode is a rule
+    #: that looks guarded and is not.
+    side_conditions: tuple[str, ...] = ()
     #: One line, shown in diagnostics when the shape does not match.
     shape: str = ""
     doc: str = ""
@@ -371,6 +382,40 @@ def _apply_multiply_inequality(
     return _cmp(op, _binop("*", a, k), _binop("*", b, k), premises[0])
 
 
+def _apply_forall_intro(premises: Sequence[Expr], args: Mapping[str, Expr]) -> Expr | None:
+    """``φ(a)`` |- ``forall a : D . φ(a)``, for an arbitrary ``a``.
+
+    The eigenvariable condition is **not** checked here and cannot be: it asks whether any
+    assumption in scope constrains ``a``, which is a question about the whole module. The
+    rule declares ``side_conditions=("eigenvariable",)`` and ``check.py`` answers it. What
+    happens here is only the construction.
+
+    That construction is not a wrapper. HML's identity is locally nameless, so the
+    premise's ``a`` (a module-level symbol, depth 0) and the conclusion's ``a`` (a binder,
+    depth 1) are *different symbols*; simply wrapping would build a term the resolver
+    would never produce, and the step would be rejected for a reason unrelated to its
+    validity. :func:`binders.abstract` re-depths the subtree so the result is exactly what
+    the resolver builds from the same text.
+    """
+    var = args["var"]
+    if not isinstance(var, Ref) or var.symbol_id is None:
+        return None
+    return abstract(premises[0], var.symbol_id, kind="forall", var_type=var.type_)
+
+
+def _apply_forall_elim(premises: Sequence[Expr], args: Mapping[str, Expr]) -> Expr | None:
+    """``forall x : D . φ(x)`` |- ``φ[t/x]``.
+
+    Domain conformance (``t : D``) is a side condition, for the same reason as above: the
+    kernel has no type environment. Capture avoidance *is* enforced here, by
+    :func:`binders.instantiate`, which refuses any ``t`` mentioning a bound name.
+    """
+    quant = premises[0]
+    if not (isinstance(quant, Quantifier) and quant.kind == "forall"):
+        return None
+    return instantiate(quant, args["at"])
+
+
 RULES: dict[str, RuleSpec] = {
     "symmetry": RuleSpec(
         name="symmetry",
@@ -485,6 +530,33 @@ RULES: dict[str, RuleSpec] = {
         shape="P and Q  |-  Q",
         doc="Conjunction elimination, right.",
     ),
+    "forall_intro": RuleSpec(
+        name="forall_intro",
+        arity=1,
+        params=("var",),
+        apply=_apply_forall_intro,
+        side_conditions=("eigenvariable",),
+        shape="phi(a)  |-  forall a : D . phi(a)   [a arbitrary]",
+        doc=(
+            "Universal introduction. The variable must be ARBITRARY: it may not occur "
+            "free in any assumption in scope, or the proof was about that particular "
+            "value and generalising it is unsound. Proving phi for many sample values is "
+            "not this rule and never becomes it."
+        ),
+    ),
+    "forall_elim": RuleSpec(
+        name="forall_elim",
+        arity=1,
+        params=("at",),
+        apply=_apply_forall_elim,
+        side_conditions=("instantiation_domain",),
+        shape="forall x : D . phi(x)  |-  phi[t/x]   [requires t : D]",
+        doc=(
+            "Universal instantiation. Substitution is capture-avoiding, and a term "
+            "mentioning a bound name is refused rather than substituted. The instantiation "
+            "term must inhabit the binder's declared domain."
+        ),
+    ),
     "weaken_inequality": RuleSpec(
         name="weaken_inequality",
         arity=1,
@@ -550,7 +622,14 @@ def apply(
             reason=f"{rule} requires argument(s) {', '.join(missing)} ({spec.shape})",
         )
 
-    conclusion = spec.apply(premises, args)
+    try:
+        conclusion = spec.apply(premises, args)
+    except CaptureError as exc:
+        # A binder rearrangement was refused. This is a *precise* refusal -- the term
+        # would have captured, or the eigenvariable was already bound -- and reporting it
+        # as the generic "wrong shape" message would send the author looking in the wrong
+        # place entirely.
+        return RuleApplication(ok=False, reason=str(exc))
     if conclusion is None:
         return RuleApplication(
             ok=False,

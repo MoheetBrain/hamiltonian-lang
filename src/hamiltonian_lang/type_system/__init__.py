@@ -68,6 +68,7 @@ from ..ast.nodes import (
     DerivativeExpr,
     DeriveStmt,
     DistExpr,
+    EvidenceStmt,
     Expr,
     GoalStmt,
     IndependenceExpr,
@@ -695,39 +696,50 @@ class TypeChecker:
             self._obligate(kind, _render_proposition(st.proposition), st.span, st.proposition)
             return
 
-        if isinstance(st, (GoalStmt, DeriveStmt)):
+        if isinstance(st, (GoalStmt, DeriveStmt, EvidenceStmt)):
             # V2 propositions are type-checked on exactly the same terms as v1 ones.
             # Without this the reasoning kernel would be comparing untyped trees, and
             # an ill-typed conclusion -- `metre + second`, an RV where a value belongs --
-            # would reach the kernel and be certified on structure alone.
-            prop = st.proposition if isinstance(st, GoalStmt) else st.conclusion
+            # would reach the kernel and be certified on structure alone. An `evidence`
+            # proposition goes through the identical gate: a certificate about an
+            # ill-typed claim is a certificate about nothing.
+            what = {
+                GoalStmt: "goal",
+                DeriveStmt: "derivation",
+                EvidenceStmt: "evidence",
+            }[type(st)]
+            prop = st.conclusion if isinstance(st, DeriveStmt) else st.proposition
             pt = self.expr_type(prop)
-            if self._reject_event_assertion(
-                prop, pt, "goal" if isinstance(st, GoalStmt) else "derivation"
-            ):
+            if self._reject_event_assertion(prop, pt, what):
                 pass
             elif not (isinstance(pt, PropositionType) or is_subtype(pt, BOOL)):
                 self.diags.error(
                     "HML-T404",
-                    (
-                        "a goal requires a proposition"
-                        if isinstance(st, GoalStmt)
-                        else "a derivation must conclude a proposition"
-                    ),
+                    {
+                        "goal": "a goal requires a proposition",
+                        "derivation": "a derivation must conclude a proposition",
+                        "evidence": "evidence must be about a proposition",
+                    }[what],
                     prop.span,
                     expected="Proposition",
                     found=pt.render(),
                     correction="write a comparison or logical formula, e.g. 'x + y >= 10'",
                 )
-            if isinstance(st, DeriveStmt):
-                for a in st.rule_args:
-                    if a.role == "fn" and isinstance(a.value, Ref):
-                        # A function *name*, not a value. Resolution has already
-                        # confirmed it names something callable; give it the callable's
-                        # type so HML-T450 does not see an Unknown survive.
-                        a.value.type_ = self._function_reference_type(a.value.name)
-                        continue
-                    self.expr_type(a.value)
+            args = (
+                st.rule_args
+                if isinstance(st, DeriveStmt)
+                else st.checker_args
+                if isinstance(st, EvidenceStmt)
+                else ()
+            )
+            for a in args:
+                if a.role == "fn" and isinstance(a.value, Ref):
+                    # A function *name*, not a value. Resolution has already confirmed it
+                    # names something callable; give it the callable's type so HML-T450
+                    # does not see an Unknown survive.
+                    a.value.type_ = self._function_reference_type(a.value.name)
+                    continue
+                self.expr_type(a.value)
             return
 
         if isinstance(st, ScopeStmt):

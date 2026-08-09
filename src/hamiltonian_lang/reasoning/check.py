@@ -29,6 +29,8 @@ from ..ast.nodes import (
     ClaimId,
     DerivationStatus,
     DeriveStmt,
+    EvidenceStatus,
+    EvidenceStmt,
     Expr,
     GoalStatus,
     GoalStmt,
@@ -37,9 +39,19 @@ from ..ast.nodes import (
     ProveStmt,
     RequireStmt,
     Statement,
+    UndeterminedStmt,
+    walk,
 )
 from ..diagnostics import DiagnosticBag
 from . import kernel
+from .adjudication import Adjudication, EntailmentVerdict
+from .certificates import (
+    CertificateEnvelope,
+    CheckerContext,
+    JudgementKind,
+    context_hash,
+)
+from .certificates import check as check_certificate
 from .evidence import (
     INVARIANTS,
     ClaimNode,
@@ -49,6 +61,8 @@ from .evidence import (
 )
 from .partiality import decides_false, preconditions_of
 from .refinement import RefinementEnv
+from .side_conditions import SideConditionContext
+from .side_conditions import evaluate as _evaluate_side_conditions
 
 __all__ = [
     "ObligationStatus",
@@ -104,6 +118,11 @@ class ReasoningResult:
     #: claim label -> derivation status, for reporting and for the CLI.
     derivation_status: dict[str, str] = field(default_factory=dict)
     goal_status: dict[str, str] = field(default_factory=dict)
+    #: claim label -> EvidenceStatus, for `evidence` statements.
+    evidence_status: dict[str, str] = field(default_factory=dict)
+    #: goal label -> the context-relative judgment. This is the source of truth;
+    #: ``goal_status`` is its projection. See reasoning/adjudication.py.
+    adjudications: dict[str, Adjudication] = field(default_factory=dict)
 
     def verified(self) -> list[str]:
         return [k for k, v in self.derivation_status.items() if v == DerivationStatus.VERIFIED]
@@ -111,15 +130,58 @@ class ReasoningResult:
     def open_obligations(self) -> list[ReasoningObligation]:
         return [o for o in self.obligations if o.status == ObligationStatus.OPEN]
 
+    def underdetermined(self) -> list[str]:
+        return [
+            g
+            for g, a in self.adjudications.items()
+            if a.verdict is EntailmentVerdict.UNDERDETERMINED
+        ]
+
 
 #: Statement forms that introduce a claim label into the claim namespace.
-_LABELLED = (AssumeStmt, RequireStmt, ProveStmt, GoalStmt, DeriveStmt)
+_LABELLED = (AssumeStmt, RequireStmt, ProveStmt, GoalStmt, DeriveStmt, EvidenceStmt)
+
+
+def _unestablished_kind(st: Statement) -> str:
+    """What to call a claim that may not be a premise, for the diagnostic.
+
+    ``EvidenceStmt`` appears here in two quite different situations -- a rejected
+    certificate, and a *valid* non-entailment result -- and they deserve different words.
+    Calling the second one "rejected evidence" would be actively misleading: the
+    certificate is fine, it simply does not assert the proposition.
+    """
+    if isinstance(st, GoalStmt):
+        return "goal"
+    if isinstance(st, RequireStmt):
+        return "requirement"
+    if isinstance(st, ProveStmt):
+        return "claim"
+    if isinstance(st, EvidenceStmt):
+        if st.status == EvidenceStatus.VALID:
+            return "non-entailment result"
+        return "rejected certificate"
+    return "claim"
+
+
+def _checker_registry() -> dict:
+    from .certificates import CHECKERS
+
+    return CHECKERS
+
+
+def _checker_names() -> tuple[str, ...]:
+    from .certificates import checker_names
+
+    return checker_names()
 
 
 class _ReasoningChecker:
-    def __init__(self, module: Module, diags: DiagnosticBag) -> None:
+    def __init__(
+        self, module: Module, diags: DiagnosticBag, symbols: object = None
+    ) -> None:
         self.module = module
         self.diags = diags
+        self.symbols = symbols
         self.result = ReasoningResult()
         #: label -> (statement, ClaimId)
         self.claims: dict[str, tuple[Statement, ClaimId]] = {}
@@ -139,6 +201,18 @@ class _ReasoningChecker:
         #: label -> undischarged mandatory obligations inherited by anything citing it.
         self.pending: dict[str, list[ReasoningObligation]] = {}
         self.env = RefinementEnv()
+        #: label -> the envelope a VALID `evidence` statement produced, for adjudication.
+        self.certificates: dict[str, CertificateEnvelope] = {}
+        #: label -> the claim labels that evidence declared as its premises.
+        self.evidence_premises: dict[str, tuple[str, ...]] = {}
+        #: id(statement) -> the context hash at that statement's position. Recorded during
+        #: the ordered sweep so the second pass can ask what Γ was *there* rather than what
+        #: it became by the end of the module -- which is the whole stale-context question.
+        self.context_at: dict[int, str] = {}
+        #: id(statement) -> the established claim labels at that statement's position.
+        self.established_at: dict[int, tuple[str, ...]] = {}
+        self._environment = None
+        self._env_built = False
         self._ob_counter = 0
         #: The explicit evidence graph. The textual-order rule in `resolve_premises`
         #: remains as a cheap first line; this is the one that survives imports and any
@@ -274,10 +348,20 @@ class _ReasoningChecker:
                     self.result.goal_status[st.label] = GoalStatus.OPEN
             elif isinstance(st, DeriveStmt):
                 self._check_derivation(st)
+            elif isinstance(st, EvidenceStmt):
+                self._check_evidence(st)
+            elif isinstance(st, UndeterminedStmt):
+                # Snapshot Γ *here*. The adjudication runs in the second pass, but the
+                # question it must answer is whether the certificate's context matches the
+                # context at this point in the module -- not the context after every later
+                # statement has been read.
+                self.context_at[id(st)] = self._context_hash()
 
         for st in self.module.statements:
             if isinstance(st, ProvedStmt):
                 self._adjudicate(st)
+            elif isinstance(st, UndeterminedStmt):
+                self._adjudicate_undetermined(st)
 
         self._validate_graph()
 
@@ -324,6 +408,190 @@ class _ReasoningChecker:
         self._ob_counter += 1
         return f"o{self._ob_counter}"
 
+    # -- context identity --------------------------------------------------
+    def _context_hash(self) -> str:
+        """Identity of Γ right now: a digest over the canonical identity of every claim
+        currently usable as a premise.
+
+        ``self.propositions`` is exactly "what may support a conclusion here", which is
+        the right notion of Γ. It includes PROVISIONAL claims, and that is the
+        conservative direction: a larger Γ makes an underdetermination certificate
+        *harder* to satisfy, never easier, because both models must satisfy every member.
+        """
+        from ..backends.canonical import expr_identity
+
+        return context_hash([expr_identity(p) for p in self.propositions.values()])
+
+    def _environment_for_checkers(self):
+        """The exact-evaluation environment, built once and reused.
+
+        Built lazily because most modules contain no ``evidence`` statement and should not
+        pay for one.
+        """
+        if not self._env_built:
+            self._env_built = True
+            try:
+                from ..verification.obligations.evaluate import build_environment
+
+                self._environment = build_environment(self.module, self.symbols)
+            except Exception:  # noqa: BLE001 -- no environment means checkers fail closed
+                self._environment = None
+        return self._environment
+
+    def _assumptions_in_scope(self) -> list[tuple[str, Expr]]:
+        """Every assumption anywhere in the module, including inside ``scope`` frames.
+
+        A deliberate superset -- see ``side_conditions._eigenvariable`` for why the
+        eigenvariable condition is checked against all of them rather than the premise
+        closure.
+        """
+        out: list[tuple[str, Expr]] = []
+        for node in walk(self.module):
+            if isinstance(node, AssumeStmt) and node.proposition is not None:
+                out.append((node.label or "<unlabelled>", node.proposition))
+        return out
+
+    # -- the certificate boundary -----------------------------------------
+    def _check_evidence(self, st: EvidenceStmt) -> None:
+        """Validate one ``evidence`` statement through the trusted checker registry.
+
+        Nothing here decides any mathematics. It assembles the envelope from what the
+        author wrote, hands it to :func:`reasoning.certificates.check`, and records the
+        verdict. Every way this can fail is a rejection.
+        """
+        from ..backends.canonical import expr_identity
+
+        if any(p is None for p in st.premise_ids):
+            self._reject_evidence(st, "one or more premises could not be resolved")
+            return
+
+        premise_pairs: list[tuple[str, Expr]] = []
+        for name in st.premises:
+            unestablished = self.unestablished.get(name)
+            if unestablished is not None:
+                self.diags.error(
+                    "HML-R716",
+                    f"{name!r} is not an established fact and cannot support evidence",
+                    st.span,
+                    found=name,
+                    correction="cite an assumption, a verified derivation, or valid evidence",
+                    notes=[
+                        "a goal, requirement, claim or non-entailment result states "
+                        "something to be shown; none of them establishes anything"
+                    ],
+                )
+                self._reject_evidence(st, f"premise {name!r} is not established")
+                return
+            prop = self.propositions.get(name)
+            if prop is None:
+                self._reject_evidence(st, f"premise {name!r} carries no proposition")
+                return
+            premise_pairs.append((name, prop))
+
+        judgement = (
+            JudgementKind.ENTAILS
+            if st.judgement == "ENTAILS"
+            else JudgementKind.DETERMINES_NEITHER
+        )
+        ctx_hash = self._context_hash()
+
+        # A non-entailment certificate must be issued against the WHOLE context. Γ ⊭ P for
+        # a subset of Γ says nothing about Γ itself, because entailment is monotone:
+        # adding premises can only increase what follows. An entailment certificate has no
+        # such requirement -- proving P from fewer premises is strictly stronger.
+        if judgement is JudgementKind.DETERMINES_NEITHER:
+            declared = set(st.premises)
+            missing = [lbl for lbl in self.propositions if lbl not in declared]
+            if missing:
+                self.diags.error(
+                    "HML-R717",
+                    (
+                        f"evidence {st.label!r} claims non-entailment but does not rest on "
+                        f"every established claim in scope: {', '.join(sorted(missing))} "
+                        f"{'is' if len(missing) == 1 else 'are'} missing"
+                    ),
+                    st.span,
+                    correction=f"add {', '.join(sorted(missing))} to the 'from' list",
+                    notes=[
+                        "entailment is monotone: a context that settles nothing may "
+                        "settle the target once another premise is added, so a "
+                        "non-entailment result must name the whole context",
+                    ],
+                )
+                self._reject_evidence(st, "the certificate does not cover the whole context")
+                return
+
+        envelope = CertificateEnvelope(
+            certificate_type=st.checker,
+            certificate_version=1,
+            checker=st.checker,
+            judgement=judgement,
+            claim_hash=expr_identity(st.proposition),
+            context_hash=ctx_hash,
+            premise_hashes=tuple(expr_identity(p) for _, p in premise_pairs),
+            span=st.span,
+        )
+        payload = {a.role: a.value for a in st.checker_args}
+        payload["__claim__"] = st.proposition
+        checker_ctx = CheckerContext(
+            premises=tuple(premise_pairs),
+            payload=payload,
+            environment=self._environment_for_checkers(),
+            declared_types={},
+        )
+
+        evidence, reason = check_certificate(
+            envelope, st.proposition, checker_ctx, current_context_hash=ctx_hash
+        )
+        if evidence is None:
+            from ..backends.hml import render_expr
+
+            known = ", ".join(_checker_names()) or "none"
+            self.diags.error(
+                "HML-R718",
+                f"evidence {st.label!r} is REJECTED: {reason}",
+                st.span,
+                found=st.checker,
+                correction=(
+                    f"registered checkers: {known}"
+                    if st.checker not in _checker_registry()
+                    else f"the checker could not validate {render_expr(st.proposition)}"
+                ),
+                notes=[
+                    "checkers come from a static trusted registry; source cannot define "
+                    "one, because a user-supplied checker could certify anything",
+                ],
+            )
+            self._reject_evidence(st, reason)
+            return
+
+        st.status = EvidenceStatus.VALID
+        self.result.evidence_status[st.label] = st.status
+        self.certificates[st.label] = envelope
+        self.evidence_premises[st.label] = tuple(st.premises)
+
+        if judgement is JudgementKind.ENTAILS:
+            # Checked evidence for a proposition is ordinary evidence: usable as a premise.
+            self.propositions[st.label] = st.proposition
+            self.graph.add_claim(ClaimNode(st.label, EvidenceClass.ESTABLISHED))
+        else:
+            # "The premises settle neither P nor not-P" is a statement about the theory,
+            # NOT an assertion of P. Letting it be a premise would be the worst failure
+            # available here -- it would turn "we cannot tell" into a fact. NOT_EVIDENCE
+            # is what stops that, and E2 in the graph validator enforces it independently.
+            self.unestablished[st.label] = st
+            self.graph.add_claim(ClaimNode(st.label, EvidenceClass.NOT_EVIDENCE))
+        for premise in st.premises:
+            self.graph.add_edge(st.label, premise, EdgeKind.PREMISE)
+
+    def _reject_evidence(self, st: EvidenceStmt, reason: str) -> None:
+        st.status = EvidenceStatus.REJECTED
+        st.rejection_reason = reason
+        self.result.evidence_status[st.label] = st.status
+        self.unestablished.setdefault(st.label, st)
+        if self.graph.node(st.label) is None:
+            self.graph.add_claim(ClaimNode(st.label, EvidenceClass.NOT_EVIDENCE))
+
     def _check_derivation(self, st: DeriveStmt) -> None:
         from ..backends.canonical import expr_identity
 
@@ -336,11 +604,7 @@ class _ReasoningChecker:
         for name in st.premises:
             unestablished = self.unestablished.get(name)
             if unestablished is not None:
-                kind = {
-                    GoalStmt: "goal",
-                    RequireStmt: "requirement",
-                    ProveStmt: "claim",
-                }[type(unestablished)]
+                kind = _unestablished_kind(unestablished)
                 self.diags.error(
                     "HML-R712",
                     f"{name!r} is a {kind}, not an established fact, and cannot be a premise",
@@ -351,9 +615,17 @@ class _ReasoningChecker:
                         f"genuinely being granted"
                     ),
                     notes=[
-                        f"a {kind} states something to be SHOWN; using it to support a "
-                        f"derivation would make the derivation support itself",
-                        "only `assume` and a checked `derive` are established",
+                        (
+                            "a non-entailment result says the premises settle NEITHER the "
+                            "proposition nor its negation; it is emphatically not the "
+                            "proposition, and using it as one would turn 'we cannot tell' "
+                            "into a fact"
+                            if kind == "non-entailment result"
+                            else f"a {kind} states something to be SHOWN; using it to "
+                            f"support a derivation would make the derivation support itself"
+                        ),
+                        "only `assume`, a checked `derive` and valid `entails` evidence "
+                        "are established",
                     ],
                 )
                 self._reject(st, f"premise {name!r} is not established")
@@ -415,6 +687,37 @@ class _ReasoningChecker:
             )
             self._reject(st, "stated conclusion differs from the rule's conclusion")
             return
+
+        # The rule's CONTEXT-DEPENDENT conditions. The kernel could not check these -- the
+        # eigenvariable condition asks about every assumption in scope, domain conformance
+        # asks the type environment -- so it named them and this is where they are
+        # answered. An unknown name rejects, so a rule can never be admitted by a guard
+        # nobody implemented.
+        spec = kernel.RULES[st.rule]
+        if spec.side_conditions:
+            ok, why = _evaluate_side_conditions(
+                spec.side_conditions,
+                SideConditionContext(
+                    rule=st.rule,
+                    label=st.label,
+                    premises=premise_props,
+                    args=args,
+                    assumptions=self._assumptions_in_scope(),
+                ),
+            )
+            if not ok:
+                self.diags.error(
+                    "HML-R719",
+                    f"derivation {st.label!r} is REJECTED: {why}",
+                    st.span,
+                    correction=kernel.RULES[st.rule].shape,
+                    notes=[
+                        "the rule applied structurally; its side condition did not hold",
+                        kernel.RULES[st.rule].doc,
+                    ],
+                )
+                self._reject(st, why)
+                return
 
         # CHECKED. Now the obligations decide whether it reaches VERIFIED.
         #
@@ -678,6 +981,18 @@ class _ReasoningChecker:
 
         self.result.goal_status[st.goal] = GoalStatus.PROVED
         goal_stmt.status = GoalStatus.PROVED
+        self.result.adjudications[st.goal] = Adjudication(
+            goal=st.goal,
+            verdict=EntailmentVerdict.ENTAILED,
+            target_hash=expr_identity(goal_stmt.proposition),
+            context_hash=self._context_hash(),
+            premise_hashes=tuple(
+                expr_identity(self.propositions[p])
+                for p in derivation.premises
+                if p in self.propositions
+            ),
+            support=st.derivation,
+        )
         # Record the proof edge. This is the edge the premise-only view could not see,
         # and it is the one that closes the loop when a goal is used to support the
         # derivation that proves it: `d1 --premise--> g1` plus `g1 --proof--> d1` is a
@@ -685,5 +1000,162 @@ class _ReasoningChecker:
         self.graph.add_edge(st.goal, st.derivation, EdgeKind.PROOF)
 
 
-def check_reasoning(module: Module, diags: DiagnosticBag) -> ReasoningResult:
-    return _ReasoningChecker(module, diags).run()
+    # -- 6. underdetermination adjudication --------------------------------
+    def _adjudicate_undetermined(self, st: UndeterminedStmt) -> None:
+        """``undetermined g by e``. Adjudicated with exactly the suspicion ``proved`` gets.
+
+        Writing the statement does not make the goal underdetermined. Four things must
+        hold, and each failure leaves the goal OPEN -- **never** UNDERDETERMINED, because
+        a failed claim of underdetermination is ignorance, and ignorance is the one thing
+        this status must never be able to record.
+        """
+        from ..backends.canonical import expr_identity
+
+        goal_entry = self.claims.get(st.goal)
+        if goal_entry is None or not isinstance(goal_entry[0], GoalStmt):
+            self.diags.error(
+                "HML-R720",
+                f"{st.goal!r} is not a declared goal",
+                st.span,
+                found=st.goal,
+                correction="declare it first, e.g. 'goal g1 : <proposition>'",
+            )
+            return
+        goal_stmt = goal_entry[0]
+        st.goal_id = goal_entry[1]
+
+        ev_entry = self.claims.get(st.evidence)
+        if ev_entry is None or not isinstance(ev_entry[0], EvidenceStmt):
+            self.diags.error(
+                "HML-R721",
+                f"{st.evidence!r} is not a declared evidence statement",
+                st.span,
+                found=st.evidence,
+                correction="reference an 'evidence' statement",
+            )
+            self._unknown(st.goal, goal_stmt, f"{st.evidence!r} is not evidence")
+            return
+        ev = ev_entry[0]
+        st.evidence_id = ev_entry[1]
+
+        if ev.status != EvidenceStatus.VALID:
+            self.diags.error(
+                "HML-R722",
+                (
+                    f"goal {st.goal!r} is not underdetermined: evidence {st.evidence!r} is "
+                    f"{ev.status}, not VALID"
+                ),
+                st.span,
+                found=ev.status,
+                expected=EvidenceStatus.VALID,
+                correction="repair the certificate",
+                notes=[
+                    "an underdetermination claim is adjudicated, not accepted; a "
+                    "certificate nobody could validate establishes nothing at all"
+                ],
+            )
+            self._unknown(st.goal, goal_stmt, "the certificate is not valid")
+            return
+
+        if ev.judgement != "DETERMINES_NEITHER":
+            self.diags.error(
+                "HML-R723",
+                (
+                    f"evidence {st.evidence!r} carries an 'entails' judgement and cannot "
+                    f"show that goal {st.goal!r} is underdetermined"
+                ),
+                st.span,
+                correction=f"use 'determines_neither' evidence, or 'proved {st.goal} by ...'",
+                notes=[
+                    "establishing a proposition and showing that the premises settle "
+                    "neither it nor its negation are opposite results"
+                ],
+            )
+            self._unknown(st.goal, goal_stmt, "the evidence is not a non-entailment result")
+            return
+
+        if expr_identity(ev.proposition) != expr_identity(goal_stmt.proposition):
+            from ..backends.hml import render_expr
+
+            self.diags.error(
+                "HML-R724",
+                f"evidence {st.evidence!r} is not about goal {st.goal!r}",
+                st.span,
+                found=render_expr(ev.proposition),
+                expected=render_expr(goal_stmt.proposition),
+                correction="certify the goal's proposition exactly, or restate the goal",
+            )
+            self._unknown(st.goal, goal_stmt, "the certificate is about a different claim")
+            return
+
+        # THE stale-context check. The certificate was issued against Γ as it stood at the
+        # `evidence` statement; here we ask what Γ is at THIS point. Non-entailment does
+        # not survive a premise being added, so a certificate issued earlier in the module
+        # must not be spendable after the context has moved on.
+        envelope = self.certificates[st.evidence]
+        here = self.context_at.get(id(st))
+        if here is not None and here != envelope.context_hash:
+            self.diags.error(
+                "HML-R725",
+                (
+                    f"evidence {st.evidence!r} was certified against a different context "
+                    f"than the one in scope at this point"
+                ),
+                st.span,
+                correction=(
+                    "move the claim next to its evidence, or re-certify against the "
+                    "current premises"
+                ),
+                notes=[
+                    "entailment is monotone: premises added after the certificate was "
+                    "issued may settle the target, so the earlier result no longer "
+                    "applies",
+                    "this is not a formatting difference -- the context genuinely changed",
+                ],
+            )
+            self._unknown(st.goal, goal_stmt, "the certificate's context is stale")
+            return
+
+        self.result.goal_status[st.goal] = GoalStatus.UNDERDETERMINED
+        goal_stmt.status = GoalStatus.UNDERDETERMINED
+        self.result.adjudications[st.goal] = Adjudication(
+            goal=st.goal,
+            verdict=EntailmentVerdict.UNDERDETERMINED,
+            target_hash=envelope.claim_hash,
+            context_hash=envelope.context_hash,
+            premise_hashes=envelope.premise_hashes,
+            support=st.evidence,
+            checker=envelope.checker,
+        )
+        # The same edge `proved` records, and for the same reason: it closes the loop when
+        # a goal is used to support the evidence that settles it, so E1 reports the cycle.
+        self.graph.add_edge(st.goal, st.evidence, EdgeKind.PROOF)
+
+    def _unknown(self, goal: str, goal_stmt: GoalStmt, reason: str) -> None:
+        """Record a failed underdetermination claim as UNKNOWN -- never UNDERDETERMINED.
+
+        The goal stays OPEN. This is the projection boundary doing its job: a claim that
+        did not survive adjudication leaves exactly as much knowledge as there was before
+        it was made, which is none.
+        """
+        self.result.goal_status.setdefault(goal, GoalStatus.OPEN)
+        goal_stmt.status = self.result.goal_status[goal]
+        self.result.adjudications[goal] = Adjudication(
+            goal=goal,
+            verdict=EntailmentVerdict.UNKNOWN,
+            target_hash="",
+            context_hash="",
+            reason=reason,
+        )
+
+
+def check_reasoning(
+    module: Module, diags: DiagnosticBag, symbols: object = None
+) -> ReasoningResult:
+    """Check a module's reasoning.
+
+    ``symbols`` is optional so every existing caller keeps working; it is used to build
+    the exact-evaluation environment that certificate checkers run in. Without it,
+    checkers that need declared domains fail closed rather than guessing.
+    """
+    return _ReasoningChecker(module, diags, symbols).run()

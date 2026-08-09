@@ -3,6 +3,8 @@
   "examples/analysis/derivative_and_integral.hml": "3dfcd11b29a247863ec607c4a91e1da4e0e8b853cec4a7f7213081690be83b1f",
   "examples/causal/correlation_is_not_causation.hml": "708ee062d535573edce0ee739b9fb9b6096abc49e38cba13892854df001558c4",
   "examples/concepts/location_scale_family.hml": "4498edfa93ba212cc54fb4f61a21b0a31deb9e349016688d3844d77c0987acd5",
+  "examples/logic/certified_underdetermination.hml": "d2739d78c95852849384a6c6d7458ed79c0b5cfe3614d8180b941439dbb0e11a",
+  "examples/logic/quantified_inference.hml": "9d7f090df41ee2ad25b2a9c1e7075605412abca7823175b9fdbf734b7e64b759",
   "examples/logic/quantifier_scope.hml": "8250373bb23c814a462ba8621e2df516f4d2dd4835743be0c53fde5a97545b1c",
   "examples/logic/quantifier_scope_reversed.hml": "11a6a261150914d89ef4d5083d00024b413799c87dd1e2e06446271d2e59657a",
   "examples/physics/kinetic_energy.hml": "25efff792d32ccf0785806946328a67d934d4fd183f3f950f55085ba00588eff",

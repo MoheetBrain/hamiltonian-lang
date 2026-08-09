@@ -79,6 +79,9 @@ __all__ = [
     "ProvedStmt",
     "RuleArg",
     "ScopeStmt",
+    "EvidenceStatus",
+    "EvidenceStmt",
+    "UndeterminedStmt",
     "V2_STATEMENTS",
     "binder_of",
     "expr_children",
@@ -661,14 +664,55 @@ class DerivationStatus:
 
 
 class GoalStatus:
-    """OPEN until a ``proved`` claim is adjudicated against a VERIFIED derivation."""
+    """OPEN until an adjudication moves it. Five states, none a synonym for another.
+
+    OPEN
+        Nothing has been adjudicated. The default, and the honest one.
+    PROVED
+        A ``proved`` claim was adjudicated against a VERIFIED derivation.
+    REFUTED
+        The negation was established.
+    UNSUBSTANTIATED
+        A proof *was* claimed and the claim failed. This records an attempt that did not
+        land -- it is not ignorance, and it is not underdetermination.
+    UNDERDETERMINED
+        Certified: the context entails neither the goal nor its negation, evidenced by two
+        validated models of the context that disagree on it.
+
+    **UNDERDETERMINED is a projection, never a setting.** It is written only by the
+    adjudication path in ``reasoning/check.py`` from a validated certificate, and it is
+    reachable by no other route. "No proof was found" produces OPEN. An unsupported
+    fragment produces OPEN. A failed proof claim produces UNSUBSTANTIATED. None of them
+    produces UNDERDETERMINED, because ignorance carries no models and certified
+    underdetermination carries two. See docs/hml_v2/GOLD10_CORE_SEMANTICS_SPEC.md §3.
+    """
 
     OPEN = "OPEN"
     PROVED = "PROVED"
     REFUTED = "REFUTED"
     UNSUBSTANTIATED = "UNSUBSTANTIATED"
+    UNDERDETERMINED = "UNDERDETERMINED"
 
-    ALL = (OPEN, PROVED, REFUTED, UNSUBSTANTIATED)
+    ALL = (OPEN, PROVED, REFUTED, UNSUBSTANTIATED, UNDERDETERMINED)
+
+
+class EvidenceStatus:
+    """The lifecycle of one ``evidence`` statement. Assigned by the checker, never by source.
+
+    PROPOSED  -- parsed and well-scoped; no checker has run.
+    VALID     -- a registered trusted checker validated the exact envelope.
+    REJECTED  -- the checker refused, or the envelope did not match the mathematics.
+
+    Deliberately *not* called VERIFIED. That word is reserved for a kernel-checked
+    derivation, and a certificate is a different kind of support; conflating the two
+    vocabularies is how "an oracle answered" turns into "it is proved".
+    """
+
+    PROPOSED = "PROPOSED"
+    VALID = "VALID"
+    REJECTED = "REJECTED"
+
+    ALL = (PROPOSED, VALID, REJECTED)
 
 
 @dataclass
@@ -738,6 +782,57 @@ class ProvedStmt(Statement):
 
 
 @dataclass
+class EvidenceStmt(Statement):
+    """``evidence e1 : entails 5.0 - 2.0 = 3.0 by closed_eval_v1()``
+
+    The bridge between HML-owned capability and the reasoning graph. ``checker`` names an
+    entry in the **static** trusted registry (``reasoning/certificates``); source cannot
+    define one. ``status`` is computed and has no surface syntax, exactly as
+    ``DeriveStmt.status`` has none.
+
+    ``judgement`` is mandatory in the surface and carries the semantic weight:
+
+    ``entails``
+        the premises establish this proposition. Usable as a premise once VALID.
+    ``determines_neither``
+        the premises establish neither this proposition nor its negation. **Never usable
+        as a premise** -- it is a statement about the theory, not an assertion of the
+        proposition. Spelling it out in the source is deliberate: ``evidence e : P`` alone
+        would read as "P holds" in both cases, and a syntax that admits an ambiguous
+        reading of *that* is a regression regardless of how short it is.
+    """
+
+    label: str = ""
+    #: "ENTAILS" | "DETERMINES_NEITHER" -- values of certificates.JudgementKind.
+    judgement: str = "ENTAILS"
+    proposition: Expr = field(default=None)  # type: ignore[assignment]
+    premises: list[str] = field(default_factory=list)
+    premise_ids: list[ClaimId | None] = field(default_factory=list)
+    checker: str = ""
+    checker_args: list[RuleArg] = field(default_factory=list)
+    claim_id: ClaimId | None = None
+    #: Computed by the checker. Source cannot set this.
+    status: str = EvidenceStatus.PROPOSED
+    rejection_reason: str | None = None
+
+
+@dataclass
+class UndeterminedStmt(Statement):
+    """``undetermined g1 by e1`` -- a *claim*, which the checker adjudicates.
+
+    The exact counterpart of ``ProvedStmt``, and adjudicated with the same suspicion:
+    writing it does not make the goal underdetermined. The checker requires that ``e1`` is
+    a VALID ``determines_neither`` certificate, that its proposition is canonically
+    identical to the goal's, and that its context still matches the context in scope here.
+    """
+
+    goal: str = ""
+    goal_id: ClaimId | None = None
+    evidence: str = ""
+    evidence_id: ClaimId | None = None
+
+
+@dataclass
 class ScopeStmt(Statement):
     """``scope`` ... ``end`` -- a lexical assumption frame (D-035, D-043).
 
@@ -757,7 +852,14 @@ class ScopeStmt(Statement):
 
 #: Every statement form introduced by V2. A module containing none of these is a v1
 #: module and MUST serialise byte-identically to the way it did before V2 existed.
-V2_STATEMENTS: tuple[type, ...] = (GoalStmt, DeriveStmt, ProvedStmt, ScopeStmt)
+V2_STATEMENTS: tuple[type, ...] = (
+    GoalStmt,
+    DeriveStmt,
+    ProvedStmt,
+    ScopeStmt,
+    EvidenceStmt,
+    UndeterminedStmt,
+)
 
 #: Every EXPRESSION form introduced by V2 (D-026). Kept beside ``V2_STATEMENTS``
 #: because ``uses_v2`` must consult both.

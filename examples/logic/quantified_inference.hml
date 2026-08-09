@@ -1,0 +1,32 @@
+module QuantifiedInference
+
+# Reasoning under a binder: universal elimination and introduction.
+#
+# `forall_elim` instantiates a universal at a term of the binder's domain. `forall_intro`
+# generalises again over an ARBITRARY variable -- one that no assumption in scope
+# constrains. The two together are the whole quantifier core; ordinary theorem application
+# composes from a library theorem plus elimination rather than being a third primitive.
+#
+# The round trip below is deliberately arithmetic-free. It exercises binder construction,
+# capture-avoiding instantiation and the eigenvariable condition without depending on any
+# algebraic identity, because the quantifier core must not be judged by whether one
+# arithmetic law happens to be available.
+#
+# What makes `d2` legitimate is that nothing in this module says anything about `a` in
+# particular. Adding
+#
+#     assume a3 : a = 0.0
+#
+# makes `a` a witness rather than an arbitrary natural, and `d2` is then REJECTED -- a
+# proof about zero does not generalise. That rejection is the point of the rule.
+
+var a : Natural
+
+assume a1 : forall x : Natural . x >= 0.0
+
+goal g1 : forall a : Natural . a >= 0.0
+
+derive d1 : a >= 0.0 from a1 by forall_elim(at := a)
+derive d2 : forall a : Natural . a >= 0.0 from d1 by forall_intro(var := a)
+
+proved g1 by d2

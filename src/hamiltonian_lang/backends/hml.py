@@ -19,6 +19,7 @@ from ..ast.nodes import (
     DerivativeExpr,
     DeriveStmt,
     DistExpr,
+    EvidenceStmt,
     Expr,
     GoalStmt,
     IndependenceExpr,
@@ -47,6 +48,7 @@ from ..ast.nodes import (
     SolveStmt,
     Statement,
     UnaryOp,
+    UndeterminedStmt,
 )
 
 __all__ = ["render_module", "render_statement", "render_expr"]
@@ -306,6 +308,25 @@ def render_statement(st: Statement) -> str:
 
     if isinstance(st, ProvedStmt):
         return f"proved {st.goal} by {st.derivation}"
+
+    if isinstance(st, EvidenceStmt):
+        # `status` is deliberately NOT rendered, for exactly the reason recorded on
+        # `derive` above: emitting it would let the surface language *state* that a
+        # certificate is VALID, and the entire point of the boundary is that only a
+        # registered checker decides that. The round trip restores the statement and the
+        # checker re-validates it, which is the correct behaviour.
+        judgement = "entails" if st.judgement == "ENTAILS" else "determines_neither"
+        premises = f" from {', '.join(st.premises)}" if st.premises else ""
+        args = ", ".join(
+            f"{a.role} := {render_expr(a.value)}" for a in st.checker_args
+        )
+        return (
+            f"evidence {st.label} : {judgement} {render_expr(st.proposition)}"
+            f"{premises} by {st.checker}({args})"
+        )
+
+    if isinstance(st, UndeterminedStmt):
+        return f"undetermined {st.goal} by {st.evidence}"
 
     if isinstance(st, ObjectiveStmt):
         return f"{st.direction} {render_expr(st.expression)}"

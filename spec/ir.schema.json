@@ -126,9 +126,11 @@
             "Concept",
             "Goal",
             "Derivation",
-            "ProofClaim"
+            "ProofClaim",
+            "Evidence",
+            "UnderdeterminationClaim"
           ],
-          "description": "Goal, Derivation and ProofClaim are the D-025 reasoning spine. They were emitted by backends/canonical.py from that change but were not added here at the time, so a V2 document failed schema validation; corrected alongside D-026."
+          "description": "Goal, Derivation and ProofClaim are the D-025 reasoning spine. They were emitted by backends/canonical.py from that change but were not added here at the time, so a V2 document failed schema validation; corrected alongside D-026. Evidence and UnderdeterminationClaim are the D-047 certificate boundary; the conformance gate caught their absence here the same way, which is what that gate is for. Note that Evidence carries its CHECKER NAME in canonical identity but not its status: the checker is part of what the claim says, because two modules resting on different trusted code are not the same module; the status is a verdict and never enters identity."
         }
       }
     },

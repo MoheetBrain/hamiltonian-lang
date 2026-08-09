@@ -1,0 +1,35 @@
+module CertifiedUnderdetermination
+
+# Affirming the consequent, stated precisely.
+#
+# From `P implies Q` and `Q`, nothing follows about P. That is not a limitation of the
+# checker and it is not "we could not find a proof" -- it is a fact about the premises,
+# and HML can now say so with evidence rather than with silence.
+#
+# The certificate carries two models of the premises that disagree about P:
+#
+#     holds:  P true,  Q true   -- satisfies both premises, P is true
+#     fails:  P false, Q true   -- satisfies both premises, P is false
+#
+# Together they show the premises entail neither P nor its negation. The checker
+# re-evaluates both models against every premise; it does not take the author's word for
+# any of it.
+#
+# Note what `determines_neither` does NOT say. It does not assert P, and evidence carrying
+# that judgement can never be used as a premise -- see the invalid counterpart in
+# tests/reasoning/test_underdetermination.py.
+
+var P : Bool
+var Q : Bool
+
+assume a1 : P implies Q
+assume a2 : Q
+
+goal g1 : P
+
+# The certificate must rest on the WHOLE context. Entailment is monotone, so a
+# non-entailment result proved against a subset of the premises would say nothing about
+# the premises actually in scope; omitting `a2` here is rejected.
+evidence e1 : determines_neither P from a1, a2 by propositional_underdetermination_v1(holds := P and Q, fails := (not P) and Q)
+
+undetermined g1 by e1

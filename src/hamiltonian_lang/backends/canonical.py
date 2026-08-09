@@ -34,6 +34,7 @@ from ..ast.nodes import (
     DerivativeExpr,
     DeriveStmt,
     DistExpr,
+    EvidenceStmt,
     Expr,
     GoalStmt,
     IndependenceExpr,
@@ -63,6 +64,7 @@ from ..ast.nodes import (
     Statement,
     SymbolId,
     UnaryOp,
+    UndeterminedStmt,
     uses_v2,
 )
 from ..types import Type
@@ -439,6 +441,39 @@ def _statement(st: Statement) -> dict:
             "kind": "ProofClaim",
             "goal": _claim(st.goal_id),
             "derivation": _claim(st.derivation_id),
+        }
+
+    if isinstance(st, EvidenceStmt):
+        # `status` is deliberately ABSENT, exactly as for a goal and a derivation: whether
+        # a checker happened to validate this in some run is evidence about the module,
+        # not part of the mathematics it states.
+        #
+        # The CHECKER NAME *is* part of identity, and that is not an exception to the rule
+        # -- it is the claim. "This proposition, certified by closed_eval_v1" and "this
+        # proposition, certified by some other checker" are different statements, because
+        # they rest on different trusted code. Dropping the name would make two modules
+        # with different trust bases hash equal, which is precisely the confusion the
+        # certificate boundary exists to prevent.
+        #
+        # Premise ORDER is part of identity, for the reason recorded on Derivation above.
+        return {
+            "kind": "Evidence",
+            "label": _claim(st.claim_id),
+            "judgement": st.judgement,
+            "checker": st.checker,
+            "premises": [_claim(p) for p in st.premise_ids],
+            "arguments": {
+                a.role: _expr(a.value)
+                for a in sorted(st.checker_args, key=lambda x: x.role)
+            },
+            "proposition": _expr(st.proposition),
+        }
+
+    if isinstance(st, UndeterminedStmt):
+        return {
+            "kind": "UnderdeterminationClaim",
+            "goal": _claim(st.goal_id),
+            "evidence": _claim(st.evidence_id),
         }
 
     if isinstance(st, RequireStmt):

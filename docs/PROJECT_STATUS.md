@@ -28,6 +28,43 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**GOLD-10 CORE REPAIR COMPLETE — the two generic core-semantic gaps are closed and a
+checked-certificate boundary exists. Zero model calls, zero training, deterministic
+engineering throughout.**
+
+A forensic Gold-10 triage on the separate corpus track (Codex, corpus `467a486`, pinned HML
+`164d1946`) found the original 13.04% CoreGapRate did not survive review: only **2/23
+transitions** were genuine generic core-semantic gaps. `git diff --name-only
+164d1946..22b4bb7 -- src/` is **empty**, so that triage inspected exactly this core and
+nothing needed re-deriving. Three things were built, and nothing else:
+
+1. **The checked-certificate boundary** (`reasoning/certificates/`) — one gate through
+   which non-kernel capability may become evidence, with a **static** trusted registry.
+   Source cannot define, override or extend a checker. Three checkers ship, each wrapping
+   capability that already existed in the tree: `closed_eval_v1`, `definition_unfold_v1`,
+   `propositional_underdetermination_v1`. Fail-closed on unknown checker, wrong judgement,
+   hash mismatch, malformed payload, unsupported fragment, and **any exception**.
+2. **GAP-0003, certified underdetermination** — a four-valued `EntailmentVerdict`
+   (`ENTAILED | REFUTED | UNDERDETERMINED | UNKNOWN`) is the semantic source of truth and
+   `GoalStatus.UNDERDETERMINED` is its projection. Certified by two models of Γ that
+   disagree on the target, each independently re-evaluated here. **Nothing converts
+   `UNKNOWN` into `UNDERDETERMINED`.**
+3. **GAP-0004, the quantifier core** — `forall_intro` / `forall_elim` with a real
+   eigenvariable condition, capture-avoiding instantiation, and locally-nameless binder
+   re-depthing verified against the resolver's own parse.
+
+**Two findings recorded rather than engineered around.** (a) `equivalence/symbolic.py` is
+**not** registered as a trusted checker: its verdicts rest on raw SymPy flags
+(`simplify(a-b) == 0`, `satisfiable(...)`) with no independent HML replay, so it is an
+untrusted oracle and may not certify a derivation. (b) Consequently Gold-10 **G07's body
+`n + 0 = n` remains library-level**; the quantifier core is therefore tested on
+generically-established bodies, never on a hard-coded arithmetic identity.
+
+Conformance: **PASS** on all eight stages. `pytest`: **6765 passed, 0 failed**, 80 of them
+new. Record: `DECISIONS.md` D-047, `docs/hml_v2/GOLD10_CORE_SEMANTICS_SPEC.md`.
+
+---
+
 **THE REPRESENTATION ARENA EXISTS AND IS GREEN — `arena-1.0.0`, zero model calls.**
 `evaluation/arena/` renders one neutral semantic world in three provably
 information-matched notations — structured English (SE), a generic semantic AST (the
@@ -776,7 +813,25 @@ D-001..D-021 in `DECISIONS.md`. Load-bearing ones:
 
 ## Verification and Test Results
 
-**Current run — 2026-08-08, the Representation Arena commit.** Executed, not estimated:
+**Current run — 2026-08-09, the Gold-10 core repair.** Executed, not estimated:
+
+| check | exact command | result |
+|---|---|---|
+| conformance gate | `bash scripts/conformance.sh` | **CONFORMANCE: PASS**, exit 0, all 8 stages |
+| full suite | `.venv/bin/python -m pytest` | **6765 passed**, 6 skipped, 7 xfailed, 7 xpassed, **0 failed** |
+| new tests | the five new files | **80 passed, 1 skipped** |
+| lint | `.venv/bin/ruff check src tests` | **All checks passed** |
+| types | `.venv/bin/mypy src/hamiltonian_lang` | **no issues in 95 source files** |
+| examples | `.venv/bin/hml check` over `examples/**` | all pass; the two new ones report `1 UNDERDETERMINED` and `2 VERIFIED / 1 PROVED` |
+| IR schema | `jsonschema.validate` over every example | passes; `Evidence` and `UnderdeterminationClaim` added to `spec/ir.schema.json` after the gate caught their absence |
+| binder numbering | `abstract()` vs the resolver's own parse | **5/5 shapes canonically identical** (flat, free constant, nested ∀∀, mixed ∀∃, second free var) |
+| freeze gate | `tests/freeze` | fired as designed on the four new keywords and two new statement kinds; amended deliberately in the same change |
+
+Two failures were found by the repo's own gates and fixed: `mypy` on the structural binder
+rebuild, and the IR schema, which did not know the two new statement kinds. A third, the
+golden tripwire, correctly refused the two new examples until they were blessed.
+
+**Previous run — 2026-08-08, the Representation Arena commit.** Executed, not estimated:
 
 | check | exact command | result |
 |---|---|---|
@@ -967,6 +1022,28 @@ property it asserted was false, because it never produced `def` parameters.
 - Q-03 (OpenMath licensing) blocks a reuse decision, not the build.
 
 ## Exact Next Actions
+
+**LIVE: hand the new HML SHA to Codex and stop.** The Gold-10 core repair is complete and
+the workflow is explicitly sequential — Codex owns the corpus, repins `hml_core`, and
+reruns the *same* Gold-10. Do not rerun Gold-10 here, do not modify the corpus repository,
+and do not proceed to Gold-100 until the unchanged Gold-10 rerun shows the classifications
+are stable. Handoff: `docs/agent_handoffs/CLAUDE_GOLD10_CORE_REPAIR.md`.
+
+Expected corpus effect, stated as a prediction to be checked rather than a result:
+
+| gap | expected after this change |
+|---|---|
+| GAP-0003 | **closed in core.** Certified underdetermination is expressible and enforced. |
+| GAP-0004 | **core closed; G07's body still library-level.** The quantifier rules exist and are checked; `n + 0 = n` needs an algebra theorem this change deliberately did not add. |
+| GAP-0001 | **exposable now** via `closed_eval_v1`, without a corpus schema change. |
+| GAP-0002 | **exposable now** via `definition_unfold_v1`, which records the definitions it unfolded. |
+| GAP-0005 / GAP-0006 | **remain library-level.** Probability and calculus are unchanged and out of scope by decision. |
+
+Deferred and *not* started, each needing a separate decision: the probability-law library,
+the calculus library, existential intro/elim, and the matched learning-curve experiment
+(SE-LoRA vs HML-LoRA vs S-expression-LoRA) which is training and remains blocked.
+
+---
 
 **The signal pivot supersedes the ordering below.** Broad compiler completion is
 deliberately not resumed. The live sequence is:

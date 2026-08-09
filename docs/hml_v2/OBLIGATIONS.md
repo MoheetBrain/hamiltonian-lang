@@ -55,6 +55,32 @@ for one.
 generated the obligation (`REASONING_MODEL.md` §4.2). Storing it would create a second place
 where the answer lives.
 
+### 1a. What an obligation is *not*: side conditions (D-047)
+
+An obligation is a **proposition** that must hold in the mathematics, and it is discharged
+against Γ. Two of the quantifier rules need something that is not of that shape:
+
+* the **eigenvariable condition** — "no assumption in scope mentions this variable freely" —
+  is a statement about the *proof*, not about the numbers;
+* **domain conformance** for `forall_elim` is a statement about the *type environment*.
+
+Neither can be written as a proposition for Γ to entail, so neither is an obligation.
+`RuleSpec.side_conditions` names them and `reasoning/side_conditions.py` answers them from a
+static table. The two mechanisms differ in what an unmet one means, and the difference is
+deliberate:
+
+| | obligation | side condition |
+|---|---|---|
+| shape | a proposition | a predicate over the proof context |
+| unmet | derivation is `CHECKED`, not `VERIFIED` | derivation is **`REJECTED`** |
+| discharged by | Γ, via `RefinementEnv.entails` | nothing — it holds or it does not |
+| unknown name | n/a | **rejects** |
+
+An unmet obligation leaves a structurally valid step waiting on a side condition somebody
+might yet establish. An unmet eigenvariable condition means the step was never valid at all:
+the proof was about a particular value. `CHECKED` would be the wrong verdict for that, so it
+is `REJECTED`.
+
 ---
 
 ## 2. Generation

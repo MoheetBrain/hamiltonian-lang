@@ -129,6 +129,37 @@ FROZEN_KEYWORDS: frozenset[str] = frozenset(
         # barrier is untouched. It reuses `end`, so the block convention stays one
         # convention rather than two.
         "scope",
+        # -- the checked-certificate boundary (D-047) ----------------------
+        # Four keywords opening two statement forms:
+        #     evidence     e1 : entails <prop> [from ...] by <checker>(...)
+        #     evidence     e2 : determines_neither <prop> from ... by <checker>(...)
+        #     undetermined g1 by e2
+        #
+        # Admitted deliberately, with the same three questions D-025 and D-026 answered:
+        #
+        # 1. *Does it reach the quarantined `v1/` layer?* No. `evidence` reaches
+        #    `reasoning/certificates/`, a new package depending only on `ast/`,
+        #    `backends/canonical.py` and `verification/obligations/evaluate.py`. The
+        #    import barrier is untouched.
+        # 2. *Does it promote a QUARANTINED_SURFACE_FORM?* No -- and this needs stating
+        #    carefully, because `entails` also appears in that table. The quarantined L3
+        #    form is `entails p3 from [p1, p2] via modus_ponens`, where `entails` is a
+        #    STATEMENT HEAD. Here it is never a statement head: it is a mandatory
+        #    judgement qualifier that can appear only after `evidence <label> :`. The
+        #    parser dispatches no statement on `entails`, so the L3 form still fails to
+        #    parse, and `test_quarantined_surface_forms_are_rejected` still asserts it.
+        #    The two occupy different grammatical positions and could coexist if L3 were
+        #    ever unquarantined.
+        # 3. *Is it enforced or merely parsed?* Enforced, which is the entire point. An
+        #    `evidence` statement is REJECTED unless a checker in the static registry
+        #    validates the exact envelope; `undetermined` is REJECTED unless that
+        #    certificate is VALID, carries a `determines_neither` judgement, is about the
+        #    goal's own proposition, and was issued against the context still in scope.
+        #    Executed rejections: `tests/reasoning/test_certificates.py` and
+        #    `tests/reasoning/test_underdetermination.py`.
+        #
+        # Record: DECISIONS.md D-047, docs/hml_v2/GOLD10_CORE_SEMANTICS_SPEC.md.
+        "evidence", "undetermined", "entails", "determines_neither",
     }
 )
 
@@ -150,6 +181,11 @@ NON_STATEMENT_KEYWORDS: frozenset[str] = frozenset(
         "probability", "joint", "independent", "in",
         "limit", "derivative", "integral", "continuous",
         "associated", "correlated", "causes",
+        # D-047: `entails` and `determines_neither` are judgement qualifiers *inside* an
+        # `evidence` statement, never statement heads -- which is precisely why the
+        # quarantined L3 form `entails p3 from [...] via ...` remains rejected.
+        # `evidence` and `undetermined` ARE statement heads and so are absent.
+        "entails", "determines_neither",
     }
 )
 
@@ -223,6 +259,17 @@ FROZEN_STATEMENT_KINDS: frozenset[str] = frozenset(
         "ProvedStmt",
         # -- scoped assumption frames (D-043) ------------------------------
         "ScopeStmt",
+        # -- the checked-certificate boundary (D-047) ----------------------
+        # `EvidenceStmt` is the bridge through which HML-owned capability -- the exact
+        # evaluator, definitional unfolding -- becomes reasoning evidence, and through
+        # which future libraries will do the same without adding trusted kernel rules.
+        # `UndeterminedStmt` is the adjudicating counterpart of `ProvedStmt`.
+        #
+        # Neither carries a settable status: `EvidenceStatus` and `GoalStatus` are
+        # computed, exactly as `DerivationStatus` is, and there is no surface syntax for
+        # VALID or UNDERDETERMINED.
+        "EvidenceStmt",
+        "UndeterminedStmt",
     }
 )
 

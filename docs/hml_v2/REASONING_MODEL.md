@@ -304,6 +304,82 @@ becomes PROVED, and any English or LaTeX rendering must say so in words.
 > `INCONCLUSIVE`. **This model requires both**, giving five goal states:
 > `OPEN | PROVED | REFUTED | ASSERTED_UNCHECKED | UNSUBSTANTIATED`. See
 > `DESIGN_LOCK.md` D-V2-009.
+>
+> **Resolved in the implementation, recorded here (D-047):** the AST carries
+> `UNSUBSTANTIATED` — a `proved` claim that was adjudicated and failed — and not
+> `ASSERTED_UNCHECKED`. The distinction this note demanded is preserved; it is drawn
+> between `OPEN` ("nobody adjudicated") and `UNSUBSTANTIATED` ("somebody claimed and it did
+> not hold up") rather than by a fifth name.
+
+### 3a. Certified underdetermination (D-047)
+
+```
+   OPEN ──── undetermined g by e,  e VALID, judgement = determines_neither,
+             proposition(e) ≡ P,  context(e) ≡ context here ────► UNDERDETERMINED
+```
+
+**UNDERDETERMINED** — the premises entail neither `P` nor `¬P`, and there is checked
+evidence of it: two models of Γ, independently re-evaluated here, that disagree on `P`.
+
+Four conditions, all required, each separately tested. The certificate must be VALID; it
+must carry the `determines_neither` judgement; its proposition must be canonically
+identical to the goal's; and its **context must still match**. The last exists because
+entailment is monotone — Γ ⊭ P says nothing about Γ ∪ {a₃} — so a certificate issued
+earlier in a module is not spendable after a premise has been added. For the same reason a
+non-entailment certificate must rest on *every* established claim in scope; one that omits
+a premise is rejected.
+
+**What must never reach this state.** Search failed. Proof not found. Timeout. Unsupported
+syntax. Unsupported semantic fragment. Partial model. An external solver answering
+"unknown". Absence of evidence. Every one of those is `OPEN`.
+
+The separation is structural rather than a matter of remembering to check a flag.
+`reasoning/adjudication.py` carries a four-valued `EntailmentVerdict`
+(`ENTAILED | REFUTED | UNDERDETERMINED | UNKNOWN`) which is the semantic source of truth,
+and `GoalStatus` is its **projection**; `UNKNOWN` projects onto `OPEN`. Setting the enum is
+not a proof, and nothing outside the adjudication path can set it.
+
+**Why a judgment rather than a status.** A status word cannot say *which* Γ it was about,
+and for a claim about a theory that is the load-bearing fact. `Adjudication` binds the
+verdict to the target's identity, the context's identity, the ordered premise identities,
+the supporting claim and the checker that validated it.
+
+Supported fragment in V0: **finite ground classical propositional logic** over declared
+`Bool` names. No first-order completeness is claimed. Anything outside it fails closed.
+
+Requiring *both* witnesses to satisfy Γ also certifies Γ **satisfiable**, so an
+inconsistent context — which entails everything — cannot acquire this status by this route.
+
+### 3b. Quantified inference (D-047)
+
+Two rules, `forall_intro` and `forall_elim`. Ordinary theorem application composes from a
+library theorem plus elimination plus the existing substitution machinery, rather than
+becoming a third trusted primitive. Existential intro/elim are deliberately absent.
+
+```
+    Γ, a : D (arbitrary) ⊢ φ(a)                Γ ⊢ ∀x : D . φ(x)     t : D
+    ---------------------------                ------------------------------
+        Γ ⊢ ∀x : D . φ(x)                              Γ ⊢ φ[t/x]
+```
+
+**The eigenvariable condition is stronger than the textbook one, deliberately.** The
+textbook rule quantifies over "undischarged assumptions the body proof depends on"; read
+as the transitive premise closure that would leave a hole, because HML discharges
+obligations against Γ through `RefinementEnv.entails`, not only through cited premise
+edges — a derivation can rest on an assumption it never names. The implemented condition is
+therefore: **no assumption in scope, including inside `scope` frames, may mention the
+variable freely.** It over-rejects, which is the safe direction.
+
+**The kernel stays context-free.** It cannot answer either condition — one needs the whole
+assumption set, the other the type environment — so `RuleSpec.side_conditions` names them
+and `check.py` answers them from a static table. An unknown name **rejects**: a rule can
+never be admitted by a guard nobody implemented.
+
+**Binder construction is re-depthing, not wrapping.** Identity here is locally nameless
+(`sym:#<depth>.<ordinal>`), so a premise's module-level `n` and a conclusion's bound `n`
+are different symbols. `reasoning/binders.py` rebuilds the subtree so the result is exactly
+what the resolver produces from the same text; no second notion of identity is introduced,
+and the test uses the resolver itself as the oracle.
 
 ---
 

@@ -105,7 +105,13 @@ class Backend:
         readable rather than invisible -- the discipline ``BackendResult.faithful``
         exists to enforce.
         """
-        from ..ast.nodes import DeriveStmt, GoalStmt, ProvedStmt
+        from ..ast.nodes import (
+            DeriveStmt,
+            EvidenceStmt,
+            GoalStmt,
+            ProvedStmt,
+            UndeterminedStmt,
+        )
 
         for st in self.module.statements:
             if isinstance(st, GoalStmt):
@@ -128,6 +134,31 @@ class Backend:
                     f"proved {st.goal}",
                     f"{self.target} cannot express that a goal was adjudicated; the "
                     f"proof claim and the checker's verdict are erased",
+                    st.span.line,
+                )
+            elif isinstance(st, EvidenceStmt):
+                # The loss here is unusually dangerous and the message says so. Stripping
+                # the judgement from a `determines_neither` certificate leaves a bare
+                # proposition sitting in the output, and a reader downstream will take
+                # that as an assertion of the very thing the certificate says is
+                # unsettled. That is the exact inversion this construct exists to prevent.
+                self.drop(
+                    f"evidence {st.label}",
+                    f"{self.target} has no checked-certificate form; the judgement "
+                    f"({st.judgement}), the checker identity ({st.checker}), the declared "
+                    f"dependencies and the context the certificate was issued against are "
+                    f"all erased. For a determines_neither certificate what survives is a "
+                    f"bare proposition, which READS AS AN ASSERTION OF THE OPPOSITE of "
+                    f"what the certificate states",
+                    st.span.line,
+                )
+            elif isinstance(st, UndeterminedStmt):
+                self.drop(
+                    f"undetermined {st.goal}",
+                    f"{self.target} cannot express that a goal was certified "
+                    f"underdetermined; the two-model evidence is erased, and with it the "
+                    f"distinction between 'the premises settle neither way' and 'nobody "
+                    f"proved it'",
                     st.span.line,
                 )
 

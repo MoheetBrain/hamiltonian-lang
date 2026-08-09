@@ -28,6 +28,7 @@ from ..ast.nodes import (
     DerivativeExpr,
     DeriveStmt,
     DistExpr,
+    EvidenceStmt,
     Expr,
     GoalStmt,
     IndependenceExpr,
@@ -58,6 +59,7 @@ from ..ast.nodes import (
     Span,
     Statement,
     UnaryOp,
+    UndeterminedStmt,
 )
 from ..diagnostics import DiagnosticBag
 from ..lexer import Token, TokenKind, tokenize
@@ -287,6 +289,12 @@ class Parser:
         if t.is_kw("proved"):
             return self.parse_proved()
 
+        if t.is_kw("evidence"):
+            return self.parse_evidence()
+
+        if t.is_kw("undetermined"):
+            return self.parse_undetermined()
+
         if t.is_kw("scope"):
             return self.parse_scope()
 
@@ -319,7 +327,7 @@ class Parser:
             correction=(
                 "statements begin with one of: module var param const obs index rv def "
                 "law prior likelihood assume require prove minimise maximise solve "
-                "infer check concept goal derive proved"
+                "infer check concept goal derive proved evidence undetermined"
             ),
         )
         raise ParseAbort
@@ -399,7 +407,25 @@ class Parser:
             raise ParseAbort
 
         rule_tok = self.expect_ident("to name the inference rule")
-        rule_args: list[RuleArg] = []
+        rule_args = self._parse_role_args(rule_tok.value, "rule")
+
+        self.end_line("derivation")
+        return DeriveStmt(
+            label=label,
+            conclusion=conclusion,
+            premises=premises,
+            rule=rule_tok.value,
+            rule_args=rule_args,
+            span=Span.merge(t.span, rule_tok.span),
+        )
+
+    def _parse_role_args(self, head: str, kind: str) -> list[RuleArg]:
+        """``( <role> := <expr> [, ...] )``, shared by ``derive`` and ``evidence``.
+
+        Extracted rather than copied: the two forms must agree on role labelling, on the
+        duplicate-role rule and on the diagnostics, and a second copy would drift.
+        """
+        args: list[RuleArg] = []
         if self.accept_op("("):
             if not self.cur.is_op(")"):
                 while True:
@@ -410,12 +436,10 @@ class Parser:
                         bad = self.cur
                         self._err(
                             "HML-P252",
-                            f"positional arguments are not permitted for rule "
-                            f"{rule_tok.value!r}",
+                            f"positional arguments are not permitted for {kind} {head!r}",
                             bad.span,
                             correction=(
-                                f"label each argument by its role, e.g. "
-                                f"{rule_tok.value}(by := k)"
+                                f"label each argument by its role, e.g. {head}(by := k)"
                             ),
                             notes=[
                                 "role labels are mandatory for the same reason they are "
@@ -427,31 +451,117 @@ class Parser:
                     role_tok = self.next()
                     self.next()  # ':='
                     value = self.parse_expr()
-                    rule_args.append(
+                    args.append(
                         RuleArg(role=role_tok.value, value=value, span=role_tok.span)
                     )
                     if not self.accept_op(","):
                         break
-            self.expect_op(")", f"to close the arguments of {rule_tok.value!r}")
+            self.expect_op(")", f"to close the arguments of {head!r}")
 
         seen: set[str] = set()
-        for a in rule_args:
+        for a in args:
             if a.role in seen:
                 self.diags.error(
                     "HML-P253",
-                    f"role {a.role!r} is given more than once to {rule_tok.value!r}",
+                    f"role {a.role!r} is given more than once to {head!r}",
                     a.span,
                 )
             seen.add(a.role)
+        return args
 
-        self.end_line("derivation")
-        return DeriveStmt(
+    def parse_evidence(self) -> EvidenceStmt:
+        """``evidence <id> : <judgement> <prop> [from <id>, ...] by <checker>[(...)]``
+
+        ``<judgement>`` is ``entails`` or ``determines_neither`` and is **mandatory**.
+        Making it optional would be the tempting simplification and it would be a
+        semantic regression: ``evidence e : P`` has to mean either "P holds" or "P is
+        exactly what the premises fail to settle", and those are opposites. A reader --
+        human or model -- must not have to infer which from the checker's name.
+        """
+        t = self.next()
+        label = self._require_claim_label("evidence")
+
+        judgement_tok = self.cur
+        if judgement_tok.is_kw("entails"):
+            self.next()
+            judgement = "ENTAILS"
+        elif judgement_tok.is_kw("determines_neither"):
+            self.next()
+            judgement = "DETERMINES_NEITHER"
+        else:
+            self._err(
+                "HML-P256",
+                "an evidence statement must say what kind of judgement it carries",
+                correction=(
+                    f"evidence {label} : entails <proposition> by <checker>(...)  or  "
+                    f"evidence {label} : determines_neither <proposition> by <checker>(...)"
+                ),
+                notes=[
+                    "'entails' means the premises establish the proposition; "
+                    "'determines_neither' means they settle neither it nor its negation",
+                    "the second is never usable as a premise, so the two cannot share a "
+                    "spelling",
+                ],
+            )
+            raise ParseAbort
+
+        proposition = self.parse_expr()
+
+        premises: list[str] = []
+        if self.accept_kw("from"):
+            while True:
+                premises.append(self.expect_ident("as a premise of the evidence").value)
+                if not self.accept_op(","):
+                    break
+
+        if not self.accept_kw("by"):
+            self._err(
+                "HML-P257",
+                "an evidence statement must name the checker that validates it",
+                correction=f"evidence {label} : ... by <checker>(<role> := ...)",
+                notes=[
+                    "evidence with no named checker is an assertion; the checker is what "
+                    "makes it adjudicable",
+                    "checkers come from a static trusted registry -- source cannot "
+                    "define one",
+                ],
+            )
+            raise ParseAbort
+
+        checker_tok = self.expect_ident("to name the certificate checker")
+        checker_args = self._parse_role_args(checker_tok.value, "checker")
+
+        self.end_line("evidence")
+        return EvidenceStmt(
             label=label,
-            conclusion=conclusion,
+            judgement=judgement,
+            proposition=proposition,
             premises=premises,
-            rule=rule_tok.value,
-            rule_args=rule_args,
-            span=Span.merge(t.span, rule_tok.span),
+            checker=checker_tok.value,
+            checker_args=checker_args,
+            span=Span.merge(t.span, checker_tok.span),
+        )
+
+    def parse_undetermined(self) -> UndeterminedStmt:
+        """``undetermined <goal> by <evidence>`` -- the counterpart of ``proved``."""
+        t = self.next()
+        goal = self.expect_ident("to name the goal being claimed underdetermined")
+        if not self.accept_kw("by"):
+            self._err(
+                "HML-P258",
+                "an underdetermination claim must name the evidence it rests on",
+                correction="undetermined g1 by e1",
+                notes=[
+                    "'undetermined g1' alone would be an unsupported assertion, and the "
+                    "one thing this form exists to prevent is 'nobody proved it' being "
+                    "written down as 'it cannot be proved'"
+                ],
+            )
+            raise ParseAbort
+        ev = self.expect_ident("to name the evidence")
+        self.end_line("undetermined")
+        return UndeterminedStmt(
+            goal=goal.value, evidence=ev.value, span=Span.merge(t.span, ev.span)
         )
 
     def parse_scope(self) -> ScopeStmt:

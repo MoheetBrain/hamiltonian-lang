@@ -132,7 +132,9 @@ def compile_source(source: str, file: str = "<input>") -> CompileResult:
 
     from .reasoning import check_reasoning
 
-    reasoning = check_reasoning(module, bag)
+    # `symbols` is threaded through so certificate checkers can build the exact-evaluation
+    # environment from the module's declarations. Without it they fail closed.
+    reasoning = check_reasoning(module, bag, symbols)
     return CompileResult(module, bag, symbols, result.obligations, source, reasoning)
 
 

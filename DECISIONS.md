@@ -1904,3 +1904,110 @@ reported as free.
 `BINDER_KINDS` and fails if a sixth binder is added without a `binder_of` branch, and
 `test_an_unknown_expression_kind_still_descends_structurally` pins the structural
 fall-through on a node type that does not exist in the language.
+
+---
+
+## D-047 — the checked-certificate boundary, certified underdetermination, and the quantifier core
+
+**Date:** 2026-08-09 · **After:** `22b4bb7` · **Implements:** Gold-10 GAP-0003, GAP-0004
+· **Spec:** `docs/hml_v2/GOLD10_CORE_SEMANTICS_SPEC.md`
+
+**Problem.** A forensic Gold-10 triage (Codex, corpus `467a486`, pinned HML `164d1946`;
+`git diff --name-only 164d1946..22b4bb7 -- src/` is empty, so it inspected this exact core)
+found the original 13.04% CoreGapRate did not survive review. Only **two** genuine generic
+core-semantic gaps remained, plus one integration problem:
+
+* **GAP-0003** — no sound terminal state meaning "the premises entail neither Q nor not-Q".
+  `GoalStatus` had `OPEN`/`PROVED`/`REFUTED`/`UNSUBSTANTIATED` and nothing for a *certified*
+  result.
+* **GAP-0004** — no checked reasoning under a binder. `RULES` had sixteen rules and not one
+  quantified; `_substitute` deliberately refuses to enter a `Quantifier`.
+* **Integration** — HML already contained an exact rational evaluator with definitional
+  unfolding, and none of it could feed the v2 `derive`/`proved` path, which admits exactly
+  one source of truth: a kernel rule.
+
+**Decision, in three parts.**
+
+**1. One certificate boundary, not many rules.** Adding a rule per capability grows the TCB
+once per mathematical fact anyone wants. Instead `reasoning/certificates/` provides a single
+gate: envelope (claim/context/premise hashes, checker id) → **static** trusted registry →
+`CheckedEvidence` or rejection. There is no registration path reachable from HML source or
+library data; a library that could register `def always_valid(...): return VALID` would end
+the TCB. Three checkers ship, each wrapping capability that already existed:
+`closed_eval_v1`, `definition_unfold_v1`, `propositional_underdetermination_v1`.
+
+**`equivalence/symbolic.py` is deliberately NOT registered.** Its own docstring is explicit
+that `simplify(a - b) == 0` certifies equality and validity is decided by `satisfiable(...)`;
+HML performs no independent replay of either. It is `UNTRUSTED_ORACLE` and may not certify a
+derivation, regardless of the module using the word "certificate". The consequence is
+recorded rather than engineered around: **Gold-10 G07's body `n + 0 = n` remains
+library-level**, and the quantifier core is tested without it.
+
+**2. Underdetermination is a judgment, not a status.** `Adjudication` binds verdict, target
+hash, context hash, ordered premise hashes, support and checker; `GoalStatus.UNDERDETERMINED`
+is its *projection*. The reason is monotonicity: Γ ⊭ P for a subset says nothing about Γ, so
+a status word — which cannot say which Γ it was about — is not enough. Two consequences are
+enforced and separately tested: a non-entailment certificate must **cover every established
+claim in scope**, and it is **not spendable after the context changes**.
+
+`UNKNOWN` and `UNDERDETERMINED` are different values and nothing converts one into the
+other. Search failure, timeout, unsupported fragment, partial model, absent evidence — all
+land on `OPEN`. Certified underdetermination carries two validated models of Γ that disagree
+on the target; requiring both to satisfy Γ also certifies Γ satisfiable, so an inconsistent
+context cannot acquire the status by this route.
+
+**3. `forall_intro` / `forall_elim`, with a real eigenvariable condition.** Not a vague
+"theorem application" primitive: ordinary theorem use composes from library theorem +
+elimination + existing substitution.
+
+The construction is the subtle part. HML's identity is locally nameless — `SymbolId.canonical()`
+is `sym:#<depth>.<ordinal>` — and the resolver numbers a binder at nesting depth *d* as
+`depth=d`, module declarations as `depth=0`. Measured:
+
+```
+assume a1 : n + 0.0 = n                        -- refs are sym:#0.0
+goal   g1 : forall n : Natural . n + 0.0 = n   -- binder and refs are sym:#1.0
+```
+
+So wrapping the premise in a `Quantifier` builds a term the resolver would never produce and
+the step would be rejected for a reason unrelated to its validity. `reasoning/binders.py`
+re-depths the subtree instead. **No second notion of identity is introduced** — the point is
+to let the existing `expr_identity` decide the comparison, and
+`test_abstract_reproduces_the_resolvers_own_numbering` uses the resolver as the oracle for
+five shapes rather than asserting hand-written expectations.
+
+**The eigenvariable condition is deliberately stronger than the textbook one.** The textbook
+rule quantifies over "undischarged assumptions the body proof depends on"; implemented as the
+premise closure that would leave a hole, because HML discharges obligations against Γ via
+`RefinementEnv.entails`, not only through cited premise edges — a derivation can rest on an
+assumption it never names. So the implemented condition is: **no assumption in scope may
+mention the variable freely**, including inside `scope` frames. This over-rejects, and that is
+the safe direction.
+
+**The kernel stays context-free.** `RuleSpec` gains `side_conditions: tuple[str, ...]`; the
+kernel names them, `check.py` answers them from a static table, and an **unknown name
+rejects** — a rule can never be admitted by a guard nobody implemented.
+
+**Grammar.** Two statement forms, four keywords:
+
+```
+evidence     <id> : entails|determines_neither <prop> [from <id>,...] by <checker>[(<role> := e,...)]
+undetermined <goal> by <evidence>
+```
+
+The judgement word is **mandatory**. `evidence e : P` would have to mean either "P holds" or
+"P is exactly what the premises fail to settle" — opposites — and a reader must not infer
+which from the checker's name. `entails` also appears in `QUARANTINED_SURFACE_FORMS` as the
+head of the quarantined L3 form `entails p3 from [...] via ...`; here it is never a statement
+head, the parser dispatches no statement on it, and that form remains rejected.
+
+**Verification.** `pytest -q`: see the commit body for exact counts; 73 new tests across
+`test_binders.py`, `test_certificates.py`, `test_underdetermination.py`,
+`test_quantifiers.py`. `ruff check src/`: clean. The freeze gate fired as designed —
+`FROZEN_KEYWORDS` and `FROZEN_STATEMENT_KINDS` had to be amended deliberately in the same
+change, which is the mechanism working.
+
+**Deliberately not implemented.** Existential introduction/elimination (Gold-10 exposed no
+such gap; recorded as an expected sibling). Probability laws. Calculus laws. Arithmetic
+rewrite rules. Any `x - 0 -> x`, `f(3)` or `n + 0 = n` special case. Those are libraries, and
+the boundary above is how they will arrive without touching the kernel.

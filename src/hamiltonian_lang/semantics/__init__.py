@@ -30,6 +30,7 @@ from ..ast.nodes import (
     DerivativeExpr,
     DeriveStmt,
     DistExpr,
+    EvidenceStmt,
     Expr,
     GoalStmt,
     IndependenceExpr,
@@ -60,6 +61,7 @@ from ..ast.nodes import (
     Statement,
     SymbolId,
     UnaryOp,
+    UndeterminedStmt,
 )
 from ..diagnostics import DiagnosticBag
 from ..types import Type
@@ -600,7 +602,18 @@ class Resolver:
                 self.visit_statement(inner)
             return
 
-        if isinstance(st, ProvedStmt):
+        if isinstance(st, EvidenceStmt):
+            # Same split as `derive`: expressions resolve in the value namespace, premise
+            # labels belong to the disjoint claim namespace. The checker *name* is not
+            # resolved here either -- it indexes the static trusted registry, which is not
+            # a namespace any module can add to.
+            self.visit_expr(st.proposition)
+            for a in st.checker_args:
+                self.visit_expr(a.value)
+            return
+
+        if isinstance(st, (ProvedStmt, UndeterminedStmt)):
+            # Both name claims only, and claims are resolved by the reasoning pass.
             return
         if isinstance(st, ObjectiveStmt):
             self.visit_expr(st.expression)

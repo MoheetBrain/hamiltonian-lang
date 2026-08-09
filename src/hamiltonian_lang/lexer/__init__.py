@@ -50,6 +50,13 @@ KEYWORDS = frozenset(
         # have to guess whether `by` was meant as a name. Verified safe -- no .hml file
         # in the repository uses any of these five as an identifier.
         "derive", "goal", "proved", "from", "by",
+        # The checked-certificate boundary. `entails` and `determines_neither` are full
+        # keywords for the same reason `by` is: the judgement is the load-bearing word of
+        # an `evidence` statement -- it decides whether the claim may ever be a premise --
+        # and no diagnostic about a malformed one should have to guess whether the author
+        # meant a name. Verified safe: no `.hml` file in the repository uses any of these
+        # four as an identifier, and a test keeps it that way.
+        "evidence", "undetermined", "entails", "determines_neither",
         # D-043: `scope ... end` opens a lexical assumption frame. Reuses the
         # `end` terminator that `concept` already established, so the block
         # convention is one convention rather than two.

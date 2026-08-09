@@ -5082,3 +5082,137 @@ The single highest-value action is the **matched learning-curve experiment** (sa
 model, SE-LoRA vs HML-LoRA vs S-expression-LoRA, 1k→5k→10k). Every zero-shot avenue is now
 exhausted, and H2 — familiarity — is the only hypothesis left standing, with the `HML_OBF`
 collapse as its supporting signature. That is a training experiment and is out of scope here.
+
+---
+
+## 2026-08-09 — Gold-10 core repair: certificate boundary, certified underdetermination, quantifier core
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **Base:** `22b4bb7` · **Stage:** HML core
+semantics (not the arena) · **Model calls: 0. Training: 0. Arena calls: 0.**
+
+### Objective
+
+Close the two generic core-semantic gaps a forensic Gold-10 triage identified on the
+separate corpus track, plus the one integration boundary, and **nothing else**. Explicitly
+out of scope by instruction: probability laws, calculus rules, arithmetic rewriting,
+function-evaluation rules, any Gold-10-specific recogniser, corpus changes, training,
+further model experiments.
+
+### What was verified before editing
+
+Branch, HEAD `22b4bb7`, clean worktree, LOCAL == REMOTE. Critically:
+`git diff --name-only 164d1946..22b4bb7 -- src/` is **empty** — the three commits since the
+corpus pin are all arena/evaluation work — so Codex's triage describes exactly this core and
+no later change conflicts with it. That removed one of the brief's stop conditions.
+
+The triage's load-bearing claims were checked independently and all hold: `GoalStatus` had no
+certified-underdetermination state; `RULES` had sixteen rules and none quantified;
+`kernel._substitute` deliberately refuses to enter a `Quantifier`; there was no certificate
+concept anywhere. One correction: the triage describes `reasoning/evidence.py` as the
+"evidence/provenance boundary", which overstates it — it is a dependency *graph* with cycle
+validation and has no notion of a certificate or a checker.
+
+### Files and systems changed
+
+New: `reasoning/binders.py`, `reasoning/certificates/{__init__,builtin}.py`,
+`reasoning/adjudication.py`, `reasoning/side_conditions.py`,
+`docs/hml_v2/GOLD10_CORE_SEMANTICS_SPEC.md`, two examples, five test files.
+Changed: `ast/nodes.py`, `lexer/`, `parser/`, `semantics/`, `type_system/`,
+`backends/{canonical,hml,base}.py`, `reasoning/{kernel,check}.py`, `__init__.py`,
+`spec/ir.schema.json`, `tests/freeze/frozen_subset.py`, `DECISIONS.md` (D-047),
+`docs/hml_v2/{GRAMMAR_CONTRACT,REASONING_MODEL,OBLIGATIONS}.md`.
+
+### Decisions made, and why
+
+**One boundary, not many rules.** A rule per capability grows the trusted computing base
+once per mathematical fact anyone wants. `reasoning/certificates/` is a single gate with a
+**static** registry: source may refer to a checker by name and may not supply one, because a
+library able to register `def always_valid(...): return VALID` would end the TCB.
+
+**`equivalence/symbolic.py` is NOT registered.** Its own docstring says `simplify(a-b) == 0`
+certifies equality and validity is decided by `satisfiable(...)`; HML replays neither. It is
+an untrusted oracle. Promoting it because the module says "certificate" is exactly the error
+the brief names. **Consequence, accepted rather than worked around: Gold-10 G07's body
+`n + 0 = n` stays library-level**, and the quantifier core is tested on generically-
+established bodies instead — a ∀-elim/∀-intro round trip with no arithmetic in it.
+
+**Underdetermination is a judgment, not a status.** Entailment is monotone, so Γ ⊭ P says
+nothing about Γ ∪ {a₃}; a status word cannot record which Γ it was about. `Adjudication`
+binds verdict, target hash, context hash and ordered premise hashes, and `GoalStatus` is its
+projection. Two consequences fall out and are separately enforced: a non-entailment
+certificate must cover **every** established claim in scope, and it is **not spendable after
+the context changes**. Neither was spelled out in the incoming brief; both are soundness
+requirements, not polish.
+
+**The eigenvariable condition is stronger than the textbook rule, deliberately.** Read
+literally it quantifies over the premise closure — which would leave a hole, because HML
+discharges obligations against Γ via `RefinementEnv.entails`, not only through cited premise
+edges, so a derivation can rest on an assumption it never names. Implemented instead: no
+assumption in scope, including inside `scope` frames, may mention the variable freely. This
+over-rejects; that is the safe direction.
+
+**Binder construction is re-depthing, not wrapping.** Identity is locally nameless, so a
+premise's module-level `n` (`sym:#0.0`) and a conclusion's bound `n` (`sym:#1.0`) are
+different symbols. Wrapping would build a term the resolver never produces and the step would
+be rejected for a reason unrelated to its validity. No second notion of identity was
+introduced — the point is to let the existing `expr_identity` decide.
+
+### Tests and verification actually executed
+
+| check | command | result |
+|---|---|---|
+| conformance | `bash scripts/conformance.sh` | **CONFORMANCE: PASS**, exit 0, 8/8 stages |
+| full suite | `.venv/bin/python -m pytest` | **6765 passed, 6 skipped, 7 xfailed, 7 xpassed, 0 failed** |
+| new tests | five new files | 80 passed, 1 skipped |
+| lint | `ruff check src tests` | All checks passed |
+| types | `mypy src/hamiltonian_lang` | no issues in 95 source files |
+| binder numbering | `abstract()` vs the resolver's parse | 5/5 shapes canonically identical |
+
+Attacks executed and all repelled, each a test: unknown checker · checker reaching a
+judgement it does not offer · checker that raises · checker that establishes something else
+· checker reporting VALID naming nothing · claim-hash mismatch · **stale context** ·
+premise-hash mismatch · certificate omitting a premise of Γ · witness violating a premise ·
+duplicated witness · partial model · swapped witnesses · undeclared atom · numeric witness
+value · unsupported fragment · `determines_neither` used as a premise · forged
+`CheckedEvidence` · witness-specific ∀-intro (also inside a `scope`) · wrong-domain ∀-elim ·
+capturing instantiation · body/conclusion mismatch · unimplemented side condition ·
+universal forged from a finite sample.
+
+### Failures and unresolved uncertainty
+
+Three gates fired during the work and each was a real defect, not noise: `mypy` on the
+structural binder rebuild; `spec/ir.schema.json` not knowing the two new statement kinds
+(the same omission D-025 made and D-026 fixed); and the golden tripwire refusing two
+unblessed examples. All three fixed and re-run green.
+
+**Recorded honestly:** the brief asked for six atomic commits in a stated order. This landed
+as fewer, because the AST, grammar and `check.py` substrate is shared by all three features
+and splitting it would have produced intermediate commits that do not pass — worse than a
+larger coherent one. The spec was still written first, as instructed.
+
+**Open:** `REFUTED` has no adjudicating statement form. It did not before this change either;
+it is named in the verdict vocabulary so the judgment is total over the four semantic
+outcomes rather than shaped by which statements happen to exist.
+
+**Grammar-contract drift found and reported, not repaired:** `GRAMMAR_CONTRACT.md` specifies
+`obligation` and `discharge` statements that were never implemented, omits `scope` which was,
+shows a `derive ... yields` form that differs from the implementation, and names a
+`GoalStatus` value (`ASSERTED_UNCHECKED`) that is not in the AST. Corrected only where
+D-047's own additions would otherwise read untruthfully; the rest goes to Codex.
+
+### Effect on the overall project
+
+The HML core can now express certified underdetermination and reason under a binder, and has
+one auditable place for future mathematics to enter without touching the trusted kernel. The
+TCB grew by the boundary, three small checkers, and one evaluator already in the tree — and
+by no domain mathematics.
+
+This is orthogonal to the arena programme's cumulative finding, which is unchanged: across
+five measurements, no HML-specific advantage over a fair control has been demonstrated.
+Nothing here was measured against a model, and nothing here claims otherwise.
+
+### Next intended step
+
+Hand the new SHA to Codex via `docs/agent_handoffs/CLAUDE_GOLD10_CORE_REPAIR.md` and **stop**.
+Codex owns the corpus, repins `hml_core`, and reruns the *same* Gold-10. No Gold-100 until
+that rerun shows the classifications are stable.
