@@ -5010,3 +5010,75 @@ exactly this reason. Fixed with `pytest.importorskip("tiktoken")`, which is the 
 guard itself prescribes. The override path was deliberately not used — the guard was right.
 
 **Next.** Commit, push, smoke, then the 48-call pilot.
+
+## 2026-08-08 — ENDPOINT B2 RESULT: structure beats prose on quantifier scope; HML does not beat a fair generic control
+
+**SHA at start.** `508a699` (the frozen instrument). **48 scientific calls.**
+
+| arm | pairs BOTH-CORRECT | items | invalid | trunc | mean ptok |
+|---|---|---|---|---|---|
+| **AST_V2** | **4/8 = 0.500** | **12/16 = 0.750** | 0 | 0 | **242.8** |
+| **HML** | **3/8 = 0.375** | 10/16 = 0.625 | 0 | 0 | 345.9 |
+| **SE** | **1/8 = 0.125** | 8/16 = 0.500 | 0 | 0 | 280.2 |
+
+Paired item discordances (N=16): HML vs SE **+0.125** (5 gains, 3 losses); AST_V2 vs SE
+**+0.250** (4 gains, **0 losses**); AST_V2 vs HML **+0.125** in the control's favour.
+
+### Two findings, and they point in different directions
+
+**1. Structure beats prose on quantifier scope — the first positive structural signal in
+this programme.** Both structured arms beat SE, and AST_V2 never lost to SE on a single
+item. SE scored **8/16 items = exactly chance** for a two-way question, and its errors are
+perfectly symmetric (4 FALSE→TRUE, 4 TRUE→FALSE) — the signature of coin-flipping. On this
+mechanism, prose conveys binder order to this model essentially not at all.
+
+**2. HML does not beat a fair generic control — the control beat it.** `AST_V2` ≥ HML on
+both pairs (4/8 vs 3/8) and items (12/16 vs 10/16). **This is the endpoint HML was
+specifically designed for**, tested against a plain S-expression that borrows none of its
+machinery, and HML did not come out ahead.
+
+The length explanation is unavailable in either direction: AST_V2 is the **shortest** arm
+(242.8 mean prompt tokens vs SE 280.2 and HML 345.9), so HML cannot claim a terseness
+handicap, and its loss to AST_V2 is not a length artefact in HML's favour either.
+
+**Interpretation: `HML_STRUCTURE_ONLY_SIGNAL`.** Structure is doing the work; nothing in
+HML's specific ontology is. At 8 pairs this is descriptive — no significance is claimed —
+but the direction is consistent with every prior measurement.
+
+### Protocol deviation, recorded
+
+**No separate smoke run was performed.** The `b2` stage is fixed at 8 pairs in the frozen
+manifest, so the first invocation *was* the pilot; the intended 1-pair smoke had no separate
+path. The smoke's purpose — validating runtime and scorer integration — was already
+discharged by four prior runs on the same runner (Endpoint A ×3, causal scout) with zero
+runtime failures, and this run produced 0 invalid, 0 truncations, 0 errors and 48/48
+persisted records. The output file was renamed `B2_SMOKE` → `B2_PILOT` to match what it
+actually is. No result was altered.
+
+The run's stdout was piped through `head`, which closed the display early; the process still
+wrote all 48 records and its summary, confirmed by both the JSON and the 48-line incremental
+JSONL sidecar. Incremental persistence did its job.
+
+### Verification
+
+`pytest -q tests/arena` → 241 passed. `ruff` → clean. `CONFORMANCE: PASS` on the freeze
+commit. Every prompt hash matches `ENDPOINT_B2_MANIFEST.json`, frozen before the first call.
+
+### Cumulative position, five measurements
+
+- B1 implication direction: SE > HML > AST-v1 — HML negative.
+- Endpoint A next-action: null on independent replication.
+- Error topology: closed offline, premise within chance.
+- Causal scout: no rescue among epistemic, familiarity or verifier interventions.
+- **B2 quantifier scope: structure > prose, but generic structure ≥ HML.**
+
+**No measurement has yet shown an HML-specific advantage over a fair control.** The one
+thing that now *is* supported is that a structured representation beats prose on binder
+scope — which is an argument for structure generally, not for HML.
+
+### Next
+
+The single highest-value action is the **matched learning-curve experiment** (same base
+model, SE-LoRA vs HML-LoRA vs S-expression-LoRA, 1k→5k→10k). Every zero-shot avenue is now
+exhausted, and H2 — familiarity — is the only hypothesis left standing, with the `HML_OBF`
+collapse as its supporting signature. That is a training experiment and is out of scope here.

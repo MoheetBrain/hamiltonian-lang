@@ -42,6 +42,14 @@ executable**: that generator builds its English inline and discards the structur
 nothing survives to render a second way. The arena rebuilds the worlds structure-first;
 `difficulty-lab-1.0.0` is untouched and byte-identical.
 
+**ENDPOINT B2 RESULT — AST_V2 4/8 > HML 3/8 > SE 1/8 pairs (items 12/16, 10/16, 8/16).**
+On the mechanism HML was *designed* for, structure clearly beats prose — SE scored exactly
+chance (8/16) with perfectly symmetric errors, i.e. coin-flipping — but **a plain generic
+S-expression beat HML**. AST_V2 never lost to SE on a single item (Δ̂ +0.250) and edged HML
+(Δ̂ +0.125). The length explanation is unavailable: AST_V2 is the *shortest* arm (243 vs SE
+280, HML 346). Verdict **`HML_STRUCTURE_ONLY_SIGNAL`** — structure does the work, HML's
+specific ontology does not. 48 calls, 0 invalid, 0 truncations. Descriptive at N=8.
+
 **GENERIC_AST_V2 BUILT; ENDPOINT B2 (QUANTIFIER SCOPE) FROZEN.** A compact generic
 S-expression control — `forall(x, D, exists(y, D, R(x, y)))` — with nesting carried by
 parenthesis depth and **no HML machinery** (asserted by test). AST-v1 preserved and excluded:
