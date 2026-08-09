@@ -5216,3 +5216,46 @@ Nothing here was measured against a model, and nothing here claims otherwise.
 Hand the new SHA to Codex via `docs/agent_handoffs/CLAUDE_GOLD10_CORE_REPAIR.md` and **stop**.
 Codex owns the corpus, repins `hml_core`, and reruns the *same* Gold-10. No Gold-100 until
 that rerun shows the classifications are stable.
+
+---
+
+## 2026-08-09 — Codex handoff written; Gold-10 core repair closed out
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `5688aba` · **Stage:** handoff.
+Documentation only; `git diff --stat 5688aba..HEAD -- src/` is empty.
+
+### Objective
+
+Give Codex everything needed to repin `hml_core` and rerun the same Gold-10, including the
+two results it will not like.
+
+### What was completed
+
+`docs/agent_handoffs/CLAUDE_GOLD10_CORE_REPAIR.md`: SHAs, certificate architecture, the
+three trusted checkers with their fragments and trust bases, the underdetermination and
+quantifier contracts, existing capabilities reused, per-gap expected reclassification, API
+changes, test counts, TCB, and five unresolved questions.
+
+### The two findings the handoff leads with
+
+1. `equivalence/symbolic.py` is **not** a trusted checker — raw SymPy flags, no HML replay.
+2. Therefore **G07's body stays library-level** and Codex's rerun will still show GAP-0004's
+   body open. The handoff says so explicitly and tells Codex to judge the quantifier core by
+   `examples/logic/quantified_inference.hml` instead.
+
+Reporting an expected non-improvement in the handoff is the point: a rerun that surprises
+the corpus owner is worse than one that confirms a stated prediction.
+
+### Verification
+
+`git diff --stat 5688aba..HEAD -- src/` → empty, so pinning either commit gives identical
+semantics. Conformance re-run by the pre-commit hook on both commits.
+
+### Effect on the overall project
+
+The core track's Gold-10 obligations are discharged. Ownership passes to Codex.
+
+### Next intended step
+
+**Stop.** Do not rerun Gold-10, do not touch the corpus, do not start Gold-100. Await the
+rerun result.

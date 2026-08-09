@@ -63,6 +63,14 @@ generically-established bodies, never on a hard-coded arithmetic identity.
 Conformance: **PASS** on all eight stages. `pytest`: **6765 passed, 0 failed**, 80 of them
 new. Record: `DECISIONS.md` D-047, `docs/hml_v2/GOLD10_CORE_SEMANTICS_SPEC.md`.
 
+**Handed off. `5688aba` is the SHA for Codex to pin** — it carries every source change, and
+anything after it on this branch is documentation only (`git diff --stat 5688aba..HEAD --
+src/` is empty). `docs/agent_handoffs/CLAUDE_GOLD10_CORE_REPAIR.md` states the per-gap
+expected reclassification as predictions to be checked, and leads with the two findings the
+corpus owner will not like — the SymPy trust classification and G07's body remaining open —
+rather than burying them. Ownership of the next step is Codex's; Gold-10 was not rerun here
+and the corpus was not touched.
+
 ---
 
 **THE REPRESENTATION ARENA EXISTS AND IS GREEN — `arena-1.0.0`, zero model calls.**
