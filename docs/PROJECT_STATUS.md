@@ -42,6 +42,16 @@ executable**: that generator builds its English inline and discards the structur
 nothing survives to render a second way. The arena rebuilds the worlds structure-first;
 `difficulty-lab-1.0.0` is untouched and byte-identical.
 
+**CAUSAL SCOUT: NO CONDITION RESCUES HML. CASE D — frozen zero-shot branch closed.**
+SE 5/6 · HML_BASIC 4/6 · HML_EPI 3/6 · HML_VERIFY 3/6 · HML_OBF 2/6 (30 calls, 0 truncations).
+Three sub-findings: (1) `HML_OBF` answered UNDETERMINED on **all six** items — a degenerate
+constant, so obfuscation stopped the model engaging rather than degrading it gracefully;
+(2) `HML_VERIFY` failed a two-bit lookup — handed *both* proof signals false, it still
+answered TRUE, so deterministic feedback did **not** repair unsupported commitment;
+(3) `HML_EPI` made over-commitment worse (UNDET→definite 2/2 vs 1/2 baseline). H3 and H4
+unsupported; H2 has the only positive signature, arguing for matched adaptation rather than
+any prompt-level fix. **Four measurements now, none showing frozen zero-shot HML helping.**
+
 **ERROR-TOPOLOGY BRANCH CLOSED OFFLINE (0 calls).** The motivating signal is compatible
 with chance: HML made ~5 errors per family, and P(0 of a subtype | 5 errors) = (2/3)^5 =
 0.13. Error opportunity is also confounded with family — polarity errors exist only on logic

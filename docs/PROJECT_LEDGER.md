@@ -4875,3 +4875,84 @@ structured signals not a class label; **`HML_BASIC` byte-identical to the frozen
 treatment**; 6/6 compile.
 
 **Next.** Commit, push, then spend 30 scout calls.
+
+## 2026-08-08 — causal scout: NO condition rescues. CASE D. Frozen zero-shot HML branch closed.
+
+**SHA at start.** `164d194`. **30 scout calls spent.** 0 truncations, 0 runtime errors.
+
+| condition | score | vs HML_BASIC | mean ctok |
+|---|---|---|---|
+| SE | **5/6** | +1 | 101 |
+| HML_BASIC | **4/6** | — | 266 |
+| HML_EPI | **3/6** | **−1** | 136 |
+| HML_VERIFY | **3/6** | **−1** | 144 |
+| HML_OBF | **2/6** | **−2** | 136 |
+
+**No intervention improved on `HML_BASIC`. Pre-declared CASE D: close the frozen zero-shot
+HML branch.** Expansion is not triggered — the rule required ≥ +2/6 and a matching error
+pattern; every condition moved the wrong way.
+
+### Three sub-findings, each more informative than the headline
+
+**1. `HML_OBF` collapsed into a degenerate constant.** It answered `UNDETERMINED` on **all
+six items**. Its 2/6 is not partial competence — it is exactly the two items whose key
+happens to be UNDETERMINED. Effective signal: zero. Replacing nine structural keywords with
+synthetic tokens, while preserving labels, operators, nesting and line count, did not
+degrade reasoning gracefully; it stopped the model engaging at all. Lexical familiarity is
+load-bearing for *whether the model attempts the task*, not merely for accuracy. This probe
+cannot isolate pretraining exposure and that claim is not made — but of the four hypotheses,
+H2 is the only one with a striking positive signature here.
+
+**2. `HML_VERIFY` failed a two-bit lookup — and this is about the model, not HML.** The
+condition hands over `query_proof_found` and `neg_query_proof_found`, which jointly
+determine the class; it should have been near-ceiling. It scored 3/6. On
+`log_L3_800000` the verifier reported **both** signals false — meaning neither the query nor
+its negation is provable, i.e. UNDETERMINED — and the model answered **TRUE** anyway.
+
+That is the single most consequential observation in this scout: **deterministic semantic
+feedback did not repair unsupported commitment, because the model did not act on it.** A
+verifier loop built on this organism would not fix over-commitment. H4 is not supported as a
+rescue.
+
+Two `HML_VERIFY` responses were the bare word `TRUE` with no `FINAL:` line and were scored
+wrong under the frozen strict rule. **Not rescored** — the manifest forbids post-hoc
+rescoring. For transparency: of the 4 that parsed, 3 were correct; the lenient reading would
+be 4/6, still far short of ceiling and leaving the conclusion unchanged.
+
+**3. `HML_EPI` made over-commitment *worse*, not better.** The H3 mechanism cell —
+UNDETERMINED → definite — went from 1/2 under `HML_BASIC` to **2/2** under `HML_EPI`.
+Supplying oracle-derived ESTABLISHED / REFUTED / OPEN status for every non-query atom did not
+reduce unsupported commitment; on this scout it accompanied more of it. H3 is not supported,
+and is mildly contra-indicated.
+
+### Interpretation
+
+H1 (intrinsic harm to this model) remains consistent with everything: `HML_BASIC` sits below
+SE and nothing lifts it. H3 and H4 are not supported. H2 has the one positive signature, but
+in a form that argues for **matched adaptation** — the model needs learned exposure — rather
+than for any prompt-level fix.
+
+**At N=6 none of this is statistics.** It is mechanism triage, and its value is in what it
+rules *out*: three candidate cheap rescues were tested and none works.
+
+### Verification
+
+`run_screen causal --model gemma3:4b --n-items 6` → exit 0, 30 calls, 0 truncations,
+0 errors, 0 invalid. Every prompt hash matches `CAUSAL_DIAGNOSIS_MANIFEST.json`, frozen at
+`164d194` before the first call.
+
+### Cumulative position
+
+- B1 implication direction: **SE > HML > AST** — HML negative.
+- Endpoint A next-action: micro +0.500, replication **0.000** — null.
+- Error topology: closed offline, premise within chance.
+- Causal scout: **no rescue among epistemic, familiarity, or verifier interventions**.
+
+Four measurements, none showing frozen zero-shot HML helping this model.
+
+### Next
+
+Do not spend more calls on frozen zero-shot HML prompting. The only branch this evidence
+supports is a **matched learning-curve experiment** — same base model, SE-LoRA vs HML-LoRA,
+1k → 5k → 10k examples — which tests H2 directly. That is a training experiment and is
+explicitly out of scope for this session; it should not begin without a separate decision.
