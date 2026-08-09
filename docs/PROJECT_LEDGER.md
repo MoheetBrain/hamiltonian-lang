@@ -4678,3 +4678,68 @@ control would separate "compact structure" from "structure at all" and give AST 
 showing; (2) endpoint B2 on quantifier scope once that control exists; (3) endpoint A
 (next-action), which tests `S_t → a_t → S_{t+1}` and is the mechanism HML's reasoning spine
 was actually built for.
+
+## 2026-08-08 — Endpoint A instrument: built by reuse, audited adversarially, frozen. No calls yet.
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Starting SHA.** `c0e7520`.
+**Stage 0 complete: instrument frozen, zero model calls spent.**
+
+**Hypothesis.** `P(correct a_t | S_t, G, HML)` vs `P(correct a_t | S_t, G, SE)` — does
+representing the state in HML make the correct *next action* easier to select? This is a
+different question from B1, which tested representation → final semantic answer.
+
+**Built by reuse, not by rebuilding.** `evaluation/arena/endpoints/next_action.py` already
+existed: four candidate next results, distractors in four named roles
+(`not_yet_reachable`, `wrong_arithmetic`, `already_established`, plus the correct one), and
+a per-option oracle (`_assert_unique_*`) that *proves* exactly one option passes before an
+item is emitted. Writing a second generator would have duplicated audited machinery. Added
+only: an `ENDPOINT_A` seed band (700 000+), a `nexta` stage, item balancing, and the audit.
+
+**Action-space framing, stated plainly.** The "action" is *which fact to derive next* —
+four candidate conclusions — not a free-form transformation vocabulary
+(`substitute`/`case-split`/…). That is the operational content of `S_t --a_t--> S_{t+1}` in
+the arena's own kernel terms, and it is what the existing oracle can verify deterministically.
+Inventing an action vocabulary would have meant building new mathematics infrastructure to
+adjudicate "usefulness", which the mission excludes.
+
+**Arms: SE and HML only.** The AST control is omitted because the binder diagnostic showed
+it cannot read nesting; Endpoint A is not where that gets settled, and including it would
+spend calls on a known deficit.
+
+**A real defect found and fixed before freezing: answer-position bias.** The per-item
+shuffle is uniform in expectation but lumpy at N=12 — it produced **A 2 / B 4 / C 1 / D 5**,
+which lets answer position carry information and lets a positional prior beat chance. Items
+are now rotated so the key lands on a cyclically assigned letter: **A 3 / B 3 / C 3 / D 3**,
+with the key still provably on the `role="correct"` option. This changes which letter the
+correct option wears, never the options or the semantics.
+
+**Adversarial audit — 24 checks, all passing** (`tests/arena/test_endpoint_a_audit.py`).
+Written to falsify fairness, covering every class this programme has already been bitten by:
+
+- semantic parity — both arms decode to the same `canonical_world`;
+- action parity — same four options, same order, same letters, pairwise distinct **in every
+  arm** (the duplicate-option trap from `FACT_CONTENT`);
+- answer parity — one key, on the `correct` role;
+- leakage — no `world_id`, seed, item id, `_swap`/`_flip`, `Arena_`, or role name in any
+  prompt. *The bare word "correct" is deliberately allowed*: it occurs in the shared
+  question, byte-identical in both arms, so it is task wording, not a cue. The first audit
+  run flagged it and the audit was corrected, not the prompt;
+- position balance, plus an explicit "constant letter cannot beat chance" test;
+- **surface heuristics** — longest-option, shortest-option, largest-number, smallest-number,
+  prompt-length-tracks-key, and "pick the option naming a just-established variable" all
+  fail to beat chance;
+- counterfactual sensitivity — the key provably depends on the established prefix;
+- HML validity — every state compiles under the real compiler;
+- determinism, and seed disjointness from **all five** previously burned bands.
+
+**Frozen** in `ENDPOINT_A_MANIFEST.json` before any call: item ids, seeds, families,
+**correct indices**, per-option roles, per-arm prompt hashes, model digest, runtime, scorer
+version, and `no_post_hoc_rescoring` / `no_item_deletion_after_results` / staged-burn rules.
+Smoke seeds (790 001+) are recorded as `SMOKE_EXCLUDED_FROM_RESULTS` and are disjoint from
+the pilot set (700 001+).
+
+**Verification.** `pytest -q tests/arena` → 225 passed. `ruff check` → clean.
+Live model digest re-checked against the freeze: `a2af6cc3eb7fa8be…`, match.
+
+**Next.** Commit and push, then Stage 1 smoke (4 items × 2 arms = 8 calls, excluded from
+results), then Stage 2 micro-pilot (12 items × 2 arms = 24 calls).

@@ -31,6 +31,10 @@ BANDS: dict[str, tuple[int, int]] = {
     #: reason. Its own band so a diagnostic can never consume a gate or pilot seed, and so
     #: it is unmistakably not a fourth acquisition attempt.
     "DIAGNOSTIC": (600_000, 699_999),
+    #: Endpoint A -- next-action selection. Its own band so it consumes nothing already
+    #: burned by developmental selection, the acquisition gate, the binder diagnostic or
+    #: the B1 pilot.
+    "ENDPOINT_A": (700_000, 799_999),
     "CALIBRATION_LEGACY": (900_000, 999_999),
 }
 

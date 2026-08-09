@@ -42,6 +42,14 @@ executable**: that generator builds its English inline and discards the structur
 nothing survives to render a second way. The arena rebuilds the worlds structure-first;
 `difficulty-lab-1.0.0` is untouched and byte-identical.
 
+**ENDPOINT A (next-action) INSTRUMENT IS FROZEN — 24-check adversarial audit passed, zero
+model calls spent.** Built by reusing the existing oracle-verified `next_action` generator;
+new seed band `ENDPOINT_A` (700 000+); arms SE and HML only. A real defect was found and
+fixed before freezing: answer positions were A2/B4/C1/D5, now 3/3/3/3. Surface-heuristic
+tests (longest/shortest option, numeric magnitude, prompt length, just-established-variable)
+all fail to beat chance. Frozen in `ENDPOINT_A_MANIFEST.json` with correct indices and
+per-arm prompt hashes.
+
 **THE FIRST HML-vs-SE REASONING RESULT EXISTS. IT IS NEGATIVE FOR HML.**
 
 Pilot B1 (12 `IMPLICATION_DIRECTION` minimal-contrast pairs, 72 calls, `gemma3:4b`, temp 0,

@@ -139,9 +139,9 @@ def build_algebraic_item(w: World, rng: random.Random) -> Item:
         seed=w.seed,
         world=w,
         question=(
-            "Which of the following is a correct next result -- one that follows from "
-            "the facts together with the results established so far, without first "
-            "deriving any other value?"
+            "Choose the next step to take. Exactly one of the options below is a "
+            "correct next result -- one that follows from the facts together with the "
+            "results established so far, without first deriving any other value."
         ),
         answer=answer,
         answer_space=tuple(o.key for o in opts),
@@ -255,8 +255,9 @@ def build_logic_item(w: World, rng: random.Random) -> Item:
         seed=w.seed,
         world=w,
         question=(
-            "Which of the following is necessarily true given the facts, and is not "
-            "already among the results established so far?"
+            "Choose the next step to take. Exactly one of the options below is "
+            "necessarily true given the facts and is not already among the results "
+            "established so far."
         ),
         answer=answer,
         answer_space=tuple(o.key for o in opts),

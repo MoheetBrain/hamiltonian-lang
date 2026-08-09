@@ -53,6 +53,7 @@ _STAGE_BANDS = {
     "ACQUISITION": "ACQUISITION",
     "PILOT": "PILOT",
     "BINDER_DIAGNOSTIC": "DIAGNOSTIC",
+    "ENDPOINT_A": "ENDPOINT_A",
 }
 
 #: Identical for every arm and every stage. Recorded in the freeze.
@@ -269,6 +270,11 @@ STAGES = {
     # Control characterisation, not a gate: does an arm let the model read binder order?
     "binder": dict(stage="BINDER_DIAGNOSTIC", band="DIAGNOSTIC", arms=("SE", "AST", "HML"),
                    n_per_contrast=0, pair_offset=0),
+    # Endpoint A -- next-action selection, SE vs HML only. The AST control is omitted
+    # because the binder diagnostic showed it cannot read nesting, and Endpoint A is not
+    # where that question gets settled; adding it would spend calls on a known deficit.
+    "nexta": dict(stage="ENDPOINT_A", band="ENDPOINT_A", arms=("SE", "HML"),
+                  n_per_contrast=0, pair_offset=0),
     # Pilot composition is calibrated from the SE-ONLY control arm, never from treatment:
     # DEV_SELECTION showed OPERAND_ORDER at 4/4 (ceiling) against QUANTIFIER_ORDER 2/4 and
     # IMPLICATION_DIRECTION 2/4. Including a saturated operator would spend a third of the
@@ -285,6 +291,46 @@ STAGES = {
                   n_per_contrast=12, pair_offset=0,
                   contrasts=("IMPLICATION_DIRECTION",)),
 }
+
+
+def _endpoint_a_items(seed_base: int, n_items: int, level: str):
+    """`n_items` next-action items, alternating between the two families.
+
+    Reuses `endpoints.next_action` unchanged -- its correct option is already unique by a
+    per-option oracle test, and its distractors already cover four named roles. Building a
+    second generator here would duplicate audited machinery for no scientific gain.
+    """
+    from dataclasses import replace as _replace
+
+    from .endpoints import next_action
+    from .endpoints.common import LETTERS, Option
+
+    fams = ("ALGEBRAIC_DEPENDENCY_GRAPH", "FINITE_LOGIC_WORLD")
+    out, seed = [], seed_base
+    while len(out) < n_items:
+        got = next_action.build_items(fams[len(out) % 2], level, [seed])
+        out.extend(got)
+        seed += 1
+        if seed > seed_base + 5000:
+            raise RuntimeError("could not build enough endpoint-A items")
+    out = out[:n_items]
+
+    # Balance the answer POSITION. The per-item shuffle is uniform in expectation but
+    # lumpy at N=12 -- unbalanced it came out A2/B4/C1/D5, which lets answer position
+    # carry information and lets a positional prior score above chance. Each item's
+    # options are rotated so the correct one lands on a cyclically assigned letter; this
+    # changes which letter the correct option wears, never the options or the semantics.
+    balanced = []
+    for i, item in enumerate(out):
+        target = i % len(LETTERS[:4])
+        cur = [o for o in item.options]
+        ci = next(j for j, o in enumerate(cur) if o.key == item.answer)
+        cur = cur[ci:] + cur[:ci]              # correct option first
+        cur = cur[-target:] + cur[:-target] if target else cur
+        opts = tuple(Option(LETTERS[j], o.prop, o.role) for j, o in enumerate(cur))
+        key = next(o.key for o in opts if o.role == "correct")
+        balanced.append(_replace(item, options=opts, answer=key))
+    return balanced
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -305,6 +351,10 @@ def main(argv: list[str] | None = None) -> int:
              "no earlier candidate has seen",
     )
     ap.add_argument(
+        "--n-items", type=int, default=12,
+        help="endpoint-A item count (balanced across the two families)",
+    )
+    ap.add_argument(
         "--acq-seed-base", type=int, default=400_001,
         help="first ACQUISITION seed; bump it to draw a completely fresh item set",
     )
@@ -318,7 +368,12 @@ def main(argv: list[str] | None = None) -> int:
         model=a.model, level=a.level, max_tokens=a.max_tokens, **cfg,
     )
 
-    if a.stage == "binder":
+    if a.stage == "nexta":
+
+        items = _endpoint_a_items(a.acq_seed_base, a.n_items, a.level)
+        assert_band([i.world.seed for i in items], "ENDPOINT_A")
+        pairs = None
+    elif a.stage == "binder":
         from .endpoints import binder_diag
 
         items = binder_diag.build_items()

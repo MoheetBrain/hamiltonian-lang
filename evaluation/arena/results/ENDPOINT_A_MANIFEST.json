@@ -1,0 +1,308 @@
+{
+  "schema": "ENDPOINT_A_MANIFEST/1",
+  "frozen_at": "2026-08-08",
+  "git_sha_at_freeze": "c0e7520b56d9ce26f91e433961f8e314bfa7a6fa",
+  "hypothesis": "P(correct a_t | S_t, G, HML) vs P(correct a_t | S_t, G, SE)",
+  "arms": [
+    "SE",
+    "HML"
+  ],
+  "ast_omitted_because": "binder diagnostic showed the AST control cannot read nesting; Endpoint A is not where that is settled",
+  "model": {
+    "name": "gemma3:4b",
+    "digest": "a2af6cc3eb7fa8be8504abaf9b04e88f17a119ec3f04a3addf55f92841195f5a"
+  },
+  "runtime": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "isolated_stateless_call_per_item": true,
+    "order_seed": 20260808
+  },
+  "band": "ENDPOINT_A (700000-799999)",
+  "level": "L3",
+  "action_space": "four candidate next results; the action is WHICH FACT TO DERIVE NEXT, not a free-form transformation",
+  "oracle": "per-option test: algebraic = unresolved AND all dependencies resolved AND value exact; logic = entailed AND not already established. _assert_unique_* proves exactly one option passes.",
+  "scorer": {
+    "version": "arena-scorer-1.1.0",
+    "rule": "strict FINAL: required; allow_bare NOT applied; truncation unscored"
+  },
+  "arena_version": "arena-1.0.0",
+  "system_prompt_sha256": "5f5eb2344f1c274087ed86204dd869830376e2713c7ac370761129e458131c3a",
+  "instructions_sha256": "479ab217d844b61c7bff7f6d2ac2e315bd204e6e96e218f0ce984465c520e294",
+  "rules": {
+    "no_post_hoc_rescoring": true,
+    "no_item_deletion_after_results": true,
+    "staged_burn": "stage1 smoke 4 items=8 calls (excluded from results); stage2 micro-pilot 12 items=24 calls",
+    "max_pairs_without_authorisation": 50
+  },
+  "stage1_smoke": {
+    "tag": "SMOKE_EXCLUDED_FROM_RESULTS",
+    "seed_base": 790001,
+    "n_items": 4,
+    "items": [
+      {
+        "item_id": "A_alg_L3_790001_k2",
+        "seed": 790001,
+        "family": "ALGEBRAIC_DEPENDENCY_GRAPH",
+        "correct_index": "A",
+        "roles": {
+          "A": "correct",
+          "B": "not_yet_reachable",
+          "C": "already_established",
+          "D": "wrong_arithmetic"
+        },
+        "prompt_sha256_first16": {
+          "SE": "b973bbd90cca3fb4",
+          "HML": "96817fdf9cecb7e9"
+        }
+      },
+      {
+        "item_id": "A_log_L3_790002_e3",
+        "seed": 790002,
+        "family": "FINITE_LOGIC_WORLD",
+        "correct_index": "B",
+        "roles": {
+          "A": "already_established",
+          "B": "correct",
+          "C": "opposite_polarity",
+          "D": "already_established"
+        },
+        "prompt_sha256_first16": {
+          "SE": "20f02b6ddd649573",
+          "HML": "5b814c771e702575"
+        }
+      },
+      {
+        "item_id": "A_alg_L3_790004_k3",
+        "seed": 790004,
+        "family": "ALGEBRAIC_DEPENDENCY_GRAPH",
+        "correct_index": "C",
+        "roles": {
+          "A": "wrong_arithmetic",
+          "B": "not_yet_reachable",
+          "C": "correct",
+          "D": "already_established"
+        },
+        "prompt_sha256_first16": {
+          "SE": "2e32e376857db933",
+          "HML": "99b1afcc9c31b0f8"
+        }
+      },
+      {
+        "item_id": "A_log_L3_790005_e3",
+        "seed": 790005,
+        "family": "FINITE_LOGIC_WORLD",
+        "correct_index": "D",
+        "roles": {
+          "A": "opposite_polarity",
+          "B": "already_established",
+          "C": "already_established",
+          "D": "correct"
+        },
+        "prompt_sha256_first16": {
+          "SE": "2e67158475d0f42e",
+          "HML": "0309be2629972cd8"
+        }
+      }
+    ]
+  },
+  "stage2_micro_pilot": {
+    "tag": "MICRO_PILOT",
+    "seed_base": 700001,
+    "n_items": 12,
+    "items": [
+      {
+        "item_id": "A_alg_L3_700001_k5",
+        "seed": 700001,
+        "family": "ALGEBRAIC_DEPENDENCY_GRAPH",
+        "correct_index": "A",
+        "roles": {
+          "A": "correct",
+          "B": "already_established",
+          "C": "wrong_arithmetic",
+          "D": "not_yet_reachable"
+        },
+        "prompt_sha256_first16": {
+          "SE": "d0308324c2fd06fe",
+          "HML": "e24b3620328a7a97"
+        }
+      },
+      {
+        "item_id": "A_log_L3_700002_e3",
+        "seed": 700002,
+        "family": "FINITE_LOGIC_WORLD",
+        "correct_index": "B",
+        "roles": {
+          "A": "opposite_polarity",
+          "B": "correct",
+          "C": "already_established",
+          "D": "already_established"
+        },
+        "prompt_sha256_first16": {
+          "SE": "4249efd74e429595",
+          "HML": "d812b2df926f87a0"
+        }
+      },
+      {
+        "item_id": "A_alg_L3_700003_k2",
+        "seed": 700003,
+        "family": "ALGEBRAIC_DEPENDENCY_GRAPH",
+        "correct_index": "C",
+        "roles": {
+          "A": "already_established",
+          "B": "not_yet_reachable",
+          "C": "correct",
+          "D": "wrong_arithmetic"
+        },
+        "prompt_sha256_first16": {
+          "SE": "63f4fd715c96b503",
+          "HML": "3b24d2398283874f"
+        }
+      },
+      {
+        "item_id": "A_log_L3_700004_e1",
+        "seed": 700004,
+        "family": "FINITE_LOGIC_WORLD",
+        "correct_index": "D",
+        "roles": {
+          "A": "opposite_polarity",
+          "B": "undetermined",
+          "C": "undetermined",
+          "D": "correct"
+        },
+        "prompt_sha256_first16": {
+          "SE": "ffb02b72a4be0115",
+          "HML": "e5fabbd6af61c210"
+        }
+      },
+      {
+        "item_id": "A_alg_L3_700005_k3",
+        "seed": 700005,
+        "family": "ALGEBRAIC_DEPENDENCY_GRAPH",
+        "correct_index": "A",
+        "roles": {
+          "A": "correct",
+          "B": "wrong_arithmetic",
+          "C": "not_yet_reachable",
+          "D": "already_established"
+        },
+        "prompt_sha256_first16": {
+          "SE": "644adcda953bdb1f",
+          "HML": "9d0d14b5c1a35eed"
+        }
+      },
+      {
+        "item_id": "A_log_L3_700006_e2",
+        "seed": 700006,
+        "family": "FINITE_LOGIC_WORLD",
+        "correct_index": "B",
+        "roles": {
+          "A": "opposite_polarity",
+          "B": "correct",
+          "C": "already_established",
+          "D": "undetermined"
+        },
+        "prompt_sha256_first16": {
+          "SE": "44d244c2fd1777ff",
+          "HML": "8015aa8b47b79942"
+        }
+      },
+      {
+        "item_id": "A_alg_L3_700007_k2",
+        "seed": 700007,
+        "family": "ALGEBRAIC_DEPENDENCY_GRAPH",
+        "correct_index": "C",
+        "roles": {
+          "A": "wrong_arithmetic",
+          "B": "not_yet_reachable",
+          "C": "correct",
+          "D": "already_established"
+        },
+        "prompt_sha256_first16": {
+          "SE": "2b5e36acf5f28e03",
+          "HML": "9a7af8549eb1eaf2"
+        }
+      },
+      {
+        "item_id": "A_log_L3_700008_e2",
+        "seed": 700008,
+        "family": "FINITE_LOGIC_WORLD",
+        "correct_index": "D",
+        "roles": {
+          "A": "opposite_polarity",
+          "B": "undetermined",
+          "C": "already_established",
+          "D": "correct"
+        },
+        "prompt_sha256_first16": {
+          "SE": "0bc85ab39b78c001",
+          "HML": "6ea83b9c29218836"
+        }
+      },
+      {
+        "item_id": "A_alg_L3_700009_k4",
+        "seed": 700009,
+        "family": "ALGEBRAIC_DEPENDENCY_GRAPH",
+        "correct_index": "A",
+        "roles": {
+          "A": "correct",
+          "B": "not_yet_reachable",
+          "C": "wrong_arithmetic",
+          "D": "already_established"
+        },
+        "prompt_sha256_first16": {
+          "SE": "5e2211a9d177e84d",
+          "HML": "dcba321ac0173aa7"
+        }
+      },
+      {
+        "item_id": "A_log_L3_700010_e2",
+        "seed": 700010,
+        "family": "FINITE_LOGIC_WORLD",
+        "correct_index": "B",
+        "roles": {
+          "A": "already_established",
+          "B": "correct",
+          "C": "undetermined",
+          "D": "opposite_polarity"
+        },
+        "prompt_sha256_first16": {
+          "SE": "000d1c2f85e3eaa7",
+          "HML": "a8f81022f4349d5a"
+        }
+      },
+      {
+        "item_id": "A_alg_L3_700011_k2",
+        "seed": 700011,
+        "family": "ALGEBRAIC_DEPENDENCY_GRAPH",
+        "correct_index": "C",
+        "roles": {
+          "A": "wrong_arithmetic",
+          "B": "already_established",
+          "C": "correct",
+          "D": "not_yet_reachable"
+        },
+        "prompt_sha256_first16": {
+          "SE": "881a27b99ae83947",
+          "HML": "69cc6838b8162fca"
+        }
+      },
+      {
+        "item_id": "A_log_L3_700012_e3",
+        "seed": 700012,
+        "family": "FINITE_LOGIC_WORLD",
+        "correct_index": "D",
+        "roles": {
+          "A": "already_established",
+          "B": "already_established",
+          "C": "opposite_polarity",
+          "D": "correct"
+        },
+        "prompt_sha256_first16": {
+          "SE": "9c5c336a12d735bd",
+          "HML": "f890ff5417ec02dd"
+        }
+      }
+    ]
+  }
+}
