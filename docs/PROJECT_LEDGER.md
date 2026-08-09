@@ -4743,3 +4743,85 @@ Live model digest re-checked against the freeze: `a2af6cc3eb7fa8be…`, match.
 
 **Next.** Commit and push, then Stage 1 smoke (4 items × 2 arms = 8 calls, excluded from
 results), then Stage 2 micro-pilot (12 items × 2 arms = 24 calls).
+
+## 2026-08-08 — Endpoint A: the N=12 signal did NOT replicate. Pooled 30 items, CASE B.
+
+**Branch.** `feature/hml-reasoning-kernel-v2` · **Starting SHA.** `00e4bef`.
+Calls spent: 8 smoke (excluded) + 24 micro + 36 expansion = **68**.
+
+### Result
+
+| stage | items | SE | HML | Δ̂ |
+|---|---|---|---|---|
+| Stage 2 micro-pilot | 12 | **3/12 = 0.250** | **9/12 = 0.750** | **+0.500** |
+| Stage 3 expansion (independent) | 18 | **11/18 = 0.611** | **11/18 = 0.611** | **0.000** |
+| **Pooled** | **30** | **14/30 = 0.467** | **20/30 = 0.667** | **+0.200** |
+
+w = 10, l = 4, both = 10, neither = 6. 0 invalid, 0 truncations across all 60 scored calls.
+By family (pooled): algebraic SE 7/15 vs HML 10/15; logic SE 7/15 vs HML 10/15.
+
+### The finding is the non-replication, not the pooled number
+
+The micro-pilot's Δ̂ = **+0.500** looked like a strong HML advantage. The independent
+18-item half returned **exactly 11/18 in both arms — Δ̂ = 0.000**. The pooled +0.200 is
+carried entirely by the first twelve items.
+
+The specific worry flagged at the micro stage was that **SE's 3/12 was precisely chance for
+a four-way choice**, which is what an arm looks like when it is failing for a reason other
+than reasoning. The expansion answered that directly: the same SE renderer scored
+**11/18 = 0.611** on fresh items. SE was not broken; it had a bad twelve. This is
+small-sample variance, and reporting the micro-pilot alone would have been a false positive.
+
+**Pre-declared rule: CASE B — representation advantage not demonstrated.** Not CASE C. The
+pooled figure is directional, but the only clean replication attempt showed no difference,
+so it does not warrant escalation. No agent build, no verifier loop, no training is
+justified by this endpoint.
+
+### One qualitative difference that survives, stated as a hypothesis not a result
+
+Error roles, pooled (16 SE errors, 10 HML errors):
+
+| role | SE | HML |
+|---|---|---|
+| `not_yet_reachable` (premature — needs an underived value) | 7 | 4 |
+| `already_established` (no progress) | 4 | 6 |
+| `wrong_arithmetic` (mathematically invalid) | 1 | **0** |
+| `opposite_polarity` / `undetermined` (logic errors) | 4 | **0** |
+
+**HML's errors fall entirely into the two precondition/no-progress roles.** It never chose a
+mathematically invalid option and never made a logic-polarity error; SE did both five times
+combined. That is a difference in the *kind* of mistake, not the rate, and at these counts it
+is a hypothesis worth a future targeted test — not a claim.
+
+Both classes HML does make (`not_yet_reachable`, `already_established`) are mechanically
+detectable by a cheap verifier: one violates a precondition, the other adds nothing. That is
+the relevant input to any later verifier-loop decision, and it is the same for both arms.
+
+### Instrument integrity
+
+The option lists are **byte-identical across arms** — same propositions, same order, same
+letters — so no positional, role-position, or option-length artifact can produce an
+SE/HML gap; only the state block differs. Pooled key balance A8/B8/C7/D7. Chosen-letter
+distributions are unremarkable (SE C-heavy at 10/30, HML A/B-heavy), and identical option
+ordering means that cannot be an arm confound. HML prompts were *shorter* (11 856 vs 13 026
+prompt tokens), so no length advantage. 24 adversarial audit checks passed before any call.
+
+### Verification
+
+`run_screen nexta` ×3 → exit 0, 68 calls, 0 invalid, 0 truncations, 0 errors.
+`pytest -q tests/arena` → 225 passed. `ruff check` → clean.
+
+### Failures and unresolved uncertainty
+
+- **N=30 total, and the two halves disagree.** No significance is claimed or computable.
+- The pooled +0.200 should not be quoted without the split-half beside it.
+- One model, one difficulty level, one action space ("which fact to derive next" — not
+  free-form transformations).
+- The B1 result (SE > HML on implication direction) and this one (no reliable difference on
+  next-action) are consistent in one respect: **no endpoint has yet shown HML helping.**
+
+### Next
+
+Do not escalate on this endpoint. If it is revisited, the informative variant is the
+qualitative one: whether HML genuinely suppresses invalid and polarity errors, tested with
+items designed to elicit exactly those, rather than more of the same.

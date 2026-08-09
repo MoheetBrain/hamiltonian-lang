@@ -42,6 +42,16 @@ executable**: that generator builds its English inline and discards the structur
 nothing survives to render a second way. The arena rebuilds the worlds structure-first;
 `difficulty-lab-1.0.0` is untouched and byte-identical.
 
+**ENDPOINT A RESULT: the N=12 signal did NOT replicate. CASE B — advantage not
+demonstrated.** Micro-pilot (12 items) gave SE 3/12 vs HML 9/12, Δ̂ = +0.500. The
+independent 18-item expansion gave **11/18 in both arms, Δ̂ = 0.000**. Pooled 30 items:
+SE 14/30, HML 20/30, Δ̂ = +0.200 — carried entirely by the first half. SE's micro-pilot
+3/12 was exactly chance; on fresh items the same renderer scored 11/18, confirming that was
+small-sample variance. 68 calls spent, 0 invalid, 0 truncations. **No escalation, no agent
+build, no verifier loop justified.** One qualitative difference survives as a *hypothesis*:
+HML's errors fell entirely into precondition/no-progress roles — zero invalid-arithmetic and
+zero logic-polarity errors, against five for SE.
+
 **ENDPOINT A (next-action) INSTRUMENT IS FROZEN — 24-check adversarial audit passed, zero
 model calls spent.** Built by reusing the existing oracle-verified `next_action` generator;
 new seed band `ENDPOINT_A` (700 000+); arms SE and HML only. A real defect was found and
