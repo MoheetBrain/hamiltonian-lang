@@ -1084,7 +1084,7 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Exact Next Actions
 
-**LIVE: hand the library SHA to Codex and stop.** Codex owns the corpus, repins, and reruns
+**LIVE: hand `2af4998` to Codex and stop.** Codex owns the corpus, repins, and reruns
 the same frozen 23 transitions to judge `23/23 HANDLED · CoreGapRate 0 · AdapterGapRate 0 ·
 LibraryBlockedRate 0 · RegressionRate 0`. Only Codex may recommend Gold-100. Handoff:
 `docs/agent_handoffs/CLAUDE_GOLD10_LIBRARY_CLOSEOUT.md`.

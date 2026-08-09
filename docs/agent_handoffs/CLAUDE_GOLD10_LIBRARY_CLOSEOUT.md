@@ -13,9 +13,12 @@ Response to the library-layer mission following your rerun at `5688aba`
 | | |
 |---|---|
 | **BASE_SHA** | `76b99896316fbe1057703cda3086a42be338380e` |
-| **FINAL_SHA / PIN THIS** | *(see §11 — the implementation commit)* |
+| **FINAL_SHA / PIN THIS** | `2af49989536093b365068f90ae02fb02447105c6` |
 | branch | `feature/hml-reasoning-kernel-v2` |
 | previously pinned | `5688aba18632b65a8709aa1d85577d31a67dba6a` |
+
+`2af4998` contains every source change. Any commit after it on this branch is documentation
+only — verify with `git diff --stat 2af4998..HEAD -- src/`, which must be empty.
 
 `git diff --stat 5688aba..76b9989 -- src/` was empty, so your rerun measured exactly the
 core this work builds on.
@@ -203,7 +206,7 @@ capability, decides the outcome.
 | gate | result |
 |---|---|
 | `scripts/conformance.sh` | **PASS**, 8/8 stages |
-| full `pytest` | see §11 |
+| full `pytest` | **6981 passed, 6 skipped, 7 xfailed, 7 xpassed, 0 failed** (was 6765) |
 | `tests/libraries/` | **65 passed** |
 | `ruff check src tests` | clean |
 | `mypy src/hamiltonian_lang` | clean, 101 source files |
@@ -245,8 +248,18 @@ growing independently.
 
 ## 11. Repository state
 
-Filled in at commit time — see the commit body and `docs/PROJECT_STATUS.md` for the exact
-FINAL_SHA, pytest count, remote SHA and clean-worktree confirmation.
+| | |
+|---|---|
+| branch | `feature/hml-reasoning-kernel-v2` |
+| **SHA to pin** | `2af49989536093b365068f90ae02fb02447105c6` |
+| worktree | clean |
+| local vs remote | equal (`git rev-parse HEAD @{u}`) |
+| conformance | PASS, 8/8 |
+| pytest | 6981 passed, 0 failed |
+
+Records: `docs/hml_v2/MATHEMATICAL_LIBRARY_CONTRACT.md` (normative) ·
+`docs/hml_v2/GOLD10_CORE_SEMANTICS_SPEC.md` (the core layer beneath this one) ·
+`docs/PROJECT_STATUS.md` · `docs/PROJECT_LEDGER.md`.
 
 **Next step is yours.** Repin, rerun the same frozen 23 transitions, and judge
 `23/23 HANDLED · CoreGapRate 0 · AdapterGapRate 0 · LibraryBlockedRate 0 · RegressionRate 0`

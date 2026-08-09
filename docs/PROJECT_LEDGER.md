@@ -5369,3 +5369,33 @@ model.
 
 Hand off and **stop**. Codex repins, reruns the same 23 transitions, and judges the rates
 independently. No Gold-100 until Codex recommends it.
+
+---
+
+## 2026-08-09 — library handoff finalised; SHA to pin is 2af4998
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `2af4998` · Documentation only;
+`git diff --stat 2af4998..HEAD -- src/` is empty.
+
+### Objective
+
+Fill the exact FINAL_SHA, test counts and repository state into the Codex handoff, so the
+document can be acted on without consulting the commit log.
+
+### What was completed
+
+`docs/agent_handoffs/CLAUDE_GOLD10_LIBRARY_CLOSEOUT.md` finalised: pin `2af4998`, conformance
+PASS 8/8, pytest 6981 passed / 0 failed, 65 library tests, clean worktree, remote equal.
+
+### Verification
+
+`git diff --stat 2af4998..HEAD -- src/` → empty, so pinning either commit gives identical
+semantics. Conformance re-run by the pre-commit hook.
+
+### Effect on the overall project
+
+The library track's Gold-10 obligations are discharged. Ownership passes to Codex.
+
+### Next intended step
+
+**Stop.** Do not rerun Gold-10, do not touch the corpus, do not start Gold-100.
