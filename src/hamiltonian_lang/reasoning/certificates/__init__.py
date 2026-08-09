@@ -212,6 +212,12 @@ class CheckerVerdict:
     valid: bool
     reason: str = ""
     established: Expr | None = None
+    #: Side conditions the checker requires, as ``(proposition, reason, mandatory)`` --
+    #: exactly the shape ``kernel.RuleApplication.obligations`` already uses, so
+    #: ``check.py`` discharges them against Γ through the *existing* machinery rather than
+    #: a second, library-specific one. An undischarged mandatory condition means the
+    #: certificate does not validate: this is how ``P(A) > 0`` and ``x != 0`` bite.
+    obligations: tuple[tuple[Expr, str, bool], ...] = ()
     #: Diagnostics and provenance only. Never enters a content hash.
     detail: Mapping[str, str] = field(default_factory=dict)
 
@@ -268,6 +274,10 @@ class CheckedEvidence:
     kind: EvidenceKind
     established: Expr
     checker: str
+    #: Carried forward from the verdict so the caller can discharge them. Present on the
+    #: evidence rather than returned separately, because a certificate and the conditions
+    #: it depends on must not be able to drift apart.
+    obligations: tuple[tuple[Expr, str, bool], ...] = ()
     detail: Mapping[str, str] = field(default_factory=dict)
     _token: object = None
 
@@ -362,6 +372,7 @@ def check(
             kind=EvidenceKind.CHECKED_CERTIFICATE,
             established=verdict.established,
             checker=spec.name,
+            obligations=tuple(verdict.obligations),
             detail=dict(verdict.detail),
             _token=_MINT,
         ),
@@ -370,3 +381,4 @@ def check(
 
 
 from . import builtin as _builtin  # noqa: E402,F401  -- populates CHECKERS
+from . import library as _library  # noqa: E402,F401  -- populates CHECKERS

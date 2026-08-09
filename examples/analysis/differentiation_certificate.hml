@@ -1,0 +1,38 @@
+module DifferentiationCertificate
+
+# A derivative that is CHECKED, not looked up.
+#
+# The certificate below does not assert that d(1/x)/dx is -1/x^2. It asks HML to
+# differentiate `1/x` itself, from primitive rules, and to compare the result with the
+# claim. So the proposal is worth the same whether it came from an author, a CAS or a
+# model: it is a claim, and the replay decides it.
+#
+# The replay here runs:
+#
+#     quotient rule on 1/x        ->  (d(1)*x - 1*d(x)) / x^2
+#     derivative_constant         ->  (0*x - 1*d(x)) / x^2
+#     derivative_variable         ->  (0*x - 1*1) / x^2
+#
+# and then normalises with the algebra library's oriented identities -- `zero_mul`,
+# `one_mul`, `zero_sub` -- each a named registered theorem, applied deterministically to a
+# fixed point. No `simplify()` from an external CAS is involved anywhere.
+#
+# The domain condition is not optional. The quotient rule requires its denominator to be
+# non-zero, and the condition is stated on the ORIGINAL denominator `x`, not on the derived
+# `x^2` -- the first is what the rule requires, the second is a consequence of it. Delete
+# `a0` and this evidence is REJECTED.
+#
+# Note also that `derivative(1.0 / x, x : Real)` BINDS x: the x inside is the binder's, and
+# the x on the right of the equality is the module-level one. The notation means them to be
+# the same point, which is how the checker reads it.
+
+var x : Real
+
+assume a0 : x != 0.0
+
+evidence e1 : entails derivative(1.0 / x, x : Real) = (0.0 - 1.0) / (x ^ 2.0) by derivative_trace_v1()
+
+# Evaluating the derivative at a point is ordinary closed arithmetic and is checked
+# independently -- the calculus library establishes the formula, the exact evaluator
+# establishes the number.
+evidence e2 : entails (0.0 - 1.0) / (2.0 ^ 2.0) = (0.0 - 1.0) / 4.0 by closed_eval_v1()

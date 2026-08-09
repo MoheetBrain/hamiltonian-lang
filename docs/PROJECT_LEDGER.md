@@ -5259,3 +5259,113 @@ The core track's Gold-10 obligations are discharged. Ownership passes to Codex.
 
 **Stop.** Do not rerun Gold-10, do not touch the corpus, do not start Gold-100. Await the
 rerun result.
+
+---
+
+## 2026-08-09 — Gold-10 library closeout: algebra, probability and calculus V0 without touching the kernel
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **Base:** `76b9989` · **Stage:** library
+layer · **Model calls: 0. Training: 0. Arena calls: 0.**
+
+### Objective
+
+Close the three remaining Gold-10 library capabilities. The explicit test was architectural,
+not numeric: Codex's rerun reported `CoreGapRate = 0`, and this task was designed to find
+out whether that diagnosis survives contact with real domain mathematics.
+
+### What was verified before editing
+
+Branch, HEAD `76b9989`, clean, LOCAL == REMOTE, and `git diff 5688aba..76b9989 -- src/`
+empty — so Codex's rerun measured exactly this core.
+
+Three facts about HML's probability ontology were checked **against the compiler** rather
+than taken from the brief or from a proposal, and all three changed the design:
+
+1. `probability(...)` requires an **`Event`**, not a `Bool`. HML-T482 rejects a proposition
+   over fixed quantities because its probability is 0 or 1. Events come from `rv`
+   declarations.
+2. `probability(B | A)` is `event=B, given=[A]`. The conditioning event is `given[0]`.
+3. `joint(...)` is the joint **law** of random variables, typed `Distribution[Product[...]]`
+   — not event intersection. Intersection is `and` inside `probability(...)`.
+
+### Decisions made, and why
+
+**A theorem is data; an inference rule is code.** Libraries supply `LibraryTheorem` records
+that elaborate through the *existing* certificate boundary. Nothing entered `kernel.RULES`,
+and two tests pin that — one by enumeration of the whole rule set.
+
+**No grammar change was needed.** `theorem := <id>` resolves against the theorem registry
+using the precedent already set by `congruence(fn := exp)`, whose `fn` role resolves against
+functions rather than values. Zero new keywords, zero new statement forms.
+
+**Side conditions are ordinary obligations.** `P(A) > 0` and `x != 0` become
+`ReasoningObligation`s discharged against Γ by the same code that discharges a
+`divide_both_sides` obligation. An undischarged mandatory one means the certificate does not
+validate — stricter than a derivation's CHECKED state, deliberately, because a certificate
+is all-or-nothing and "provisionally certified" would let a conditional probability be used
+at probability zero pending a repair that might never come.
+
+**Calculus is a replay, not a table.** The checker differentiates the expression itself, so
+a derivative from a CAS, a model or a guess is a claim rather than evidence. Normalisation
+uses oriented algebra identities, each a named registered theorem, terminating because every
+rewrite strictly shrinks the term. `sympy` is not importable on that path and a test asserts
+it over the import graph.
+
+**Exactly five algebra identities**, and the report §10 asked for: `add_zero` for G07;
+`zero_mul`, `one_mul`, `zero_sub` required by the G10 quotient normalisation; `mul_one`
+required by the product and power replays. Nothing added "while we were there". No e-graph.
+
+**The assumed set is enumerable.** `libraries.axioms()` prints it; the registry refuses an
+assumed theorem with no written justification. A certificate proves "this instantiation,
+correctly typed, with side conditions discharged" — never the axiom.
+
+### Tests and verification actually executed
+
+| check | result |
+|---|---|
+| `bash scripts/conformance.sh` | **CONFORMANCE: PASS**, exit 0, 8/8 |
+| `pytest` | **6981 passed, 6 skipped, 7 xfailed, 7 xpassed, 0 failed** (was 6765) |
+| `pytest tests/libraries` | 65 passed |
+| `pytest tests/reasoning` | passes unchanged |
+| `ruff` / `mypy` | clean; 101 source files |
+| kernel/AST/grammar diff | **empty** |
+
+### Failures and unresolved uncertainty
+
+**Two design bugs found by running the code, both real:**
+
+1. The first comparison of a replayed derivative failed because `expr_identity` includes
+   inferred types, and replay-constructed nodes carry none. Fixed by stripping types from
+   both sides — a normalisation before the language's own identity, not a rival to it.
+2. The second failed for a much better reason: `derivative(x*x, x : Real)` **binds** `x`, so
+   the body's `x` is at depth 1 while the RHS's is the module-level `x` at depth 0. That is
+   the binder machinery working correctly. Resolved by instantiating the replay's result at
+   the free variable the claim uses — the standard reading of `d/dx f(x) = g(x)`, matching
+   the existing idiom in `examples/analysis/derivative_and_integral.hml`. **This is the one
+   judgement call a reasonable person could make differently**, and the handoff says so.
+
+**One new core-adjacent gap, reported not patched:** `RefinementEnv.entails` destructures an
+obligation as `<Ref> <op> <bound>` and returns None when the subject is not a declared
+variable — so `probability(X > 0.0) > 0.0` stays UNKNOWN even when the module asserts it
+verbatim. Worked around locally with exact canonical membership of Γ. Widening `entails`
+belongs to the core track, and this mission was told to stop rather than change context
+semantics silently.
+
+**Scope note:** `reasoning/check.py` gained an obligation channel on the evidence path. It is
+additive and strictly more conservative — it can only turn a would-be VALID into REJECTED —
+but it is a change to a core file and the handoff states it plainly rather than burying it.
+
+### Effect on the overall project
+
+All three Gold-10 library capabilities exist, and the trusted kernel is byte-identical. The
+architecture claim — domain mathematics grows without the trusted base growing — now has one
+real test behind it rather than an argument.
+
+Unchanged and unaffected: the arena programme's cumulative finding that no measurement has
+shown an HML-specific advantage over a fair control. Nothing here was measured against a
+model.
+
+### Next intended step
+
+Hand off and **stop**. Codex repins, reruns the same 23 transitions, and judges the rates
+independently. No Gold-100 until Codex recommends it.

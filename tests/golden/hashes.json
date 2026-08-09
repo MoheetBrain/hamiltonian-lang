@@ -1,6 +1,8 @@
 {
   "examples/algebra/constrained_optimisation.hml": "45a67867df1090d0c6f6fad51a94f258f5d1818d87466b278958677bafd5c807",
+  "examples/algebra/library_theorem_application.hml": "42af23f36aa76554e3b765bbde91606e4065df3351fe74030d86cc4434f65c96",
   "examples/analysis/derivative_and_integral.hml": "3dfcd11b29a247863ec607c4a91e1da4e0e8b853cec4a7f7213081690be83b1f",
+  "examples/analysis/differentiation_certificate.hml": "1a10b6682913ef12b571afdbf7682b1a233c25c48faa63523a6249feb1718375",
   "examples/causal/correlation_is_not_causation.hml": "708ee062d535573edce0ee739b9fb9b6096abc49e38cba13892854df001558c4",
   "examples/concepts/location_scale_family.hml": "4498edfa93ba212cc54fb4f61a21b0a31deb9e349016688d3844d77c0987acd5",
   "examples/logic/certified_underdetermination.hml": "d2739d78c95852849384a6c6d7458ed79c0b5cfe3614d8180b941439dbb0e11a",
@@ -11,6 +13,7 @@
   "examples/sets/membership_and_comprehension.hml": "643169da5fb4b607112923a39c186faf9e9c70e375f79f6e0d86fcd0c66c2db6",
   "examples/statistics/bayesian_coin.hml": "f79c553cca1adaa1fb4c7ec27be419802289e6ebb00f465fb552323cbee3b1bb",
   "examples/statistics/conditional_expectation.hml": "1b63ae0369f663725899f5e9b8b33d82777dff71f240aebeba893b941193c76a",
+  "examples/statistics/conditional_product.hml": "de5ef4ca809a33926ab4a51e7183113e72d900dad765fa14b3d7a416c964be6c",
   "examples/statistics/linear_regression.hml": "583109a8db26c6c8e42e2b720d6f3327450398ce05e6260394b608ea57ba1501",
   "examples/statistics/normal_distribution.hml": "89d11ca0a956c48d62e72dcdd2459e22086cdf6a8776368e4d68f094bf9d55dd"
 }

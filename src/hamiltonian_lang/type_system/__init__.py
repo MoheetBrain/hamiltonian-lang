@@ -739,6 +739,16 @@ class TypeChecker:
                     # does not see an Unknown survive.
                     a.value.type_ = self._function_reference_type(a.value.name)
                     continue
+                if (
+                    isinstance(st, EvidenceStmt)
+                    and a.role == "theorem"
+                    and isinstance(a.value, Ref)
+                ):
+                    # A theorem *name*, resolved against the static library registry by
+                    # the resolver. It denotes no value, so there is nothing to type; the
+                    # substitution arguments beside it are typed normally, and it is those
+                    # types the theorem's declared domains are checked against.
+                    continue
                 self.expr_type(a.value)
             return
 

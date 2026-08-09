@@ -28,6 +28,46 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**GOLD-10 LIBRARY CLOSEOUT COMPLETE — the three remaining library capabilities exist, and
+the trusted kernel did not change to get them.**
+
+Codex's rerun at `5688aba` gave 11/23 native · 8/23 certificate · 4/23 library-blocked ·
+CoreGapRate 0/23. The four blocked transitions reduced to **three upstream library
+capabilities**, now built as `src/hamiltonian_lang/libraries/`:
+
+* **algebra** — five typed identities, all `LIBRARY_AXIOM`. `add_zero` is G07's body; the
+  other four are exactly what the calculus normalisation needed and nothing more.
+* **probability** — `conditional_product`, `DEFINITIONAL`, with `P(A) > 0` as an ordinary
+  obligation. Built against HML's *actual* conventions, verified against the compiler:
+  `probability(...)` needs an **Event** (from `rv` declarations), not a `Bool`;
+  `probability(B | A)` is `event=B, given=[A]`; `joint(...)` is a distribution, not
+  intersection.
+* **calculus** — a **replay**, not a table. Six primitive rules; the checker
+  differentiates the expression itself and compares, so a CAS proposal is a claim rather
+  than evidence. The quotient rule's `v != 0` flows through the existing obligation system.
+
+**The architectural claim, and it is checked mechanically:** `git diff` is **empty** for
+`reasoning/kernel.py`, `binders.py`, `adjudication.py`, `side_conditions.py`,
+`refinement.py`, `evidence.py`, `partiality.py`, `ast/`, `lexer/`, `parser/` and
+`backends/`. No inference rule, no keyword, no statement form, no AST node was added. A
+domain fact composes with the *unchanged* `forall_intro` to close G07. **CoreGapRate = 0
+survives the test this mission was designed to be.**
+
+**Honesty surface:** a library is shipped Python, so what it *assumes* is enumerable —
+`libraries.axioms()` prints the complete list, the registry refuses an assumed theorem with
+no written justification, and a certificate proves "this instantiation, correctly typed,
+with side conditions discharged", never the axiom itself.
+
+**One new core-adjacent gap found and reported, not silently patched:**
+`RefinementEnv.entails` cannot discharge an obligation whose subject is not a declared
+variable, even when Γ asserts it verbatim. Worked around locally by exact canonical
+membership; the proper widening belongs to the core track.
+
+Conformance **PASS** 8/8. `pytest`: **6981 passed, 0 failed** (65 new library tests).
+Record: `docs/hml_v2/MATHEMATICAL_LIBRARY_CONTRACT.md`.
+
+---
+
 **GOLD-10 CORE REPAIR COMPLETE — the two generic core-semantic gaps are closed and a
 checked-certificate boundary exists. Zero model calls, zero training, deterministic
 engineering throughout.**
@@ -821,7 +861,20 @@ D-001..D-021 in `DECISIONS.md`. Load-bearing ones:
 
 ## Verification and Test Results
 
-**Current run — 2026-08-09, the Gold-10 core repair.** Executed, not estimated:
+**Current run — 2026-08-09, the Gold-10 library closeout.** Executed, not estimated:
+
+| check | exact command | result |
+|---|---|---|
+| conformance gate | `bash scripts/conformance.sh` | **CONFORMANCE: PASS**, exit 0, all 8 stages |
+| full suite | `.venv/bin/python -m pytest` | **6981 passed**, 6 skipped, 7 xfailed, 7 xpassed, **0 failed** |
+| library tests | `pytest tests/libraries` | **65 passed** |
+| previous repair | `pytest tests/reasoning` | passes unchanged — underdetermination, UNKNOWN≠UNDERDETERMINED, forall rules, stale context, forged certificates |
+| lint | `ruff check src tests` | All checks passed |
+| types | `mypy src/hamiltonian_lang` | no issues in 101 source files |
+| **kernel frozen** | `git diff 76b9989..HEAD -- kernel.py binders.py adjudication.py side_conditions.py refinement.py evidence.py partiality.py ast/ lexer/ parser/ backends/` | **empty** |
+| new examples | `hml check` | G07 `1 PROVED`; G09 and G10 certificates VALID |
+
+**Previous run — 2026-08-09, the Gold-10 core repair.** Executed, not estimated:
 
 | check | exact command | result |
 |---|---|---|
@@ -1031,7 +1084,28 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Exact Next Actions
 
-**LIVE: hand the new HML SHA to Codex and stop.** The Gold-10 core repair is complete and
+**LIVE: hand the library SHA to Codex and stop.** Codex owns the corpus, repins, and reruns
+the same frozen 23 transitions to judge `23/23 HANDLED · CoreGapRate 0 · AdapterGapRate 0 ·
+LibraryBlockedRate 0 · RegressionRate 0`. Only Codex may recommend Gold-100. Handoff:
+`docs/agent_handoffs/CLAUDE_GOLD10_LIBRARY_CLOSEOUT.md`.
+
+Expected effect on the four blocked transitions, as predictions to be checked:
+
+| transition | expected |
+|---|---|
+| G07:a1 | **unblocked** — `add_zero` supplies the body, unchanged `forall_intro` generalises |
+| G09:a0 | **unblocked, conditional on rendering** — needs Event-typed operands (`rv` declarations) and `P(A) > 0` in Γ. The one place a rendering choice, not a capability, decides the outcome. |
+| G10:a1 | **unblocked** given `x != 0` in Γ |
+| G10:a2 | already independently checked; unchanged |
+
+Deferred, each needing a separate decision: e-graphs (recorded as a possible future
+*backend*, not an architecture change), the chain rule, measure-theoretic probability,
+Bayes, distributions, integration, a third repository for the libraries, Gold-100, and the
+matched learning-curve experiment (training, still blocked).
+
+---
+
+**Superseded: hand the core-repair SHA to Codex.** The Gold-10 core repair is complete and
 the workflow is explicitly sequential — Codex owns the corpus, repins `hml_core`, and
 reruns the *same* Gold-10. Do not rerun Gold-10 here, do not modify the corpus repository,
 and do not proceed to Gold-100 until the unchanged Gold-10 rerun shows the classifications

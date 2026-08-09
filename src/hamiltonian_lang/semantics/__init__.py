@@ -609,6 +609,27 @@ class Resolver:
             # a namespace any module can add to.
             self.visit_expr(st.proposition)
             for a in st.checker_args:
+                # The `theorem` role names an entry in the static THEOREM registry, not a
+                # value -- exactly as `congruence(fn := exp)` names a function rather than
+                # a value. Resolving it against the value namespace would report
+                # "'add_zero' is not bound", which is correct for a value position and
+                # wrong here, since a theorem has no binding occurrence in the module.
+                if a.role == "theorem" and isinstance(a.value, Ref):
+                    from ..libraries import THEOREMS, theorem_ids
+
+                    if a.value.name not in THEOREMS:
+                        self.diags.error(
+                            "HML-N307",
+                            f"{a.value.name!r} is not a registered theorem",
+                            a.value.span,
+                            found=a.value.name,
+                            correction=f"available theorems: {', '.join(theorem_ids())}",
+                            notes=[
+                                "theorems come from a static library registry; a module "
+                                "may name one but cannot define one",
+                            ],
+                        )
+                    continue
                 self.visit_expr(a.value)
             return
 

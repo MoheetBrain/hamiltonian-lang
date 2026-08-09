@@ -1,0 +1,31 @@
+module LibraryTheoremApplication
+
+# A domain fact and a logical operation, kept apart.
+#
+# The theorem `add_zero` says `x + 0 = x` for a numeric x. That is ALGEBRA -- it is true of
+# numbers, not of reasoning, so it lives in a library and not in the inference kernel.
+#
+# `forall_intro` says that what holds of an arbitrary n holds of every n. That is LOGIC --
+# it is true regardless of subject, so it is one of the kernel's rules.
+#
+# The two compose. Nothing in the kernel knows what `+` or `0` are, and nothing in the
+# algebra library knows what a quantifier is. Adding an `x + 0 -> x` rule to the kernel
+# would have made this example shorter and the architecture worse: the trusted base would
+# then grow once per mathematical fact anybody happened to need.
+#
+# What the certificate actually establishes is "this instantiation of add_zero, correctly
+# typed" -- not add_zero itself, which the algebra library asserts. `libraries.axioms()`
+# prints the complete list of what is assumed.
+
+var n : Natural
+
+goal g1 : forall n : Natural . n + 0.0 = n
+
+evidence e1 : entails n + 0.0 = n by library_theorem_v1(theorem := add_zero, x := n)
+
+# The eigenvariable condition still applies, and the certificate does not exempt it from
+# anything. Adding `assume a1 : n = 0.0` above makes `n` a witness rather than an
+# arbitrary natural, and this step is then REJECTED.
+derive d1 : forall n : Natural . n + 0.0 = n from e1 by forall_intro(var := n)
+
+proved g1 by d1

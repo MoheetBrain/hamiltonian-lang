@@ -451,6 +451,38 @@ class _ReasoningChecker:
                 out.append((node.label or "<unlabelled>", node.proposition))
         return out
 
+    def _assumed_verbatim(self, proposition: Expr) -> str | None:
+        """The label of an in-scope assumption canonically identical to ``proposition``.
+
+        Γ ⊢ φ when φ ∈ Γ -- the most elementary entailment there is, and one
+        ``RefinementEnv.entails`` cannot currently reach.
+
+        **A limitation of the existing machinery, found by this work and reported rather
+        than papered over.** ``entails`` indexes facts by the ``SymbolId`` of a declared
+        variable: it destructures the obligation as ``<Ref> <op> <bound>`` and returns
+        None the moment the subject is anything else. That is fine for ``k != 0``, and it
+        means a side condition like
+
+            probability(X > 0.0) > 0.0
+
+        stays UNKNOWN even when the module literally asserts it, because the subject is a
+        ``ProbabilityExpr`` rather than a ``Ref``.
+
+        Widening ``entails`` itself would be the better repair, and it belongs to the core
+        track: ``reasoning/refinement.py`` is context machinery, and the mission that added
+        this library layer was explicitly told to stop rather than silently change context
+        semantics. So this stays local to the certificate path, does the strictly weakest
+        sound thing -- exact canonical membership, no reasoning at all -- and the finding
+        is written up for the core track in the handoff.
+        """
+        from ..backends.canonical import expr_identity
+
+        want = expr_identity(proposition)
+        for label, prop in self._assumptions_in_scope():
+            if expr_identity(prop) == want:
+                return label
+        return None
+
     # -- the certificate boundary -----------------------------------------
     def _check_evidence(self, st: EvidenceStmt) -> None:
         """Validate one ``evidence`` statement through the trusted checker registry.
@@ -563,6 +595,69 @@ class _ReasoningChecker:
                 ],
             )
             self._reject_evidence(st, reason)
+            return
+
+        # SIDE CONDITIONS. A theorem's preconditions -- `P(A) > 0` for the conditional
+        # product, `x != 0` for the quotient rule -- arrive on the verdict and are
+        # discharged here against Γ by exactly the code that discharges a rule's
+        # obligations. One channel, one policy: there is no library-specific condition
+        # system, and a library cannot satisfy its own precondition by asserting it.
+        #
+        # An undischarged mandatory condition means the certificate does NOT validate.
+        # This is stricter than a derivation, which would be CHECKED-but-not-VERIFIED, and
+        # deliberately so: a certificate is an all-or-nothing artifact -- there is no
+        # "provisionally certified" state for it to occupy, and inventing one would let a
+        # conditional probability be used at probability zero pending later repair.
+        obligations: list[ReasoningObligation] = []
+        for prop, reason_text, mandatory in evidence.obligations:
+            ob = ReasoningObligation(
+                id=self._next_obligation_id(),
+                proposition=prop,
+                generated_by=st.label,
+                reason=reason_text,
+                mandatory=mandatory,
+            )
+            hit = self.env.entails(ob.proposition)
+            if hit is not None:
+                ob.status = ObligationStatus.DISCHARGED
+                ob.discharged_by = hit.source_label or "an assumption in scope"
+            else:
+                verbatim = self._assumed_verbatim(ob.proposition)
+                if verbatim is not None:
+                    ob.status = ObligationStatus.DISCHARGED
+                    ob.discharged_by = verbatim
+                elif decides_false(ob.proposition):
+                    ob.status = ObligationStatus.FAILED
+            obligations.append(ob)
+        self.result.obligations.extend(obligations)
+
+        unmet = [
+            o
+            for o in obligations
+            if o.mandatory and o.status != ObligationStatus.DISCHARGED
+        ]
+        if unmet:
+            from ..backends.hml import render_expr
+
+            first = unmet[0]
+            self.diags.error(
+                "HML-R726",
+                (
+                    f"evidence {st.label!r} is REJECTED: its side condition "
+                    f"{render_expr(first.proposition)} is not established"
+                ),
+                st.span,
+                correction=(
+                    f"add 'assume {render_expr(first.proposition)}' above this "
+                    f"statement, or derive it"
+                ),
+                notes=[
+                    f"obligation {first.id} ({first.reason})",
+                    "the theorem does not apply without it; applying it anyway is the "
+                    "error this condition exists to prevent",
+                ],
+            )
+            self._reject_evidence(st, f"side condition {first.reason} is not established")
             return
 
         st.status = EvidenceStatus.VALID
