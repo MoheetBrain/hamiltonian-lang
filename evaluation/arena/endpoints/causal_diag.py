@@ -36,7 +36,6 @@ of the probe, and the compile invariant is waived for that condition only.
 
 from __future__ import annotations
 
-from evaluation.arena.ir import Atom, Not
 from evaluation.arena.oracles import entailment
 from evaluation.arena.renderers.english import EnglishRenderer
 from evaluation.arena.renderers.hml import HmlRenderer

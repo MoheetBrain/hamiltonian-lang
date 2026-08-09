@@ -42,6 +42,14 @@ executable**: that generator builds its English inline and discards the structur
 nothing survives to render a second way. The arena rebuilds the worlds structure-first;
 `difficulty-lab-1.0.0` is untouched and byte-identical.
 
+**GENERIC_AST_V2 BUILT; ENDPOINT B2 (QUANTIFIER SCOPE) FROZEN.** A compact generic
+S-expression control — `forall(x, D, exists(y, D, R(x, y)))` — with nesting carried by
+parenthesis depth and **no HML machinery** (asserted by test). AST-v1 preserved and excluded:
+the binder diagnostic showed it cannot read nesting. The length confound is *reversed* —
+AST_V2 190.9 mean tokens vs SE 229.2 and HML 295.4 — so an HML win over it cannot be a
+terseness effect. 16 audit checks pass; parity 150 worlds / 0 failures across four arms.
+Frozen at 8 pairs × 3 arms = 48 scientific calls (+6 excluded smoke).
+
 **CAUSAL SCOUT: NO CONDITION RESCUES HML. CASE D — frozen zero-shot branch closed.**
 SE 5/6 · HML_BASIC 4/6 · HML_EPI 3/6 · HML_VERIFY 3/6 · HML_OBF 2/6 (30 calls, 0 truncations).
 Three sub-findings: (1) `HML_OBF` answered UNDETERMINED on **all six** items — a degenerate

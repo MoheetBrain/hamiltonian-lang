@@ -1,0 +1,275 @@
+{
+  "schema": "ENDPOINT_B2_MANIFEST/1",
+  "frozen_at": "2026-08-08",
+  "git_sha_at_freeze": "69213970680cb8f24cbcbf09dd0722dedf7f1e8e",
+  "question": "Does HML preserve/reason over quantifier scope better than SE and a FAIR compact generic structured control?",
+  "arms": [
+    "SE",
+    "AST_V2",
+    "HML"
+  ],
+  "ast_v1_status": "PRESERVED AND EXCLUDED. All AST-v1 code and results remain untouched. It is not an arm here because the binder diagnostic showed it cannot read nesting (answers predicted 5/5 by \"say forall if forall appears\"), so it would measure the control defect rather than the representations.",
+  "ast_v2_design": "compact generic S-expression, e.g. forall(x, D, exists(y, D, R(x, y))). Nesting carried by parenthesis depth. Contains NO HML machinery (no assume/goal/var/Proposition/module/derive), asserted by test.",
+  "model": {
+    "name": "gemma3:4b",
+    "digest": "a2af6cc3eb7fa8be8504abaf9b04e88f17a119ec3f04a3addf55f92841195f5a"
+  },
+  "runtime": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "isolated_stateless_call_per_item": true,
+    "order_seed": 20260808
+  },
+  "band": "ENDPOINT_B2 (110000-119999)",
+  "level": "L3",
+  "contrast": "QUANTIFIER_ORDER",
+  "scorer": {
+    "version": "arena-scorer-1.1.0",
+    "rule": "pair BOTH-CORRECT primary; strict FINAL: required; truncation unscored and drops the pair whole"
+  },
+  "arena_version": "arena-1.0.0",
+  "system_prompt_sha256": "5f5eb2344f1c274087ed86204dd869830376e2713c7ac370761129e458131c3a",
+  "instructions_sha256": "479ab217d844b61c7bff7f6d2ac2e315bd204e6e96e218f0ce984465c520e294",
+  "token_budget_mean": {
+    "SE": 229.2,
+    "AST_V2": 190.9,
+    "HML": 295.4
+  },
+  "stage1_smoke": {
+    "tag": "SMOKE_EXCLUDED_FROM_RESULTS",
+    "pairs": 1,
+    "calls": 6,
+    "items": [
+      {
+        "item_id": "B_qnt_L3_110016",
+        "seed": 110016,
+        "answer": "FALSE"
+      },
+      {
+        "item_id": "B_qnt_L3_110016_swap",
+        "seed": 110016,
+        "answer": "TRUE"
+      }
+    ]
+  },
+  "stage2_pilot": {
+    "tag": "B2_PILOT",
+    "pairs": 8,
+    "items": 16,
+    "calls": 48,
+    "pairs_frozen": [
+      {
+        "pair_id": "P_QUANTIFIER_ORDER_L3_110001",
+        "items": [
+          "B_qnt_L3_110001",
+          "B_qnt_L3_110001_swap"
+        ],
+        "answers": [
+          "TRUE",
+          "FALSE"
+        ],
+        "prompt_sha256_first16": {
+          "SE": {
+            "B_qnt_L3_110001": "885f926458b0a589",
+            "B_qnt_L3_110001_swap": "9c151dc3f554e4ad"
+          },
+          "AST_V2": {
+            "B_qnt_L3_110001": "6e821c8c5c591f19",
+            "B_qnt_L3_110001_swap": "e425310ecdcff81d"
+          },
+          "HML": {
+            "B_qnt_L3_110001": "6d798135cd99210e",
+            "B_qnt_L3_110001_swap": "5dcd74b7d0483b49"
+          }
+        }
+      },
+      {
+        "pair_id": "P_QUANTIFIER_ORDER_L3_110002",
+        "items": [
+          "B_qnt_L3_110002",
+          "B_qnt_L3_110002_swap"
+        ],
+        "answers": [
+          "FALSE",
+          "TRUE"
+        ],
+        "prompt_sha256_first16": {
+          "SE": {
+            "B_qnt_L3_110002": "92ff7c27f6d81768",
+            "B_qnt_L3_110002_swap": "6ae5873cebbc0ebb"
+          },
+          "AST_V2": {
+            "B_qnt_L3_110002": "570384f4d2a8795d",
+            "B_qnt_L3_110002_swap": "994ee8f302f8b6bc"
+          },
+          "HML": {
+            "B_qnt_L3_110002": "c01eb16764d78608",
+            "B_qnt_L3_110002_swap": "c5ec9acfadc23c07"
+          }
+        }
+      },
+      {
+        "pair_id": "P_QUANTIFIER_ORDER_L3_110004",
+        "items": [
+          "B_qnt_L3_110004",
+          "B_qnt_L3_110004_swap"
+        ],
+        "answers": [
+          "FALSE",
+          "TRUE"
+        ],
+        "prompt_sha256_first16": {
+          "SE": {
+            "B_qnt_L3_110004": "9ddb980b6389704f",
+            "B_qnt_L3_110004_swap": "b1bb0db27254205f"
+          },
+          "AST_V2": {
+            "B_qnt_L3_110004": "d7508e955dd9a01b",
+            "B_qnt_L3_110004_swap": "b61af01e583a81b5"
+          },
+          "HML": {
+            "B_qnt_L3_110004": "df8e72c93d5b52b6",
+            "B_qnt_L3_110004_swap": "a67d4d1218dee39f"
+          }
+        }
+      },
+      {
+        "pair_id": "P_QUANTIFIER_ORDER_L3_110005",
+        "items": [
+          "B_qnt_L3_110005",
+          "B_qnt_L3_110005_swap"
+        ],
+        "answers": [
+          "TRUE",
+          "FALSE"
+        ],
+        "prompt_sha256_first16": {
+          "SE": {
+            "B_qnt_L3_110005": "607a886156bb15fa",
+            "B_qnt_L3_110005_swap": "6526978da50906f4"
+          },
+          "AST_V2": {
+            "B_qnt_L3_110005": "e6414911879ea69e",
+            "B_qnt_L3_110005_swap": "e688819be33bb6ef"
+          },
+          "HML": {
+            "B_qnt_L3_110005": "cbab067cbe56371d",
+            "B_qnt_L3_110005_swap": "02391d74b6406540"
+          }
+        }
+      },
+      {
+        "pair_id": "P_QUANTIFIER_ORDER_L3_110011",
+        "items": [
+          "B_qnt_L3_110011",
+          "B_qnt_L3_110011_swap"
+        ],
+        "answers": [
+          "FALSE",
+          "TRUE"
+        ],
+        "prompt_sha256_first16": {
+          "SE": {
+            "B_qnt_L3_110011": "8352c6710f879d58",
+            "B_qnt_L3_110011_swap": "3cfd19bf7898dec7"
+          },
+          "AST_V2": {
+            "B_qnt_L3_110011": "6960c6767e41f9e2",
+            "B_qnt_L3_110011_swap": "45ccae2362f11112"
+          },
+          "HML": {
+            "B_qnt_L3_110011": "42fcba99ca816059",
+            "B_qnt_L3_110011_swap": "bcddd1cb5e73839c"
+          }
+        }
+      },
+      {
+        "pair_id": "P_QUANTIFIER_ORDER_L3_110012",
+        "items": [
+          "B_qnt_L3_110012",
+          "B_qnt_L3_110012_swap"
+        ],
+        "answers": [
+          "FALSE",
+          "TRUE"
+        ],
+        "prompt_sha256_first16": {
+          "SE": {
+            "B_qnt_L3_110012": "7c727af997c37dfc",
+            "B_qnt_L3_110012_swap": "01d0c1726fa47a22"
+          },
+          "AST_V2": {
+            "B_qnt_L3_110012": "0b5bfea4dd0f53f2",
+            "B_qnt_L3_110012_swap": "6ab6f9b433e1e7a6"
+          },
+          "HML": {
+            "B_qnt_L3_110012": "e7f9fa8f6c054386",
+            "B_qnt_L3_110012_swap": "6956796bb9c7be4a"
+          }
+        }
+      },
+      {
+        "pair_id": "P_QUANTIFIER_ORDER_L3_110013",
+        "items": [
+          "B_qnt_L3_110013",
+          "B_qnt_L3_110013_swap"
+        ],
+        "answers": [
+          "FALSE",
+          "TRUE"
+        ],
+        "prompt_sha256_first16": {
+          "SE": {
+            "B_qnt_L3_110013": "524213d431e72626",
+            "B_qnt_L3_110013_swap": "88465ca9c363c4be"
+          },
+          "AST_V2": {
+            "B_qnt_L3_110013": "972e86692afa463d",
+            "B_qnt_L3_110013_swap": "d72ed555cfc54729"
+          },
+          "HML": {
+            "B_qnt_L3_110013": "054742c7f3a06841",
+            "B_qnt_L3_110013_swap": "a537b31c9d6a81d0"
+          }
+        }
+      },
+      {
+        "pair_id": "P_QUANTIFIER_ORDER_L3_110014",
+        "items": [
+          "B_qnt_L3_110014",
+          "B_qnt_L3_110014_swap"
+        ],
+        "answers": [
+          "TRUE",
+          "FALSE"
+        ],
+        "prompt_sha256_first16": {
+          "SE": {
+            "B_qnt_L3_110014": "f30181d28ad3a6cb",
+            "B_qnt_L3_110014_swap": "1232f320acc4e8a2"
+          },
+          "AST_V2": {
+            "B_qnt_L3_110014": "7ea88cead8c42d54",
+            "B_qnt_L3_110014_swap": "c116541a4c154c3b"
+          },
+          "HML": {
+            "B_qnt_L3_110014": "a90cf9a8ace12518",
+            "B_qnt_L3_110014_swap": "99627546181b2906"
+          }
+        }
+      }
+    ]
+  },
+  "rules": {
+    "no_post_hoc_deletion": true,
+    "no_post_hoc_rescoring": true,
+    "ast_v1_results_immutable": true,
+    "max_scientific_calls_without_stopping": 60
+  },
+  "preflight": {
+    "parity_failures": 0,
+    "every_pair_flips": true,
+    "hml_compiles": "16/16",
+    "audit_checks": 16
+  }
+}

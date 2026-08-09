@@ -15,8 +15,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .decoders import DecodeError, decode_ast, decode_english, decode_hml
+from .decoders import DecodeError, decode_ast, decode_english, decode_hml, decode_sexpr
 from .renderers.ast_json import AstRenderer
+from .renderers.ast_sexpr import SexprRenderer
 from .renderers.english import EnglishRenderer
 from .renderers.hml import HmlRenderer
 from .worlds import World, canonical_world
@@ -26,12 +27,14 @@ __all__ = ["ARM_RENDERERS", "ARM_DECODERS", "ParityResult", "check_world", "chec
 ARM_RENDERERS = {
     "SE": EnglishRenderer(),
     "AST": AstRenderer(),
+    "AST_V2": SexprRenderer(),
     "HML": HmlRenderer(),
 }
 
 ARM_DECODERS = {
     "SE": decode_english,
     "AST": decode_ast,
+    "AST_V2": decode_sexpr,
     "HML": decode_hml,
 }
 

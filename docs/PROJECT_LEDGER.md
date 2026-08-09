@@ -4956,3 +4956,57 @@ Do not spend more calls on frozen zero-shot HML prompting. The only branch this 
 supports is a **matched learning-curve experiment** — same base model, SE-LoRA vs HML-LoRA,
 1k → 5k → 10k examples — which tests H2 directly. That is a training experiment and is
 explicitly out of scope for this session; it should not begin without a separate decision.
+
+## 2026-08-08 — GENERIC_AST_V2 built; Endpoint B2 (quantifier scope) frozen
+
+**SHA at start.** `6921397`. **0 model calls in this entry.**
+
+**AST-v1 is preserved and excluded, not replaced.** All of its code and results stay
+untouched. It is not an arm in B2 because the binder diagnostic showed it cannot read
+nesting — its answers were predicted on 5/5 configurations by "say `forall` if `forall`
+appears anywhere" — so including it would measure the control's defect rather than the
+representations.
+
+**`AST_V2` — compact generic S-expression.** `forall(x, D, exists(y, D, R(x, y)))`.
+Nesting is carried by parenthesis depth, the most conventional way structure is written in
+Lisps, CAS systems and textbook logic. It borrows **nothing** from HML: no `assume`/`goal`,
+no `var`/`Proposition`, no module, no epistemic status, no obligations — asserted by test.
+A full decoder was written so it is held to the same round-trip standard as every other arm.
+
+**The length confound is not merely removed, it is reversed** — which is the conservative
+direction for a test of "does HML beat structure":
+
+| arm | mean prompt tokens on the B2 set |
+|---|---|
+| **AST_V2** | **190.9** |
+| SE | 229.2 |
+| AST-v1 | 248.6 |
+| HML | 295.4 |
+
+AST-v1 ran 1.8× SE in B1, so its last place there was confounded with length. AST_V2 is now
+the *shortest* arm, so any HML win over it cannot be explained by HML being terser.
+
+**Audit — 16 checks, all passing** (`tests/arena/test_b2_audit.py`), plus parity re-run
+across all four arms: **150 worlds, 0 failures**, and 16/16 on the B2 set itself. Covered:
+semantic parity; every pair flips and is minimal; the binder swap is observable in **every**
+arm; binder nesting survives round trip in every arm; **AST_V2 distinguishes the two orders
+by arrangement while carrying an identical token multiset** — precisely the property AST-v1
+lacked; no `world_id`/seed/`_swap`/`_flip`/`QUANTIFIER_ORDER` leakage; balanced 8 TRUE /
+8 FALSE with no constant-answer pair; deterministic rendering; HML compiles 16/16; fresh
+band disjoint from all seven burned bands; AST_V2 no longer than SE or HML; and no HML
+construct present in the control.
+
+**Frozen** in `ENDPOINT_B2_MANIFEST.json`: 8 pairs / 16 items / 3 arms = **48 scientific
+calls**, plus a 1-pair smoke (6 calls, excluded). 54 total, inside the 60 ceiling. Records
+every pair id, item id, **answer**, and per-arm prompt hash, with `no_post_hoc_rescoring`,
+`no_post_hoc_deletion` and `ast_v1_results_immutable`.
+
+**One conformance failure, caught by the repo's own guard and fixed — not overridden.**
+The first commit attempt failed `CONFORMANCE` on
+`test_an_optional_dependency_is_never_imported_unguarded[tiktoken]`: the new audit imported
+`tiktoken` directly, but it is optional and absent from the `dev` extra, so a **clean clone
+would have failed at collection rather than skipping**. `budget.py` imports it lazily for
+exactly this reason. Fixed with `pytest.importorskip("tiktoken")`, which is the remedy the
+guard itself prescribes. The override path was deliberately not used — the guard was right.
+
+**Next.** Commit, push, smoke, then the 48-call pilot.

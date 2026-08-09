@@ -37,6 +37,8 @@ BANDS: dict[str, tuple[int, int]] = {
     "ENDPOINT_A": (700_000, 799_999),
     #: Causal diagnosis of the B1 loss -- five matched conditions, mechanism triage.
     "CAUSAL_DIAGNOSIS": (800_000, 899_999),
+    #: Endpoint B2 -- quantifier scope with a fair compact structured control.
+    "ENDPOINT_B2": (110_000, 119_999),
     "CALIBRATION_LEGACY": (900_000, 999_999),
 }
 

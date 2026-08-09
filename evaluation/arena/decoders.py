@@ -35,7 +35,7 @@ from fractions import Fraction
 from .ir import Atom, BinOp, BVar, Cmp, Conn, Elem, Not, Num, Prop, Quant, Rel, Term, Var
 from .worlds import ARENA_VERSION, Decl, Fact, Query, Relation, World
 
-__all__ = ["decode_english", "decode_ast", "decode_hml", "DecodeError"]
+__all__ = ["decode_english", "decode_ast", "decode_sexpr", "decode_hml", "DecodeError"]
 
 
 class DecodeError(RuntimeError):
@@ -546,3 +546,54 @@ def _assemble(family, decls, facts, domain, relation, query) -> World:
         relation=relation,
         metrics={},
     )
+
+
+# ---------------------------------------------------------------------------
+# Arm AST_V2 -- compact generic S-expression
+# ---------------------------------------------------------------------------
+
+
+def decode_sexpr(state: str, question: str, family: str) -> World:
+    """Read the S-expression control back into a canonical world.
+
+    Same contract as every other decoder: if this cannot reproduce
+    `canonical_world`, the arm is not information-matched and the parity test fails.
+    """
+    from .renderers.ast_sexpr import parse_sexpr_prop
+
+    decls: list[Decl] = []
+    facts: list[Fact] = []
+    domain: tuple[int, ...] = ()
+    relation: Relation | None = None
+    rel_name = ""
+
+    for ln in state.splitlines():
+        s = ln.strip()
+        if not s:
+            continue
+        if m := re.fullmatch(r"D = \{(.*)\}", s):
+            domain = tuple(int(x) for x in m.group(1).split(",") if x.strip())
+        elif m := re.fullmatch(r"(\w+) : relation/(\d+) over D", s):
+            rel_name = m.group(1)
+            decls.append(Decl(rel_name, "Relation", arity=int(m.group(2))))
+        elif m := re.fullmatch(r"(\w+) holds exactly for: (.*)", s):
+            body = m.group(2)
+            pairs = () if body.strip() == "(none)" else tuple(
+                tuple(int(x) for x in t.split(",")) for t in re.findall(r"\(([^)]*)\)", body)
+            )
+            relation = Relation(m.group(1), 2, domain, pairs)
+        elif m := re.fullmatch(r"(\w+) : (Real|Proposition)", s):
+            decls.append(Decl(m.group(1), m.group(2)))
+        elif m := re.fullmatch(r"(f\d+): (.+)", s):
+            facts.append(Fact(m.group(1), parse_sexpr_prop(m.group(2))))
+        else:
+            raise DecodeError(f"unreadable AST_V2 line: {s!r}")
+
+    if m := re.search(r"Determine the exact value of (\w+)\.", question):
+        query = Query("VALUE", "", ("an exact integer or fraction",), target=m.group(1))
+    elif m := re.search(r"Is (\w+) necessarily true", question):
+        query = Query("ENTAILMENT", "", ("TRUE", "FALSE", "UNDETERMINED"), target=m.group(1))
+    else:
+        claim = parse_sexpr_prop(question.split("\n\n", 1)[1].strip())
+        query = Query("TRUTH", "", ("TRUE", "FALSE"), claim=claim)
+    return _assemble(family, decls, facts, domain, relation, query)

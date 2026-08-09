@@ -55,6 +55,7 @@ _STAGE_BANDS = {
     "BINDER_DIAGNOSTIC": "DIAGNOSTIC",
     "ENDPOINT_A": "ENDPOINT_A",
     "CAUSAL_DIAGNOSIS": "CAUSAL_DIAGNOSIS",
+    "ENDPOINT_B2": "ENDPOINT_B2",
 }
 
 #: Identical for every arm and every stage. Recorded in the freeze.
@@ -285,6 +286,11 @@ STAGES = {
     # because the binder diagnostic showed it cannot read nesting, and Endpoint A is not
     # where that question gets settled; adding it would spend calls on a known deficit.
     # Mechanism triage: five conditions over identical worlds, one variable each.
+    # B2: quantifier scope, the mechanism HML was designed for, against a FAIR compact
+    # structured control. AST-v1 is excluded -- the binder diagnostic showed it cannot read
+    # nesting, so it would measure the control's defect rather than the representations.
+    "b2": dict(stage="ENDPOINT_B2", band="ENDPOINT_B2", arms=("SE", "AST_V2", "HML"),
+               n_per_contrast=8, pair_offset=0, contrasts=("QUANTIFIER_ORDER",)),
     "causal": dict(stage="CAUSAL_DIAGNOSIS", band="CAUSAL_DIAGNOSIS",
                    arms=("SE", "HML_BASIC", "HML_EPI", "HML_OBF", "HML_VERIFY"),
                    n_per_contrast=0, pair_offset=0),
@@ -383,7 +389,10 @@ def main(argv: list[str] | None = None) -> int:
         model=a.model, level=a.level, max_tokens=a.max_tokens, **cfg,
     )
 
-    if a.stage == "causal":
+    if a.stage == "b2":
+        pairs = build_dev_pairs(spec.band, spec.level, spec.n_per_contrast, spec.contrasts)
+        items = [it for p in pairs for it in p]
+    elif a.stage == "causal":
         from .endpoints import causal_diag
 
         items = causal_diag.build_items(level=a.level, n=a.n_items)
