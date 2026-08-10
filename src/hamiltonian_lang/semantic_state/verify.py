@@ -1,0 +1,700 @@
+"""The transition verifier: ten invariants over one canonical state transition.
+
+What this is
+------------
+Given ``state_before --action--> state_after`` and the evidence offered, decide whether the
+transition is ``VALID``, ``INVALID`` (with a named error class), or ``UNRESOLVED``.
+
+Three-valued, and the third value is the point
+----------------------------------------------
+Each invariant family ships a LEGAL, an ILLEGAL and an **UNKNOWN** case. The UNKNOWN case
+is not a weaker ILLEGAL: it is a transition whose legality cannot be determined because
+something it depends on is itself unknown — an unknown claim status, an unknown
+precondition, unknown evidence, an unknown domain. Reporting it as a detected violation
+would be as wrong as accepting it, so it gets its own verdict and is excluded from both the
+accept count and the detect count.
+
+That is why :func:`verify` collects UNKNOWNs **before** violations and returns early. An
+invariant cannot meaningfully be checked against a field whose value is "we do not know",
+and a checker that guessed in that situation would produce a confident answer with nothing
+behind it.
+
+Ownership
+---------
+Nothing here reads ``EvidenceRecord.trusted`` as authority. That flag records who produced
+a record, not what it licenses. Acceptance always requires the structural facts: the
+referenced evidence exists, it supports the rule actually being applied, its premises are
+among the action's declared dependencies, and its status is VALID. The corrupted fixtures
+attack precisely that reference — they point an action at evidence that is not there — and
+a checker that believed the flag would accept every one of them.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+from .model import (
+    Action,
+    BranchStatus,
+    EvidenceRecord,
+    SemanticState,
+    Transition,
+    Verdict,
+)
+
+__all__ = ["Finding", "TransitionResult", "verify", "INVARIANTS"]
+
+#: The literal a neutral record uses to say "not determined". Present in claim status,
+#: precondition status, evidence status and declared domain.
+UNKNOWN = "UNKNOWN"
+
+#: The ten invariant families, with the error class each reports. Names match the neutral
+#: fixtures' ``expected_error_class`` exactly, because a verifier that reported its own
+#: vocabulary could not be compared against the reference checker at all.
+INVARIANTS: dict[str, str] = {
+    "DEPENDENCY": "DEPENDENCY_VIOLATION",
+    "SCOPE": "SCOPE_LEAK",
+    "PRECONDITIONS": "PRECONDITION_VIOLATION",
+    "OBLIGATIONS": "OBLIGATION_DROP",
+    "CANDIDATES": "CANDIDATE_PROMOTION",
+    "BRANCH_JOIN": "INVALID_BRANCH_JOIN",
+    "WARRANT": "WARRANT_MISMATCH",
+    "EPISTEMIC_STATUS": "EPISTEMIC_PROMOTION",
+    "GOAL_DISCHARGE": "FALSE_GOAL_DISCHARGE",
+    "TYPE_DOMAIN": "TYPE_OR_DOMAIN_MISMATCH",
+}
+
+
+@dataclass(frozen=True)
+class Finding:
+    invariant: str
+    error_class: str
+    detail: str
+
+
+@dataclass
+class TransitionResult:
+    verdict: Verdict
+    findings: list[Finding] = field(default_factory=list)
+    unknowns: list[str] = field(default_factory=list)
+
+    @property
+    def error_class(self) -> str | None:
+        return self.findings[0].error_class if self.findings else None
+
+    def to_dict(self) -> dict:
+        return {
+            "verdict": str(self.verdict),
+            "error_class": self.error_class,
+            "findings": [
+                {"invariant": f.invariant, "error_class": f.error_class, "detail": f.detail}
+                for f in self.findings
+            ],
+            "unknowns": list(self.unknowns),
+        }
+
+
+def _evidence(transition: Transition, eid: str | None) -> EvidenceRecord | None:
+    return transition.evidence.get(eid) if eid else None
+
+
+def _supports(record: EvidenceRecord, rule: str | None) -> bool:
+    """Evidence must support the rule actually being applied, not merely exist."""
+    return rule is None or record.supports_rule == rule
+
+
+# ---------------------------------------------------------------------------
+# UNKNOWN collection -- runs first, and short-circuits
+# ---------------------------------------------------------------------------
+
+
+def _collect_unknowns(transition: Transition) -> list[str]:
+    action, before, after = transition.action, transition.state_before, transition.state_after
+    out: list[str] = []
+
+    for name, state in (("state_before", before), ("state_after", after)):
+        for claim in state.claims.values():
+            if str(claim.status) == UNKNOWN:
+                out.append(f"{name}.claims.{claim.id}.status is UNKNOWN")
+            if claim.domain == UNKNOWN:
+                out.append(f"{name}.claims.{claim.id}.domain is UNKNOWN")
+            if claim.scope == UNKNOWN:
+                out.append(f"{name}.claims.{claim.id}.scope is UNKNOWN")
+        for candidate in state.candidates.values():
+            if str(candidate.status) == UNKNOWN:
+                out.append(f"{name}.candidates.{candidate.id}.status is UNKNOWN")
+        for branch in state.branches.values():
+            if str(branch.status) == UNKNOWN:
+                out.append(f"{name}.branches.{branch.id}.status is UNKNOWN")
+
+    for i, pre in enumerate(action.preconditions):
+        if isinstance(pre, dict) and pre.get("status") == UNKNOWN:
+            out.append(f"action.preconditions[{i}].status is UNKNOWN")
+
+    # Only evidence the action actually relies on. An unrelated UNKNOWN record in the
+    # bundle is not a reason to refuse a transition that never cites it.
+    for eid in _cited_evidence_ids(action):
+        record = transition.evidence.get(eid)
+        if record is not None and record.status == UNKNOWN:
+            out.append(f"evidence.{eid}.status is UNKNOWN")
+
+    return out
+
+
+def _cited_evidence_ids(action: Action) -> list[str]:
+    ids = []
+    for source in (
+        action.warrant.get("evidence_id"),
+        action.epistemic_effect.get("evidence_id"),
+        action.candidate_effect.get("evidence_id"),
+        action.branch_effect.get("coverage_evidence_id"),
+        action.scope_effect.get("discharge_evidence_id"),
+    ):
+        if source:
+            ids.append(source)
+    # Obligation discharges cite their own evidence, one per discharged obligation. Missing
+    # these was a real hole: a discharge resting on UNKNOWN evidence would have been read
+    # as an ordinary valid transition rather than an unresolved one.
+    for entry in action.obligations_discharged:
+        if isinstance(entry, dict) and entry.get("evidence_id"):
+            ids.append(entry["evidence_id"])
+    for entry in action.preconditions:
+        if isinstance(entry, dict) and entry.get("evidence_id"):
+            ids.append(entry["evidence_id"])
+    return ids
+
+
+# ---------------------------------------------------------------------------
+# The ten invariants
+# ---------------------------------------------------------------------------
+
+
+def _check_dependency(t: Transition) -> list[Finding]:
+    out = []
+    for dep in t.action.dependencies:
+        if dep not in t.state_before.claims:
+            out.append(
+                Finding(
+                    "DEPENDENCY",
+                    INVARIANTS["DEPENDENCY"],
+                    f"action cites {dep!r}, which is not present in the prior state",
+                )
+            )
+    # The produced claim must rest on what the action said it rests on. Letting these
+    # drift is how a conclusion acquires ancestry it never had.
+    out_id = t.action.output_id
+    produced = t.state_after.claims.get(out_id) if out_id else None
+    if produced is not None and set(produced.dependencies) != set(t.action.dependencies):
+        out.append(
+            Finding(
+                "DEPENDENCY",
+                INVARIANTS["DEPENDENCY"],
+                f"{out_id!r} records dependencies {sorted(produced.dependencies)} "
+                f"but the action declared {sorted(t.action.dependencies)}",
+            )
+        )
+    return out
+
+
+def _check_scope(t: Transition) -> list[Finding]:
+    """A conclusion may not be wider than the narrowest premise it rests on.
+
+    This is the invariant, and it is not "the output scope is active". ``global`` is
+    always active, so that weaker reading accepts the corrupted fixture, which promotes a
+    ``branch:b1`` conclusion straight to ``global``. The real rule is containment: a fact
+    derived inside a frame stays inside it, and leaving requires an explicit discharge
+    whose evidence is checked like any other.
+
+    Depth is read off ``active_scopes``, which the neutral record orders outermost-first,
+    so a later entry is strictly inside an earlier one.
+    """
+    out = []
+    order = list(t.state_before.active_scopes)
+
+    def depth(scope: str) -> int:
+        return order.index(scope) if scope in order else -1
+
+    for dep in t.action.dependencies:
+        claim = t.state_before.claims.get(dep)
+        if claim is not None and claim.scope not in order:
+            out.append(
+                Finding(
+                    "SCOPE",
+                    INVARIANTS["SCOPE"],
+                    f"{dep!r} lives in inactive scope {claim.scope!r} and cannot be cited",
+                )
+            )
+
+    out_id = t.action.output_id
+    produced = t.state_after.claims.get(out_id) if out_id else None
+    if produced is None:
+        return out
+    if produced.scope not in order:
+        out.append(
+            Finding(
+                "SCOPE",
+                INVARIANTS["SCOPE"],
+                f"{out_id!r} was written into scope {produced.scope!r}, which is not "
+                f"active ({', '.join(order)})",
+            )
+        )
+        return out
+
+    innermost = max(
+        (depth(t.state_before.claims[d].scope) for d in t.action.dependencies
+         if d in t.state_before.claims),
+        default=-1,
+    )
+    if innermost > depth(produced.scope):
+        discharged = _discharge_licenses_escape(t)
+        if not discharged:
+            narrow = order[innermost]
+            out.append(
+                Finding(
+                    "SCOPE",
+                    INVARIANTS["SCOPE"],
+                    f"{out_id!r} rests on a premise local to {narrow!r} but was written "
+                    f"into the wider scope {produced.scope!r} with no discharge; a "
+                    f"branch-local fact does not become global by being restated there",
+                )
+            )
+    return out
+
+
+def _discharge_licenses_escape(t: Transition) -> bool:
+    """Whether an explicit, valid discharge permits the conclusion to leave its frame."""
+    effect = t.action.scope_effect
+    if effect.get("kind") != "DISCHARGE":
+        return False
+    record = _evidence(t, effect.get("discharge_evidence_id"))
+    return record is not None and record.status == "VALID"
+
+
+def _check_preconditions(t: Transition) -> list[Finding]:
+    """SF-R04. SATISFIED executes; DEFERRED becomes explicit debt; UNSATISFIED refuses.
+
+    UNKNOWN never reaches here — it was collected earlier and made the whole transition
+    UNRESOLVED, which is the fail-closed requirement: an unknown precondition must not
+    execute as valid.
+    """
+    out = []
+    for i, pre in enumerate(t.action.preconditions):
+        if not isinstance(pre, dict):
+            continue
+        status = pre.get("status")
+        if status in ("SATISFIED", "DEFERRED", "DEFERRED_AS_OBLIGATION"):
+            continue
+        out.append(
+            Finding(
+                "PRECONDITIONS",
+                INVARIANTS["PRECONDITIONS"],
+                f"precondition[{i}] {pre.get('description', pre.get('id', ''))!r} "
+                f"is {status!r}",
+            )
+        )
+    return out
+
+
+def _check_obligations(t: Transition) -> list[Finding]:
+    """Created obligations must persist; discharged ones must name their evidence."""
+    out = []
+    for spec in t.action.obligations_created:
+        oid = spec.get("id") if isinstance(spec, dict) else spec
+        if oid and oid not in t.state_after.obligations:
+            out.append(
+                Finding(
+                    "OBLIGATIONS",
+                    INVARIANTS["OBLIGATIONS"],
+                    f"obligation {oid!r} was created by the action but is absent from the "
+                    f"resulting state",
+                )
+            )
+    for entry in t.action.obligations_discharged:
+        # The neutral schema records a discharge as ``{id, evidence_id}``, not a bare id.
+        oid = entry.get("id") if isinstance(entry, dict) else entry
+        settled = t.state_after.obligations.get(oid) if oid else None
+        if settled is None:
+            continue
+        if str(settled.status) != "DISCHARGED":
+            out.append(
+                Finding(
+                    "OBLIGATIONS",
+                    INVARIANTS["OBLIGATIONS"],
+                    f"obligation {oid!r} is claimed discharged but remains {settled.status}",
+                )
+            )
+    return out
+
+
+def _check_candidates(t: Transition) -> list[Finding]:
+    """SF-R07. Promotion is verifier-owned and checks EVERY original constraint."""
+    effect = t.action.candidate_effect
+    kind = effect.get("kind", "NONE")
+    if kind in (None, "NONE"):
+        return []
+    cid = effect.get("candidate_id")
+    candidate = t.state_before.candidates.get(cid) if cid else None
+    after = t.state_after.candidates.get(cid) if cid else None
+    # Identity must survive the transition. A candidate that vanishes, or appears only
+    # afterwards, is not the object the evidence was about.
+    if candidate is None or after is None:
+        return [
+            Finding(
+                "CANDIDATES",
+                INVARIANTS["CANDIDATES"],
+                f"candidate {cid!r} is not present in both the prior and resulting state",
+            )
+        ]
+    if kind != "PROMOTE":
+        return []
+
+    if not candidate.may_transition_to(after.status):
+        return [
+            Finding(
+                "CANDIDATES",
+                INVARIANTS["CANDIDATES"],
+                f"candidate {cid!r} cannot move {candidate.status} -> {after.status}",
+            )
+        ]
+    if t.action.operation != "VERIFY_CANDIDATE":
+        return [
+            Finding(
+                "CANDIDATES",
+                INVARIANTS["CANDIDATES"],
+                f"a candidate is promoted by VERIFY_CANDIDATE, not by "
+                f"{t.action.operation!r}",
+            )
+        ]
+
+    record = _evidence(t, effect.get("evidence_id"))
+    if record is None:
+        return [
+            Finding(
+                "CANDIDATES",
+                INVARIANTS["CANDIDATES"],
+                f"candidate {cid!r} was promoted with evidence "
+                f"{effect.get('evidence_id')!r}, which does not exist",
+            )
+        ]
+    if record.status != "VALID":
+        return [
+            Finding(
+                "CANDIDATES",
+                INVARIANTS["CANDIDATES"],
+                f"promotion evidence {record.id!r} is {record.status}",
+            )
+        ]
+    if not _supports(record, t.action.operation):
+        return [
+            Finding(
+                "CANDIDATES",
+                INVARIANTS["CANDIDATES"],
+                f"evidence {record.id!r} supports {record.supports_rule!r}, not "
+                f"{t.action.operation!r}",
+            )
+        ]
+    # THE check. A candidate is only ever a solution to *these* constraints, so a
+    # promotion that verified a subset has verified a different claim than the one made.
+    checked = set(record.payload.get("checked_constraints") or ())
+    missing = [c for c in candidate.constraint_ids if c not in checked]
+    if missing:
+        return [
+            Finding(
+                "CANDIDATES",
+                INVARIANTS["CANDIDATES"],
+                f"promotion evidence does not check original constraint(s) "
+                f"{', '.join(missing)}",
+            )
+        ]
+    if record.payload.get("candidate_id") not in (None, cid):
+        return [
+            Finding(
+                "CANDIDATES",
+                INVARIANTS["CANDIDATES"],
+                f"evidence {record.id!r} is about candidate "
+                f"{record.payload.get('candidate_id')!r}, not {cid!r}",
+            )
+        ]
+    return []
+
+
+def _check_branch_join(t: Transition) -> list[Finding]:
+    """SF-R08. A conclusion does not become global because several branches agree."""
+    effect = t.action.branch_effect
+    kind = effect.get("kind", "NONE")
+    if kind in (None, "NONE"):
+        return []
+    ids = list(effect.get("branch_ids") or ())
+    if kind != "JOIN":
+        return []
+    if not ids:
+        return [
+            Finding("BRANCH_JOIN", INVARIANTS["BRANCH_JOIN"], "a join names no branches")
+        ]
+
+    for bid in ids:
+        branch = t.state_before.branches.get(bid)
+        if branch is None:
+            return [
+                Finding(
+                    "BRANCH_JOIN",
+                    INVARIANTS["BRANCH_JOIN"],
+                    f"branch {bid!r} is not in the prior state",
+                )
+            ]
+        if branch.status not in (BranchStatus.CLOSED, BranchStatus.JOINED):
+            return [
+                Finding(
+                    "BRANCH_JOIN",
+                    INVARIANTS["BRANCH_JOIN"],
+                    f"branch {bid!r} is {branch.status}; an open branch has not concluded",
+                )
+            ]
+
+    record = _evidence(t, effect.get("coverage_evidence_id"))
+    if record is None:
+        return [
+            Finding(
+                "BRANCH_JOIN",
+                INVARIANTS["BRANCH_JOIN"],
+                f"the join cites coverage evidence "
+                f"{effect.get('coverage_evidence_id')!r}, which does not exist. Branches "
+                f"that agree are not a proof that they exhaust the cases",
+            )
+        ]
+    if record.status != "VALID":
+        return [
+            Finding(
+                "BRANCH_JOIN",
+                INVARIANTS["BRANCH_JOIN"],
+                f"coverage evidence {record.id!r} is {record.status}",
+            )
+        ]
+    if not _supports(record, t.action.operation):
+        return [
+            Finding(
+                "BRANCH_JOIN",
+                INVARIANTS["BRANCH_JOIN"],
+                f"evidence {record.id!r} supports {record.supports_rule!r}, not "
+                f"{t.action.operation!r}",
+            )
+        ]
+    covered = set(record.payload.get("branch_ids") or ())
+    uncovered = [b for b in ids if b not in covered]
+    if uncovered:
+        return [
+            Finding(
+                "BRANCH_JOIN",
+                INVARIANTS["BRANCH_JOIN"],
+                f"the partition certificate does not cover branch(es) "
+                f"{', '.join(uncovered)}",
+            )
+        ]
+
+    # Every branch must have concluded the SAME thing, and it must be what the join
+    # publishes. Context is the only legitimate variance across branches -- that is what
+    # makes a case analysis a proof of one proposition rather than a collection of
+    # different local results that happen to sit next to each other.
+    #
+    # Note what is deliberately NOT required: disjointness. Disjunction elimination is
+    # sound for overlapping cases, so demanding it would reject valid reasoning. Coverage
+    # is the obligation; overlap is not.
+    out_id = t.action.output_id
+    published = t.state_after.claims.get(out_id) if out_id else None
+    if published is not None:
+        for bid in ids:
+            branch = t.state_before.branches[bid]
+            if branch.conclusion is not None and branch.conclusion != published.proposition:
+                return [
+                    Finding(
+                        "BRANCH_JOIN",
+                        INVARIANTS["BRANCH_JOIN"],
+                        f"branch {bid!r} concluded something other than the joined "
+                        f"claim; a join publishes what every branch established, not a "
+                        f"new proposition",
+                    )
+                ]
+    return []
+
+
+def _check_warrant(t: Transition) -> list[Finding]:
+    warrant = t.action.warrant
+    rule = warrant.get("rule")
+    record = _evidence(t, warrant.get("evidence_id"))
+    if record is None:
+        if warrant.get("evidence_id"):
+            return [
+                Finding(
+                    "WARRANT",
+                    INVARIANTS["WARRANT"],
+                    f"warrant cites evidence {warrant.get('evidence_id')!r}, which does "
+                    f"not exist",
+                )
+            ]
+        return []
+    if not _supports(record, rule):
+        return [
+            Finding(
+                "WARRANT",
+                INVARIANTS["WARRANT"],
+                f"the action claims warrant {rule!r} but evidence {record.id!r} supports "
+                f"{record.supports_rule!r}",
+            )
+        ]
+    unstated = [p for p in record.premise_ids if p not in t.action.dependencies]
+    if unstated:
+        return [
+            Finding(
+                "WARRANT",
+                INVARIANTS["WARRANT"],
+                f"evidence {record.id!r} rests on {', '.join(unstated)}, which the action "
+                f"does not declare as dependencies",
+            )
+        ]
+    return []
+
+
+def _check_epistemic(t: Transition) -> list[Finding]:
+    """Generation cannot self-certify: a status upgrade needs valid supporting evidence."""
+    effect = t.action.epistemic_effect
+    to_status = effect.get("to_status")
+    if to_status in (None, "PROPOSED", "UNRESOLVED"):
+        return []
+    eid = effect.get("evidence_id") or t.action.warrant.get("evidence_id")
+    record = _evidence(t, eid)
+    if record is None:
+        return [
+            Finding(
+                "EPISTEMIC_STATUS",
+                INVARIANTS["EPISTEMIC_STATUS"],
+                f"status was raised to {to_status} with no existing supporting evidence",
+            )
+        ]
+    if record.status != "VALID":
+        return [
+            Finding(
+                "EPISTEMIC_STATUS",
+                INVARIANTS["EPISTEMIC_STATUS"],
+                f"status was raised to {to_status} on evidence {record.id!r}, which is "
+                f"{record.status}",
+            )
+        ]
+    return []
+
+
+def _check_goal_discharge(t: Transition) -> list[Finding]:
+    """The recorded conclusion must be the one the action actually claims."""
+    out = []
+    out_id = t.action.output_id
+    produced = t.state_after.claims.get(out_id) if out_id else None
+    if produced is not None and t.action.summary:
+        if produced.proposition != t.action.summary:
+            out.append(
+                Finding(
+                    "GOAL_DISCHARGE",
+                    INVARIANTS["GOAL_DISCHARGE"],
+                    f"{out_id!r} records a proposition that is not the one the action "
+                    f"states; a goal is discharged by its exact target, not an adjacent one",
+                )
+            )
+    effect = t.action.goal_effect
+    if effect.get("kind") == "DISCHARGE":
+        gid = effect.get("goal_id")
+        goal = t.state_before.goals.get(gid) if gid else None
+        if goal is None:
+            out.append(
+                Finding(
+                    "GOAL_DISCHARGE",
+                    INVARIANTS["GOAL_DISCHARGE"],
+                    f"the action discharges goal {gid!r}, which is not in the prior state",
+                )
+            )
+        elif produced is not None and produced.proposition != goal.proposition:
+            out.append(
+                Finding(
+                    "GOAL_DISCHARGE",
+                    INVARIANTS["GOAL_DISCHARGE"],
+                    f"goal {gid!r} was discharged by a claim that does not state it",
+                )
+            )
+    return out
+
+
+def _check_type_domain(t: Transition) -> list[Finding]:
+    """SF-R13. Declared domains must survive the crossing and must agree."""
+    out = []
+    declared: dict[str, Any] = t.action.typing.get("input_domains") or {}
+    for cid, domain in declared.items():
+        claim = t.state_before.claims.get(cid)
+        if claim is None:
+            continue
+        if claim.domain is None:
+            out.append(
+                Finding(
+                    "TYPE_DOMAIN",
+                    INVARIANTS["TYPE_DOMAIN"],
+                    f"the action types {cid!r} as {domain!r} but the state declares no domain",
+                )
+            )
+        elif claim.domain != domain:
+            out.append(
+                Finding(
+                    "TYPE_DOMAIN",
+                    INVARIANTS["TYPE_DOMAIN"],
+                    f"{cid!r} is {claim.domain!r} in the state but the action types it "
+                    f"{domain!r}",
+                )
+            )
+    expected_out = t.action.typing.get("output_domain")
+    out_id = t.action.output_id
+    produced = t.state_after.claims.get(out_id) if out_id else None
+    if produced is not None and expected_out and produced.domain != expected_out:
+        out.append(
+            Finding(
+                "TYPE_DOMAIN",
+                INVARIANTS["TYPE_DOMAIN"],
+                f"{out_id!r} has domain {produced.domain!r} but the action produces "
+                f"{expected_out!r}",
+            )
+        )
+    return out
+
+
+_CHECKS = (
+    _check_dependency,
+    _check_scope,
+    _check_preconditions,
+    _check_obligations,
+    _check_candidates,
+    _check_branch_join,
+    _check_warrant,
+    _check_epistemic,
+    _check_goal_discharge,
+    _check_type_domain,
+)
+
+
+def verify(transition: Transition) -> TransitionResult:
+    """Decide one transition. UNKNOWN is collected first and short-circuits."""
+    unknowns = _collect_unknowns(transition)
+    if unknowns:
+        return TransitionResult(Verdict.UNRESOLVED, [], unknowns)
+
+    findings: list[Finding] = []
+    for check in _CHECKS:
+        findings.extend(check(transition))
+    if findings:
+        return TransitionResult(Verdict.INVALID, findings, [])
+    return TransitionResult(Verdict.VALID, [], [])
+
+
+def verify_payload(payload: dict) -> TransitionResult:
+    """Import and verify in one step. Import failure is a refusal, not a verdict."""
+    from .neutral import import_transition
+
+    return verify(import_transition(payload))
+
+
+def _unused(state: SemanticState) -> None:  # pragma: no cover - keeps the import honest
+    return None

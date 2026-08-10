@@ -28,6 +28,45 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**CANONICAL SEMANTIC STATE EXISTS — the Semantic Firewall's six inexpressible fixtures are
+closed, and the trusted core did not change to close them.**
+
+`src/hamiltonian_lang/semantic_state/` adds the object HML did not have: a *transition*
+(`state_before --action--> state_after` plus evidence), as opposed to a *module*. The
+Semantic Firewall experiment (corpus `80b1640`, pinned HML `5688aba`) recorded 6 of its 30
+acceptance fixtures as `CURRENT_HML_NOT_EXPRESSIBLE`, all of them candidate-lifecycle
+(`FX-CAN-*`) and branch/join (`FX-BRN-*`).
+
+Measured: **30/30 fixtures match the frozen reference checker; 30/30 round-trip
+byte-for-byte.** No fixture was modified.
+
+* **Candidate lifecycle (SF-R06/R07)** — one generic object, no per-domain variants.
+  Promotion is verifier-owned and checks *every* original constraint.
+* **Certified branch/join (SF-R08)** — coverage required, disjointness **not** (disjunction
+  elimination is sound for overlapping cases). Branches that merely agree are not evidence
+  that they exhaust the cases.
+* **Neutral adapter (SF-R03)** — versioned, and lossless *as a test* rather than a claim.
+* **Fail-closed three-valued verdict (SF-R04/R13)** — `UNRESOLVED` is not a soft `INVALID`;
+  UNKNOWNs are collected first and short-circuit.
+
+**No syntax was added.** `git diff` is empty for `ast/`, `lexer/`, `parser/`, `backends/`
+and all of `reasoning/`. The canonical object is the typed state; HML text remains one
+rendering of it (`docs/04` §6.14).
+
+**Four bugs found by running rather than reasoning**, all now fixed: obligations use
+`status`/`mandatory` not `state`; discharges are `{id, evidence_id}` records; `UNKNOWN` must
+be a *representable value*, not an import error; and the scope rule is **containment**, not
+"output scope is active" — `global` is always active, so the weaker reading accepts the
+corrupted fixture.
+
+**What this does NOT establish** (see `docs/hml_v2/SEMANTIC_STATE_CONTRACT.md` §6): SF-R06
+is not fully demonstrated — no fixture exercises `UNVERIFIED` or `REJECTED`. The two new
+ILLEGAL fixtures test only dangling evidence pointers, so the substantive rules are
+exercised by no fixture; this was built to the reference checker's source. Acceptance
+fixtures are not source-held-out, so pass rates are not evidence of generalisation.
+
+---
+
 **GOLD-10 LIBRARY CLOSEOUT COMPLETE — the three remaining library capabilities exist, and
 the trusted kernel did not change to get them.**
 

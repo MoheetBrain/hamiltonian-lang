@@ -5399,3 +5399,103 @@ The library track's Gold-10 obligations are discharged. Ownership passes to Code
 ### Next intended step
 
 **Stop.** Do not rerun Gold-10, do not touch the corpus, do not start Gold-100.
+
+---
+
+## 2026-08-10 — canonical semantic state: candidate lifecycle and certified branch/join
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **Base:** `fc64965` · **Stage:** semantic
+state layer · **Model calls: 0. Training: 0. Corpus modifications: 0.**
+
+### Objective
+
+Close the two semantic objects the Semantic Firewall found HML could not express, driven by
+the research corpus rather than by a summary of it.
+
+### What was verified before editing
+
+The mission brief said the repository is the source of truth, so the brief itself was
+checked against it. Two findings changed the plan:
+
+- **No branch integration was needed.** The corpus HEAD `fc9b2a3` already contains `main`,
+  `codex/semantic-firewall` and `codex/prm800k-natural-error-audit` as ancestors — the
+  history is linear. The instruction to "integrate the research commits into one builder
+  branch" was already satisfied.
+- **The Desktop copies of the five canonical docs are stale** (pre-MiniLang). The repo
+  copies are strictly newer and were used.
+
+`experiments/minilang_audit/validate_evidence.py` → PASS (10 operations, 78 examples,
+42,699 tree entries). `hml_core` is a git submodule, which is how Codex repins.
+
+### Decisions made, and why
+
+**No syntax.** `docs/04` §6.14 makes canonical typed state primary; the brief forbids syntax
+merely to support import. So candidates and branches are semantic objects reachable
+programmatically, not keywords. Verified by an empty diff over `ast/`, `lexer/`, `parser/`,
+`backends/` and `reasoning/`.
+
+**`UNKNOWN` is a value.** The first fixture run failed on import because `ClaimStatus` had
+no `UNKNOWN`. That was the bug, not the fixture: the PRM800K audit is explicit that unknown
+and un-adjudicated must be representable, and it is what makes `UNRESOLVED` reachable.
+
+**Scope is containment, not activity.** `_check_scope` initially asked whether the output
+scope was active. `global` always is, so it accepted `FX-SCP-ILLEGAL` — a `branch:b1`
+conclusion promoted straight to `global`. The rule is that a conclusion may not be wider
+than its narrowest premise, absent an explicit discharge.
+
+**Coverage required, disjointness not.** Confirmed against MiniLang's `CONSIDER∨`
+obligations: disjunction elimination is sound for overlapping cases, so requiring
+disjointness would reject valid reasoning.
+
+**`trusted` is provenance, not permission.** The fixtures carry `trusted: true`; reading it
+as authority would accept every corrupted case, since the corruptions attack the evidence
+*reference*. Acceptance requires the structural facts instead.
+
+### Tests and verification actually executed
+
+| check | result |
+|---|---|
+| 30 acceptance fixtures vs frozen reference checker | **30/30 verdict and error class** |
+| neutral adapter round trip | **30/30 byte-for-byte** |
+| `pytest tests/semantic_state` | 62 passed |
+| `pytest tests/reasoning tests/libraries tests/freeze` | passed unchanged |
+| `ruff check src/hamiltonian_lang/semantic_state` | clean |
+| kernel / AST / grammar / backends diff | **empty** |
+
+### Failures and unresolved uncertainty
+
+Four implementation bugs, each caught by running the fixtures rather than by review:
+obligation field names (`status`/`mandatory`, not `state`); `obligations_discharged` entries
+are `{id, evidence_id}` records; missing `UNKNOWN` status values; and the scope rule above.
+A fifth: evidence cited from `obligations_discharged[].evidence_id` was not being scanned
+for UNKNOWN, so a discharge resting on unknown evidence read as valid.
+
+**Recorded honestly — the fixtures are weaker than they look.** SF-R06 requires four
+candidate states; no fixture or benchmark case exercises `UNVERIFIED` or `REJECTED`, so
+30/30 does not demonstrate it. The two new ILLEGAL fixtures differ from their LEGAL twins
+only in a dangling `evidence_id`, so the substantive rules (constraint subset, branch not
+CLOSED, conclusion mismatch) are exercised by no fixture; this was built to the reference
+checker's source. Acceptance fixtures are not source-held-out.
+
+**A confound found in a frozen experiment, reported not altered.** `HML_OBF` in the causal
+scout substitutes nine keywords including the English words `or` and `not`, and
+`endpoints/causal_diag.py:124-125` applies the map to the *question* text. The entailment
+question therefore reached the model as "…necessarily false, `zeta8` is it `zeta9`
+determined…", destroying the clause naming the third answer option — in the one condition
+that then answered `UNDETERMINED` on all six items. `HML_OBF` is the only positive signature
+for the H2 familiarity hypothesis and the stated justification for the proposed LoRA
+experiment. **It should be withdrawn as evidence for H2 until re-run with the question text
+held fixed.** No frozen artifact was modified.
+
+### Effect on the overall project
+
+The canonical machine object now exists as data, and the two semantic capabilities the
+firewall identified are implemented and checked without touching the trusted core. The
+architecture claim — that state semantics can grow while the kernel stays fixed — now has a
+second independent test behind it.
+
+### Next intended step
+
+The lossless renderer (SF-R15), deferred by the brief until the semantic objects stabilise;
+tests for the substantive candidate/branch rules no fixture reaches; and the `docs/04`
+update plus Codex handoff.
