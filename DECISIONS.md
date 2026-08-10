@@ -2306,3 +2306,50 @@ three tests.
 **Not closed by this.** The digest binding above. And RUNTIME has no production caller yet —
 nothing in `src/` runs the verifier on model output, so this is a gate built before the road
 reaches it, which is the right order.
+
+---
+
+## D-052 — no default trust mode, and four holes an audit found in D-051
+
+**Date:** 2026-08-10 · **After:** `c623dd6` · **Amends:** D-051
+
+**1. The mode has no default.** D-051 made `OFFLINE_REPLAY` the default and argued "the
+unsafe reading is never the one you get by forgetting an argument". That was **wrong**:
+forgetting the argument gave you replay, and replay trusts a status the record's own author
+wrote — precisely the hole D-050 was raised about. Defaulting the other way would make the
+frozen corpus unreplayable. Neither world is safe to assume, so `verify()` requires `mode`,
+and `verify_replay` / `verify_runtime` name the trust boundary at the call site.
+`verify_payload` is **gone**, renamed `replay_payload`: a caller reaching for "the obvious
+one" must not thereby choose a trust boundary without noticing.
+
+**2. `attest()` was forgeable.** It duck-typed on `envelope` and `checker` being present, so
+`SimpleNamespace(envelope=…, checker=…)` produced an attestation indistinguishable
+downstream from a real one. The docstring's reasoning — that `isinstance` was too weak
+because "a subclass could be declared anywhere" — **inverted the risk**: `isinstance` catches
+exactly this. Now checks `_token is certificates._MINT`, the one fact that cannot be forged.
+
+**3. There was a fifth trust site.** D-050 named four `record.status == "VALID"` reads.
+`_check_warrant` read status **nowhere**, so evidence explicitly marked `"REJECTED"` was
+accepted as a warrant in both modes — no forgery required. Now gated. A repair that closed
+only the four named sites would have left the easiest attack open.
+
+**4. Attestations were keyed by `record.id`, which the payload controls.** The neutral schema
+lets a record's own `id` differ from the key it is filed under, so a producer could route a
+genuine certificate for `e_genuine` onto a record it cited as `e_forged`. Now keyed by the id
+the **action** cites.
+
+**5. The most severe site had the emptiest binding.** `_discharge_licenses_escape` passed
+`claim=None, premises=(), rule=None`, so `binds()` was vacuously satisfied by any
+zero-premise attestation — the exact shape a closed-evaluation checker produces. An
+attestation for `2 + 2 = 4` licensed a branch-local premise into `global`. Now binds the
+produced claim and declared premises.
+
+**Verification.** 22 trust tests; the four attacks re-run and closed; 30/30 frozen fixtures
+replay unchanged; full suite green; mypy clean.
+
+**Still open, recorded not fixed.** An attestation carries no *context* digest, so a
+certificate valid for one transition can be replayed into another with the same claim and
+premises but different surrounding state — `certificates.check` compares `context_hash` for
+exactly this reason. Four more defects remain open at HEAD: sibling-scope order (plus a
+duplicate-`active_scopes` bypass that needs no forgery), neutral dict-key identity, 15
+uncaught-exception signatures on malformed input, and null branch conclusions.

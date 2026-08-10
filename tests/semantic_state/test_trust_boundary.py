@@ -26,7 +26,12 @@ from pathlib import Path
 import pytest
 
 import hamiltonian_lang.reasoning.certificates as C
-from hamiltonian_lang.semantic_state import verify, verify_payload
+from hamiltonian_lang.semantic_state import (
+    replay_payload,
+    verify,
+    verify_replay,
+    verify_runtime,
+)
 from hamiltonian_lang.semantic_state.neutral import import_transition
 from hamiltonian_lang.semantic_state.trust import (
     AttestationError,
@@ -49,6 +54,11 @@ _ACTION = {
     "typing": {}, "warrant": {}, "goal_effect": {}, "scope_effect": {},
     "branch_effect": {}, "candidate_effect": {}, "epistemic_effect": {},
 }
+
+
+def _p():
+    return {"id": "p", "proposition": "q", "status": "GIVEN",
+            "scope": "global", "dependencies": []}
 
 
 def _candidate(status):
@@ -94,7 +104,7 @@ def test_a_self_asserted_valid_is_accepted_in_offline_replay():
     external process. Refusing it would make the acceptance fixtures unreplayable and would
     make nothing safer.
     """
-    assert str(verify_payload(_self_asserted()).verdict) == "VALID"
+    assert str(replay_payload(_self_asserted()).verdict) == "VALID"
 
 
 def test_a_self_asserted_valid_is_refused_at_runtime():
@@ -116,17 +126,40 @@ def test_the_trusted_flag_buys_nothing_at_runtime():
     assert str(result.verdict) == "INVALID"
 
 
-def test_runtime_is_not_the_default_but_the_unsafe_reading_is_never_silent():
-    """The safe mode must be chosen explicitly, and the default must be the *replay* one.
+def test_the_trust_mode_cannot_be_omitted():
+    """There is no safe default, so there is no default (D-052).
 
-    Getting this backwards either breaks the frozen corpus or silently trusts model output.
-    The signature is keyword-only so a caller cannot pass the wrong mode positionally.
+    This test previously asserted the opposite — that ``OFFLINE_REPLAY`` was the default —
+    on the argument that "the unsafe reading is never what you get by forgetting an
+    argument". That argument was wrong, and the test encoded the error. Forgetting the
+    argument *did* give you replay, and replay trusts a status the record's own author
+    wrote, which is precisely the hole D-050 was raised about. Defaulting the other way
+    would instead make the frozen corpus unreplayable. Neither world is safe to assume, so
+    the caller states which one they are in.
     """
     import inspect
 
     sig = inspect.signature(verify)
     assert sig.parameters["mode"].kind is inspect.Parameter.KEYWORD_ONLY
-    assert sig.parameters["mode"].default is TrustMode.OFFLINE_REPLAY
+    assert sig.parameters["mode"].default is inspect.Parameter.empty, (
+        "verify() must not default its trust mode"
+    )
+    with pytest.raises(TypeError):
+        verify(import_transition(_self_asserted()))  # type: ignore[call-arg]
+
+
+def test_the_explicit_apis_name_the_trust_mode_in_the_call():
+    """``verify_replay`` / ``verify_runtime`` exist so the mode is visible at the call site.
+
+    And there is deliberately no ``verify_payload``: a caller reaching for "the obvious one"
+    must not thereby choose a trust boundary without noticing.
+    """
+    from hamiltonian_lang import semantic_state as S
+
+    assert not hasattr(S, "verify_payload")
+    case = import_transition(_self_asserted())
+    assert str(S.verify_replay(case).verdict) == "VALID"
+    assert str(S.verify_runtime(case).verdict) == "INVALID"
 
 
 # ---------------------------------------------------------------------------
@@ -262,7 +295,7 @@ def test_the_frozen_fixtures_still_replay_unchanged():
     fixtures = json.loads(FIXTURES.read_text())["fixtures"]
     assert len(fixtures) == 30
     for fixture in fixtures:
-        result = verify_payload(fixture["case"])
+        result = replay_payload(fixture["case"])
         assert str(result.verdict) == fixture["expected_reference_result"], (
             fixture["fixture_id"]
         )
@@ -277,3 +310,105 @@ def test_the_digest_is_exact_not_normalised():
     """
     assert proposition_digest("x = 2") != proposition_digest("x  =  2")
     assert proposition_digest("x = 2") == proposition_digest("x = 2")
+
+
+# ---------------------------------------------------------------------------
+# D-052 — four holes an independent audit found in the D-051 implementation
+# ---------------------------------------------------------------------------
+
+
+def test_a_forged_checked_evidence_is_refused():
+    """`attest()` consults the mint token, not attribute shape.
+
+    The first implementation duck-typed on `envelope` and `checker` being present, so a
+    `SimpleNamespace` passed and produced an attestation indistinguishable downstream from
+    a real one. The docstring's reasoning — that `isinstance` was too weak because "a
+    subclass could be declared anywhere" — inverted the risk: `isinstance` catches exactly
+    this, and the unforgeable fact is the private sentinel.
+    """
+    import types
+
+    fake = types.SimpleNamespace(
+        envelope=types.SimpleNamespace(certificate_version=1), checker="closed_eval_v1"
+    )
+    with pytest.raises(AttestationError):
+        attest("e", fake, claim="x = 2", premises=())  # type: ignore[arg-type]
+
+
+def test_explicitly_rejected_warrant_evidence_is_refused():
+    """The fifth trust site. D-050 named four; `_check_warrant` read no status at all.
+
+    Evidence marked `"status": "REJECTED"` was accepted as a warrant in **both** modes. No
+    forgery needed — an explicitly rejected certificate worked.
+    """
+    case = {
+        "schema_version": SCHEMA, "case_id": "W",
+        "action": {**copy.deepcopy(_ACTION), "operation": "ASSERT",
+                   "dependencies": ["p"],
+                   "warrant": {"kind": "X", "rule": "R", "evidence_id": "e1"}},
+        "state_before": {**copy.deepcopy(_EMPTY), "claims": {"p": _p()}},
+        "state_after": {**copy.deepcopy(_EMPTY), "claims": {"p": _p()}},
+        "evidence": {"e1": {"id": "e1", "kind": "K", "status": "REJECTED",
+                            "supports_rule": "R", "trusted": False,
+                            "premise_ids": ["p"]}},
+        "source": {},
+    }
+    result = verify_replay(import_transition(case))
+    assert str(result.verdict) == "INVALID", result.to_dict()
+    assert result.error_class == "WARRANT_MISMATCH"
+
+
+def test_an_attestation_cannot_be_routed_by_a_payload_controlled_id():
+    """Attestations are keyed by the id the ACTION cites, never by `record.id`.
+
+    The neutral schema lets a record's own `id` differ from its key, and `record.id` is
+    payload-controlled — so filing by it let a producer route a genuine certificate for
+    `e_genuine` onto a record it cites as `e_forged`.
+    """
+    case = {
+        "schema_version": SCHEMA, "case_id": "G",
+        "action": {**copy.deepcopy(_ACTION), "operation": "ASSERT",
+                   "dependencies": ["p"],
+                   "warrant": {"kind": "X", "rule": "R", "evidence_id": "e_forged"}},
+        "state_before": {**copy.deepcopy(_EMPTY), "claims": {"p": _p()}},
+        "state_after": {**copy.deepcopy(_EMPTY), "claims": {"p": _p()}},
+        "evidence": {"e_forged": {"id": "e_genuine", "kind": "K", "status": "VALID",
+                                  "supports_rule": "R", "trusted": False,
+                                  "premise_ids": ["p"]}},
+        "source": {},
+    }
+    result = verify_runtime(import_transition(case))
+    assert str(result.verdict) == "INVALID", result.to_dict()
+
+
+def test_the_scope_discharge_site_binds_its_claim(monkeypatch):
+    """The most severe site had the emptiest binding.
+
+    `_discharge_licenses_escape` passed `claim=None, premises=(), rule=None`, so `binds()`
+    was vacuously satisfied by any zero-premise attestation — the exact shape a
+    closed-evaluation checker produces. An attestation for `2 + 2 = 4` licensed a
+    branch-local premise into `global`.
+    """
+    checked = _mint(monkeypatch)
+    unrelated = attest("e_disc", checked, claim="2 + 2 = 4", premises=())
+    case = {
+        "schema_version": SCHEMA, "case_id": "H1",
+        "action": {**copy.deepcopy(_ACTION), "operation": "ASSERT", "output_id": "c",
+                   "dependencies": ["p"],
+                   "scope_effect": {"kind": "DISCHARGE", "discharge_evidence_id": "e_disc"}},
+        "state_before": {"active_scopes": ["global", "branch:b1"], "branches": {},
+                         "candidates": {}, "goals": {}, "obligations": {},
+                         "claims": {"p": {**_p(), "scope": "branch:b1"}}},
+        "state_after": {"active_scopes": ["global", "branch:b1"], "branches": {},
+                        "candidates": {}, "goals": {}, "obligations": {},
+                        "claims": {"p": {**_p(), "scope": "branch:b1"},
+                                   "c": {"id": "c", "proposition": "q", "status": "DERIVED",
+                                         "scope": "global", "dependencies": ["p"]}}},
+        "evidence": {"e_disc": {"id": "e_disc", "kind": "K", "status": "VALID",
+                                "supports_rule": None, "trusted": False,
+                                "premise_ids": []}},
+        "source": {},
+    }
+    result = verify_runtime(import_transition(case), {"e_disc": unrelated})
+    assert str(result.verdict) == "INVALID", result.to_dict()
+    assert result.error_class == "SCOPE_LEAK"

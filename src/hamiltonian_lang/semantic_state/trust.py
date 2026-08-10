@@ -162,18 +162,27 @@ def attest(
 ) -> Attestation:
     """Wrap a minted :class:`CheckedEvidence` as an :class:`Attestation`.
 
-    Refuses anything that is not genuinely minted. The check is deliberately not
-    ``isinstance`` alone: a subclass could be declared anywhere, whereas the envelope and
-    checker fields only exist on the real object, and the real object can only come from
-    ``certificates.check``.
+    Refuses anything that is not genuinely minted, by consulting the **mint token**.
+
+    The first version of this function duck-typed on the presence of ``envelope`` and
+    ``checker``, reasoning that "a subclass could be declared anywhere". That inverted the
+    risk and was forgeable: ``SimpleNamespace(envelope=..., checker=...)`` passed, and the
+    resulting attestation was indistinguishable downstream from a real one. ``isinstance``
+    would in fact have caught exactly that. The genuinely unforgeable fact is the private
+    sentinel ``certificates._MINT``, which only ``certificates.check`` ever attaches, so
+    that is what is checked here — attribute shape is not identity.
     """
-    envelope = getattr(checked, "envelope", None)
-    checker = getattr(checked, "checker", None)
-    if envelope is None or checker is None:
+    from ..reasoning import certificates as _certs
+
+    if not isinstance(checked, _certs.CheckedEvidence) or (
+        getattr(checked, "_token", None) is not _certs._MINT
+    ):
         raise AttestationError(
             "attest() requires a CheckedEvidence minted by "
-            "reasoning.certificates.check(); a plain object cannot stand in for one"
+            "reasoning.certificates.check(); an object of the right shape is not one"
         )
+    envelope = checked.envelope
+    checker = checked.checker
     return Attestation(
         evidence_id=evidence_id,
         evidence=checked,

@@ -21,7 +21,7 @@ from pathlib import Path
 
 import pytest
 
-from hamiltonian_lang.semantic_state import verify_payload
+from hamiltonian_lang.semantic_state import replay_payload
 from hamiltonian_lang.semantic_state.domains import DOMAINS, DomainEntry, inhabits
 
 CORPUS = Path("/Users/moheet/Documents/ChatGPT/hmlt-reasoning-corpus")
@@ -191,25 +191,25 @@ def test_a_natural_number_may_be_offered_where_an_integer_is_required():
     The reference checker accepts this. Comparing declared domains with ``!=`` rejected it,
     and no fixture would ever have shown that.
     """
-    assert str(verify_payload(_typed("Natural", "Integer")).verdict) == "VALID"
-    assert str(verify_payload(_typed("Natural", "Number")).verdict) == "VALID"
+    assert str(replay_payload(_typed("Natural", "Integer")).verdict) == "VALID"
+    assert str(replay_payload(_typed("Natural", "Number")).verdict) == "VALID"
 
 
 def test_containment_still_runs_in_one_direction_only():
-    result = verify_payload(_typed("Real", "Integer"))
+    result = replay_payload(_typed("Real", "Integer"))
     assert str(result.verdict) == "INVALID"
     assert result.error_class == "TYPE_OR_DOMAIN_MISMATCH"
 
 
 def test_an_unrelated_domain_is_still_rejected():
     """``FX-TYP-ILLEGAL`` in miniature: a Boolean where an Integer is required."""
-    assert verify_payload(_typed("Boolean", "Integer")).error_class == (
+    assert replay_payload(_typed("Boolean", "Integer")).error_class == (
         "TYPE_OR_DOMAIN_MISMATCH"
     )
 
 
 def test_an_unknown_domain_is_unresolved_rather_than_invalid():
-    assert str(verify_payload(_typed("UNKNOWN", "Integer")).verdict) == "UNRESOLVED"
+    assert str(replay_payload(_typed("UNKNOWN", "Integer")).verdict) == "UNRESOLVED"
 
 
 def test_the_output_domain_check_is_a_deliberate_divergence():
@@ -232,7 +232,7 @@ def test_the_output_domain_check_is_a_deliberate_divergence():
         "id": "c1", "proposition": "n > 0", "status": "DERIVED",
         "scope": "global", "domain": "Boolean", "dependencies": ["p0"],
     }
-    assert verify_payload(case).error_class == "TYPE_OR_DOMAIN_MISMATCH"
+    assert replay_payload(case).error_class == "TYPE_OR_DOMAIN_MISMATCH"
 
 
 # ---------------------------------------------------------------------------
@@ -260,7 +260,7 @@ def _warranted(premise_ids: list[str], dependencies: list[str]) -> dict:
 
 
 def test_a_warrant_envelope_must_name_exactly_the_declared_premises():
-    assert str(verify_payload(_warranted(["p0"], ["p0"])).verdict) == "VALID"
+    assert str(replay_payload(_warranted(["p0"], ["p0"])).verdict) == "VALID"
 
 
 def test_evidence_resting_on_fewer_premises_than_the_action_declares_is_rejected():
@@ -271,12 +271,12 @@ def test_evidence_resting_on_fewer_premises_than_the_action_declares_is_rejected
     SF-R09 binds the *exact* premise list, and the reference checker compares the lists
     outright.
     """
-    result = verify_payload(_warranted(["p0"], ["p0", "p1"]))
+    result = replay_payload(_warranted(["p0"], ["p0", "p1"]))
     assert result.error_class == "WARRANT_MISMATCH", result.to_dict()
 
 
 def test_evidence_resting_on_premises_the_action_never_declared_is_rejected():
-    assert verify_payload(_warranted(["p0", "p9"], ["p0"])).error_class == "WARRANT_MISMATCH"
+    assert replay_payload(_warranted(["p0", "p9"], ["p0"])).error_class == "WARRANT_MISMATCH"
 
 
 def test_the_premise_envelope_is_a_record_not_a_set():
@@ -285,7 +285,7 @@ def test_the_premise_envelope_is_a_record_not_a_set():
     Asserted rather than assumed: if the corpus ever normalises premise order, this is the
     test that says so instead of thirty fixtures quietly changing verdict.
     """
-    result = verify_payload(_warranted(["p1", "p0"], ["p0", "p1"]))
+    result = replay_payload(_warranted(["p1", "p0"], ["p0", "p1"]))
     assert result.error_class == "WARRANT_MISMATCH"
 
 

@@ -25,7 +25,7 @@ from pathlib import Path
 
 import pytest
 
-from hamiltonian_lang.semantic_state import verify_payload
+from hamiltonian_lang.semantic_state import replay_payload
 
 SCHEMA = "semantic-firewall-case-0.1.0"
 CORPUS = Path("/Users/moheet/Documents/ChatGPT/hmlt-reasoning-corpus")
@@ -77,7 +77,7 @@ def test_a_claim_cannot_materialise_out_of_nothing():
     so before the frame condition there was nothing to key on.
     """
     after = _state(claims={"x": _claim("x", "0 = 1", "VERIFIED")})
-    result = verify_payload(_case(after=after))
+    result = replay_payload(_case(after=after))
     assert str(result.verdict) == "INVALID", result.to_dict()
     assert result.error_class == "DEPENDENCY_VIOLATION"
 
@@ -85,7 +85,7 @@ def test_a_claim_cannot_materialise_out_of_nothing():
 def test_an_existing_premise_cannot_be_rewritten():
     before = _state(claims={"p": _claim("p", "n > 0", "ASSUMED")})
     after = _state(claims={"p": _claim("p", "n < 0", "VERIFIED")})
-    assert verify_payload(_case(before=before, after=after)).error_class == (
+    assert replay_payload(_case(before=before, after=after)).error_class == (
         "DEPENDENCY_VIOLATION"
     )
 
@@ -93,7 +93,7 @@ def test_an_existing_premise_cannot_be_rewritten():
 def test_a_premise_cannot_be_quietly_dropped():
     """Deleting an inconvenient premise is as good as rewriting it."""
     before = _state(claims={"p": _claim("p")})
-    assert verify_payload(_case(before=before)).error_class == "DEPENDENCY_VIOLATION"
+    assert replay_payload(_case(before=before)).error_class == "DEPENDENCY_VIOLATION"
 
 
 def test_the_declared_output_is_the_one_addition_permitted():
@@ -101,11 +101,11 @@ def test_the_declared_output_is_the_one_addition_permitted():
     after = _state(claims={"p": _claim("p"), "c": _claim("c", "q", "DERIVED", deps=["p"])})
     ok = _case(action={"output_id": "c", "dependencies": ["p"], "summary": "q"},
                before=before, after=after)
-    assert str(verify_payload(ok).verdict) == "VALID", verify_payload(ok).to_dict()
+    assert str(replay_payload(ok).verdict) == "VALID", replay_payload(ok).to_dict()
 
     smuggled = copy.deepcopy(ok)
     smuggled["state_after"]["claims"]["extra"] = _claim("extra", "0 = 1", "VERIFIED")
-    assert verify_payload(smuggled).error_class == "DEPENDENCY_VIOLATION"
+    assert replay_payload(smuggled).error_class == "DEPENDENCY_VIOLATION"
 
 
 # ---------------------------------------------------------------------------
@@ -128,7 +128,7 @@ def test_a_candidate_cannot_be_promoted_by_declaring_no_effect(source):
     """
     before = _state(candidates={"k": _candidate(source)})
     after = _state(candidates={"k": _candidate("VERIFIED")})
-    result = verify_payload(_case(before=before, after=after))
+    result = replay_payload(_case(before=before, after=after))
     assert str(result.verdict) == "INVALID", result.to_dict()
     assert result.error_class == "DEPENDENCY_VIOLATION"
 
@@ -142,7 +142,7 @@ def test_declaring_the_effect_hands_the_decision_back_to_the_promotion_rule():
     """
     before = _state(candidates={"k": _candidate("PROPOSED")})
     after = _state(candidates={"k": _candidate("VERIFIED")})
-    result = verify_payload(_case(
+    result = replay_payload(_case(
         action={"operation": "VERIFY_CANDIDATE",
                 "candidate_effect": {"kind": "PROMOTE", "candidate_id": "k",
                                      "evidence_id": "e1"}},
@@ -159,7 +159,7 @@ def test_a_mandatory_obligation_cannot_be_deleted():
         "o": {"id": "o", "proposition": "d != 0", "status": "OPEN",
               "mandatory": True, "dependencies": []}
     })
-    assert verify_payload(_case(before=before)).error_class == "DEPENDENCY_VIOLATION"
+    assert replay_payload(_case(before=before)).error_class == "DEPENDENCY_VIOLATION"
 
 
 def test_a_branch_cannot_be_silently_reclosed():
@@ -168,7 +168,7 @@ def test_a_branch_cannot_be_silently_reclosed():
                 "scope": "global", "partition_id": "p"}
     before = _state(branches={"b": branch("OPEN")})
     after = _state(branches={"b": branch("CLOSED")})
-    assert verify_payload(_case(before=before, after=after)).error_class == (
+    assert replay_payload(_case(before=before, after=after)).error_class == (
         "DEPENDENCY_VIOLATION"
     )
 
@@ -199,7 +199,7 @@ def test_an_unrelated_unknown_no_longer_suppresses_detection():
         case = copy.deepcopy(fixture["case"])
         case["state_before"]["claims"]["junk_zzz"] = junk
         case["state_after"]["claims"]["junk_zzz"] = junk
-        if str(verify_payload(case).verdict) != "INVALID":
+        if str(replay_payload(case).verdict) != "INVALID":
             suppressed.append(fixture["fixture_id"])
     assert not suppressed, f"detection still suppressed for: {suppressed}"
 
@@ -209,7 +209,7 @@ def test_an_unknown_on_a_record_the_action_cites_still_makes_it_unresolved():
     before = _state(claims={"p": _claim("p", "n > 0", "UNKNOWN")})
     after = _state(claims={"p": _claim("p", "n > 0", "UNKNOWN"),
                            "c": _claim("c", "q", "DERIVED", deps=["p"])})
-    result = verify_payload(_case(
+    result = replay_payload(_case(
         action={"output_id": "c", "dependencies": ["p"], "summary": "q"},
         before=before, after=after,
     ))
@@ -220,7 +220,7 @@ def test_an_unknown_domain_on_a_typed_input_still_makes_it_unresolved():
     claim = {**_claim("p", "n > 0"), "domain": "UNKNOWN"}
     before = _state(claims={"p": claim})
     after = _state(claims={"p": claim})
-    result = verify_payload(_case(
+    result = replay_payload(_case(
         action={"dependencies": ["p"], "typing": {"input_domains": {"p": "Integer"}}},
         before=before, after=after,
     ))

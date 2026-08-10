@@ -46,7 +46,10 @@ from .model import (
 )
 from .trust import Attestation, TrustMode
 
-__all__ = ["Finding", "TransitionResult", "verify", "INVARIANTS"]
+__all__ = [
+    "Finding", "TransitionResult", "INVARIANTS",
+    "verify", "verify_replay", "verify_runtime", "replay_payload",
+]
 
 #: The literal a neutral record uses to say "not determined". Present in claim status,
 #: precondition status, evidence status and declared domain.
@@ -232,6 +235,7 @@ def _accepted(
     t: Transition,
     record: EvidenceRecord | None,
     *,
+    cited_as: str | None = None,
     claim: str | None = None,
     premises: tuple[str, ...] = (),
     rule: str | None = None,
@@ -250,7 +254,11 @@ def _accepted(
     if mode is TrustMode.OFFLINE_REPLAY:
         return (record.status == "VALID"), f"evidence {record.id!r} is {record.status}"
 
-    att = attestations.get(record.id)
+    # Keyed by the id the ACTION cites, never by ``record.id``. The neutral schema lets a
+    # record's own ``id`` differ from the key it is filed under, and ``record.id`` is
+    # payload-controlled, so filing an attestation under it lets a producer route a genuine
+    # certificate for ``e_genuine`` onto a record it cites as ``e_forged`` (D-052).
+    att = attestations.get(cited_as or record.id)
     if att is None:
         return False, (
             f"evidence {record.id!r} carries no checker attestation; a self-asserted "
@@ -358,7 +366,14 @@ def _discharge_licenses_escape(t: Transition) -> bool:
     if effect.get("kind") != "DISCHARGE":
         return False
     record = _evidence(t, effect.get("discharge_evidence_id"))
-    ok, _ = _accepted(t, record)
+    out_id = t.action.output_id
+    produced = t.state_after.claims.get(out_id) if out_id else None
+    ok, _ = _accepted(
+        t, record,
+        cited_as=effect.get("discharge_evidence_id"),
+        claim=produced.proposition if produced is not None else None,
+        premises=t.action.dependencies,
+    )
     return ok
 
 
@@ -469,7 +484,7 @@ def _check_candidates(t: Transition) -> list[Finding]:
             )
         ]
     ok, why = _accepted(
-        t, record, claim=candidate.proposition,
+        t, record, cited_as=effect.get("evidence_id"), claim=candidate.proposition,
         premises=t.action.dependencies, rule=t.action.operation,
     )
     if not ok:
@@ -553,7 +568,7 @@ def _check_branch_join(t: Transition) -> list[Finding]:
             )
         ]
     ok, why = _accepted(
-        t, record,
+        t, record, cited_as=effect.get("coverage_evidence_id"),
         claim=(t.state_after.claims[t.action.output_id].proposition
                if t.action.output_id in t.state_after.claims else None),
         premises=t.action.dependencies, rule=t.action.operation,
@@ -631,6 +646,19 @@ def _check_warrant(t: Transition) -> list[Finding]:
                 f"{record.supports_rule!r}",
             )
         ]
+    # The fifth trust site, and it read no status at all until D-052: evidence explicitly
+    # marked "REJECTED" was accepted as a warrant. A repair that gated only the four sites
+    # D-050 named would have left this open.
+    out_id = t.action.output_id
+    produced = t.state_after.claims.get(out_id) if out_id else None
+    ok, why = _accepted(
+        t, record, cited_as=warrant.get("evidence_id"),
+        claim=produced.proposition if produced is not None else None,
+        premises=t.action.dependencies, rule=rule,
+    )
+    if not ok:
+        return [Finding("WARRANT", INVARIANTS["WARRANT"], why)]
+
     # SF-R09 binds the *exact* premise list, and the reference checker compares the two
     # lists outright. A subset test was the earlier reading and it is too weak in the
     # dangerous direction: evidence that rests on fewer premises than the action declares
@@ -667,7 +695,7 @@ def _check_epistemic(t: Transition) -> list[Finding]:
             )
         ]
     ok, why = _accepted(
-        t, record,
+        t, record, cited_as=eid,
         claim=(t.state_after.claims[t.action.output_id].proposition
                if t.action.output_id in t.state_after.claims else None),
         premises=t.action.dependencies,
@@ -864,18 +892,20 @@ _CHECKS = (
 def verify(
     transition: Transition,
     *,
-    mode: TrustMode = TrustMode.OFFLINE_REPLAY,
+    mode: TrustMode,
     attestations: dict[str, Attestation] | None = None,
 ) -> TransitionResult:
     """Decide one transition.
 
-    ``mode`` decides what a recorded evidence ``status`` is worth (D-050). The default
-    replays a frozen external corpus, where the status is observed reference data. Pass
-    ``TrustMode.RUNTIME`` for anything a model or user authored: the recorded status is
-    then ignored, and acceptance requires an ``Attestation`` carrying a ``CheckedEvidence``
-    that only ``reasoning.certificates.check`` can mint. The unsafe reading is never the
-    one you get by forgetting an argument, and the safe one is never silently assumed for
-    input this repository did not freeze.
+    ``mode`` is **mandatory** and has no default (D-052). It decides what a recorded
+    evidence ``status`` is worth, and there is no answer that is safe to assume: defaulting
+    to ``OFFLINE_REPLAY`` means a caller who forgets the argument silently trusts a status
+    the record's own author wrote, which is the exact hole D-050 was raised about. Defaulting
+    to ``RUNTIME`` would instead make the frozen corpus unreplayable. So the caller states
+    which world they are in, every time.
+
+    Prefer :func:`verify_replay` or :func:`verify_runtime`, which name the trust mode in the
+    call rather than in an argument.
 
     Unknowns are collected first and short-circuit, because an invariant cannot be checked
     against a field whose value is "we do not know". They are now **dependency-scoped**
@@ -908,11 +938,39 @@ def verify(
     return TransitionResult(Verdict.VALID, [], [])
 
 
-def verify_payload(payload: dict) -> TransitionResult:
-    """Import and verify in one step. Import failure is a refusal, not a verdict."""
+def verify_replay(transition: Transition) -> TransitionResult:
+    """Verify a transition from a **frozen, externally adjudicated corpus**.
+
+    Recorded evidence status is read as observed reference data produced by a process this
+    repository does not run. Correct for the Semantic Firewall fixtures and for nothing
+    else: never call this on anything a model, a user, or this repository authored.
+    """
+    return verify(transition, mode=TrustMode.OFFLINE_REPLAY)
+
+
+def verify_runtime(
+    transition: Transition, attestations: dict[str, Attestation] | None = None
+) -> TransitionResult:
+    """Verify a transition from an **untrusted author** — a model, a user, a generator.
+
+    The record's evidence ``status`` is ignored entirely. Acceptance requires an
+    ``Attestation`` carrying a ``CheckedEvidence`` minted by
+    ``reasoning.certificates.check``. Passing no attestations is legitimate and simply means
+    nothing is attested, so nothing that needs evidence will be accepted.
+    """
+    return verify(transition, mode=TrustMode.RUNTIME, attestations=attestations)
+
+
+def replay_payload(payload: dict) -> TransitionResult:
+    """Import and replay one frozen corpus record. Import failure is a refusal.
+
+    Named for its trust mode rather than for its mechanics: there is no ``replay_payload``,
+    because a caller reaching for "the obvious one" must not thereby choose a trust
+    boundary without noticing (D-052).
+    """
     from .neutral import import_transition
 
-    return verify(import_transition(payload))
+    return verify_replay(import_transition(payload))
 
 
 def _unused(state: SemanticState) -> None:  # pragma: no cover - keeps the import honest

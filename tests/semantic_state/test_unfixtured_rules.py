@@ -35,7 +35,7 @@ from hamiltonian_lang.semantic_state import (
     CandidateStatus,
     export_transition,
     import_transition,
-    verify_payload,
+    replay_payload,
 )
 
 SCHEMA = "semantic-firewall-case-0.1.0"
@@ -213,7 +213,7 @@ def _promotion(
 
 def test_a_fully_checked_promotion_is_valid():
     """The baseline. Every negative case below is one edit away from this record."""
-    result = verify_payload(_promotion())
+    result = replay_payload(_promotion())
     assert str(result.verdict) == "VALID", result.to_dict()
 
 
@@ -225,56 +225,56 @@ def test_promotion_that_checked_a_subset_of_the_constraints_is_rejected():
     constraint nobody tested is the one it violates. Verifying a subset establishes a
     different claim than the one being made.
     """
-    result = verify_payload(_promotion(checked=("c1",)))
+    result = replay_payload(_promotion(checked=("c1",)))
     assert str(result.verdict) == "INVALID"
     assert result.error_class == "CANDIDATE_PROMOTION"
     assert "c2" in result.findings[0].detail
 
 
 def test_promotion_with_no_constraint_check_at_all_is_rejected():
-    result = verify_payload(_promotion(checked=None))
+    result = replay_payload(_promotion(checked=None))
     assert result.error_class == "CANDIDATE_PROMOTION"
 
 
 def test_checking_extra_constraints_is_not_an_error():
     """Over-checking is sound. Only the *original* constraints are mandatory."""
-    result = verify_payload(_promotion(checked=("c1", "c2", "c3")))
+    result = replay_payload(_promotion(checked=("c1", "c2", "c3")))
     assert str(result.verdict) == "VALID", result.to_dict()
 
 
 def test_promotion_from_a_terminal_state_is_rejected():
-    result = verify_payload(_promotion(before_status="REJECTED"))
+    result = replay_payload(_promotion(before_status="REJECTED"))
     assert result.error_class == "CANDIDATE_PROMOTION"
 
 
 def test_promotion_to_unverified_is_permitted_and_still_needs_the_constraints():
     """``PROPOSED -> UNVERIFIED`` is a legal edge, so it must be reachable here."""
-    assert str(verify_payload(_promotion(after_status="UNVERIFIED")).verdict) == "VALID"
+    assert str(replay_payload(_promotion(after_status="UNVERIFIED")).verdict) == "VALID"
     assert (
-        verify_payload(_promotion(after_status="UNVERIFIED", checked=("c1",))).error_class
+        replay_payload(_promotion(after_status="UNVERIFIED", checked=("c1",))).error_class
         == "CANDIDATE_PROMOTION"
     )
 
 
 def test_only_verify_candidate_promotes():
-    result = verify_payload(_promotion(operation="ASSERT"))
+    result = replay_payload(_promotion(operation="ASSERT"))
     assert result.error_class == "CANDIDATE_PROMOTION"
 
 
 def test_promotion_evidence_about_another_candidate_is_rejected():
-    result = verify_payload(_promotion(evidence_candidate_id="k9"))
+    result = replay_payload(_promotion(evidence_candidate_id="k9"))
     assert result.error_class == "CANDIDATE_PROMOTION"
 
 
 def test_promotion_evidence_must_support_the_rule_being_applied():
-    result = verify_payload(_promotion(supports_rule="SIMPLIFY"))
+    result = replay_payload(_promotion(supports_rule="SIMPLIFY"))
     assert result.error_class == "CANDIDATE_PROMOTION"
 
 
 def test_a_candidate_absent_from_either_state_is_rejected():
     case = _promotion()
     case["state_after"]["candidates"] = {}
-    assert verify_payload(case).error_class == "CANDIDATE_PROMOTION"
+    assert replay_payload(case).error_class == "CANDIDATE_PROMOTION"
 
 
 @pytest.mark.parametrize(
@@ -293,7 +293,7 @@ def test_the_trusted_flag_rescues_nothing(defect):
     producer's output true. Nothing in the verifier reads it as authority, and this asserts
     that directly rather than leaving it to the docstring.
     """
-    assert verify_payload(_promotion(trusted=True, **defect)).error_class == (
+    assert replay_payload(_promotion(trusted=True, **defect)).error_class == (
         "CANDIDATE_PROMOTION"
     )
 
@@ -366,18 +366,18 @@ def _join(
 
 
 def test_a_certified_join_is_valid():
-    assert str(verify_payload(_join()).verdict) == "VALID", verify_payload(_join()).to_dict()
+    assert str(replay_payload(_join()).verdict) == "VALID", replay_payload(_join()).to_dict()
 
 
 def test_a_join_over_an_open_branch_is_rejected():
     """The rule the ILLEGAL fixture does not reach. An open branch has not concluded."""
-    result = verify_payload(_join(statuses={"b1": "CLOSED", "b2": "OPEN"}))
+    result = replay_payload(_join(statuses={"b1": "CLOSED", "b2": "OPEN"}))
     assert result.error_class == "INVALID_BRANCH_JOIN"
     assert "b2" in result.findings[0].detail
 
 
 def test_a_join_over_an_abandoned_branch_is_rejected():
-    result = verify_payload(_join(statuses={"b1": "CLOSED", "b2": "ABANDONED"}))
+    result = replay_payload(_join(statuses={"b1": "CLOSED", "b2": "ABANDONED"}))
     assert result.error_class == "INVALID_BRANCH_JOIN"
 
 
@@ -387,13 +387,13 @@ def test_a_join_publishing_something_no_branch_concluded_is_rejected():
     A join publishes what every branch established. Branches that concluded different
     things have not jointly proved the published proposition, however plausible it is.
     """
-    result = verify_payload(_join(conclusions={"b1": _JOINED, "b2": "n is prime"}))
+    result = replay_payload(_join(conclusions={"b1": _JOINED, "b2": "n is prime"}))
     assert result.error_class == "INVALID_BRANCH_JOIN"
     assert "b2" in result.findings[0].detail
 
 
 def test_a_certificate_that_omits_a_branch_does_not_cover_the_join():
-    result = verify_payload(_join(covered=("b1",)))
+    result = replay_payload(_join(covered=("b1",)))
     assert result.error_class == "INVALID_BRANCH_JOIN"
     assert "b2" in result.findings[0].detail
 
@@ -406,18 +406,18 @@ def test_agreement_between_branches_is_not_a_partition_certificate():
     """
     case = _join()
     case["evidence"] = {}
-    result = verify_payload(case)
+    result = replay_payload(case)
     assert result.error_class == "INVALID_BRANCH_JOIN"
 
 
 def test_a_join_naming_no_branches_is_rejected():
-    result = verify_payload(_join(branch_ids=()))
+    result = replay_payload(_join(branch_ids=()))
     assert result.error_class == "INVALID_BRANCH_JOIN"
 
 
 def test_a_join_over_a_branch_missing_from_the_prior_state_is_rejected():
     case = _join(branch_ids=("b1", "b2", "b3"), covered=("b1", "b2", "b3"))
-    assert verify_payload(case).error_class == "INVALID_BRANCH_JOIN"
+    assert replay_payload(case).error_class == "INVALID_BRANCH_JOIN"
 
 
 def test_overlapping_branches_are_accepted():
@@ -428,7 +428,7 @@ def test_overlapping_branches_are_accepted():
     record coverage only, which is the same choice. Asserted here because a later reader
     is likely to think the missing check is an oversight and add it.
     """
-    result = verify_payload(
+    result = replay_payload(
         _join(predicates={"b1": "n <= 10", "b2": "n >= 5"})
     )
     assert str(result.verdict) == "VALID", result.to_dict()
@@ -436,7 +436,7 @@ def test_overlapping_branches_are_accepted():
 
 def test_an_unconcluded_branch_does_not_block_a_join_it_covers():
     """``conclusion`` is optional; only a *conflicting* conclusion is a violation."""
-    result = verify_payload(_join(conclusions={"b1": _JOINED, "b2": None}))
+    result = replay_payload(_join(conclusions={"b1": _JOINED, "b2": None}))
     assert str(result.verdict) == "VALID", result.to_dict()
 
 
@@ -500,7 +500,7 @@ def _escape(*, scope_effect: dict | None = None, evidence_status: str = "VALID")
 
 
 def test_leaving_a_frame_without_a_discharge_is_a_scope_leak():
-    result = verify_payload(_escape())
+    result = replay_payload(_escape())
     assert result.error_class == "SCOPE_LEAK", result.to_dict()
 
 
@@ -510,7 +510,7 @@ def test_a_valid_discharge_licenses_the_escape():
     Without this the discharge branch could be deleted outright and every fixture would
     still pass — the rule would silently become "a conclusion may never leave its frame".
     """
-    result = verify_payload(
+    result = replay_payload(
         _escape(scope_effect={"kind": "DISCHARGE", "discharge_evidence_id": "e1"})
     )
     assert str(result.verdict) == "VALID", result.to_dict()
@@ -525,11 +525,11 @@ def test_a_valid_discharge_licenses_the_escape():
     ],
 )
 def test_a_discharge_that_does_not_check_out_does_not_license_the_escape(effect):
-    assert verify_payload(_escape(scope_effect=effect)).error_class == "SCOPE_LEAK"
+    assert replay_payload(_escape(scope_effect=effect)).error_class == "SCOPE_LEAK"
 
 
 def test_a_discharge_resting_on_invalid_evidence_does_not_license_the_escape():
-    result = verify_payload(
+    result = replay_payload(
         _escape(
             scope_effect={"kind": "DISCHARGE", "discharge_evidence_id": "e1"},
             evidence_status="INVALID",
@@ -544,7 +544,7 @@ def test_a_discharge_resting_on_unknown_evidence_is_unresolved_not_invalid():
     ``UNRESOLVED`` is not a soft ``INVALID``: reporting a detected corruption here would
     inflate the detection rate with cases where nothing was detected.
     """
-    result = verify_payload(
+    result = replay_payload(
         _escape(
             scope_effect={"kind": "DISCHARGE", "discharge_evidence_id": "e1"},
             evidence_status="UNKNOWN",

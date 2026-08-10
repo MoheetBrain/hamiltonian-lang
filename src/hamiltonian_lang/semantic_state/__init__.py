@@ -43,7 +43,16 @@ from .neutral import (
     import_state,
     import_transition,
 )
-from .verify import INVARIANTS, Finding, TransitionResult, verify, verify_payload
+from .trust import Attestation, AttestationError, TrustMode, attest
+from .verify import (
+    INVARIANTS,
+    Finding,
+    TransitionResult,
+    replay_payload,
+    verify,
+    verify_replay,
+    verify_runtime,
+)
 from .view import (
     ViewError,
     parse_state,
@@ -78,7 +87,13 @@ __all__ = [
     "Finding",
     "TransitionResult",
     "verify",
-    "verify_payload",
+    "verify_replay",
+    "verify_runtime",
+    "replay_payload",
+    "TrustMode",
+    "Attestation",
+    "AttestationError",
+    "attest",
     "ViewError",
     "parse_state",
     "parse_transition",

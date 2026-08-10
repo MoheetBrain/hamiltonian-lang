@@ -5947,3 +5947,38 @@ findings is the kind of error that should leave a trace.
 
 **Next intended step.** Phase I remainder: the five reproduced defects and the
 second-generation fixture suite.
+
+---
+
+## 2026-08-10 (sixth entry) — no default trust mode; four holes in my own D-050 fix
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `c623dd6`. **Stage:** Phase I.
+
+**Objective.** Act on the addendum's §2 (runtime trust must be impossible to omit) and on an
+independent adversarial audit of the D-051 implementation.
+
+**What was completed.** `verify()` no longer defaults its trust mode; `verify_replay` and
+`verify_runtime` name it at the call site; `verify_payload` is renamed `replay_payload` and
+all 53 call sites migrated. Four holes closed: `attest()` was forgeable by attribute shape
+and now checks the mint token; a **fifth** trust site (`_check_warrant`) read no status at
+all and accepted explicitly-REJECTED evidence; attestations were keyed by payload-controlled
+`record.id` and are now keyed by the id the action cites; and the scope-discharge site passed
+an empty binding, so any zero-premise attestation licensed a scope escape.
+
+**Verification.** 22 trust tests (was 17); four attacks re-run and closed; 30/30 frozen
+fixtures replay unchanged; `pytest tests/semantic_state` 289 passed; mypy clean.
+
+**Failures and unresolved uncertainty.** Every one of these was a defect in my own work from
+the previous commit, found by an audit I commissioned rather than by my own tests. The
+default-mode error is the instructive one: I wrote an explicit argument for why the default
+was safe, and the argument was backwards.
+
+Four defects remain **open** at HEAD, all measured against a pinned `a21fdb7` export:
+sibling-scope order (plus a duplicate-`active_scopes` bypass needing no forgery), neutral
+dict-key identity (verdict is not stable under the adapter's own round trip; records can
+collapse silently), 15 uncaught-exception signatures on malformed input, and null branch
+conclusions. A mutation census of 76 mutations found **22 invariants with no test behind
+them**, including the entire `GOAL_DISCHARGE` family.
+
+**Next intended step.** The four remaining defects, the corpus schema repair (R2), and the
+22 uncovered invariants.

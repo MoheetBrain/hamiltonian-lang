@@ -28,7 +28,30 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**D-050 IS CLOSED (D-051). Evidence status is no longer authority at runtime.**
+**D-050 IS CLOSED (D-051, amended by D-052). Five trust sites gated; the mode cannot be
+omitted.**
+
+`verify()` has **no default trust mode** — D-051 defaulted to `OFFLINE_REPLAY` and argued the
+unsafe reading was never the accidental one. That was backwards: forgetting the argument gave
+you replay, which trusts a status the record's own author wrote. `verify_replay` /
+`verify_runtime` now name the boundary at the call site, and `verify_payload` is gone
+(renamed `replay_payload`).
+
+An adversarial audit found **four holes in the D-051 implementation**, all now closed:
+`attest()` was forgeable by attribute shape; a **fifth** trust site (`_check_warrant`) read
+no status at all and accepted explicitly-`REJECTED` evidence; attestations were keyed by
+payload-controlled `record.id`; and the scope-discharge site passed an empty binding, so any
+zero-premise attestation licensed a scope escape.
+
+**Four defects remain OPEN** at HEAD, measured against a pinned `a21fdb7` export:
+sibling-scope order (plus a duplicate-`active_scopes` bypass needing no forgery), neutral
+dict-key identity, 15 uncaught-exception signatures on malformed input, and null branch
+conclusions. A 76-mutation census found **22 invariants with no test behind them**,
+including the entire `GOAL_DISCHARGE` family.
+
+---
+
+**Previously: D-050 IS CLOSED (D-051). Evidence status is no longer authority at runtime.**
 
 `TrustMode.RUNTIME` ignores a record's `status` entirely and requires an `Attestation`
 carrying a `CheckedEvidence` that only `reasoning.certificates.check` can mint — no second
