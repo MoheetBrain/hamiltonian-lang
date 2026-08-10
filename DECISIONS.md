@@ -2255,3 +2255,54 @@ exposed. **This is the only reason the classification is BLOCKER-before-use rath
 incident.**
 
 **Reversal cost.** Not applicable — nothing was changed.
+
+---
+
+## D-051 — closing D-050: a trust mode, and evidence status stops being authority
+
+**Date:** 2026-08-10 · **After:** `a21fdb7` · **Closes:** D-050 · **Reuses:**
+`reasoning/certificates/`
+
+**Problem.** D-050 classified the trust boundary as a BLOCKER: `EvidenceRecord.status`
+arrives from a JSON payload and every acceptance path turned on `record.status == "VALID"`,
+a string nothing in `src/` ever *produced*. A model authoring a transition also authored the
+verdict on it.
+
+**Decision: a mode, not a patch, and no second registry.**
+
+`TrustMode.OFFLINE_REPLAY` (default) reads recorded status as observed reference data from a
+frozen external corpus — correct for the acceptance fixtures and for nothing else.
+`TrustMode.RUNTIME` **ignores `status` entirely** and requires an `Attestation` carrying a
+`CheckedEvidence`, which only `reasoning.certificates.check` mints; its `_token` is a
+module-private object, so no payload can contain one and no JSON can forge one.
+
+The brief was explicit that a second trusted registry is the failure mode rather than the
+fix, and that is right: two registries mean two trust bases and two review surfaces, and
+eventually one accepts what the other refuses. `semantic_state/trust.py` is a *seam* into
+the existing machinery and adds no trust of its own. All four acceptance sites now route
+through one function, `_accepted`.
+
+**The binding, and its honest limitation.** `certificates.check` binds a claim by
+`expr_identity` over a typed AST. A `Claim` here carries `proposition: str` — opaque corpus
+text that generally does not parse — so an attestation binds the proposition's **text
+digest**. That is strictly weaker: two propositions differing only in whitespace hash
+differently and this layer cannot tell you they mean the same thing. Recorded rather than
+glossed, because parsing arbitrary corpus text into an AST and accepting whatever came out
+would be a much worse kind of wrong.
+
+**A hole in the first implementation, found by its own attack suite.** The candidate site
+initially bound only the *rule*, not the claim, so a valid certificate issued for a
+different proposition was accepted — exactly the replay attack the test was written to
+catch. All three sites now bind claim **and** premises **and** rule.
+
+**Verification.** 17 attack tests. Self-asserted `VALID` refused at runtime; `trusted: true`
+buys nothing; certificates for another claim, other premises, another rule, or another
+evidence id all refused; `CheckedEvidence` cannot be constructed directly; an unregistered
+checker cannot mint; and a genuine mint through the real gate is accepted, so RUNTIME is not
+merely "refuse everything". **30/30 frozen fixtures replay unchanged.** Full suite green,
+mypy clean over 108 files. Mutation: disabling the seam and neutering `binds()` each killed
+three tests.
+
+**Not closed by this.** The digest binding above. And RUNTIME has no production caller yet —
+nothing in `src/` runs the verifier on model output, so this is a gate built before the road
+reaches it, which is the right order.

@@ -31,6 +31,7 @@ a checker that believed the flag would accept every one of them.
 
 from __future__ import annotations
 
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -43,6 +44,7 @@ from .model import (
     Transition,
     Verdict,
 )
+from .trust import Attestation, TrustMode
 
 __all__ = ["Finding", "TransitionResult", "verify", "INVARIANTS"]
 
@@ -213,6 +215,51 @@ def _cited_evidence_ids(action: Action) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# Evidence authority (D-050)
+# ---------------------------------------------------------------------------
+
+#: The mode and attestations in force for the transition currently being checked. Held in a
+#: ContextVar rather than threaded through twelve signatures: every check reaches evidence
+#: through :func:`_accepted`, so one seam is enough, and a ContextVar cannot leak across
+#: concurrent verifications the way a module global would.
+_TRUST: ContextVar[tuple[TrustMode, dict[str, Attestation]]] = ContextVar(
+    "_TRUST", default=(TrustMode.OFFLINE_REPLAY, {})
+)
+
+
+def _accepted(
+    t: Transition,
+    record: EvidenceRecord | None,
+    *,
+    claim: str | None = None,
+    premises: tuple[str, ...] = (),
+    rule: str | None = None,
+) -> tuple[bool, str]:
+    """Whether this evidence may be relied on. The single authority seam.
+
+    In ``OFFLINE_REPLAY`` the recorded ``status`` is observed reference data from a frozen
+    external corpus and is read as such. In ``RUNTIME`` it is **ignored entirely** — the
+    author of the record may be the party that benefits from the verdict, so acceptance
+    requires an :class:`~.trust.Attestation` carrying a ``CheckedEvidence`` that only
+    ``reasoning.certificates.check`` can mint (D-050).
+    """
+    if record is None:
+        return False, "no such evidence record"
+    mode, attestations = _TRUST.get()
+    if mode is TrustMode.OFFLINE_REPLAY:
+        return (record.status == "VALID"), f"evidence {record.id!r} is {record.status}"
+
+    att = attestations.get(record.id)
+    if att is None:
+        return False, (
+            f"evidence {record.id!r} carries no checker attestation; a self-asserted "
+            f"status is not authority at runtime"
+        )
+    ok, why = att.binds(claim=claim, premises=premises, rule=rule)
+    return (ok, why)
+
+
 def _check_dependency(t: Transition) -> list[Finding]:
     out = []
     for dep in t.action.dependencies:
@@ -311,7 +358,8 @@ def _discharge_licenses_escape(t: Transition) -> bool:
     if effect.get("kind") != "DISCHARGE":
         return False
     record = _evidence(t, effect.get("discharge_evidence_id"))
-    return record is not None and record.status == "VALID"
+    ok, _ = _accepted(t, record)
+    return ok
 
 
 def _check_preconditions(t: Transition) -> list[Finding]:
@@ -420,14 +468,12 @@ def _check_candidates(t: Transition) -> list[Finding]:
                 f"{effect.get('evidence_id')!r}, which does not exist",
             )
         ]
-    if record.status != "VALID":
-        return [
-            Finding(
-                "CANDIDATES",
-                INVARIANTS["CANDIDATES"],
-                f"promotion evidence {record.id!r} is {record.status}",
-            )
-        ]
+    ok, why = _accepted(
+        t, record, claim=candidate.proposition,
+        premises=t.action.dependencies, rule=t.action.operation,
+    )
+    if not ok:
+        return [Finding("CANDIDATES", INVARIANTS["CANDIDATES"], why)]
     if not _supports(record, t.action.operation):
         return [
             Finding(
@@ -506,14 +552,14 @@ def _check_branch_join(t: Transition) -> list[Finding]:
                 f"that agree are not a proof that they exhaust the cases",
             )
         ]
-    if record.status != "VALID":
-        return [
-            Finding(
-                "BRANCH_JOIN",
-                INVARIANTS["BRANCH_JOIN"],
-                f"coverage evidence {record.id!r} is {record.status}",
-            )
-        ]
+    ok, why = _accepted(
+        t, record,
+        claim=(t.state_after.claims[t.action.output_id].proposition
+               if t.action.output_id in t.state_after.claims else None),
+        premises=t.action.dependencies, rule=t.action.operation,
+    )
+    if not ok:
+        return [Finding("BRANCH_JOIN", INVARIANTS["BRANCH_JOIN"], why)]
     if not _supports(record, t.action.operation):
         return [
             Finding(
@@ -620,13 +666,19 @@ def _check_epistemic(t: Transition) -> list[Finding]:
                 f"status was raised to {to_status} with no existing supporting evidence",
             )
         ]
-    if record.status != "VALID":
+    ok, why = _accepted(
+        t, record,
+        claim=(t.state_after.claims[t.action.output_id].proposition
+               if t.action.output_id in t.state_after.claims else None),
+        premises=t.action.dependencies,
+    )
+    if not ok:
         return [
             Finding(
                 "EPISTEMIC_STATUS",
                 INVARIANTS["EPISTEMIC_STATUS"],
-                f"status was raised to {to_status} on evidence {record.id!r}, which is "
-                f"{record.status}",
+                f"status was raised to {to_status} on evidence that does not support it: "
+                f"{why}",
             )
         ]
     return []
@@ -809,8 +861,21 @@ _CHECKS = (
 )
 
 
-def verify(transition: Transition) -> TransitionResult:
+def verify(
+    transition: Transition,
+    *,
+    mode: TrustMode = TrustMode.OFFLINE_REPLAY,
+    attestations: dict[str, Attestation] | None = None,
+) -> TransitionResult:
     """Decide one transition.
+
+    ``mode`` decides what a recorded evidence ``status`` is worth (D-050). The default
+    replays a frozen external corpus, where the status is observed reference data. Pass
+    ``TrustMode.RUNTIME`` for anything a model or user authored: the recorded status is
+    then ignored, and acceptance requires an ``Attestation`` carrying a ``CheckedEvidence``
+    that only ``reasoning.certificates.check`` can mint. The unsafe reading is never the
+    one you get by forgetting an argument, and the safe one is never silently assumed for
+    input this repository did not freeze.
 
     Unknowns are collected first and short-circuit, because an invariant cannot be checked
     against a field whose value is "we do not know". They are now **dependency-scoped**
@@ -827,13 +892,17 @@ def verify(transition: Transition) -> TransitionResult:
     short-circuiting, which is a larger change than can be verified against the thirty
     fixtures alone. Narrow, now that the unknown must be on a record the action cites.
     """
-    unknowns = _collect_unknowns(transition)
-    if unknowns:
-        return TransitionResult(Verdict.UNRESOLVED, [], unknowns)
+    token = _TRUST.set((mode, dict(attestations or {})))
+    try:
+        unknowns = _collect_unknowns(transition)
+        if unknowns:
+            return TransitionResult(Verdict.UNRESOLVED, [], unknowns)
 
-    findings: list[Finding] = []
-    for check in _CHECKS:
-        findings.extend(check(transition))
+        findings: list[Finding] = []
+        for check in _CHECKS:
+            findings.extend(check(transition))
+    finally:
+        _TRUST.reset(token)
     if findings:
         return TransitionResult(Verdict.INVALID, findings, [])
     return TransitionResult(Verdict.VALID, [], [])

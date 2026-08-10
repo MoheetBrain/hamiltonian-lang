@@ -5859,3 +5859,62 @@ disclose this. Both recorded, neither repaired.
 Corpus repository: commit the audited cognition ledger, correct the four unscoped
 absence-of-evidence statements, label Gold-125 coverage historical at HML `5688aba`, and
 decide on the proposed `FX2-*` fixture suite.
+
+---
+
+## 2026-08-10 (fourth entry) — D-050 closed: a trust mode, and evidence status stops being authority
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `a21fdb7`. **Stage:** Phase I of the final
+semantic freeze — correctness blockers before any benchmark.
+
+**Objective.** Close the trust boundary classified as a BLOCKER by D-050, reusing
+`reasoning/certificates/` rather than inventing a second registry.
+
+**Files changed.** New `src/hamiltonian_lang/semantic_state/trust.py` and
+`tests/semantic_state/test_trust_boundary.py`; `verify.py` routes all four evidence
+acceptance sites through one seam; `DECISIONS.md` gains D-051.
+
+**What was completed.** `TrustMode.OFFLINE_REPLAY` (default) reads recorded evidence status
+as observed reference data from a frozen external corpus. `TrustMode.RUNTIME` ignores it
+entirely and requires an `Attestation` carrying a `CheckedEvidence` — unforgeable, because
+`certificates.check` mints it behind a module-private token. Attestations bind claim digest,
+premise digests and rule, so a valid certificate cannot be replayed onto a transition it was
+not issued for.
+
+**Decisions and why.** No second registry: two trust bases mean two review surfaces and
+eventually one accepts what the other refuses. The default is the *replay* mode, so the
+unsafe reading is never what a caller gets by forgetting an argument, and `mode` is
+keyword-only so it cannot be passed positionally by accident.
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| `pytest tests/semantic_state/test_trust_boundary.py` | **17 passed** |
+| 30 frozen acceptance fixtures | **30/30 unchanged** |
+| full suite | **7,285 passed**, 0 failed |
+| `ruff check src tests` | clean |
+| `mypy src/hamiltonian_lang` | clean, **108** files |
+| mutation: seam disabled | **3 tests killed** |
+| mutation: `binds()` always true | **3 tests killed** |
+| mutation: enum value renamed | no kill — verified to be a semantic no-op (mode comparison is an identity check on the member), not a test gap |
+
+**Failures and unresolved uncertainty.** The attack suite found a real hole in my own first
+implementation: the candidate site bound only the *rule*, not the claim, so a valid
+certificate issued for a different proposition was accepted. Fixed; all three sites now bind
+claim, premises and rule.
+
+Two limitations recorded rather than glossed. The attestation binds a proposition's **text
+digest**, not `expr_identity` over a typed AST, because corpus propositions are opaque
+strings that generally do not parse — strictly weaker, and this layer cannot tell you two
+formattings mean the same thing. And **RUNTIME has no production caller**: nothing in `src/`
+runs the verifier on model output yet.
+
+**Blocker discovered.** Phase VI cannot run on this machine. No training stack is installed
+(`torch`, `transformers`, `peft`, `trl`, `mlx`, `mlx_lm` all absent) and ollama is
+inference-only. The matched Gemma experiment needs an environment decision before design can
+proceed.
+
+**Next intended step.** Phase I remainder: the five reproduced defects (sibling scope,
+neutral re-keying, malformed typing, null branch conclusions, corpus schema) and the
+second-generation fixture suite.

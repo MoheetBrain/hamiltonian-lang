@@ -28,6 +28,25 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**D-050 IS CLOSED (D-051). Evidence status is no longer authority at runtime.**
+
+`TrustMode.RUNTIME` ignores a record's `status` entirely and requires an `Attestation`
+carrying a `CheckedEvidence` that only `reasoning.certificates.check` can mint — no second
+registry was added; `semantic_state/trust.py` is a seam into the existing machinery.
+`OFFLINE_REPLAY` stays the default so the frozen corpus still replays: **30/30 unchanged.**
+
+17 adversarial tests. A self-asserted `"status": "VALID"` is refused at runtime; `trusted:
+true` buys nothing; certificates for another claim, other premises, another rule or another
+evidence id are all refused; `CheckedEvidence` cannot be constructed directly. The suite
+found a real hole in the first implementation — the candidate site bound only the rule, so a
+certificate for a different proposition was accepted.
+
+**Phase VI is currently not runnable.** No training stack exists on this machine (`torch`,
+`transformers`, `peft`, `trl`, `mlx_lm` all absent). Ollama is present but is inference-only
+and cannot do LoRA adaptation. The matched Gemma experiment needs an environment decision.
+
+---
+
 **AN INDEPENDENT AUDIT OF `7c9137a` FOUND SIX ACCEPTED TRANSITIONS THAT SHOULD HAVE BEEN
 REFUSED. Five are repaired; the sixth is a classified blocker.**
 
