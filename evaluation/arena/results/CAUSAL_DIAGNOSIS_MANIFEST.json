@@ -122,5 +122,18 @@
         "HML_VERIFY": "aca04403171d1bc1"
       }
     }
-  ]
+  ],
+  "WITHDRAWN": {
+    "arm": "HML_OBF",
+    "status": "INVALID_AS_CAUSAL_EVIDENCE / WITHDRAWN_PENDING_CLEAN_RERUN",
+    "date": "2026-08-10",
+    "reason": "causal_diag.py:121-125 applies obfuscation_map to the QUESTION text, and the map substitutes the ordinary English words 'or' and 'not'. The question reached the model as 'Is P6 necessarily true, necessarily false, zeta8 is it zeta9 determined by these assumptions?', destroying the clause naming the third answer option -- in the one arm that then answered UNDETERMINED on 6/6 items. Degraded reasoning and a destroyed question predict the same observation and this design cannot separate them.",
+    "withdrawn_as": [
+      "positive evidence for H2 / familiarity",
+      "the justification for the LoRA adaptation experiment"
+    ],
+    "not_concluded": "Familiarity is NOT refuted; it is unresolved. Withdrawing evidence for a hypothesis is not evidence against it.",
+    "unchanged": "All original fields, the code, and every raw record. This key is purely additive; no measurement was altered or re-run.",
+    "see": "evaluation/arena/results/HML_OBF_WITHDRAWAL.md"
+  }
 }

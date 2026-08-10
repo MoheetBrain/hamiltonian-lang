@@ -13,11 +13,27 @@ for the frozen v0 contract.
 v0. A working vertical slice exists: lexer → parser → name resolution → type checking →
 canonical form → multiple rendered views.
 
-**No comparative evaluation has been run.** The project's central hypothesis — that an AI
+**Nothing measured so far supports the central hypothesis.** That hypothesis — that an AI
 system reasons more accurately through this representation than through prose, LaTeX, or
-code — is untested. Nothing in this repository should be read as evidence for it. The
-experiment that would test it is preregistered in
-[docs/research/BENCHMARK_PROTOCOL.md](docs/research/BENCHMARK_PROTOCOL.md).
+code — has been probed several times at small N, and **no result favours this
+representation**. Nothing in this repository should be read as evidence for it.
+
+*Corrected 2026-08-10.* This paragraph previously read "No comparative evaluation has been
+run." It was written on 2026-08-04 and had been false since. Comparative runs exist and are
+recorded; the honest statement is not that they are absent but that they are negative or
+null:
+
+| probe | N | result |
+|---|---|---|
+| implication direction | 12 pairs | Structured English 5/12 · this representation 1/12 · generic AST 0/12 |
+| next-action | 12 + 18 items | an apparent advantage did **not** survive independent replication (Δ 0.000) |
+| quantifier scope | 8 pairs | a generic S-expression scored highest; this representation fell between it and Structured English |
+| saturated benchmark | 105 calls × 7 arms | every arm saturated; paired difference 0.000, CI [0, 0] |
+
+Every one is underpowered and none licenses a conclusion in either direction. The
+preregistered experiment that would actually test the hypothesis is in
+[docs/research/BENCHMARK_PROTOCOL.md](docs/research/BENCHMARK_PROTOCOL.md) and has not been
+run.
 
 ## Quick start
 

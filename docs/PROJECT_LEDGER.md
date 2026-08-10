@@ -5783,3 +5783,79 @@ correct the canonical statements that imply five existing experiments do not exi
 Gold-125 coverage as historical at HML `5688aba`; and decide whether to adopt the proposed
 `FX2-*` fixture suite. Then D-050, which needs its own design record before any model output
 reaches this verifier.
+
+---
+
+## 2026-08-10 (third entry) — HML_OBF formally withdrawn; two false statements in public docs corrected
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `8bcd9a5`. **Stage:** corpus /
+research-integration, temporarily merged into the integrator role.
+
+### Objective
+
+Withdraw `HML_OBF` as causal evidence without destroying it, and correct programme-level
+statements that assert evidence does not exist when it does.
+
+### What was completed
+
+**The confound was verified from source, not accepted from a report.** `causal_diag.py:48-58`
+maps five ordinary English words (`implies`, `iff`, `and`, `or`, `not`), and
+`render_question` at `:121-125` applies the map to the **question text**. Re-derived from the
+frozen deterministic builder:
+
+* `HML_BASIC`: *"Is P6 necessarily true, necessarily false, or is it not determined by these assumptions?"*
+* `HML_OBF`:   *"Is P6 necessarily true, necessarily false, zeta8 is it zeta9 determined by these assumptions?"*
+
+The clause naming the third answer option is destroyed, in the one arm that then answered
+UNDETERMINED on 6/6 items. Degraded reasoning and a destroyed question predict the same
+observation; this design cannot separate them.
+
+**Withdrawn:** `HML_OBF` as positive evidence for H2/familiarity, and as the justification for
+the LoRA adaptation experiment. **Not concluded:** that familiarity is false. It is
+**unresolved**, because the one experiment offered in its support is confounded.
+
+**Nothing was deleted or re-run.** The code, the raw records and every original manifest value
+are unchanged; `CAUSAL_DIAGNOSIS_MANIFEST.json` gained one additive `WITHDRAWN` key, verified
+programmatically to leave all pre-existing fields equal. Full record in
+`evaluation/arena/results/HML_OBF_WITHDRAWAL.md`.
+
+**Two further defects recorded:** the manifest describes `HML_OBF` as preserving "operators",
+which its own map contradicts — as implemented the condition removes the logical vocabulary
+and supplies no key, so it never measured a familiarity tax at all. And no test covers
+`causal_diag`, unlike Endpoint A and B2, which both carry prompt-construction audits.
+
+### The correction that matters most
+
+`README.md` said **"No comparative evaluation has been run."** Written 2026-08-04; false ever
+since. Four comparative probes exist. Corrected to state what they actually show, which is
+weaker than the original sentence implied and worse for the thesis: implication direction SE
+5/12 vs HML 1/12; next-action advantage did not survive replication (Δ 0.000); quantifier
+scope won by a generic S-expression; the saturated benchmark paired difference 0.000, CI
+[0, 0]. All underpowered, none licensing a conclusion either way.
+
+This is the failure the cognition audit named: **the programme was reasoning from a cleaner
+picture than its own data supports**, because absence-of-evidence statements scoped to one
+repository were being read programme-wide.
+
+### Verification actually executed
+
+`bash scripts/conformance.sh`: **CONFORMANCE: PASS**, including the "no unsupported
+superiority claims in public docs" stage against the rewritten README. Manifest annotation
+verified additive by comparing every pre-existing key against the original parse. The other
+four scout arms re-read from `CAUSAL_SCOUT.json` and unchanged: SE 5 · HML_BASIC 4 · HML_EPI 3
+· HML_OBF 2 · HML_VERIFY 3.
+
+### Failures and unresolved uncertainty
+
+`evaluation/results/runs/eval001-pilot.jsonl` — the raw model outputs behind HML-EVAL-001 — is
+**gitignored and exists on disk in one worktree only**. The committed analyses are summaries
+whose raw backing is not in version control, and the run used temperature 0.7 with no seed, so
+it cannot be reproduced by re-running either. No arena run passes a sampling seed at all;
+`order_seed` controls call order only, and the frozen manifests' runtime blocks do not
+disclose this. Both recorded, neither repaired.
+
+### Next intended step
+
+Corpus repository: commit the audited cognition ledger, correct the four unscoped
+absence-of-evidence statements, label Gold-125 coverage historical at HML `5688aba`, and
+decide on the proposed `FX2-*` fixture suite.

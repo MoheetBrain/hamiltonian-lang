@@ -279,13 +279,30 @@ Frozen at 8 pairs × 3 arms = 48 scientific calls (+6 excluded smoke).
 
 **CAUSAL SCOUT: NO CONDITION RESCUES HML. CASE D — frozen zero-shot branch closed.**
 SE 5/6 · HML_BASIC 4/6 · HML_EPI 3/6 · HML_VERIFY 3/6 · HML_OBF 2/6 (30 calls, 0 truncations).
-Three sub-findings: (1) `HML_OBF` answered UNDETERMINED on **all six** items — a degenerate
-constant, so obfuscation stopped the model engaging rather than degrading it gracefully;
+Three sub-findings: (1) ~~`HML_OBF` answered UNDETERMINED on all six items — a degenerate
+constant, so obfuscation stopped the model engaging~~ — **WITHDRAWN 2026-08-10, see the box
+below**;
 (2) `HML_VERIFY` failed a two-bit lookup — handed *both* proof signals false, it still
 answered TRUE, so deterministic feedback did **not** repair unsupported commitment;
 (3) `HML_EPI` made over-commitment worse (UNDET→definite 2/2 vs 1/2 baseline). H3 and H4
-unsupported; H2 has the only positive signature, arguing for matched adaptation rather than
-any prompt-level fix. **Four measurements now, none showing frozen zero-shot HML helping.**
+unsupported. **Four measurements now, none showing frozen zero-shot HML helping.**
+
+> **`HML_OBF` is withdrawn as causal evidence** — `INVALID_AS_CAUSAL_EVIDENCE` /
+> `WITHDRAWN_PENDING_CLEAN_RERUN`. Record:
+> `evaluation/arena/results/HML_OBF_WITHDRAWAL.md`.
+>
+> The obfuscation map substitutes the ordinary English words `or` and `not`, and
+> `causal_diag.py:121-125` applies it to the **question text**. Re-derived from the frozen
+> builder, the question reached the model as *"Is P6 necessarily true, necessarily false,
+> `zeta8` is it `zeta9` determined by these assumptions?"* — the clause naming the third
+> answer option destroyed, in the one arm that then answered UNDETERMINED on 6/6.
+>
+> Withdrawn: `HML_OBF` as positive evidence for H2, and as the justification for the LoRA
+> adaptation experiment. This paragraph previously ended "H2 has the only positive
+> signature, arguing for matched adaptation" — that signature **was** `HML_OBF`. **H2 /
+> familiarity is now UNRESOLVED, not refuted**: withdrawing evidence for a hypothesis is not
+> evidence against it. The other four arms and the CASE D verdict are unaffected. Nothing
+> was deleted or re-run; the frozen manifest gained one additive `WITHDRAWN` key.
 
 **ERROR-TOPOLOGY BRANCH CLOSED OFFLINE (0 calls).** The motivating signal is compatible
 with chance: HML made ~5 errors per family, and P(0 of a subtype | 5 errors) = (2/3)^5 =
