@@ -47,8 +47,17 @@ and cannot do LoRA adaptation. The matched Gemma experiment needs an environment
 
 ---
 
-**AN INDEPENDENT AUDIT OF `7c9137a` FOUND SIX ACCEPTED TRANSITIONS THAT SHOULD HAVE BEEN
-REFUSED. Five are repaired; the sixth is a classified blocker.**
+**AN INDEPENDENT AUDIT OF `7c9137a` FOUND SIX DEFECTS — FIVE ACCEPTED TRANSITIONS THAT
+SHOULD HAVE BEEN REFUSED, PLUS ONE DETECTION BYPASS. All six are repaired.**
+
+> **Correction (2026-08-10).** This section, and the title of commit `8bcd9a5`, previously
+> said "six accepted transitions" and "the sixth is a classified blocker". Both are wrong on
+> the count. **Five** probes returned VALID; the sixth — appending one unrelated
+> `status: UNKNOWN` claim — returned UNRESOLVED across 10/10 ILLEGAL fixtures, which is a
+> *suppression of detection*, not an acceptance. All six were repaired at `8bcd9a5`. The
+> "classified blocker" is D-050, a separate finding that was never one of the six, and it is
+> now closed by D-051. Caught by the third cognition-ledger audit; the pushed commit title
+> cannot be rewritten, so the correction is recorded here.
 
 Every finding reproduced against pristine production code before repair. All six were
 **VALID** at `7c9137a`:

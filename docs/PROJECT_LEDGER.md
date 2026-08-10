@@ -5918,3 +5918,32 @@ proceed.
 **Next intended step.** Phase I remainder: the five reproduced defects (sibling scope,
 neutral re-keying, malformed typing, null branch conclusions, corpus schema) and the
 second-generation fixture suite.
+
+---
+
+## 2026-08-10 (fifth entry) — correcting a miscount in this repository's own record
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `06b5d99`. **Stage:** Phase I.
+
+**Objective.** Correct a factual error in `PROJECT_STATUS.md` and in the title of commit
+`8bcd9a5`, found by the third independent audit of the cognition ledger.
+
+**What was wrong.** Both said the audit of `7c9137a` found "six accepted transitions that
+should have been refused" and that "the sixth is a classified blocker". **Five** probes
+returned VALID. The sixth — appending one unrelated `status: UNKNOWN` claim — returned
+UNRESOLVED across 10/10 ILLEGAL fixtures, which is a suppression of detection rather than an
+acceptance, and it *was* repaired at `8bcd9a5` along with the other five. The "classified
+blocker" is D-050, a separate finding that was never among the six, now closed by D-051.
+
+**Verification.** Re-read from this repository's own recorded probe output: five lines report
+`VALID`, one reports `10/10 became UNRESOLVED`. D-049's Verification section already said
+"6/6 now INVALID or ineffective" — the word *ineffective* is the sixth, and the summary
+heading flattened it into "accepted".
+
+**Effect.** No code, test or verdict changes. The defect count is unchanged at six and the
+repairs are unchanged; what was wrong was the characterisation of one of them. Recorded
+rather than quietly edited, because a miscount that inflates the severity of one's own
+findings is the kind of error that should leave a trace.
+
+**Next intended step.** Phase I remainder: the five reproduced defects and the
+second-generation fixture suite.
