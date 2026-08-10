@@ -28,6 +28,47 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**SEMANTIC FIREWALL BUILD COMPLETE — every requirement in the builder handoff is now either
+implemented and measured, or refused in writing with the reason.**
+
+The lossless HML view (SF-R15) exists, the domain lattice (SF-R14) is library data, the
+rules no fixture reaches have their own mutation-checked tests, and **two latent divergences
+from the frozen reference checker were found by reading its source and closed.**
+
+* **Lossless view (SF-R15)** — `parse_transition(render_transition(t)) == t` over all 30
+  fixtures, on `frozen=True` dataclasses, so that is structural equality of the whole
+  transition rather than a hash. Chained: corpus JSON → state → view → state → corpus JSON,
+  byte-identical. The view is HML-shaped where there is semantics and JSON-literal where the
+  record is opaque; values it cannot carry back are **refused**, not approximated.
+* **Domain lattice (SF-R14)** — `semantic_state/domains.py`, versioned and justified
+  entries rather than a table inside the verifier. Not merged with `types.py`; two lattices,
+  two purposes.
+* **Divergence 1, closed** — input domains were compared with `!=` while the reference walks
+  a parent chain. A claim in `Natural` offered where `Integer` was required was **rejected
+  here and accepted by the reference**: a false INVALID on sound reasoning.
+* **Divergence 2, closed** — the warrant premise envelope was a subset test; the reference
+  compares the lists outright, and SF-R09 binds the *exact* premise list. The old reading
+  failed in the dangerous direction: evidence resting on fewer premises than the action
+  declared was accepted, so a conclusion could acquire ancestry its warrant never covered.
+* **Divergence 3, kept and recorded** — this verifier checks `output_domain`, which the
+  reference never reads. Deleting a sound check to agree with a gap would be the wrong
+  repair. Strictly stricter, so it cannot admit a corrupted transition.
+
+Neither closed divergence was detectable from the fixtures: every fixture declares the
+domain the claim already has, and every premise envelope already equals its dependency list.
+A differential test now compares against the frozen source directly, over the whole cross
+product of domain names, rather than against examples somebody thought of.
+
+**Refused in writing, with reasons** (`SEMANTIC_STATE_CONTRACT.md` §7): no warrant-rule
+registry (a closed-world table would reject warrants the reference accepts); no theorem
+ingestion for SF-R10 (no fixture names a theorem); no warrant replay (the reference
+re-derives nothing); no `source_span_hash` verification (no oracle to verify against).
+
+**Still no syntax.** `git diff` remains empty for `ast/`, `lexer/`, `parser/`, `backends/`
+and all of `reasoning/`, asserted by a test rather than by prose.
+
+---
+
 **CANONICAL SEMANTIC STATE EXISTS — the Semantic Firewall's six inexpressible fixtures are
 closed, and the trusted core did not change to close them.**
 
@@ -900,7 +941,31 @@ D-001..D-021 in `DECISIONS.md`. Load-bearing ones:
 
 ## Verification and Test Results
 
-**Current run — 2026-08-09, the Gold-10 library closeout.** Executed, not estimated:
+**Current run — 2026-08-10, the Semantic Firewall closeout (view, domain lattice, and the
+two divergence repairs).** Executed, not estimated:
+
+| check | exact command | result |
+|---|---|---|
+| conformance gate | `bash scripts/conformance.sh` | **CONFORMANCE: PASS**, all stages |
+| full suite | `.venv/bin/python -m pytest` | **7248 passed**, 6 skipped, 7 xfailed, 7 xpassed, **0 failed** |
+| semantic state | `pytest tests/semantic_state` | **266 passed** (was 62) |
+| 30 acceptance fixtures vs frozen reference checker | `pytest tests/semantic_state/test_semantic_firewall_acceptance.py` | **30/30 verdict and error class, unchanged by the repairs** |
+| neutral adapter round trip | same file | **30/30 byte-for-byte** |
+| **HML view round trip** | `pytest tests/semantic_state/test_lossless_view.py` | **30/30 `parse(render(t)) == t`** on frozen dataclasses |
+| **chained round trip** | same file | **30/30** corpus JSON → state → view → state → corpus JSON, byte-identical |
+| **lattice vs frozen reference** | `test_the_lattice_agrees_with_the_frozen_reference_checker_on_every_pair` | **0 disagreements** over the full cross product of domain names |
+| mutation check on the unfixtured rules | 5 rules disabled one at a time in `verify.py`, suite re-run | **5/5 caught**; `verify.py` restored, `git diff` empty |
+| lint | `.venv/bin/ruff check src tests` | All checks passed |
+| types | `.venv/bin/mypy src/hamiltonian_lang` | no issues in **107** source files |
+| **frozen core** | `git diff HEAD -- ast/ lexer/ parser/ backends/ reasoning/` | **empty**, and asserted by `test_the_view_did_not_smuggle_in_new_syntax` |
+
+The mutation check is recorded because the new rule tests passed on their first run, which
+is not by itself evidence that they test anything. Disabling each rule in turn — the
+constraint-subset check, "every branch CLOSED", branch-conclusion agreement, and both
+directions of the scope discharge — made the corresponding test fail, and only then were
+they treated as coverage.
+
+**Previous run — 2026-08-09, the Gold-10 library closeout.** Executed, not estimated:
 
 | check | exact command | result |
 |---|---|---|
@@ -1025,6 +1090,26 @@ property it asserted was false, because it never produced `def` parameters.
   Not exploitable within an independently scored item, but a corpus-level analysis should
   know it.
 
+- **The Semantic Firewall acceptance set cannot detect either divergence that was just
+  repaired.** Every fixture declares the domain its claim already has, so `==` and a
+  containment walk agree on all 30; every fixture's premise envelope already equals its
+  dependency list, so a subset test and exact equality agree on all 30. Both defects were
+  real, both were invisible, and both were found by reading the reference checker's source
+  rather than by any test. Until the corpus adds fixtures that distinguish them, the only
+  thing standing between a regression and silence is a differential test in this repository
+  against a file this repository does not own.
+- **The domain lattice has no fixture support whatsoever.** No fixture exercises a proper
+  subtype relation. It is justified by the reference checker's source, which is a weaker
+  warrant than a passing fixture.
+- **The rules no fixture reaches are tested only by tests written alongside the code they
+  check.** SF-R06's `UNVERIFIED`/`REJECTED` states, the constraint-subset rule, branch
+  closure, branch-conclusion agreement and the scope-discharge path now have coverage, and
+  each was mutation-checked. That establishes the tests bite. It does not make them external
+  acceptance criteria, and they should not be cited as such.
+- **The lossless view proves representability, not adequacy.** That a transition renders and
+  reads back says the fields survive a round trip. It says nothing about whether the view is
+  a *good* rendering for a human or a model to reason through, and nothing here was measured
+  against either.
 - **The ACQ0 instrument has now failed its own audit twice.** v1 was 0/41 admissible
   because the mathematics was authored in three places and disagreed. v2 was built to
   remove that failure mode and still shipped a model-visible view from which three of eight
@@ -1123,7 +1208,28 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Exact Next Actions
 
-**LIVE: hand `2af4998` to Codex and stop.** Codex owns the corpus, repins, and reruns
+**LIVE: hand the Semantic Firewall closeout to Codex and stop.** Codex owns the corpus,
+repins `hml_core`, and reruns the same frozen 30 acceptance fixtures against the pinned
+implementation. Do not modify the corpus repository, the fixtures, or the frozen reference
+checker from here. Handoff: `docs/agent_handoffs/CLAUDE_SEMANTIC_FIREWALL_CLOSEOUT.md`.
+
+Three items in that handoff need a corpus-side decision and cannot be settled here:
+
+1. **The two divergence repairs.** Both were found by reading `reference_checker.py`, not by
+   a failing fixture, and neither changes any of the 30 verdicts. Codex should decide whether
+   the acceptance set should grow a fixture that distinguishes them — a `Natural`/`Integer`
+   subtype case and a premise-subset case — since at present nothing external would catch a
+   regression in either.
+2. **`output_domain` is checked here and nowhere in the reference.** Either the reference has
+   a gap or this implementation is over-strict. That is a corpus judgement.
+3. **`HML_OBF` should be withdrawn as evidence for H2** until re-run with the question text
+   held fixed. Raised in the previous handoff and still open; it remains the only positive
+   signature for the familiarity hypothesis and the stated justification for the LoRA
+   experiment. No frozen artifact was modified.
+
+---
+
+**Superseded: hand `2af4998` to Codex and stop.** Codex owns the corpus, repins, and reruns
 the same frozen 23 transitions to judge `23/23 HANDLED · CoreGapRate 0 · AdapterGapRate 0 ·
 LibraryBlockedRate 0 · RegressionRate 0`. Only Codex may recommend Gold-100. Handoff:
 `docs/agent_handoffs/CLAUDE_GOLD10_LIBRARY_CLOSEOUT.md`.

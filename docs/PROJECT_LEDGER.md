@@ -5499,3 +5499,161 @@ second independent test behind it.
 The lossless renderer (SF-R15), deferred by the brief until the semantic objects stabilise;
 tests for the substantive candidate/branch rules no fixture reaches; and the `docs/04`
 update plus Codex handoff.
+
+---
+
+## 2026-08-10 — Semantic Firewall closeout: the HML view, the domain lattice, and two divergences the fixtures could not see
+
+**Branch:** `feature/hml-reasoning-kernel-v2` (worktree `/Users/moheet/hml_v2_worktree`),
+on `4d05aca`.
+
+**Project stage:** Semantic Firewall build. Every requirement in the builder handoff is now
+either implemented and measured, or refused in writing with the reason.
+
+### Objective
+
+Finish the three deferred requirement rows in `docs/04` §D — `LIBRARY_CHANGE`, obligation
+round-trip through rendering, and `RENDERER_CHANGE` — and write the tests for the rules the
+acceptance fixtures never reach, which the previous entry recorded as shipped unexercised.
+
+### Files and systems changed
+
+New: `src/hamiltonian_lang/semantic_state/view.py` (lossless renderer + reader),
+`src/hamiltonian_lang/semantic_state/domains.py` (the neutral domain lattice),
+`tests/semantic_state/test_lossless_view.py`, `tests/semantic_state/test_domain_library.py`,
+`tests/semantic_state/test_unfixtured_rules.py`.
+Modified: `semantic_state/verify.py` (two divergence repairs),
+`semantic_state/__init__.py` (exports), `docs/hml_v2/SEMANTIC_STATE_CONTRACT.md`,
+`docs/PROJECT_STATUS.md`.
+
+`ast/`, `lexer/`, `parser/`, `backends/` and all of `reasoning/` are **unchanged**, asserted
+by a test rather than by prose.
+
+### What was completed
+
+**SF-R15, the lossless HML view.** `parse_transition(render_transition(t)) == t` over all 30
+fixtures. The model dataclasses are `frozen=True`, so that is structural equality of the
+entire transition — a stricter bar than the AST round trip in `tests/roundtrip/`, which
+compares canonical hashes and may lose spans. The chained property is the load-bearing one:
+corpus JSON → state → view → state → corpus JSON, byte-identical, because its endpoints are
+the corpus's bytes rather than anything this repository chose.
+
+**SF-R05, obligations through the rendering.** Asserted on a record carrying every field
+SF-R05 names at once, including `mandatory=False`, which no fixture contains and which a
+renderer emitting the field only when true would silently drop.
+
+**SF-R14, the domain lattice as library data.** Versioned, justified, enumerable entries in
+`domains.py` rather than a table inside the verifier.
+
+### Decisions made and why
+
+**The view is not a backend.** `backends.base.Backend` exists to *declare loss* — its entire
+API is `drop`/`approximate`/`weaken` over `Module.statements` — and a `Transition` has no
+statements and no source spans. A lossless renderer implemented there would have to lie
+about both, and registering it would require editing `backends/`, which is frozen. It is a
+standalone renderer + reader inside `semantic_state/`, which is the pattern
+`evaluation/syntax_acquisition/_infix.py` already establishes for a non-HML-L1 surface.
+
+**The view is HML-shaped where there is semantics and JSON-literal where there is not.**
+Claims, candidates, branches, goals, obligations, the action and evidence get real block
+syntax. The free-form fields — `source`, `typing`, `warrant`, the six `*_effect` maps, the
+precondition/obligation lists, evidence `payload` — are open dictionaries the corpus may
+extend at any time, which is exactly why `neutral.py` preserves them verbatim. Inventing a
+surface for content with no semantics attached would make every upstream extension silently
+unrepresentable. Values JSON cannot carry back unchanged are refused, per SF-R15's "reject
+unsupported fields instead of commenting them away".
+
+**No warrant-rule registry, deliberately.** SF-R10 speaks of theorem warrants and it was
+tempting to register the six rule names the corpus uses. The reference checker consults no
+such table: `UNRELATED_RULE` fails because it differs from the attached record's
+`supports_rule`, not because it is unrecognised. A closed-world registry would reject
+warrants the reference accepts — a new divergence created in the course of closing one.
+
+**The domain lattice is not `types.py::_SCALAR_PARENTS`.** That orders HML's own scalar
+types; this carries the neutral schema's vocabulary. Merging them would be the kind of
+conflation `CLAUDE.md` prohibits.
+
+### Tests and verification actually executed
+
+| check | exact command | result |
+|---|---|---|
+| conformance gate | `bash scripts/conformance.sh` | **CONFORMANCE: PASS** |
+| full suite | `.venv/bin/python -m pytest` | **7248 passed**, 6 skipped, 7 xfailed, 7 xpassed, 0 failed |
+| semantic state | `pytest tests/semantic_state` | **266 passed** (was 62) |
+| 30 acceptance fixtures | `pytest tests/semantic_state/test_semantic_firewall_acceptance.py` | **30/30**, unchanged by the repairs |
+| neutral round trip | same file | **30/30 byte-for-byte** |
+| view round trip | `pytest tests/semantic_state/test_lossless_view.py` | **30/30 `parse(render(t)) == t`** |
+| chained round trip | same file | **30/30** back to identical corpus JSON |
+| lattice vs frozen reference | `test_the_lattice_agrees_with_the_frozen_reference_checker_on_every_pair` | **0 disagreements** over the full cross product |
+| mutation check | 5 rules disabled one at a time, suite re-run | **5/5 caught**; `verify.py` restored, `git diff` empty |
+| lint | `.venv/bin/ruff check src tests` | All checks passed |
+| types | `.venv/bin/mypy src/hamiltonian_lang` | no issues, 107 files |
+| frozen core | `git diff HEAD -- ast/ lexer/ parser/ backends/ reasoning/` | **empty** |
+
+The mutation check is recorded because the new rule tests passed on their first run, and a
+test that has never failed is not yet evidence. Disabling the constraint-subset check,
+"every branch CLOSED", branch-conclusion agreement and both directions of the scope
+discharge each made the corresponding test fail; only then were they treated as coverage.
+
+### Results — two real defects, neither visible to the acceptance set
+
+**Divergence 1, a false INVALID.** `_check_type_domain` compared declared domains with `!=`
+while the reference checker walks a parent chain. A claim in `Natural` offered where
+`Integer` is required was rejected here and accepted by the reference. Sound reasoning,
+refused.
+
+**Divergence 2, the dangerous direction.** `_check_warrant` tested whether the evidence's
+premises were a *subset* of the action's dependencies; the reference compares the lists
+outright, and SF-R09 binds the *exact* premise list. Evidence resting on fewer premises than
+the action declared was therefore accepted, so a conclusion could acquire ancestry its
+warrant never covered.
+
+**Divergence 3, kept and recorded.** This verifier checks `output_domain`; the reference
+never reads it. Deleting a sound check to agree with a gap in the reference would be the
+wrong repair. It is strictly stricter, so it cannot admit a corrupted transition — only
+question a well-formed one.
+
+Neither repair changes any of the 30 verdicts, which is the point: **the acceptance set
+cannot distinguish either pair of behaviours.** Every fixture declares the domain its claim
+already has, and every fixture's premise envelope already equals its dependency list. Both
+defects were found by reading `reference_checker.py`, not by a test.
+
+### Failures and unresolved uncertainty
+
+Three defects in my own work, each caught by running rather than reviewing: the tab-indent
+guard in the view reader could never fire (a leading tab is invisible to `lstrip(" ")`, so a
+tab-indented line read as top level); the frozen reference checker could not be imported for
+the differential test without being registered in `sys.modules` first, because `dataclasses`
+resolves annotations through `sys.modules[cls.__module__]`; and `_is_subtype` is a
+staticmethod on `ReferenceChecker`, not a module-level function.
+
+**What this does not establish.** The domain lattice has no fixture support at all — no
+fixture exercises a proper subtype relation, so it is justified by the reference checker's
+*source*, a weaker warrant than a passing fixture. The rules no fixture reaches are now
+tested only by tests written alongside the code they check; mutation-checking shows they
+bite, it does not make them external criteria. A lossless view demonstrates
+representability, not adequacy: nothing here says the view is a *good* rendering for a human
+or a model to reason through. **Nothing in this change was measured against a model.**
+
+`HML_OBF` remains withdrawn-pending as evidence for H2, unchanged from the previous entry
+and still not re-run. No frozen artifact was modified.
+
+### Effect on the overall project
+
+The builder handoff is answered end to end: every SF requirement is implemented and
+measured, or refused in writing with a reason from the fixtures and the reference checker's
+source. The architecture claim — that state semantics can grow while the trusted kernel
+stays fixed — now has a renderer behind it as well as a verifier, and the frozen-core diff
+is asserted by a test rather than by assertion.
+
+The more useful result is methodological, and it is uncomfortable: a 30/30 pass rate against
+an external frozen checker concealed two real defects, one of them in the unsafe direction.
+Agreement with an oracle on the cases the oracle happens to contain is not agreement with
+the oracle.
+
+### Next intended step
+
+Hand the closeout to Codex, who owns the corpus, and stop. Three items need a corpus-side
+decision that cannot be made here: whether the acceptance set should grow fixtures that
+distinguish the two repaired divergences; whether `output_domain` is a gap in the reference
+or over-strictness here; and the outstanding `HML_OBF` withdrawal.

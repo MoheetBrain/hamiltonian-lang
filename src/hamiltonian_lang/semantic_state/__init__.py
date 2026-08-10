@@ -6,6 +6,12 @@ this package touches the lexer, the parser or ``ast/nodes.py``. No surface synta
 to support any of it.
 
     neutral record  --import-->  SemanticState + Action  --verify-->  VALID | INVALID | UNRESOLVED
+                                          |
+                                       --render-->  HML view  --parse-->  the identical state
+
+The last arrow is the one that makes "rendering" a claim rather than a hope: the view is
+read back and compared to the object it came from, so a field the renderer forgets is a
+test failure rather than a silent omission.
 
 Specification: ``docs/hml_v2/SEMANTIC_STATE_CONTRACT.md``.
 """
@@ -38,6 +44,13 @@ from .neutral import (
     import_transition,
 )
 from .verify import INVARIANTS, Finding, TransitionResult, verify, verify_payload
+from .view import (
+    ViewError,
+    parse_state,
+    parse_transition,
+    render_state,
+    render_transition,
+)
 
 __all__ = [
     "Action",
@@ -66,4 +79,9 @@ __all__ = [
     "TransitionResult",
     "verify",
     "verify_payload",
+    "ViewError",
+    "parse_state",
+    "parse_transition",
+    "render_state",
+    "render_transition",
 ]

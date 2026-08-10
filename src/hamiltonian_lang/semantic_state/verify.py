@@ -34,6 +34,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from .domains import inhabits
 from .model import (
     Action,
     BranchStatus,
@@ -542,14 +543,20 @@ def _check_warrant(t: Transition) -> list[Finding]:
                 f"{record.supports_rule!r}",
             )
         ]
-    unstated = [p for p in record.premise_ids if p not in t.action.dependencies]
-    if unstated:
+    # SF-R09 binds the *exact* premise list, and the reference checker compares the two
+    # lists outright. A subset test was the earlier reading and it is too weak in the
+    # dangerous direction: evidence that rests on fewer premises than the action declares
+    # was accepted, so an action could quietly acquire ancestry its warrant never
+    # justified. Order is significant because the reference treats it as significant; a
+    # premise envelope is a record of what was checked, not a set.
+    if list(record.premise_ids) != list(t.action.dependencies):
         return [
             Finding(
                 "WARRANT",
                 INVARIANTS["WARRANT"],
-                f"evidence {record.id!r} rests on {', '.join(unstated)}, which the action "
-                f"does not declare as dependencies",
+                f"evidence {record.id!r} binds premises {list(record.premise_ids)} but the "
+                f"action declares {list(t.action.dependencies)}; a warrant envelope must "
+                f"name exactly the premises it was checked against",
             )
         ]
     return []
@@ -637,19 +644,23 @@ def _check_type_domain(t: Transition) -> list[Finding]:
                     f"the action types {cid!r} as {domain!r} but the state declares no domain",
                 )
             )
-        elif claim.domain != domain:
+        elif not inhabits(claim.domain, domain):
             out.append(
                 Finding(
                     "TYPE_DOMAIN",
                     INVARIANTS["TYPE_DOMAIN"],
-                    f"{cid!r} is {claim.domain!r} in the state but the action types it "
-                    f"{domain!r}",
+                    f"{cid!r} is {claim.domain!r} in the state, which does not inhabit the "
+                    f"{domain!r} the action requires",
                 )
             )
     expected_out = t.action.typing.get("output_domain")
     out_id = t.action.output_id
     produced = t.state_after.claims.get(out_id) if out_id else None
-    if produced is not None and expected_out and produced.domain != expected_out:
+    # Deliberately stricter than the reference checker, which never reads ``output_domain``
+    # at all. Dropping the check to match it would remove a sound constraint in order to
+    # agree with a gap; keeping it is recorded as a known divergence in the contract rather
+    # than left for someone to discover from a future fixture.
+    if produced is not None and expected_out and not inhabits(produced.domain or "", expected_out):
         out.append(
             Finding(
                 "TYPE_DOMAIN",
