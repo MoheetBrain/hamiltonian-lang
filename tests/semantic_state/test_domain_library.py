@@ -168,9 +168,17 @@ def _typed(claim_domain: str, required: str, output_domain: str | None = None) -
                        "scope": "global", "domain": claim_domain, "dependencies": []}
             },
         },
+        # The premise is carried forward unchanged. The frame condition (D-049) requires
+        # ``state_after`` to be what the action produced and no more, so a payload that
+        # silently drops a claim it never touched is a malformed transition, not a
+        # neutral one.
         "state_after": {
             "active_scopes": ["global"],
-            "branches": {}, "candidates": {}, "goals": {}, "obligations": {}, "claims": {},
+            "branches": {}, "candidates": {}, "goals": {}, "obligations": {},
+            "claims": {
+                "p0": {"id": "p0", "proposition": "n > 0", "status": "GIVEN",
+                       "scope": "global", "domain": claim_domain, "dependencies": []}
+            },
         },
         "evidence": {},
         "source": {},
@@ -246,6 +254,8 @@ def _warranted(premise_ids: list[str], dependencies: list[str]) -> dict:
             dep, {"id": dep, "proposition": "q", "status": "GIVEN",
                   "scope": "global", "dependencies": []}
         )
+    # Every premise survives the transition unchanged, per the frame condition (D-049).
+    case["state_after"]["claims"] = dict(case["state_before"]["claims"])
     return case
 
 

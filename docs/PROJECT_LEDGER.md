@@ -5657,3 +5657,129 @@ Hand the closeout to Codex, who owns the corpus, and stop. Three items need a co
 decision that cannot be made here: whether the acceptance set should grow fixtures that
 distinguish the two repaired divergences; whether `output_domain` is a gap in the reference
 or over-strictness here; and the outstanding `HML_OBF` withdrawal.
+
+---
+
+## 2026-08-10 (second entry) — an independent audit found six accepted transitions that should have been refused
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `7c9137a`.
+
+**Project stage:** post-build audit of the Semantic Firewall implementation, with corpus /
+research-integration responsibilities temporarily merged into the integrator role.
+
+### Objective
+
+Attack `7c9137a` rather than re-read its tests; adjudicate the three open closeout questions;
+and repair what the attack confirmed.
+
+### Files and systems changed
+
+`src/hamiltonian_lang/semantic_state/verify.py` (frame condition, dependency-scoped unknowns,
+absent-domain handling); `DECISIONS.md` (D-048, D-049, D-050, and the collision block's
+Prevention clause); `docs/hml_v2/SEMANTIC_STATE_CONTRACT.md` (§5a correction, new §5b, §5c);
+new `tests/semantic_state/test_frame_condition.py` and `tests/freeze/test_decision_ids.py`;
+two synthetic test payloads corrected. `ast/`, `lexer/`, `parser/`, `backends/` and
+`reasoning/` unchanged.
+
+### What was completed
+
+**Six defects confirmed, five repaired.** Every one was **VALID** at `7c9137a` and every one
+was reproduced against pristine production code before anything was changed: a claim asserting
+`0 = 1` with status VERIFIED materialising from nothing; an existing premise rewritten
+`ASSUMED -> VERIFIED` with its proposition changed; a candidate promoted `PROPOSED -> VERIFIED`
+and from the terminal `REJECTED` by writing `candidate_effect: {"kind": "NONE"}`; a mandatory
+open obligation deleted; and one unrelated `status: UNKNOWN` claim flipping **10/10** ILLEGAL
+acceptance fixtures to UNRESOLVED.
+
+**One root cause.** There was no frame condition. The ten invariants examine what the action
+*declares*; none examined whether the resulting state is what applying that declaration would
+produce, so every rule was optional to a producer that declined to declare an effect. The
+frozen reference has carried `_exact_state_change` all along; it was not ported, and no
+fixture could have revealed the omission because all thirty are well-formed records whose
+delta already matches their action.
+
+### Decisions made and why
+
+**D-049** — frame condition, checked last, reported as `DEPENDENCY_VIOLATION` where the
+reference reports it. Extended beyond the reference to candidates, branches and obligations,
+because the reference frames claims only and three of the six probes are accepted by the
+reference too. A *declared* effect licenses a change and the effect's own invariant then
+decides whether it was legitimate — which is what stops the frame forbidding the transitions
+the system exists to make. Unknowns dependency-scoped: unscoped, the rule was not fail-closed
+but a denial of service.
+
+**D-048** — an absent domain annotation is unavailable evidence (UNRESOLVED per SF-R13), not a
+violation. Production was rejecting a transition for *lacking* an annotation, in a format that
+cannot represent "carries no domain" both schema-validly and losslessly. Classification is
+split, not wholesale: **REFERENCE_GAP** where both annotations are present and disagree,
+**HML_OVERSTRICTNESS** where one is absent.
+
+**D-050** — the trust boundary. Classified **BLOCKER**, deliberately not repaired. The repair
+is a decision about where the trusted boundary sits for state transitions and must reuse
+`reasoning/certificates/` rather than grow a second registry; inventing one under an audit
+finding is how a second unattested path gets built.
+
+**Decision-ID collisions: enforced, not renumbered.** The premise of the instruction was
+stale — the collision was already found, documented and deliberately accepted. An independent
+re-count upheld that: ten of ~65 citations are in the frozen core, so renumbering would mean
+editing frozen files to repair a documentation defect. A mechanical gate replaced the prose
+rule instead.
+
+### Tests and verification actually executed
+
+| check | result |
+|---|---|
+| `bash scripts/conformance.sh` | **CONFORMANCE: PASS** |
+| `.venv/bin/python -m pytest` | **7268 passed**, 6 skipped, 7 xfailed, 7 xpassed, 0 failed |
+| `pytest tests/semantic_state` | **279 passed** (was 266) |
+| 30 acceptance fixtures | **30/30 unchanged by every repair** |
+| the six audit probes, re-run | **6/6 now INVALID or ineffective** |
+| UNKNOWN suppression | **0/10** (was 10/10) |
+| mutation: frame disabled / scoping reverted | **both caught** |
+| mutation: new ID collision / gap / dangling citation | **all caught** |
+| `ruff check src tests` | clean |
+| `mypy src/hamiltonian_lang` | clean, 107 files — caught one real error |
+| frozen core diff | **empty** |
+
+### Failures and unresolved uncertainty
+
+**A false claim was published in the last commit and is now corrected.** The contract said the
+retained `output_domain` divergence made this verifier "strictly stricter, so it cannot let a
+corrupted transition through". True of that one check; false as a general claim. On the six
+behaviours above production was strictly *weaker* than the reference it is specified to match.
+Corrected in place rather than deleted, because the error worth not repeating is inferring a
+safety direction from one check and generalising it.
+
+**Attempted and reverted:** making INVALID outrank UNRESOLVED, which is what the reference
+does. It requires each check to skip unknown values individually rather than the verdict
+short-circuiting, and could not be validated against thirty fixtures that never exercise it.
+Recorded as a known divergence, now narrow because the unknown must be on a cited record.
+
+**Still open, with reproductions recorded:** sibling scopes are ordered by list position, so a
+premise in `branch:a` may conclude into `branch:b` while the mirror image is a SCOPE_LEAK —
+same situation, opposite verdicts. `neutral.export_state` re-keys collections by `record.id`,
+so `export(import(x)) != x` when a dictionary key differs from the record's id — a real
+losslessness defect the view layer handles and the adapter does not. `verify()` raises rather
+than returning a verdict on a malformed `typing.input_domains`. A join may still publish a
+claim when every branch's conclusion is null.
+
+**Three of my own errors, caught by running:** two synthetic test payloads dropped premises
+from `state_after` and were malformed transitions rather than neutral ones — the frame
+condition caught them on its first run; mypy caught a shadowed binding; and the decision-ID
+gate caught two forward references to records I had not yet written.
+
+### Effect on the overall project
+
+The verifier now checks that a transition happened, not merely that it was described. That was
+the missing half. The methodological result is the more important one and it is now twice
+confirmed: **a 30/30 pass rate against an external frozen checker has concealed real defects
+in two consecutive commits**, and on this occasion five of six ran in the unsafe direction.
+Reading the oracle's *source* found what running its cases could not, both times.
+
+### Next intended step
+
+Corpus side, still open: commit the audited cognition ledger; formally withdraw HML_OBF;
+correct the canonical statements that imply five existing experiments do not exist; label
+Gold-125 coverage as historical at HML `5688aba`; and decide whether to adopt the proposed
+`FX2-*` fixture suite. Then D-050, which needs its own design record before any model output
+reaches this verifier.

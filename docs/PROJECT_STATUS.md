@@ -28,6 +28,60 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**AN INDEPENDENT AUDIT OF `7c9137a` FOUND SIX ACCEPTED TRANSITIONS THAT SHOULD HAVE BEEN
+REFUSED. Five are repaired; the sixth is a classified blocker.**
+
+Every finding reproduced against pristine production code before repair. All six were
+**VALID** at `7c9137a`:
+
+| probe | was |
+|---|---|
+| a claim asserting `0 = 1`, VERIFIED, materialising with no evidence, warrant or epistemic effect | VALID |
+| an existing premise rewritten `ASSUMED -> VERIFIED`, proposition changed | VALID |
+| a candidate walked `PROPOSED -> VERIFIED` with `candidate_effect: NONE`, zero constraints checked | VALID |
+| the same from the terminal `REJECTED` | VALID |
+| a mandatory OPEN obligation deleted outright | VALID |
+| one unrelated `status: UNKNOWN` claim appended | **flipped 10/10 ILLEGAL fixtures to UNRESOLVED** |
+
+**One root cause (D-049).** There was no frame condition. The ten invariants examine what the
+action *declares*; none examined whether `state_after` is what applying that declaration
+would produce. Every other rule was therefore optional — a producer that declined to declare
+an effect was not checked, because the checks key on the declaration. The frozen reference
+has carried this all along as `_exact_state_change`; it was not ported. **No fixture could
+have revealed it:** all thirty are well-formed records whose delta already matches their
+action.
+
+Repaired: frame condition over claims, candidates, branches and obligations (the reference
+frames claims only); unknowns dependency-scoped. Measured after repair: all six probes
+INVALID or ineffective, UNKNOWN suppression **0/10** against 10/10 before, **30/30 acceptance
+fixtures unchanged**.
+
+**Not repaired — D-050, the trust boundary. BLOCKER before any model-authored input.**
+`EvidenceRecord.status` is read from the imported record and is never *produced* by anything
+in `src/`. Acceptance turns on `record.status == "VALID"`; the sole writer is
+`neutral.py:307`, `payload.get("status", "UNKNOWN")`. There is no attestation, checker
+identity, checker version or context hash, and `semantic_state` imports nothing from
+`reasoning/certificates/`, where the real trust machinery lives. `trusted` **is**
+provenance-only — that claim survived audit. `status` is the live field and the same
+untrusted producer sets it. Bounded today only because `semantic_state` is imported by
+nothing outside `tests/`.
+
+**A correction to this document and to the contract.** `SEMANTIC_STATE_CONTRACT.md` §5a said
+the retained `output_domain` divergence made this verifier "strictly stricter, so it cannot
+let a corrupted transition through". True of `output_domain`; **false as a general claim**. On
+the behaviours above production was strictly *weaker* than the reference it is specified to
+match. Corrected in place rather than deleted.
+
+**Also this session.** D-048: an absent domain annotation is unavailable evidence
+(UNRESOLVED per SF-R13), not a violation — production was rejecting transitions for *lacking*
+an annotation the format cannot losslessly represent. D-049 and D-050 as above. Decision-ID
+referential integrity is now enforced by `tests/freeze/test_decision_ids.py` rather than
+asserted in prose.
+
+---
+
+### Previously
+
 **SEMANTIC FIREWALL BUILD COMPLETE — every requirement in the builder handoff is now either
 implemented and measured, or refused in writing with the reason.**
 
@@ -941,7 +995,25 @@ D-001..D-021 in `DECISIONS.md`. Load-bearing ones:
 
 ## Verification and Test Results
 
-**Current run — 2026-08-10, the Semantic Firewall closeout (view, domain lattice, and the
+**Current run — 2026-08-10, the post-build audit repair (D-048/049/050).** Executed:
+
+| check | exact command | result |
+|---|---|---|
+| conformance gate | `bash scripts/conformance.sh` | **CONFORMANCE: PASS**, all stages |
+| full suite | `.venv/bin/python -m pytest` | **7268 passed**, 6 skipped, 7 xfailed, 7 xpassed, **0 failed** |
+| semantic state | `pytest tests/semantic_state` | **279 passed** (was 266) |
+| 30 acceptance fixtures | `pytest tests/semantic_state/test_semantic_firewall_acceptance.py` | **30/30 unchanged by the repairs** |
+| the six audit probes | re-run against repaired code | **6/6 now INVALID or ineffective** |
+| UNKNOWN suppression | one junk claim vs 10 ILLEGAL fixtures | **0/10 suppressed** (was **10/10**) |
+| mutation: frame condition disabled | suite re-run | **caught** (3+ tests fail) |
+| mutation: unknown scoping reverted | suite re-run | **caught** |
+| mutation: new decision-ID collision | `pytest tests/freeze/test_decision_ids.py` | **caught** |
+| mutation: numbering gap / dangling citation | same | **caught** |
+| lint | `.venv/bin/ruff check src tests` | All checks passed |
+| types | `.venv/bin/mypy src/hamiltonian_lang` | no issues, 107 files (caught 1 real error) |
+| **frozen core** | `git diff HEAD -- ast/ lexer/ parser/ backends/ reasoning/` | **empty** |
+
+**Previously — 2026-08-10, the Semantic Firewall closeout (view, domain lattice, and the
 two divergence repairs).** Executed, not estimated:
 
 | check | exact command | result |

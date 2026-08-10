@@ -32,6 +32,20 @@ prefer reversible choices.
 > **Prevention.** The architectural freeze that follows was renumbered to D-034…D-039
 > *before* it was committed, after this collision was discovered. Any future record must
 > take a number strictly greater than every number already present in this file.
+>
+> **Enforced since 2026-08-10, not merely stated.** `tests/freeze/test_decision_ids.py`
+> pins the collision set to exactly these three and fails on a fourth. It also fails on a
+> gap in the numbering, on a citation naming a record that does not exist, and on this
+> table drifting from the headings it describes. The rule above was a sentence, and a
+> sentence does not fail a build — which is how three numbers came to be reused.
+>
+> **Re-examined 2026-08-10; the decision not to renumber is upheld.** An independent
+> re-count found ten of the ~65 citations inside the frozen core (`ast/`, `lexer/`,
+> `parser/`, `backends/`). Renumbering would mean editing frozen files to repair a
+> documentation defect, and every such edit is a chance to point a citation at the wrong
+> record — the precise failure the original decision avoided. Referential integrity is
+> otherwise intact: D-001…D-047 with no gaps, and no dangling citation anywhere in the
+> repository.
 
 ## D-001 — Implementation language
 
@@ -2011,3 +2025,233 @@ change, which is the mechanism working.
 such gap; recorded as an expected sibling). Probability laws. Calculus laws. Arithmetic
 rewrite rules. Any `x - 0 -> x`, `f(3)` or `n + 0 = n` special case. Those are libraries, and
 the boundary above is how they will arrive without touching the kernel.
+
+---
+
+## D-048 — an absent domain annotation is unavailable evidence, not a violation
+
+**Date:** 2026-08-10 · **After:** `7c9137a` · **Adjudicates:**
+`docs/agent_handoffs/CLAUDE_SEMANTIC_FIREWALL_CLOSEOUT.md` §3, Decision 2 (`output_domain`)
+· **Spec:** SF-R13, `experiments/semantic_firewall/requirements_handoff.json`
+
+**Problem.** `7c9137a` recorded a divergence and kept it: this verifier checks
+`action.typing.output_domain` against the produced claim's domain, and the frozen reference
+checker never reads `output_domain` at all. The recorded justification was that the check is
+*strictly stricter*, so it "cannot admit a corrupted transition — only question a
+well-formed one". A purpose-built differential probe (26 candidate cases, both checkers)
+showed that justification was too generous, and found two further divergences nobody had
+written down.
+
+Measured, production vs the frozen reference:
+
+| case | produced / declared | this verifier | reference |
+|---|---|---|---|
+| both present, incompatible | `Boolean` / `Integer` | INVALID | VALID |
+| both present, contained | `Integer` / `Real` | VALID | VALID |
+| both present, reversed | `Real` / `Integer` | INVALID | VALID |
+| **produced domain `null`** | `null` / `Integer` | **INVALID** | VALID |
+| **produced domain key absent** | — / `Integer` | **INVALID** | VALID |
+| control: no `output_domain` declared | `null` / — | VALID | VALID |
+| **input domain `null`** | `null` / `Integer` required | **INVALID** | **UNRESOLVED** |
+
+The guard was `not inhabits(produced.domain or "", expected_out)`. That `or ""` converts an
+*absent* annotation into the empty string, which inhabits nothing — so a transition was
+refused for **carrying no domain** rather than for carrying a wrong one. The control pins
+the cause exactly: the same record with `output_domain` removed is VALID, so the rejection
+is caused by the pair *(declaration present, annotation absent)* and by nothing else.
+
+Two facts make that indefensible rather than merely strict. **SF-R13 is explicit** — *"return
+unresolved rather than guessing when domain evidence is unavailable"* — and an absent
+annotation is unavailability, not disagreement. And the neutral format **cannot represent the
+alternative**: `semantic_case.schema.json` lists `domain` in the `claim` required set, while
+this adapter's `_drop_none` omits null-valued keys on export, so "carries no domain" is
+currently not expressible in a way that is both schema-valid and lossless. A transition was
+being rejected for occupying a state the format cannot encode.
+
+**Decision, in three parts.**
+
+**1. Absence is collected as an unknown, not reported as a violation.** A claim the action
+types whose domain the state does not declare, and a produced claim with no domain where
+`output_domain` is declared, both now short-circuit to `UNRESOLVED` with the other unknowns.
+Only annotations the action actually depends on are consulted — an unannotated claim nobody
+typed is not this check's business, so this does not turn every sparse record unresolved.
+
+**2. The `output_domain` check is retained where both annotations are present.** This is the
+half that survives adjudication. Two annotations of one transition that disagree is a real
+inconsistency, and the reference simply does not look. Classification: **REFERENCE_GAP** for
+the both-present cases, **HML_OVERSTRICTNESS** for the absent-annotation cases, which is why
+this record repairs one and keeps the other rather than choosing a side wholesale.
+
+**3. The input-side null case is a repair, not a divergence.** `null` input domain now
+returns `UNRESOLVED`, matching the reference exactly (`_type_domain` treats `None` and
+`"UNKNOWN"` alike). It was reported as closed at `7c9137a` and was not: the containment
+repair fixed the *comparison* and left the *absent* case reporting a hard mismatch.
+
+**What was NOT changed.** `_collect_unknowns` sweeps claim domains in **both** states while
+the reference reads only `state_before`, so an `UNKNOWN` domain on a produced claim is
+`UNRESOLVED` here and `VALID` there. That divergence is **retained and recorded**: not
+knowing the domain of the claim you just produced is unavailable evidence under SF-R13, and
+the reference's silence is a gap in the reference. Classified **REFERENCE_GAP**, unchanged.
+
+**Reversal cost.** Low. The behaviour is three conditions in `_check_type_domain` and
+`_collect_unknowns`; no object, schema or surface changed. Reverting would restore a
+verifier that rejects a transition for lacking an annotation.
+
+**Verification.** All 30 frozen acceptance fixtures unchanged — none of them exercises any
+of this, because `output_domain` is `"Proposition"` in 30/30 and equals the produced claim's
+domain in 30/30, so the check is a no-op across the entire acceptance set. That is precisely
+why the behaviour survived two commits: **nothing external tests it.**
+
+**Recorded, not repaired here.** `experiments/semantic_firewall/schemas/semantic_case.schema.json`
+declares `$defs/action` with `"additionalProperties": false` and no `properties` block while
+`required` lists fifteen properties — an unsatisfiable subschema that rejects all 30 of its
+own fixtures. That is a corpus-side defect and is reported through the handoff, not patched
+from here.
+
+---
+
+## D-049 — the frame condition, and dependency-scoped unknowns
+
+**Date:** 2026-08-10 · **After:** `7c9137a` · **Closes:** five confirmed acceptance defects
+found by an independent post-build audit · **Spec:** `reference_checker.py::_exact_state_change`
+
+**Problem.** An independent audit of `7c9137a` attacked the verifier rather than reading its
+tests, and every finding reproduced against pristine production code:
+
+| probe | verdict at `7c9137a` |
+|---|---|
+| a claim asserting `0 = 1`, status VERIFIED, materialising in `state_after` with no evidence, no warrant and no epistemic effect | **VALID** |
+| an existing premise rewritten `ASSUMED -> VERIFIED` with its proposition changed | **VALID** |
+| a candidate walked `PROPOSED -> VERIFIED` with `candidate_effect.kind: NONE` and zero constraints checked | **VALID** |
+| the same from `REJECTED`, which `model.py` documents as terminal | **VALID** |
+| a mandatory OPEN obligation deleted outright | **VALID** |
+| one unrelated `status: UNKNOWN` claim appended to a corrupted transition | **flips 10/10 ILLEGAL fixtures to UNRESOLVED** |
+
+**Root cause, and it is a single one.** The ten invariants all examine what the action
+*declares*. Not one of them examined whether the resulting state is what applying that
+declaration to the prior state would produce. There was no frame condition. Every other
+rule was therefore optional: a producer that simply declined to declare an effect was not
+checked, because the checks are keyed on the declaration. The candidate lifecycle is the
+clearest case — `_check_candidates` returns early unless `kind == "PROMOTE"`, so the entire
+promotion protocol, including the constraint-subset rule this project treats as the point
+of the candidate object, is skipped by writing `NONE`.
+
+The frozen reference has carried this all along as `_exact_state_change`. It was not
+ported, and **no fixture could have revealed the omission**: all thirty are well-formed
+records whose delta already matches their action, so a verifier with no frame condition
+passes every one. This is the second time in three commits that a 30/30 pass rate concealed
+a real defect, and the first time the defects ran in the unsafe direction.
+
+**Decision.**
+
+**1. A frame condition, checked last.** `state_after` must be `state_before` plus exactly
+what the action produces. Existing records must be unchanged unless a *declared* effect
+licenses the change — and then the effect's own invariant decides whether the change was
+legitimate, so the frame does not forbid the transitions the system exists to make.
+Additions are limited to the action's `output_id` and the obligations it creates. Checked
+last so a more specific invariant claims the error class first, and reported as
+`DEPENDENCY_VIOLATION`, which is where the reference reports it.
+
+**2. Extended beyond the reference to candidates, branches and obligations.** The reference
+frames claims only, so three of the six probes above are accepted by the reference too.
+Matching it exactly would have left a verifier whose promotion rules can be skipped by
+declining to mention them. Recorded as deliberate strictness, not silently inherited.
+
+**3. Unknowns are dependency-scoped.** Only records the action actually cites — its
+dependencies, its output, the claims it types, the candidate and branches its effects name —
+can make a transition UNRESOLVED. Evidence unknowns were already scoped this way, which is
+how we know the principle was understood and simply not applied to the rest. Unscoped, the
+rule was not fail-closed but a denial of service: one junk record suppressed detection
+entirely, and UNRESOLVED is counted as neither accepted nor detected.
+
+**Retained as a known divergence, not repaired.** The reference runs every check and only
+then asks whether anything was unknown, so on a transition carrying both a violation and an
+unknown the reference says INVALID and this says UNRESOLVED. Matching it requires each check
+to skip unknown values individually rather than the verdict short-circuiting — a larger
+change than can be validated against thirty fixtures that never exercise it. Now narrow,
+since the unknown must be on a record the action cites.
+
+**Correction to the record.** `SEMANTIC_STATE_CONTRACT.md` §5a said the retained
+`output_domain` divergence made this verifier "strictly stricter, so it cannot let a
+corrupted transition through". That is true of `output_domain` and **false as a general
+claim**: on the behaviours above production was strictly *weaker* than the reference it is
+specified to match. The sentence is corrected rather than deleted.
+
+**Reversal cost.** Moderate. `_check_frame` is additive and self-contained, but it changes
+verdicts for any transition whose recorded delta does not match its action — including
+under-specified *test* payloads, three of which it caught in this repository on first run.
+
+**Verification.** All 30 acceptance fixtures unchanged, 30/30 verdict and error class. All
+six probes above now INVALID or ineffective; the UNKNOWN suppression measured 0/10 against
+10/10 before. Full suite green.
+
+**What this does not fix.** The trust boundary (D-050): evidence `status` is still read from
+the imported record, so a producer that authors the transition still authors the verdict.
+The frame condition makes the *state delta* honest; it does nothing about self-asserted
+evidence.
+
+---
+
+## D-050 — who may create VALID evidence: the boundary does not exist, and that is a blocker
+
+**Date:** 2026-08-10 · **After:** `7c9137a` · **Status:** **BLOCKER for any use where the
+transition is not authored by a trusted producer.** Classification, not a repair.
+
+**The question.** A neutral, model-authored or otherwise untrusted transition must not be
+able to write `status = "VALID"` on an evidence record and thereby become true. The chain
+this project requires elsewhere is: proposed record → trusted checker → certificate binding
+target, exact premises, rule, context identity and checker identity/version → *verifier-owned*
+status.
+
+**Finding: the chain does not exist in `semantic_state`.** Traced end to end and confirmed
+independently:
+
+* `"VALID"` is **never produced** anywhere in `src/`, only compared. Four sites read it —
+  `verify.py:272`, `:381`, `:467`, `:581` — each `record.status == "VALID"`. The sole writer
+  is `neutral.py:307`: `status=payload.get("status", "UNKNOWN")`. **The proposed record is
+  the certificate.**
+* `import_transition` validates exactly one field, `schema_version`. There is no
+  attestation, signature, checker identity, checker version or context hash on evidence.
+* `semantic_state` imports **nothing** from `reasoning/certificates/`, which is where this
+  repository's actual trust machinery lives — `CertificateEnvelope` with claim and context
+  hashes, a static versioned checker registry, and no registration path reachable from HML
+  source or library data. Two separate paths exist and the attested one is not this one.
+
+**`EvidenceRecord.trusted` is genuinely provenance-only, and that claim survives audit.**
+Every read in `src/` is import, export or render; `verify.py` never consults it, and
+flipping it changes no verdict. That was the *inert* field. `status` is the live one, and
+the same untrusted producer sets it.
+
+**Decision: classify, document, and do not paper over it.**
+
+**1. This is not a divergence from the reference.** `reference_checker._valid_evidence`
+reads `status` the same way. The property is inherited from the corpus's own design, in
+which evidence status is *external ground truth* supplied by a trusted corpus and the
+verifier's job is structural consistency between an action and its evidence.
+
+**2. For that scope, the implementation is correct.** Offline replay of corpus-authored
+records is what this package was built for, and within it the boundary is coherent.
+
+**3. For the stated downstream use, it is a blocker.** Feeding model output through this
+verifier means the model authors the action *and* its own evidence. Measured at `7c9137a`:
+a transition with model-authored evidence, `trusted: false`, self-asserting
+`"status": "VALID"`, promoting a claim to VERIFIED, is accepted. It measures whether the
+producer bothered to attack, not whether the reasoning is sound.
+
+**4. The precondition is now stated where it can be read.** `SEMANTIC_STATE_CONTRACT.md` §2
+said "status is computed, never asserted". That is true of `CandidateStatus` and
+`BranchStatus` and **not** of `EvidenceRecord.status`, and a reader will over-read it. The
+contract gains an explicit precondition instead.
+
+**Why not repaired here.** The repair is not a patch to the verifier: it is a decision about
+where the trusted boundary sits for state transitions, and it must reuse
+`reasoning/certificates/` rather than grow a second registry. That is an architectural
+change requiring its own design record, and inventing one under an audit finding is how a
+second unattested path gets built. Recorded as a blocker with the gate named.
+
+**What bounds the exposure today.** `semantic_state` is imported by nothing outside
+`tests/`. It is not on the `hml` CLI and has no runtime ingestion path, so nothing live is
+exposed. **This is the only reason the classification is BLOCKER-before-use rather than an
+incident.**
+
+**Reversal cost.** Not applicable — nothing was changed.

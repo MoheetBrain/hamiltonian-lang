@@ -64,6 +64,9 @@ INVARIANTS: dict[str, str] = {
     "EPISTEMIC_STATUS": "EPISTEMIC_PROMOTION",
     "GOAL_DISCHARGE": "FALSE_GOAL_DISCHARGE",
     "TYPE_DOMAIN": "TYPE_OR_DOMAIN_MISMATCH",
+    #: The reference reports its frame violations under DEPENDENCY, so the error class
+    #: matches even though the invariant is named separately here.
+    "FRAME": "DEPENDENCY_VIOLATION",
 }
 
 
@@ -110,24 +113,49 @@ def _supports(record: EvidenceRecord, rule: str | None) -> bool:
 # ---------------------------------------------------------------------------
 
 
+def _relevant(action: Action) -> tuple[set[str], set[str], set[str]]:
+    """The claims, candidates and branches this action actually depends on.
+
+    Relevance is what makes UNKNOWN a *fail-closed* rule rather than a denial of service.
+    An unknown value the action never consults tells us nothing about whether the action is
+    sound, and treating it as grounds for refusal means one junk record disables the
+    verifier — measured: appending a single unrelated ``status: UNKNOWN`` claim turned all
+    ten ILLEGAL acceptance fixtures from INVALID into UNRESOLVED, which is a total detection
+    bypass, because UNRESOLVED is counted as neither accepted nor detected. Evidence
+    unknowns were already scoped this way; the rest were not (D-049).
+    """
+    claims = set(action.dependencies)
+    if action.output_id:
+        claims.add(action.output_id)
+    claims |= set(action.typing.get("input_domains") or {})
+    candidates = {action.candidate_effect.get("candidate_id")} - {None}
+    branches = set(action.branch_effect.get("branch_ids") or ())
+    return claims, {c for c in candidates if c}, branches
+
+
 def _collect_unknowns(transition: Transition) -> list[str]:
     action, before, after = transition.action, transition.state_before, transition.state_after
     out: list[str] = []
+    want_claims, want_candidates, want_branches = _relevant(action)
 
     for name, state in (("state_before", before), ("state_after", after)):
-        for claim in state.claims.values():
+        # Keyed by the dictionary key, not ``record.id``: the neutral schema permits the
+        # two to differ, and an action cites the key.
+        for key, claim in state.claims.items():
+            if key not in want_claims:
+                continue
             if str(claim.status) == UNKNOWN:
-                out.append(f"{name}.claims.{claim.id}.status is UNKNOWN")
+                out.append(f"{name}.claims.{key}.status is UNKNOWN")
             if claim.domain == UNKNOWN:
-                out.append(f"{name}.claims.{claim.id}.domain is UNKNOWN")
+                out.append(f"{name}.claims.{key}.domain is UNKNOWN")
             if claim.scope == UNKNOWN:
-                out.append(f"{name}.claims.{claim.id}.scope is UNKNOWN")
-        for candidate in state.candidates.values():
-            if str(candidate.status) == UNKNOWN:
-                out.append(f"{name}.candidates.{candidate.id}.status is UNKNOWN")
-        for branch in state.branches.values():
-            if str(branch.status) == UNKNOWN:
-                out.append(f"{name}.branches.{branch.id}.status is UNKNOWN")
+                out.append(f"{name}.claims.{key}.scope is UNKNOWN")
+        for key, candidate in state.candidates.items():
+            if key in want_candidates and str(candidate.status) == UNKNOWN:
+                out.append(f"{name}.candidates.{key}.status is UNKNOWN")
+        for key, branch in state.branches.items():
+            if key in want_branches and str(branch.status) == UNKNOWN:
+                out.append(f"{name}.branches.{key}.status is UNKNOWN")
 
     for i, pre in enumerate(action.preconditions):
         if isinstance(pre, dict) and pre.get("status") == UNKNOWN:
@@ -139,6 +167,20 @@ def _collect_unknowns(transition: Transition) -> list[str]:
         record = transition.evidence.get(eid)
         if record is not None and record.status == UNKNOWN:
             out.append(f"evidence.{eid}.status is UNKNOWN")
+
+    # An *absent* domain is unavailable evidence, not a violation (SF-R13, D-048). A claim
+    # the action types but the state does not annotate says nothing about whether the
+    # domains agree, and reporting a mismatch there would be a confident answer with
+    # nothing behind it. Only annotations the action actually depends on are consulted --
+    # an unannotated claim nobody typed is not this check's business.
+    for cid in (action.typing.get("input_domains") or {}):
+        typed = before.claims.get(cid)
+        if typed is not None and typed.domain is None:
+            out.append(f"state_before.claims.{cid}.domain is not declared")
+    if action.typing.get("output_domain") and action.output_id:
+        produced = after.claims.get(action.output_id)
+        if produced is not None and produced.domain is None:
+            out.append(f"state_after.claims.{action.output_id}.domain is not declared")
 
     return out
 
@@ -637,14 +679,13 @@ def _check_type_domain(t: Transition) -> list[Finding]:
         if claim is None:
             continue
         if claim.domain is None:
-            out.append(
-                Finding(
-                    "TYPE_DOMAIN",
-                    INVARIANTS["TYPE_DOMAIN"],
-                    f"the action types {cid!r} as {domain!r} but the state declares no domain",
-                )
-            )
-        elif not inhabits(claim.domain, domain):
+            # Unreachable: an undeclared domain on a typed input is collected as an unknown
+            # and short-circuits to UNRESOLVED before any check runs (D-048). Kept as a
+            # guard rather than an assertion because reaching it would mean the collector
+            # and this check disagree about which claims the action types, and silently
+            # reporting a mismatch would be the worse failure.
+            continue
+        if not inhabits(claim.domain, domain):
             out.append(
                 Finding(
                     "TYPE_DOMAIN",
@@ -657,10 +698,14 @@ def _check_type_domain(t: Transition) -> list[Finding]:
     out_id = t.action.output_id
     produced = t.state_after.claims.get(out_id) if out_id else None
     # Deliberately stricter than the reference checker, which never reads ``output_domain``
-    # at all. Dropping the check to match it would remove a sound constraint in order to
-    # agree with a gap; keeping it is recorded as a known divergence in the contract rather
-    # than left for someone to discover from a future fixture.
-    if produced is not None and expected_out and not inhabits(produced.domain or "", expected_out):
+    # at all. Retained after adjudication (D-048): where BOTH annotations are present and
+    # disagree, that is a real inconsistency and the reference simply does not look. What
+    # was withdrawn is the other half -- ``produced.domain or ""`` turned an *absent*
+    # annotation into the empty string, which inhabits nothing, so a transition was
+    # refused for carrying no domain rather than for carrying a wrong one. SF-R13 says
+    # return unresolved when domain evidence is unavailable, and absence is unavailability.
+    if produced is not None and produced.domain is not None and expected_out \
+            and not inhabits(produced.domain, expected_out):
         out.append(
             Finding(
                 "TYPE_DOMAIN",
@@ -670,6 +715,81 @@ def _check_type_domain(t: Transition) -> list[Finding]:
             )
         )
     return out
+
+
+def _check_frame(t: Transition) -> list[Finding]:
+    """The frame condition: ``state_after`` must be what this action produced, and no more.
+
+    The invariant nothing else enforces, and its absence made every other check optional.
+    The ten invariants all examine what the action *declares*; not one of them examined
+    whether the resulting state is the result of applying that declaration. So a claim
+    could simply appear — measured at ``7c9137a``: a record asserting ``0 = 1`` with status
+    VERIFIED, no evidence, no warrant and no epistemic effect, was accepted as VALID, and an
+    existing premise could be rewritten from ASSUMED to VERIFIED with its proposition
+    changed. No forgery of evidence was needed for either; the state was simply asserted.
+
+    The frozen reference has carried this as ``_exact_state_change`` all along, over claims.
+    None of the thirty acceptance fixtures attacks it, because every fixture is a
+    well-formed record whose delta already matches its action, which is why this survived
+    two commits and a 30/30 pass rate (D-049).
+
+    Extended beyond the reference to candidates, branches and obligations. The reference
+    frames claims only, so a candidate could be walked ``PROPOSED -> VERIFIED`` with
+    ``candidate_effect.kind`` set to ``NONE`` and *zero* constraints checked, and a mandatory
+    open obligation could be deleted outright. Both were accepted here and by the reference.
+    Recorded as deliberate strictness rather than silently inherited: a verifier whose
+    promotion rules can be skipped by declining to mention them is not checking anything.
+    """
+    out: list[str] = []
+    before, after, action = t.state_before, t.state_after, t.action
+
+    for kind, prior, later, licensed in (
+        ("claims", before.claims, after.claims, {action.output_id} if action.output_id else set()),
+        ("candidates", before.candidates, after.candidates, set()),
+        ("branches", before.branches, after.branches, set()),
+        ("obligations", before.obligations, after.obligations, _created_obligation_ids(action)),
+    ):
+        for key, record in prior.items():
+            if key not in later:
+                out.append(f"{kind}.{key} was removed from the resulting state")
+            elif later[key] != record and not _licensed_change(kind, key, t):
+                out.append(f"{kind}.{key} changed without a licensed state effect")
+        unlicensed = sorted(set(later) - set(prior) - licensed)
+        if unlicensed:
+            out.append(f"{kind} gained {', '.join(unlicensed)}, which this action does not produce")
+
+    return [Finding("FRAME", INVARIANTS["FRAME"], detail) for detail in out]
+
+
+def _created_obligation_ids(action: Action) -> set[str]:
+    ids = set()
+    for spec in action.obligations_created:
+        oid = spec.get("id") if isinstance(spec, dict) else spec
+        if oid:
+            ids.add(oid)
+    return ids
+
+
+def _licensed_change(kind: str, key: str, t: Transition) -> bool:
+    """Whether an effect the action declared explicitly licenses mutating this record.
+
+    Only a *declared* effect licenses a change, and the effect's own invariant then decides
+    whether the change was legitimate. This is what keeps the frame from forbidding the
+    transitions the system exists to make, without letting an undeclared mutation through.
+    """
+    action = t.action
+    if kind == "candidates":
+        return action.candidate_effect.get("candidate_id") == key
+    if kind == "branches":
+        return key in set(action.branch_effect.get("branch_ids") or ())
+    if kind == "obligations":
+        discharged = {
+            e.get("id") if isinstance(e, dict) else e for e in action.obligations_discharged
+        }
+        return key in discharged
+    if kind == "claims":
+        return action.scope_effect.get("kind") not in (None, "NONE")
+    return False
 
 
 _CHECKS = (
@@ -683,11 +803,30 @@ _CHECKS = (
     _check_epistemic,
     _check_goal_discharge,
     _check_type_domain,
+    #: Last, so a more specific invariant claims the error class first -- the reference
+    #: orders it the same way for the same reason.
+    _check_frame,
 )
 
 
 def verify(transition: Transition) -> TransitionResult:
-    """Decide one transition. UNKNOWN is collected first and short-circuits."""
+    """Decide one transition.
+
+    Unknowns are collected first and short-circuit, because an invariant cannot be checked
+    against a field whose value is "we do not know". They are now **dependency-scoped**
+    (:func:`_relevant`): only records the action actually cites can make a transition
+    unresolved. Before that, one unrelated ``status: UNKNOWN`` claim appended anywhere in
+    either state turned all ten ILLEGAL acceptance fixtures from INVALID to UNRESOLVED — a
+    complete detection bypass, since UNRESOLVED counts as neither accepted nor detected
+    (D-049).
+
+    **Known divergence, recorded not repaired.** The reference runs every check and only
+    then asks whether anything was unknown, so where a transition carries both a violation
+    and an unknown, the reference says INVALID and this says UNRESOLVED. Matching it needs
+    each check to skip unknown values individually rather than the whole verdict
+    short-circuiting, which is a larger change than can be verified against the thirty
+    fixtures alone. Narrow, now that the unknown must be on a record the action cites.
+    """
     unknowns = _collect_unknowns(transition)
     if unknowns:
         return TransitionResult(Verdict.UNRESOLVED, [], unknowns)

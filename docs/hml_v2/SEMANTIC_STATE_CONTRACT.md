@@ -166,8 +166,67 @@ could acquire ancestry its warrant never covered. SF-R09 binds the *exact* premi
 
 One divergence is **kept and recorded**: this verifier checks `output_domain`, which the
 reference never reads. Deleting a sound check to agree with a gap would be the wrong repair.
-It is strictly stricter, so it cannot let a corrupted transition through — only question a
-well-formed one.
+
+> **Correction (2026-08-10, D-049).** This paragraph previously continued: *"It is strictly
+> stricter, so it cannot let a corrupted transition through — only question a well-formed
+> one."* That is true of `output_domain` and **false as a general claim about this
+> verifier**. An independent audit found six transitions that production accepted and should
+> not have, five of which the reference rejects. On those behaviours production was strictly
+> *weaker* than the reference it is specified to match. The sentence is corrected rather than
+> deleted, because the mistake it encodes — inferring a safety direction from one check and
+> generalising it to the whole verifier — is the thing worth not repeating. See §5b.
+
+## 5b. The frame condition, and what its absence meant (D-049)
+
+`state_after` must be `state_before` plus exactly what the action produces. Existing records
+are unchanged unless a **declared** effect licenses the change, and the effect's own invariant
+then decides whether the change was legitimate.
+
+Until 2026-08-10 there was no such check, and its absence made every other rule optional. The
+ten invariants examine what the action *declares*; none examined whether the resulting state
+is what applying that declaration would produce. So a producer that declined to declare an
+effect was simply not checked. Measured at `7c9137a`, all **VALID**:
+
+* a claim asserting `0 = 1` with status VERIFIED, materialising with no evidence, no warrant
+  and no epistemic effect — no forgery required;
+* an existing premise rewritten `ASSUMED → VERIFIED` with its proposition changed;
+* a candidate walked `PROPOSED → VERIFIED`, and from the terminal `REJECTED`, by writing
+  `candidate_effect: {"kind": "NONE"}` — skipping the whole promotion protocol including the
+  constraint-subset rule;
+* a mandatory open obligation deleted outright.
+
+The frozen reference has carried this all along as `_exact_state_change`, over claims. It is
+extended here to candidates, branches and obligations, because the reference frames claims
+only and three of the above are accepted by the reference too.
+
+**Unknowns are now dependency-scoped.** Only records the action cites can make a transition
+UNRESOLVED. Unscoped, appending one unrelated `status: UNKNOWN` claim flipped **10/10** ILLEGAL
+acceptance fixtures to UNRESOLVED — not a fail-closed rule but a denial of service, since
+UNRESOLVED counts as neither accepted nor detected.
+
+**No fixture could have caught any of this.** All thirty are well-formed records whose delta
+already matches their action, so a verifier with no frame condition passes every one.
+
+## 5c. The trust boundary — a blocker, not a bug (D-050)
+
+**`EvidenceRecord.status` is read from the imported record and is never produced by anything.**
+Acceptance turns on `record.status == "VALID"`; the sole writer is
+`neutral.py:307` — `payload.get("status", "UNKNOWN")`. Nothing in `src/` ever *produces* a VALID
+evidence status, there is no attestation, checker identity, checker version or context hash,
+and `semantic_state` imports nothing from `reasoning/certificates/`, where this repository's
+real trust machinery lives.
+
+`trusted` **is** provenance-only — audited, and the claim holds. That is the inert field.
+`status` is the live one, and the same untrusted producer sets it.
+
+> **Precondition, stated because §2 does not imply it.** "Status is computed, never asserted"
+> is true of `CandidateStatus` and `BranchStatus`. It is **not** true of
+> `EvidenceRecord.status`. This package is sound for **offline replay of transitions authored
+> by a trusted producer**, where evidence status is external ground truth and the verifier
+> checks structural consistency. The moment the producer is a model, it authors the action
+> *and* its own evidence, and the verifier measures whether it bothered to attack. That is a
+> **BLOCKER**, tracked in D-050 and bounded today only by the fact that `semantic_state` is
+> imported by nothing outside `tests/`.
 
 ## 6. What this does NOT establish
 

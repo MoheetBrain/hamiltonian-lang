@@ -468,13 +468,22 @@ def _escape(*, scope_effect: dict | None = None, evidence_status: str = "VALID")
         after=_empty_state(
             active_scopes=["global", "branch:b1"],
             claims={
+                # Carried forward unchanged: the frame condition (D-049) refuses a
+                # resulting state that quietly drops a premise the action never touched.
+                "p1": {
+                    "id": "p1",
+                    "proposition": "n is even",
+                    "status": "ASSUMED",
+                    "scope": "branch:b1",
+                    "dependencies": [],
+                },
                 "cl_out": {
                     "id": "cl_out",
                     "proposition": "n is even",
                     "status": "DERIVED",
                     "scope": "global",
                     "dependencies": ["p1"],
-                }
+                },
             },
         ),
         evidence={
