@@ -31,7 +31,10 @@ no power, so it is not evidence that no advantage exists.
 **P-01, P-02 AND P-03 ARE ADJUDICATED (D-054, D-055, D-056).** Two of the three need no
 implementation, and the measurements say why.
 
-* **P-01 — partially implemented.** Evidence-rule authority moved into the typed effect
+* **P-01 — complete at runtime.** The legacy fallback and the label-agreement check are both
+  scoped to `OFFLINE_REPLAY`; at `RUNTIME` the typed effect is the sole authority and
+  `Action.operation` is pure provenance, pinned by a discriminating test (same state, same
+  effects, same warrant, five different labels → one verdict). Previously described as Evidence-rule authority moved into the typed effect
   channel: an effect may state `rule` explicitly and falls back to the operation label when
   it does not, so all thirty frozen fixtures are unchanged. Two findings corrected the
   premise: **`JOIN_BRANCHES` held no authority at all** (branch join keys on

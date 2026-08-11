@@ -73,8 +73,12 @@ def _self_asserted(trusted: bool = False) -> dict:
     verdict on it.
     """
     action = {**copy.deepcopy(_ACTION),
+              # The rule is stated on the EFFECT, not inferred from the operation label.
+              # At runtime there is no fallback (D-054), so omitting it is itself a refusal
+              # -- see test_a_runtime_effect_without_an_explicit_rule_is_refused.
               "candidate_effect": {"kind": "PROMOTE", "candidate_id": "k1",
-                                   "evidence_id": "e_self"}}
+                                   "evidence_id": "e_self",
+                                   "rule": "VERIFY_CANDIDATE"}}
     return {
         "schema_version": SCHEMA, "case_id": "ATTACK", "action": action,
         "state_before": {**copy.deepcopy(_EMPTY),
@@ -412,3 +416,44 @@ def test_the_scope_discharge_site_binds_its_claim(monkeypatch):
     result = verify_runtime(import_transition(case), {"e_disc": unrelated})
     assert str(result.verdict) == "INVALID", result.to_dict()
     assert result.error_class == "SCOPE_LEAK"
+
+
+def test_a_runtime_effect_without_an_explicit_rule_is_refused():
+    """The legacy fallback is scoped to replay, and only to replay (D-054).
+
+    Under `OFFLINE_REPLAY` an effect that states no `rule` falls back to
+    `action.operation`, because the thirty frozen fixtures rely on it and are immutable.
+    Under `RUNTIME` there is no fallback: a producer that omits the typed field does not
+    thereby hand authority back to a label it also controls. Without this split, the claim
+    "semantic effect is not the surface operation name" would be false exactly where it
+    matters most — on a transition a model authored.
+    """
+    case = _self_asserted()
+    del case["action"]["candidate_effect"]["rule"]
+
+    replayed = verify_replay(import_transition(case))
+    assert str(replayed.verdict) == "VALID", "replay must keep the legacy fallback"
+
+    runtime = verify_runtime(import_transition(case))
+    assert str(runtime.verdict) == "INVALID", runtime.to_dict()
+    assert "no explicit rule" in runtime.findings[0].detail
+
+
+def test_the_operation_label_cannot_change_a_runtime_verdict(monkeypatch):
+    """Same state, same effects, same warrant, same evidence — different label.
+
+    This is the discriminating test for P-01. If the verdict moved with the label, the
+    label would still be semantic authority whatever the docstrings claimed.
+    """
+    checked = _mint(monkeypatch)
+    attestation = attest("e_self", checked, claim="x = 2", premises=(),
+                         rule="VERIFY_CANDIDATE")
+    verdicts = set()
+    for label in ("VERIFY_CANDIDATE", "DERIVE", "ASSERT", "totally-made-up", ""):
+        case = _self_asserted()
+        case["action"]["operation"] = label
+        result = verify_runtime(import_transition(case), {"e_self": attestation})
+        verdicts.add(str(result.verdict))
+    assert verdicts == {"VALID"}, (
+        f"the operation label changed a runtime verdict: {verdicts}"
+    )

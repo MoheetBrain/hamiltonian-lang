@@ -270,22 +270,32 @@ def _accepted(
     return (ok, why)
 
 
-def _effect_rule(effect: dict, action: Action) -> str | None:
-    """The rule an effect's evidence must support (P-01, D-054).
+def _effect_rule(effect: dict, action: Action) -> tuple[str | None, str]:
+    """The rule an effect's evidence must support. Returns ``(rule, refusal)`` (P-01, D-054).
 
     Authority for evidence matching belongs in the **typed effect channel**, not in the
     surface operation label. LeanDojo measured ``MI(tactic name ; state effect) / H(name) =
     0.240`` over 259,580 proof steps — only 24% of the information in an operation name is
     about what it does to the state — so a label is a poor carrier of semantics.
 
-    The migration is deliberately backward-compatible rather than a rename. An effect may
-    now state ``rule`` explicitly; when it does not, the operation label is used, which is
-    what every one of the thirty frozen fixtures relies on. That ordering matters: §8 of the
-    brief requires authority to move into typed effects *before* the string is demoted, and
-    demoting first would leave evidence matching keyed on nothing.
+    **The legacy fallback is scoped to replay, and only to replay.** Under
+    ``OFFLINE_REPLAY`` an effect that states no ``rule`` falls back to ``action.operation``,
+    because every one of the thirty frozen fixtures relies on that and they are immutable.
+    Under ``RUNTIME`` there is no fallback: a producer that omits the explicit rule does not
+    thereby hand authority back to a label it also controls. Without this split the claim
+    "semantic effect is not the surface operation name" would be false exactly where it
+    matters most — on transitions a model authored.
     """
     stated = effect.get("rule")
-    return stated if isinstance(stated, str) and stated else action.operation
+    if isinstance(stated, str) and stated:
+        return stated, ""
+    mode, _ = _TRUST.get()
+    if mode is TrustMode.OFFLINE_REPLAY:
+        return action.operation, ""
+    return None, (
+        "the effect states no explicit rule, and at runtime the operation label carries no "
+        "authority; a producer may not recover it by omitting the typed field"
+    )
 
 
 def _check_dependency(t: Transition) -> list[Finding]:
@@ -532,14 +542,19 @@ def _check_candidates(t: Transition) -> list[Finding]:
                 f"candidate {cid!r} cannot move {candidate.status} -> {after.status}",
             )
         ]
-    # The LAST place a raw operation string carries weight, and it is not the discriminator:
+    # The last place a raw operation string carries weight, and it is scoped to replay.
     # ``candidate_effect.kind == "PROMOTE"`` already established that this is a promotion,
-    # several lines above. What remains is an AGREEMENT check between the provenance label
-    # and the typed effect -- a record whose label denies what its effect declares is
-    # internally inconsistent, and that is worth refusing even though the label is not the
-    # authority. Retained under P-01 rather than deleted; it becomes removable once the
-    # corpus emits an explicit effect ``rule`` and the label is purely decorative (D-054).
-    if t.action.operation != "VERIFY_CANDIDATE":
+    # several lines above, so this is an AGREEMENT check between the provenance label and
+    # the typed effect -- useful on a historical record, where a label denying what its
+    # effect declares signals a corrupt archive.
+    #
+    # It does NOT apply at runtime. A discriminating test (same state, same effects, same
+    # warrant, same evidence, different label) showed that leaving it live let the label
+    # change a runtime verdict -- which would have made "semantic effect is not the surface
+    # operation name" false exactly where it matters most. At runtime the typed effect is
+    # the sole authority and the label is pure provenance (D-054).
+    replaying = _TRUST.get()[0] is TrustMode.OFFLINE_REPLAY
+    if replaying and t.action.operation != "VERIFY_CANDIDATE":
         return [
             Finding(
                 "CANDIDATES",
@@ -559,13 +574,16 @@ def _check_candidates(t: Transition) -> list[Finding]:
                 f"{effect.get('evidence_id')!r}, which does not exist",
             )
         ]
+    rule, refusal = _effect_rule(effect, t.action)
+    if refusal:
+        return [Finding("CANDIDATES", INVARIANTS["CANDIDATES"], refusal)]
     ok, why = _accepted(
         t, record, cited_as=effect.get("evidence_id"), claim=candidate.proposition,
-        premises=t.action.dependencies, rule=_effect_rule(effect, t.action),
+        premises=t.action.dependencies, rule=rule,
     )
     if not ok:
         return [Finding("CANDIDATES", INVARIANTS["CANDIDATES"], why)]
-    if not _supports(record, _effect_rule(effect, t.action)):
+    if not _supports(record, rule):
         return [
             Finding(
                 "CANDIDATES",
@@ -643,15 +661,18 @@ def _check_branch_join(t: Transition) -> list[Finding]:
                 f"that agree are not a proof that they exhaust the cases",
             )
         ]
+    rule, refusal = _effect_rule(effect, t.action)
+    if refusal:
+        return [Finding("BRANCH_JOIN", INVARIANTS["BRANCH_JOIN"], refusal)]
     ok, why = _accepted(
         t, record, cited_as=effect.get("coverage_evidence_id"),
         claim=(t.state_after.claims[t.action.output_id].proposition
                if t.action.output_id in t.state_after.claims else None),
-        premises=t.action.dependencies, rule=_effect_rule(effect, t.action),
+        premises=t.action.dependencies, rule=rule,
     )
     if not ok:
         return [Finding("BRANCH_JOIN", INVARIANTS["BRANCH_JOIN"], why)]
-    if not _supports(record, _effect_rule(effect, t.action)):
+    if not _supports(record, rule):
         return [
             Finding(
                 "BRANCH_JOIN",

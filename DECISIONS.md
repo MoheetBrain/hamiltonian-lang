@@ -2471,10 +2471,22 @@ the string is demoted, and demoting first would leave evidence matching keyed on
 This is the first half; the label becomes purely decorative only once the corpus emits
 explicit effect rules, which is a corpus-side change.
 
-**Retained deliberately.** The `operation != "VERIFY_CANDIDATE"` check stays, reclassified in
-the code as an *agreement* check: a record whose provenance label denies what its typed
-effect declares is internally inconsistent, and that is worth refusing even though the label
-is not the authority.
+**The legacy fallback is scoped to replay, and only to replay (amended 2026-08-11).** Under
+`OFFLINE_REPLAY` an effect stating no `rule` falls back to `action.operation`, because the
+thirty frozen fixtures rely on it and are immutable. Under `RUNTIME` there is **no fallback**:
+a producer that omits the typed field does not thereby hand authority back to a label it also
+controls. Without that split the claim *semantic effect ≠ surface operation name* would be
+false exactly where it matters most — on a transition a model authored.
+
+**The agreement check is likewise scoped to replay.** `operation != "VERIFY_CANDIDATE"` is a
+useful integrity signal on a *historical* record, where a label denying what its effect
+declares signals a corrupt archive. It does **not** run at runtime. A discriminating test —
+same state, same effects, same warrant, same evidence, different label — showed that leaving
+it live let the label change a runtime verdict, which would have made this record's own claim
+false. The test caught it; the first version of this decision was wrong.
+
+At runtime the typed effect is now the **sole** authority and `Action.operation` is pure
+provenance.
 
 **Supporting evidence.** LeanDojo, 259,580 proof steps:
 `MI(tactic name ; state effect) / H(name) = 0.240` — only 24% of the information in an

@@ -6114,3 +6114,38 @@ provenance/effect *agreement* check rather than deleted.
 
 **Next intended step.** Mutation census and schema audit (both with agents); then the
 semantic freeze, release manifest and annotated tag.
+
+---
+
+## 2026-08-11 (fourth entry) — P-01 completed: the legacy fallback is scoped to replay
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `10c1879`. **Stage:** Phase II.
+
+**Objective.** Close the gap review identified in the first P-01 adjudication: the legacy
+fallback let `Action.operation` supply rule semantics at runtime whenever the typed effect
+omitted one.
+
+**What was completed.** `_effect_rule` now returns `(rule, refusal)`. Under `OFFLINE_REPLAY`
+an absent effect rule falls back to the operation label — the thirty frozen fixtures depend
+on it and are immutable. Under `RUNTIME` there is no fallback and the transition is refused.
+The `operation != "VERIFY_CANDIDATE"` agreement check is scoped the same way.
+
+**The test that found the second gap.** I wrote a discriminating test — same state, same
+effects, same warrant, same evidence, five different operation labels — asserting one verdict.
+It **failed**: the retained agreement check still let the label flip a runtime verdict. So the
+first version of this adjudication was wrong in the same direction review had flagged, one
+level deeper. Scoping the agreement check to replay closed it, and the test now passes.
+
+**Tests and verification actually executed.** `pytest tests/semantic_state` **386 passed**;
+`bash scripts/conformance.sh` **PASS**; 30/30 frozen fixtures; FX2 40/40. Measured directly:
+replay with no effect rule → VALID (fallback intact); runtime with no effect rule → INVALID
+("the effect states no explicit rule"); replay with a label disagreeing with its effect →
+INVALID (agreement check intact).
+
+**Failures and unresolved uncertainty.** This is the second correction to P-01 in one day, and
+both came from outside my own first analysis — one from review, one from a test I wrote to
+check review's point. Recorded because the pattern matters: the adjudication *sounded*
+complete both times.
+
+**Next intended step.** Correct the P-02 claim, run the P-03 external Lean witness audit,
+integrate the schema audit and the mutation census, then the freeze gate.
