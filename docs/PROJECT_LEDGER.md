@@ -6457,3 +6457,14 @@ moves again, and the honest reading is that this is what the gate is for.
 **Next intended step.** One final independent audit of the repaired SHA, targeting the four
 repairs, the same omission method applied once more, and `evaluation/`/`spec/` which no
 audit has covered. Then freeze if it finds nothing.
+
+### 2026-08-11 (second pass, addendum) — the audit tooling moved into the repository
+
+The three scripts that found D-059 and D-060 now live in `scripts/audit/` rather than in the
+out-of-Git artifact directory: `omission_audit.py` (introspects the model and decides every
+matrix cell empirically), `validate_cognition_ledger.py` (PyYAML, with a loader that refuses
+duplicate mapping keys rather than silently keeping the last) and `mutations_d059_d060.py`
+(thirteen mutations against this pass's new code). Both executables were re-run from the
+committed copies to prove they work from the repository rather than only from the directory
+they were written in. The next audit is required to re-run them, and a tool that found two
+HIGH fail-opens should not be reachable only by remembering where it was left.

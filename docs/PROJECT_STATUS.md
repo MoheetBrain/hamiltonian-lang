@@ -1711,3 +1711,14 @@ The pre-pivot backlog, retained for the record and **not** currently active:
    HML → Lean → HML preserving the content hash, or characterise exactly where it fails.
    The only round trip verified today is HML → HML, which is the one that cannot lose
    anything.
+
+## Audit tooling
+
+The omission audit is re-runnable from the repository, and the next audit is required to run it rather than reinvent it:
+
+```bash
+PYTHONPATH=src .venv/bin/python scripts/audit/omission_audit.py
+.venv/bin/python scripts/audit/validate_cognition_ledger.py
+```
+
+The first writes `reports/artifacts/OMISSION_AUDIT_RAW.json` — the empirical matrix, five state kinds by seven change types, decided by running production `import` + `verify` rather than by reading source. The second validates the corpus cognition ledger with PyYAML under a loader that refuses duplicate mapping keys, because a regex scan cannot tell a duplicate key from a nested one.

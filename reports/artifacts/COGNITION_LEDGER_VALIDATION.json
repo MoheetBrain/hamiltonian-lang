@@ -1,0 +1,41 @@
+{
+ "artifact_id": "cognition_ledger_validation",
+ "ledger": "/Users/moheet/Documents/ChatGPT/hmlt-reasoning-corpus/experiments/project_cognition/project_memory.yaml",
+ "checks": {
+  "exists": true,
+  "parses_with_real_yaml_parser": true,
+  "no_duplicate_mapping_keys": true,
+  "all_ids_well_formed": true,
+  "ids_unique": true,
+  "ids_contiguous": true,
+  "next_free_id_declared": false,
+  "no_dangling_references": true,
+  "no_self_references": true
+ },
+ "problems": [],
+ "bytes": 248128,
+ "top_level_keys": [
+  "entries",
+  "meta"
+ ],
+ "entries_key": "entries",
+ "n_entries": 148,
+ "id_range": [
+  "X1",
+  "X148"
+ ],
+ "commit_like_tokens": 30,
+ "unresolved_commit_like_tokens": 8,
+ "unresolved_sample": [
+  "12740403",
+  "18454706",
+  "19b9a319",
+  "29dcec07",
+  "6316f062",
+  "6316f0629137b426",
+  "7ecc7947",
+  "7ecc794703b2877f63226f2477a49b34f9b25163"
+ ],
+ "note_on_commits": "A 7-40 char hex run is not necessarily a commit id -- content hashes and truncated digests match the same pattern -- so an unresolved token is reported, not failed on.",
+ "VERDICT": "PASS"
+}

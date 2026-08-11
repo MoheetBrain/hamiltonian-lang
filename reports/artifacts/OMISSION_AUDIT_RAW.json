@@ -1,0 +1,2592 @@
+{
+ "artifact_id": "semantic_omission_audit",
+ "generated": "2026-08-11",
+ "method": "Inventory introspected from dataclasses/enums/transition tables. Every cell decided empirically by running production import+verify on a payload exported through the production neutral adapter.",
+ "inventory": {
+  "semantic_state_fields": {
+   "claims": "dict[str, Claim]",
+   "candidates": "dict[str, Candidate]",
+   "branches": "dict[str, Branch]",
+   "goals": "dict[str, Goal]",
+   "obligations": "dict[str, Obligation]",
+   "active_scopes": "tuple[str, ...]"
+  },
+  "record_dataclasses": {
+   "Claim": {
+    "id": "str",
+    "proposition": "str",
+    "status": "ClaimStatus",
+    "scope": "str",
+    "domain": "str | None",
+    "dependencies": "tuple[str, ...]"
+   },
+   "Candidate": {
+    "id": "str",
+    "proposition": "str",
+    "status": "CandidateStatus",
+    "scope": "str",
+    "constraint_ids": "tuple[str, ...]",
+    "origin": "str | None",
+    "dependencies": "tuple[str, ...]",
+    "evidence_id": "str | None",
+    "verification_result": "str | None"
+   },
+   "Branch": {
+    "id": "str",
+    "predicate": "str",
+    "status": "BranchStatus",
+    "scope": "str",
+    "conclusion": "str | None",
+    "partition_id": "str | None"
+   },
+   "Goal": {
+    "id": "str",
+    "proposition": "str",
+    "status": "GoalStatus",
+    "scope": "str"
+   },
+   "Obligation": {
+    "id": "str",
+    "proposition": "str",
+    "status": "ObligationState",
+    "mandatory": "bool",
+    "origin": "str | None",
+    "dependencies": "tuple[str, ...]",
+    "discharge_evidence_id": "str | None"
+   },
+   "EvidenceRecord": {
+    "id": "str",
+    "kind": "str",
+    "status": "str",
+    "trusted": "bool",
+    "supports_rule": "str | None",
+    "premise_ids": "tuple[str, ...]",
+    "payload": "dict[str, Any]"
+   },
+   "Action": {
+    "id": "str",
+    "operation": "str",
+    "summary": "str",
+    "output_id": "str | None",
+    "dependencies": "tuple[str, ...]",
+    "preconditions": "tuple[dict[str, Any], ...]",
+    "obligations_created": "tuple[dict[str, Any], ...]",
+    "obligations_discharged": "tuple[dict[str, Any], ...]",
+    "typing": "dict[str, Any]",
+    "warrant": "dict[str, Any]",
+    "goal_effect": "dict[str, Any]",
+    "scope_effect": "dict[str, Any]",
+    "branch_effect": "dict[str, Any]",
+    "candidate_effect": "dict[str, Any]",
+    "epistemic_effect": "dict[str, Any]"
+   },
+   "SemanticState": {
+    "claims": "dict[str, Claim]",
+    "candidates": "dict[str, Candidate]",
+    "branches": "dict[str, Branch]",
+    "goals": "dict[str, Goal]",
+    "obligations": "dict[str, Obligation]",
+    "active_scopes": "tuple[str, ...]"
+   },
+   "Transition": {
+    "case_id": "str",
+    "action": "Action",
+    "state_before": "SemanticState",
+    "state_after": "SemanticState",
+    "evidence": "dict[str, EvidenceRecord]",
+    "schema_version": "str",
+    "source": "dict[str, Any]"
+   }
+  },
+  "status_enums": {
+   "ClaimStatus": [
+    "GIVEN",
+    "ASSUMED",
+    "DERIVED",
+    "VERIFIED",
+    "REFUTED",
+    "UNRESOLVED",
+    "UNKNOWN"
+   ],
+   "CandidateStatus": [
+    "PROPOSED",
+    "UNVERIFIED",
+    "VERIFIED",
+    "REJECTED",
+    "UNKNOWN"
+   ],
+   "BranchStatus": [
+    "OPEN",
+    "CLOSED",
+    "JOINED",
+    "ABANDONED",
+    "UNKNOWN"
+   ],
+   "ObligationState": [
+    "OPEN",
+    "DISCHARGED",
+    "FAILED",
+    "UNKNOWN"
+   ],
+   "GoalStatus": [
+    "OPEN",
+    "DISCHARGED",
+    "UNKNOWN"
+   ],
+   "Verdict": [
+    "VALID",
+    "INVALID",
+    "UNRESOLVED"
+   ],
+   "ErrorClass": [
+    "MISSING_DEPENDENCY",
+    "SCOPE_VIOLATION",
+    "PRECONDITION_VIOLATION",
+    "OBLIGATION_VIOLATION",
+    "CANDIDATE_PROMOTION",
+    "INVALID_BRANCH_JOIN",
+    "WARRANT_VIOLATION",
+    "EPISTEMIC_VIOLATION",
+    "GOAL_DISCHARGE",
+    "TYPE_DOMAIN_VIOLATION"
+   ]
+  },
+  "transition_tables": {
+   "_CANDIDATE_TRANSITIONS": {
+    "PROPOSED": [
+     "REJECTED",
+     "UNVERIFIED",
+     "VERIFIED"
+    ],
+    "UNVERIFIED": [
+     "REJECTED",
+     "VERIFIED"
+    ],
+    "VERIFIED": [],
+    "REJECTED": [],
+    "UNKNOWN": []
+   }
+  },
+  "status_typing": {
+   "claims": {
+    "declared_type": "ClaimStatus",
+    "is_typed_enum": true
+   },
+   "candidates": {
+    "declared_type": "CandidateStatus",
+    "is_typed_enum": true
+   },
+   "branches": {
+    "declared_type": "BranchStatus",
+    "is_typed_enum": true
+   },
+   "goals": {
+    "declared_type": "GoalStatus",
+    "is_typed_enum": true
+   },
+   "obligations": {
+    "declared_type": "ObligationState",
+    "is_typed_enum": true
+   }
+  },
+  "lifecycle_tables": {
+   "claims": {
+    "has_transition_table": false
+   },
+   "candidates": {
+    "has_transition_table": true
+   },
+   "branches": {
+    "has_transition_table": false
+   },
+   "goals": {
+    "has_transition_table": false
+   },
+   "obligations": {
+    "has_transition_table": false
+   }
+  },
+  "collection_to_record": {
+   "claims": "Claim",
+   "candidates": "Candidate",
+   "branches": "Branch",
+   "goals": "Goal",
+   "obligations": "Obligation"
+  }
+ },
+ "cross_product": [
+  {
+   "state_kind": "claims",
+   "change_type": "ADD",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims gained z_new, which this action does not produce"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims gained z_new, which this action does not produce"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "change_type": "DELETE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec was removed from the resulting state"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "change_type": "MODIFY",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "change_type": "STATUS_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "change_type": "SCOPE_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "change_type": "ID_CHANGE_payload_id",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "change_type": "KEY_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec was removed from the resulting state"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "change_type": "ADD",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates gained z_new, which this action does not produce"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates gained z_new, which this action does not produce"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "change_type": "DELETE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec was removed from the resulting state"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "change_type": "MODIFY",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "change_type": "STATUS_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "change_type": "SCOPE_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "change_type": "ID_CHANGE_payload_id",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "change_type": "KEY_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec was removed from the resulting state"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "change_type": "ADD",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches gained z_new, which this action does not produce"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches gained z_new, which this action does not produce"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "change_type": "DELETE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec was removed from the resulting state"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "change_type": "MODIFY",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "change_type": "STATUS_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "change_type": "ID_CHANGE_payload_id",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "change_type": "KEY_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec was removed from the resulting state"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "change_type": "ADD",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals gained z_new, which this action does not produce"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals gained z_new, which this action does not produce"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "change_type": "DELETE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec was removed from the resulting state"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "change_type": "MODIFY",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "change_type": "STATUS_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "change_type": "SCOPE_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "change_type": "ID_CHANGE_payload_id",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "change_type": "KEY_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec was removed from the resulting state"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "change_type": "ADD",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations gained z_new, which this action does not produce"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations gained z_new, which this action does not produce"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "change_type": "DELETE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec was removed from the resulting state"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "change_type": "MODIFY",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "change_type": "STATUS_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "change_type": "ID_CHANGE_payload_id",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "change_type": "KEY_CHANGE",
+   "baseline_replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec was removed from the resulting state"
+   ],
+   "runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec was removed from the resulting state"
+   ]
+  }
+ ],
+ "status_value_sweep": [
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "ABANDONED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'ABANDONED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'ABANDONED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "ASSUMED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "CLOSED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'CLOSED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, V"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'CLOSED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, V"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "DERIVED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "DISCHARGED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'DISCHARGED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVE"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'DISCHARGED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVE"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "FAILED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'FAILED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, V"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'FAILED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, V"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "GIVEN",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "JOINED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'JOINED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, V"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'JOINED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, V"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "OPEN",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'OPEN' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, VER"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'OPEN' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, VER"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "PROPOSED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'PROPOSED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED,"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'PROPOSED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED,"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "REFUTED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "REJECTED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'REJECTED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED,"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'REJECTED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED,"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "UNKNOWN",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "UNRESOLVED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "UNVERIFIED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'UNVERIFIED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVE"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'UNVERIFIED' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVE"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "VERIFIED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "NOT_A_STATUS_AT_ALL",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, "
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, "
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status '' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, VERIFIE"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status '' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, VERIFIE"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "open",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'open' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, VER"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'open' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLVED, VER"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from_status": "GIVEN",
+   "set_status": "DISCHARGED ",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'DISCHARGED ' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLV"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "claim 'z_rec' status 'DISCHARGED ' is not one of ASSUMED, DERIVED, GIVEN, REFUTED, UNKNOWN, UNRESOLV"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "ABANDONED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'ABANDONED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'ABANDONED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "ASSUMED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'ASSUMED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'ASSUMED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "CLOSED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'CLOSED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'CLOSED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "DERIVED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'DERIVED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'DERIVED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "DISCHARGED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'DISCHARGED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIE"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'DISCHARGED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIE"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "FAILED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'FAILED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'FAILED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "GIVEN",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'GIVEN' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'GIVEN' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "JOINED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'JOINED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'JOINED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "OPEN",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'OPEN' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'OPEN' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "PROPOSED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "REFUTED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'REFUTED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'REFUTED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "REJECTED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "UNKNOWN",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "UNRESOLVED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'UNRESOLVED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIE"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'UNRESOLVED' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIE"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "UNVERIFIED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "VERIFIED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "NOT_A_STATUS_AT_ALL",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status '' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status '' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "open",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'open' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'open' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFIED"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from_status": "UNVERIFIED",
+   "set_status": "DISCHARGED ",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'DISCHARGED ' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFI"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "candidate 'z_rec' status 'DISCHARGED ' is not one of PROPOSED, REJECTED, UNKNOWN, UNVERIFIED, VERIFI"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "ABANDONED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "ASSUMED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'ASSUMED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'ASSUMED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "CLOSED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "DERIVED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'DERIVED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'DERIVED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "DISCHARGED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'DISCHARGED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'DISCHARGED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "FAILED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'FAILED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'FAILED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "GIVEN",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'GIVEN' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'GIVEN' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "JOINED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "OPEN",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "PROPOSED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'PROPOSED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'PROPOSED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "REFUTED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'REFUTED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'REFUTED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "REJECTED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'REJECTED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'REJECTED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "UNKNOWN",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "UNRESOLVED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'UNRESOLVED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'UNRESOLVED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "UNVERIFIED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'UNVERIFIED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'UNVERIFIED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "VERIFIED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'VERIFIED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'VERIFIED' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "NOT_A_STATUS_AT_ALL",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status '' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status '' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "open",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'open' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'open' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from_status": "OPEN",
+   "set_status": "DISCHARGED ",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'DISCHARGED ' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "branch 'z_rec' status 'DISCHARGED ' is not one of ABANDONED, CLOSED, JOINED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "ABANDONED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'ABANDONED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'ABANDONED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "ASSUMED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'ASSUMED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'ASSUMED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "CLOSED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'CLOSED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'CLOSED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "DERIVED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'DERIVED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'DERIVED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "DISCHARGED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "FAILED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'FAILED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'FAILED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "GIVEN",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'GIVEN' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'GIVEN' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "JOINED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'JOINED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'JOINED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "OPEN",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "PROPOSED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'PROPOSED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'PROPOSED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "REFUTED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'REFUTED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'REFUTED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "REJECTED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'REJECTED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'REJECTED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "UNKNOWN",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "UNRESOLVED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'UNRESOLVED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'UNRESOLVED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "UNVERIFIED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'UNVERIFIED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'UNVERIFIED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "VERIFIED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'VERIFIED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'VERIFIED' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "NOT_A_STATUS_AT_ALL",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status '' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status '' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "open",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'open' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'open' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from_status": "OPEN",
+   "set_status": "DISCHARGED ",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'DISCHARGED ' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "goal 'z_rec' status 'DISCHARGED ' is not one of DISCHARGED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "ABANDONED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'ABANDONED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'ABANDONED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "ASSUMED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'ASSUMED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'ASSUMED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "CLOSED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'CLOSED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'CLOSED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "DERIVED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'DERIVED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'DERIVED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "DISCHARGED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "FAILED",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "GIVEN",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'GIVEN' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'GIVEN' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "JOINED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'JOINED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'JOINED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "OPEN",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "PROPOSED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'PROPOSED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'PROPOSED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "REFUTED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'REFUTED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'REFUTED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "REJECTED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'REJECTED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'REJECTED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "UNKNOWN",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ],
+   "runtime": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "UNRESOLVED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'UNRESOLVED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'UNRESOLVED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "UNVERIFIED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'UNVERIFIED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'UNVERIFIED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "VERIFIED",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'VERIFIED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'VERIFIED' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "NOT_A_STATUS_AT_ALL",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'NOT_A_STATUS_AT_ALL' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status '' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status '' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "open",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'open' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'open' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from_status": "OPEN",
+   "set_status": "DISCHARGED ",
+   "replay": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'DISCHARGED ' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ],
+   "runtime": [
+    "REFUSED_AT_IMPORT",
+    "NeutralImportError",
+    "obligation 'z_rec' status 'DISCHARGED ' is not one of DISCHARGED, FAILED, OPEN, UNKNOWN"
+   ]
+  }
+ ],
+ "lifecycle_sweep": [
+  {
+   "state_kind": "claims",
+   "from": "VERIFIED",
+   "to": "ASSUMED",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "from": "REFUTED",
+   "to": "VERIFIED",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "claims.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from": "VERIFIED",
+   "to": "UNVERIFIED",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "from": "REJECTED",
+   "to": "PROPOSED",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "candidates.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from": "JOINED",
+   "to": "OPEN",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from": "ABANDONED",
+   "to": "OPEN",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "from": "CLOSED",
+   "to": "OPEN",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "branches.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "from": "DISCHARGED",
+   "to": "OPEN",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "goals.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from": "DISCHARGED",
+   "to": "OPEN",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "from": "FAILED",
+   "to": "OPEN",
+   "undeclared_replay": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ],
+   "undeclared_runtime": [
+    "INVALID",
+    "DEPENDENCY_VIOLATION",
+    "obligations.z_rec changed without a licensed state effect"
+   ]
+  }
+ ],
+ "unknown_sweep": [
+  {
+   "state_kind": "claims",
+   "role": "bystander_uncited",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "claims",
+   "role": "cited_by_action",
+   "replay": [
+    "UNRESOLVED",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "role": "bystander_uncited",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "candidates",
+   "role": "cited_by_action",
+   "replay": [
+    "UNRESOLVED",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "role": "bystander_uncited",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "branches",
+   "role": "cited_by_action",
+   "replay": [
+    "UNRESOLVED",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "role": "bystander_uncited",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "goals",
+   "role": "cited_by_action",
+   "replay": [
+    "UNRESOLVED",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "role": "bystander_uncited",
+   "replay": [
+    "VALID",
+    null,
+    ""
+   ]
+  },
+  {
+   "state_kind": "obligations",
+   "role": "cited_by_action",
+   "replay": [
+    "UNRESOLVED",
+    null,
+    ""
+   ]
+  }
+ ]
+}
