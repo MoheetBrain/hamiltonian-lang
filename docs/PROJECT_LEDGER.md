@@ -5982,3 +5982,54 @@ them**, including the entire `GOAL_DISCHARGE` family.
 
 **Next intended step.** The four remaining defects, the corpus schema repair (R2), and the
 22 uncovered invariants.
+
+---
+
+## 2026-08-11 — the four reproduced verifier defects closed; corpus pushed
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `22e6a0a`. **Stage:** Phase I of the final
+hardening.
+
+**Objective.** Push the unpushed corpus commits, then close the four defects an independent
+adversarial audit reproduced against `a21fdb7`.
+
+**What was completed.** The corpus was **3 commits ahead and unpushed** — `f7d85bc` is now on
+origin, validated with a real YAML parser first (148 entries, X1–X148, contiguous, no
+duplicates, no dangling references). Then all four defects, each with regression tests and
+mutation checks: scope containment derived from the branch tree; mapping key as identity;
+import-boundary type guards plus a catch-all; and a join that requires every branch to have
+concluded something.
+
+**Decisions and why.** Scope ancestry is now *derived* from data the schema already carried
+(a branch records the frame it sits inside) rather than inferred from `active_scopes`
+position — and the three dimensions the addendum names are kept separate: scope ancestry,
+goal ancestry, execution order. For the key/id question, both are preserved losslessly rather
+than refusing the mismatch: `view.py` is built to carry the divergence, so a refusal would
+make `neutral.py` reject documents `view.py` exists to represent, and would make "export is
+the inverse of import" vacuous rather than true.
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| `pytest tests/semantic_state/test_reproduced_defects.py` | **29 passed** |
+| fuzz sweep, 1,024 malformed payloads × both trust modes | **0 uncaught exceptions** (was 15 signatures) |
+| 30 frozen acceptance fixtures | **30/30 unchanged** |
+| `pytest tests/semantic_state` | **332 passed** |
+| mutation: containment always true | 3 killed |
+| mutation: export re-keys by `record.id` | 2 killed |
+| mutation: duplicate-scope guard removed | killed (after pinning its diagnostic) |
+| mutation: null-conclusion guard removed | killed (after pinning its diagnostic) |
+
+**Failures and unresolved uncertainty.** Two mutations initially **survived**. Each guard is
+redundant with the other repair — containment already defeats the duplicate-scope attack, and
+the mismatch check already catches a null conclusion. Rather than write vacuous tests to
+raise a score, both are now pinned on the *diagnostic* they produce, which is the part the
+redundant path cannot supply and the part a reader debugging actually needs. Recorded because
+"the mutation survived and here is why" is a better answer than a manufactured kill.
+
+One historical test was **reversed**: it asserted that a null branch conclusion does not block
+a join. Its original claim is quoted verbatim in the replacement rather than deleted.
+
+**Next intended step.** Corpus schema repair (agent running), FX2 suite, the 22 surviving
+mutations from the earlier census, then P-01/P-02/P-03.

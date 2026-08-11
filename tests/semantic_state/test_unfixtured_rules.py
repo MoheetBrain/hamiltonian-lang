@@ -434,10 +434,45 @@ def test_overlapping_branches_are_accepted():
     assert str(result.verdict) == "VALID", result.to_dict()
 
 
-def test_an_unconcluded_branch_does_not_block_a_join_it_covers():
-    """``conclusion`` is optional; only a *conflicting* conclusion is a violation."""
+def test_an_unconcluded_branch_blocks_the_join_it_covers():
+    """**Reversed by D-053.** This test previously asserted the opposite.
+
+    Its old docstring read: *"``conclusion`` is optional; only a conflicting conclusion is a
+    violation"* — and it pinned real unsafe behaviour. With the conclusion check skipped
+    whenever ``conclusion`` was ``None``, a join over branches that had concluded *nothing*
+    published whatever the action named: three null branches publishing ``"0 = 1"``
+    verified VALID.
+
+    The asymmetry is what makes the old reading indefensible. ``""`` and ``"UNKNOWN"`` were
+    both refused as disagreements while ``null`` was accepted, and all three mean the same
+    thing — this branch recorded no conclusion. Coverage establishes that the cases are
+    exhaustive; it never establishes that any case proved anything.
+
+    Recorded as a reversal rather than edited away, because a test that pinned a defect is
+    evidence about how the defect survived.
+    """
     result = replay_payload(_join(conclusions={"b1": _JOINED, "b2": None}))
-    assert str(result.verdict) == "VALID", result.to_dict()
+    assert str(result.verdict) == "INVALID", result.to_dict()
+    assert result.error_class == "INVALID_BRANCH_JOIN"
+    assert "records no conclusion" in result.findings[0].detail
+
+
+def test_a_join_over_wholly_unconcluded_branches_cannot_publish_anything():
+    """The attack the old rule permitted, stated at full strength."""
+    result = replay_payload(
+        _join(conclusions={"b1": None, "b2": None}, published="0 = 1")
+    )
+    assert result.error_class == "INVALID_BRANCH_JOIN", result.to_dict()
+
+
+def test_an_unknown_branch_conclusion_is_unresolved_not_a_disagreement():
+    """Three-valued discipline reaches branch conclusions too.
+
+    ``UNKNOWN`` was previously reported as a *conflicting* conclusion — a detected
+    violation — which contradicts how every other unknown in this verifier is handled.
+    """
+    result = replay_payload(_join(conclusions={"b1": _JOINED, "b2": "UNKNOWN"}))
+    assert str(result.verdict) == "UNRESOLVED", result.to_dict()
 
 
 # ---------------------------------------------------------------------------

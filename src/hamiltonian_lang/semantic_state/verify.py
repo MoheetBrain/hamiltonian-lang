@@ -161,6 +161,8 @@ def _collect_unknowns(transition: Transition) -> list[str]:
         for key, branch in state.branches.items():
             if key in want_branches and str(branch.status) == UNKNOWN:
                 out.append(f"{name}.branches.{key}.status is UNKNOWN")
+            if key in want_branches and branch.conclusion == UNKNOWN:
+                out.append(f"{name}.branches.{key}.conclusion is UNKNOWN")
 
     for i, pre in enumerate(action.preconditions):
         if isinstance(pre, dict) and pre.get("status") == UNKNOWN:
@@ -295,23 +297,72 @@ def _check_dependency(t: Transition) -> list[Finding]:
     return out
 
 
+def _scope_parents(state: SemanticState) -> dict[str, str | None]:
+    """The scope containment tree, derived from the branches that declare it.
+
+    A branch filed under key ``b`` names the scope ``branch:b``, and its own ``scope`` field
+    records the frame it sits *inside*. That is genuine ancestry carried by the neutral
+    schema; ``active_scopes`` is a membership list and was never an ancestry claim.
+    """
+    parents: dict[str, str | None] = {"global": None}
+    for key, branch in state.branches.items():
+        parents[f"branch:{key}"] = branch.scope or "global"
+    return parents
+
+
+def _contains(parents: dict[str, str | None], outer: str, inner: str) -> bool:
+    """Whether ``outer`` is ``inner`` or an ancestor of it.
+
+    Unknown scopes relate only to themselves: guessing an ancestry the record does not state
+    is how a sibling becomes an ancestor. Cycle-guarded, because ``parents`` is derived from
+    producer-supplied data and a malformed record must not hang the verifier.
+    """
+    if outer == inner:
+        return True
+    seen: set[str] = set()
+    current: str | None = inner
+    while current is not None and current not in seen:
+        seen.add(current)
+        current = parents.get(current)
+        if current == outer:
+            return True
+    return False
+
+
 def _check_scope(t: Transition) -> list[Finding]:
     """A conclusion may not be wider than the narrowest premise it rests on.
 
-    This is the invariant, and it is not "the output scope is active". ``global`` is
-    always active, so that weaker reading accepts the corrupted fixture, which promotes a
-    ``branch:b1`` conclusion straight to ``global``. The real rule is containment: a fact
-    derived inside a frame stays inside it, and leaving requires an explicit discharge
-    whose evidence is checked like any other.
+    Containment is read off the **scope tree**, not off position in ``active_scopes``
+    (D-053). The earlier rule computed depth as ``active_scopes.index(scope)``, which has two
+    defects that no fixture could reach, because every frozen record has at most one branch
+    scope active:
 
-    Depth is read off ``active_scopes``, which the neutral record orders outermost-first,
-    so a later entry is strictly inside an earlier one.
+    * **Siblings became ancestors.** With ``["global","branch:a","branch:b"]`` a premise in
+      ``branch:a`` could conclude into ``branch:b`` (VALID) while the mirror image was a
+      SCOPE_LEAK. Identical situations, opposite verdicts, decided by list order alone.
+    * **A duplicate entry defeated the invariant outright.** ``index`` returns the *first*
+      occurrence, so prepending a copy of an inner frame made it look outermost and let any
+      premise escape to ``global``. That attack needs no forged evidence at all.
+
+    ``active_scopes`` still answers "is this frame open?", which is what it is for. It no
+    longer answers "does this frame contain that one?", which it never could.
     """
     out = []
     order = list(t.state_before.active_scopes)
+    parents = _scope_parents(t.state_before)
 
-    def depth(scope: str) -> int:
-        return order.index(scope) if scope in order else -1
+    # Fail closed on a malformed frame list rather than canonicalising it: a duplicate is
+    # either meaningless or an attack, and neither deserves a guess.
+    if len(set(order)) != len(order):
+        duplicated = sorted({s for s in order if order.count(s) > 1})
+        return [
+            Finding(
+                "SCOPE",
+                INVARIANTS["SCOPE"],
+                f"active_scopes repeats {', '.join(duplicated)}; a frame is open or it is "
+                f"not, and a repeated entry cannot be given a containment reading",
+            )
+        ]
 
     for dep in t.action.dependencies:
         claim = t.state_before.claims.get(dep)
@@ -339,24 +390,24 @@ def _check_scope(t: Transition) -> list[Finding]:
         )
         return out
 
-    innermost = max(
-        (depth(t.state_before.claims[d].scope) for d in t.action.dependencies
-         if d in t.state_before.claims),
-        default=-1,
-    )
-    if innermost > depth(produced.scope):
-        discharged = _discharge_licenses_escape(t)
-        if not discharged:
-            narrow = order[innermost]
-            out.append(
-                Finding(
-                    "SCOPE",
-                    INVARIANTS["SCOPE"],
-                    f"{out_id!r} rests on a premise local to {narrow!r} but was written "
-                    f"into the wider scope {produced.scope!r} with no discharge; a "
-                    f"branch-local fact does not become global by being restated there",
-                )
+    # Every premise's frame must contain the conclusion's. A conclusion may be narrower
+    # than its premises; it may never be wider, and a sibling frame is neither.
+    escaping = [
+        d for d in t.action.dependencies
+        if d in t.state_before.claims
+        and not _contains(parents, t.state_before.claims[d].scope, produced.scope)
+    ]
+    if escaping and not _discharge_licenses_escape(t):
+        narrow = t.state_before.claims[escaping[0]].scope
+        out.append(
+            Finding(
+                "SCOPE",
+                INVARIANTS["SCOPE"],
+                f"{out_id!r} rests on a premise local to {narrow!r} but was written into "
+                f"{produced.scope!r}, which that frame does not contain, with no discharge; "
+                f"a branch-local fact does not become global by being restated there",
             )
+        )
     return out
 
 
@@ -609,7 +660,24 @@ def _check_branch_join(t: Transition) -> list[Finding]:
     if published is not None:
         for bid in ids:
             branch = t.state_before.branches[bid]
-            if branch.conclusion is not None and branch.conclusion != published.proposition:
+            # A missing conclusion is not permission (D-053). Until now the check was
+            # skipped when ``conclusion`` was None, so a join over branches that had
+            # concluded *nothing* could publish an arbitrary proposition -- measured: three
+            # null branches publishing "0 = 1" verified VALID. Coverage says the cases are
+            # exhaustive; it does not say any case established anything. Note the asymmetry
+            # that made the old rule indefensible: "" and "UNKNOWN" were refused while
+            # ``null`` was accepted, and all three mean the branch recorded no conclusion.
+            if branch.conclusion is None:
+                return [
+                    Finding(
+                        "BRANCH_JOIN",
+                        INVARIANTS["BRANCH_JOIN"],
+                        f"branch {bid!r} records no conclusion, so the joined claim rests "
+                        f"on nothing it established; coverage without conclusions is not a "
+                        f"proof",
+                    )
+                ]
+            if branch.conclusion != published.proposition:
                 return [
                     Finding(
                         "BRANCH_JOIN",

@@ -91,6 +91,79 @@ def _tuple(value: Any) -> tuple:
     raise NeutralImportError(f"expected a list, got {type(value).__name__}")
 
 
+
+def _strs(value: Any, what: str) -> tuple[str, ...]:
+    """A sequence of identifiers, or a refusal.
+
+    ``_tuple`` accepted a list of anything, so a dict inside ``dependencies`` reached the
+    verifier and raised ``TypeError`` on a set operation, and a list inside
+    ``active_scopes`` raised on ``", ".join``. A verifier that may be handed model output
+    must never throw: every malformed shape becomes a refusal here, at the boundary, so the
+    checks downstream only ever see well-typed objects (D-053).
+    """
+    for item in _tuple(value):
+        if not isinstance(item, str):
+            raise NeutralImportError(
+                f"{what} must contain only identifiers; found {type(item).__name__}"
+            )
+    return _tuple(value)
+
+
+def _obligation_specs(value: Any, what: str) -> tuple:
+    """Obligation entries are ``{"id": ...}`` records or bare identifiers.
+
+    The id is used as a dictionary key downstream, so an unhashable entry reached a lookup
+    and raised. Refused here instead.
+    """
+    out = []
+    for entry in _no_nonfinite(_tuple(value), what):
+        if isinstance(entry, dict):
+            oid = entry.get("id")
+            if oid is not None and not isinstance(oid, str):
+                raise NeutralImportError(
+                    f"{what}: an obligation id must be a string, got {type(oid).__name__}"
+                )
+        elif not isinstance(entry, str):
+            raise NeutralImportError(
+                f"{what}: expected an object or an identifier, got {type(entry).__name__}"
+            )
+        out.append(entry)
+    return tuple(out)
+
+
+def _opt_str(value: Any, what: str) -> str | None:
+    if value is None or isinstance(value, str):
+        return value
+    raise NeutralImportError(f"{what} must be a string, got {type(value).__name__}")
+
+
+def _mapping(value: Any, what: str) -> dict:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise NeutralImportError(f"{what} must be an object, got {type(value).__name__}")
+    return dict(value)
+
+
+def _no_nonfinite(value: Any, what: str) -> Any:
+    """Refuse NaN and the infinities anywhere in a free-form payload.
+
+    ``NaN != NaN``, and the frame condition compares records structurally — so a record
+    byte-identical in both states reported "changed without a licensed state effect". It
+    failed *safe*, but it is a false INVALID on any float-bearing record, and the value has
+    no place in a mathematical state anyway. JSON does not define these literals either.
+    """
+    if isinstance(value, float) and (value != value or value in (float("inf"), float("-inf"))):
+        raise NeutralImportError(f"{what} is {value!r}, which is not a representable value")
+    if isinstance(value, dict):
+        for k, v in value.items():
+            _no_nonfinite(v, f"{what}.{k}")
+    elif isinstance(value, (list, tuple)):
+        for i, v in enumerate(value):
+            _no_nonfinite(v, f"{what}[{i}]")
+    return value
+
+
 # ---------------------------------------------------------------------------
 # State
 # ---------------------------------------------------------------------------
@@ -107,7 +180,7 @@ def import_state(payload: dict) -> SemanticState:
             status=_enum(raw.get("status", "GIVEN"), ClaimStatus, f"claim {cid!r} status"),
             scope=raw.get("scope", "global"),
             domain=raw.get("domain"),
-            dependencies=_tuple(raw.get("dependencies")),
+            dependencies=_strs(raw.get("dependencies"), f"claim {cid!r} dependencies"),
         )
     candidates = {}
     for kid, raw in (payload.get("candidates") or {}).items():
@@ -165,7 +238,7 @@ def import_state(payload: dict) -> SemanticState:
         branches=branches,
         goals=goals,
         obligations=obligations,
-        active_scopes=_tuple(payload.get("active_scopes")) or ("global",),
+        active_scopes=_strs(payload.get("active_scopes"), "active_scopes") or ("global",),
     )
 
 
@@ -180,10 +253,20 @@ def _drop_none(d: dict) -> dict:
 
 
 def export_state(state: SemanticState) -> dict:
+    """Export keyed by the **mapping key**, never by ``record.id`` (D-053).
+
+    The neutral schema permits the two to differ — :func:`import_state` reads
+    ``raw.get("id", cid)`` precisely so a record may carry an id unlike its key — and
+    ``view.py`` is built to preserve the divergence. Re-keying by ``record.id`` broke three
+    things at once: ``export(import(x)) != x``; the *verdict* was not stable under the
+    adapter's own round trip, because the verifier consumes the key namespace while export
+    emitted the id namespace; and two records sharing an id collapsed silently to one, with
+    the survivor decided by iteration order.
+    """
     return {
         "active_scopes": list(state.active_scopes),
         "branches": {
-            b.id: _drop_none(
+            key: _drop_none(
                 {
                     "conclusion": b.conclusion,
                     "id": b.id,
@@ -193,10 +276,10 @@ def export_state(state: SemanticState) -> dict:
                     "status": str(b.status),
                 }
             )
-            for b in state.branches.values()
+            for key, b in state.branches.items()
         },
         "candidates": {
-            c.id: _drop_none(
+            key: _drop_none(
                 {
                     "constraint_ids": list(c.constraint_ids),
                     "dependencies": list(c.dependencies) or None,
@@ -209,10 +292,10 @@ def export_state(state: SemanticState) -> dict:
                     "verification_result": c.verification_result,
                 }
             )
-            for c in state.candidates.values()
+            for key, c in state.candidates.items()
         },
         "claims": {
-            c.id: _drop_none(
+            key: _drop_none(
                 {
                     "dependencies": list(c.dependencies),
                     "domain": c.domain,
@@ -222,10 +305,10 @@ def export_state(state: SemanticState) -> dict:
                     "status": str(c.status),
                 }
             )
-            for c in state.claims.values()
+            for key, c in state.claims.items()
         },
         "goals": {
-            g.id: _drop_none(
+            key: _drop_none(
                 {
                     "id": g.id,
                     "proposition": g.proposition,
@@ -233,10 +316,10 @@ def export_state(state: SemanticState) -> dict:
                     "status": g.status,
                 }
             )
-            for g in state.goals.values()
+            for key, g in state.goals.items()
         },
         "obligations": {
-            o.id: _drop_none(
+            key: _drop_none(
                 {
                     "dependencies": list(o.dependencies),
                     "discharge_evidence_id": o.discharge_evidence_id,
@@ -247,7 +330,7 @@ def export_state(state: SemanticState) -> dict:
                     "status": str(o.status),
                 }
             )
-            for o in state.obligations.values()
+            for key, o in state.obligations.items()
         },
     }
 
@@ -263,18 +346,18 @@ def _import_action(payload: dict) -> Action:
         id=payload.get("id", "a0"),
         operation=payload.get("operation", ""),
         summary=payload.get("summary", ""),
-        output_id=payload.get("output_id"),
-        dependencies=_tuple(payload.get("dependencies")),
-        preconditions=tuple(payload.get("preconditions") or ()),
-        obligations_created=tuple(payload.get("obligations_created") or ()),
-        obligations_discharged=_tuple(payload.get("obligations_discharged")),
-        typing=dict(payload.get("typing") or {}),
-        warrant=dict(payload.get("warrant") or {}),
-        goal_effect=dict(payload.get("goal_effect") or {}),
-        scope_effect=dict(payload.get("scope_effect") or {}),
-        branch_effect=dict(payload.get("branch_effect") or {}),
-        candidate_effect=dict(payload.get("candidate_effect") or {}),
-        epistemic_effect=dict(payload.get("epistemic_effect") or {}),
+        output_id=_opt_str(payload.get("output_id"), "action output_id"),
+        dependencies=_strs(payload.get("dependencies"), "action dependencies"),
+        preconditions=tuple(_no_nonfinite(_tuple(payload.get("preconditions")), "preconditions")),
+        obligations_created=_obligation_specs(payload.get("obligations_created"), "obligations_created"),
+        obligations_discharged=_obligation_specs(payload.get("obligations_discharged"), "obligations_discharged"),
+        typing=_no_nonfinite(_mapping(payload.get("typing"), "action typing"), "typing"),
+        warrant=_no_nonfinite(_mapping(payload.get("warrant"), "action warrant"), "warrant"),
+        goal_effect=_no_nonfinite(_mapping(payload.get("goal_effect"), "action goal_effect"), "goal_effect"),
+        scope_effect=_no_nonfinite(_mapping(payload.get("scope_effect"), "action scope_effect"), "scope_effect"),
+        branch_effect=_no_nonfinite(_mapping(payload.get("branch_effect"), "action branch_effect"), "branch_effect"),
+        candidate_effect=_no_nonfinite(_mapping(payload.get("candidate_effect"), "action candidate_effect"), "candidate_effect"),
+        epistemic_effect=_no_nonfinite(_mapping(payload.get("epistemic_effect"), "action epistemic_effect"), "epistemic_effect"),
     )
 
 
@@ -308,7 +391,7 @@ def _import_evidence(payload: dict) -> EvidenceRecord:
         status=payload.get("status", "UNKNOWN"),
         trusted=bool(payload.get("trusted", False)),
         supports_rule=payload.get("supports_rule"),
-        premise_ids=_tuple(payload.get("premise_ids")),
+        premise_ids=_strs(payload.get("premise_ids"), "evidence premise_ids"),
         payload={k: v for k, v in payload.items() if k not in _EVIDENCE_STRUCTURAL},
     )
 
@@ -327,9 +410,33 @@ def _export_evidence(record: EvidenceRecord) -> dict:
 
 
 def import_transition(payload: dict) -> Transition:
-    """Import one neutral transition record. Refuses rather than importing partially."""
+    """Import one neutral transition record. Refuses rather than importing partially.
+
+    **Every** failure leaves here as :class:`NeutralImportError`. The guards below catch the
+    malformed shapes this adapter knows about; the wrapper catches the ones it does not, so
+    a caller handling hostile or model-authored input has exactly one exception type to
+    handle and never sees a raw ``TypeError`` from somewhere in the middle of a parse
+    (D-053).
+    """
+    try:
+        return _import_transition(payload)
+    except NeutralImportError:
+        raise
+    except RecursionError as exc:
+        raise NeutralImportError("record is nested too deeply to import") from exc
+    except Exception as exc:  # noqa: BLE001 -- the boundary must not leak its internals
+        raise NeutralImportError(
+            f"record could not be imported: {type(exc).__name__}: {exc}"
+        ) from exc
+
+
+def _import_transition(payload: dict) -> Transition:
     payload = _require(payload, "transition")
     version = payload.get("schema_version")
+    if not isinstance(version, str):
+        raise NeutralImportError(
+            f"schema_version must be a string, got {type(version).__name__}"
+        )
     if version not in SUPPORTED_SCHEMA_VERSIONS:
         raise NeutralImportError(
             f"schema version {version!r} is not supported "

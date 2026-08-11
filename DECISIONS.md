@@ -2353,3 +2353,87 @@ premises but different surrounding state — `certificates.check` compares `cont
 exactly this reason. Four more defects remain open at HEAD: sibling-scope order (plus a
 duplicate-`active_scopes` bypass that needs no forgery), neutral dict-key identity, 15
 uncaught-exception signatures on malformed input, and null branch conclusions.
+
+---
+
+## D-053 — the four reproduced defects: scope is containment, keys are identity, input fails closed, coverage is not proof
+
+**Date:** 2026-08-11 · **After:** `22e6a0a` · **Closes:** the four defects an independent
+adversarial audit reproduced against `a21fdb7`
+
+None of the thirty frozen acceptance fixtures can detect any of these. Every fixture has at
+most one branch scope active, keys equal to their record ids, well-typed fields, and branch
+conclusions already present. **Fourth consecutive time a 30/30 pass rate concealed real
+defects.** Two of the four are attacks requiring no forged evidence at all.
+
+### A. Scope is containment, derived from the branch tree — never list position
+
+`_check_scope` computed depth as `active_scopes.index(scope)`. Two defects followed:
+
+* **Siblings became ancestors.** With `["global","branch:a","branch:b"]` a premise in
+  `branch:a` could conclude into `branch:b` (VALID) while the mirror was a SCOPE_LEAK.
+  Identical situations, opposite verdicts, decided by list order.
+* **A duplicate entry defeated the invariant outright.** `index` returns the *first*
+  occurrence, so prepending a copy of an inner frame made it look outermost and let any
+  premise escape to `global`. No forged evidence needed.
+
+Containment is now derived from the **branch tree**: a branch filed under key `b` names the
+scope `branch:b`, and its own `scope` field records the frame it sits inside. That is real
+ancestry the neutral schema already carried. `active_scopes` still answers "is this frame
+open?", which is what it is for; it no longer answers "does this frame contain that one?",
+which it never could. Unknown scopes relate only to themselves — guessing an ancestry the
+record does not state is exactly how a sibling became an ancestor. Cycle-guarded, because
+the tree is derived from producer-supplied data. Duplicates fail closed.
+
+**Three dimensions kept separate**, per the addendum: *scope ancestry* (logical visibility,
+this rule), *goal ancestry* (subgoal lineage, P-03, not implemented), and *execution
+focus/order* (scheduling, not modelled).
+
+### B. The mapping key is identity; `record.id` is provenance
+
+`export_state` re-keyed all five collections by `record.id`. Three consequences: `export(import(x)) != x`;
+the **verdict was not stable under the adapter's own round trip** (`VALID` → `INVALID`),
+because the verifier consumes the key namespace while export emitted the id namespace; and
+two records sharing an id collapsed silently to one, the survivor decided by iteration order.
+
+Chosen: **preserve both losslessly** (Option 1). `import_state` deliberately reads
+`raw.get("id", cid)` and `view.py` is built to carry the divergence, so refusing at import
+would make `neutral.py` reject documents `view.py` exists to represent — and a refusal does
+not make "export is the inverse of import" hold, it shrinks the domain until the property is
+vacuous there.
+
+### C. Malformed input is refused, never raised
+
+The audit found **15** uncaught exception signatures, six inside `verify()` itself after a
+successful import. A verifier that may be handed model output must never throw. Type guards
+now sit at the import boundary so the checks downstream only ever see well-typed objects,
+and a catch-all makes **every** escape from `import_transition` a `NeutralImportError`.
+
+`NaN` and the infinities are refused: `NaN != NaN`, and the frame condition compares records
+structurally, so a record byte-identical in both states reported "changed without a licensed
+state effect". It failed *safe*, but it was a false INVALID on any float-bearing payload.
+
+**Measured after repair: 1,024 fuzz cases, 0 uncaught exceptions** (was 15 signatures).
+
+### D. Coverage without conclusions is not a proof
+
+A join skipped the conclusion check whenever `conclusion` was `None`, so a join over branches
+that had concluded *nothing* published whatever the action named — three null branches
+publishing `"0 = 1"` verified VALID. The asymmetry that made this indefensible: `""` and
+`"UNKNOWN"` were refused as disagreements while `null` was accepted, and all three mean the
+branch recorded no conclusion. `UNKNOWN` now yields UNRESOLVED, matching the three-valued
+discipline used everywhere else.
+
+**Migration, recorded not erased.** `test_an_unconcluded_branch_does_not_block_a_join_it_covers`
+asserted the unsafe behaviour with the docstring *"conclusion is optional; only a conflicting
+conclusion is a violation"*. It is **reversed**, renamed, and its original claim quoted in
+the new test — a test that pinned a defect is evidence about how the defect survived.
+
+**Verification.** 29 new regression tests; all four repairs mutation-checked. Two mutations
+initially survived because each guard is *redundant with* the other repair (containment
+already defeats the duplicate attack; the mismatch check already catches a null conclusion);
+rather than write vacuous tests, both are now pinned on their **diagnostic**, which is the
+part the redundant path cannot supply. 30/30 frozen fixtures unchanged. Full suite green.
+
+**Not addressed here.** An attestation still carries no *context* digest (D-052). P-01, P-02
+and P-03 remain untested and unimplemented.

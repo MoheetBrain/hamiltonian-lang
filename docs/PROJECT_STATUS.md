@@ -28,6 +28,25 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**THE FOUR REPRODUCED VERIFIER DEFECTS ARE CLOSED (D-053).** Scope is containment derived
+from the branch tree, not list position; the mapping key is identity and `record.id` is
+provenance; malformed input is refused rather than raised (**1,024 fuzz cases, 0 uncaught
+exceptions**, was 15 signatures); and a join can no longer publish a claim over branches that
+concluded nothing.
+
+Two of the four were attacks needing **no forged evidence at all** — a duplicated
+`active_scopes` entry, and a null-conclusion join. Neither was detectable from the thirty
+frozen fixtures. That is the fourth consecutive time a 30/30 pass rate concealed real defects.
+
+**Corpus is pushed** — it was 3 commits ahead and unpushed; `f7d85bc` is now on origin, and
+the ledger was re-validated with a real YAML parser first (148 entries, X1–X148, no gaps, no
+duplicates, no dangling refs).
+
+Outstanding before the semantic freeze: corpus schema repair, FX2 suite, the 22 surviving
+mutations from the earlier census, P-01/P-02/P-03, release manifests and tags.
+
+---
+
 **D-050 IS CLOSED (D-051, amended by D-052). Five trust sites gated; the mode cannot be
 omitted.**
 
