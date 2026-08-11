@@ -6068,3 +6068,49 @@ the published schema is not the same as being a well-formed transition.
 
 **Next intended step.** The 22 surviving mutations from the earlier census; then
 P-01/P-02/P-03; then the semantic freeze, release manifest and tag.
+
+---
+
+## 2026-08-11 (third entry) — P-01/P-02/P-03 adjudicated; two need no code
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `19473df`. **Stage:** Phase II.
+
+**Objective.** Adjudicate the three architectural proposals, implementing only the minimum
+the evidence supports.
+
+**What was completed.** A full inventory of `Action.operation` in production, three decision
+records (D-054/D-055/D-056), the P-01 effect-rule migration, and five regression tests.
+
+**Findings that corrected the premise.** The brief assumed `VERIFY_CANDIDATE` and
+`JOIN_BRANCHES` both drew semantic authority from their raw strings. Measured: `JOIN_BRANCHES`
+is compared as a string **nowhere** — branch join is gated entirely on the typed effect kind —
+and the single `VERIFY_CANDIDATE` comparison sits *inside* the `kind == "PROMOTE"` branch, so
+the effect had already discriminated. The real authority was `operation` doubling as the rule
+name evidence must support, at six sites. That is what moved into `_effect_rule`.
+
+**P-02 needed no code at all.** Under the frame condition an existing claim already must
+persist unchanged, and `output_id` already licenses exactly one addition — so "rewrite h" is
+expressible today as "derive h', keep h". The capability was present; only its recognition
+was missing. Versioned identity and literal mutation were both rejected: neither is justified,
+and a mutation channel would weaken the one rule that makes every other rule enforceable, in
+exchange for concision.
+
+**P-03 was decided by measurement, not preference.** 631 transitions scanned: `goal_effect` is
+only `NONE` (567) or `DISCHARGE` (63), `scope_effect` is `NONE` in all 630, and **no
+transition anywhere has more than one goal**. `created_by_action` was again confirmed to
+appear nowhere in either repository — a proposal from a brief, not a repository fact.
+
+**Tests and verification actually executed.** `pytest tests/semantic_state` **384 passed**;
+30/30 frozen fixtures unchanged; FX2 40/40; `bash scripts/conformance.sh` **PASS**; ruff and
+mypy clean. Effect-rule behaviour measured directly: fallback → VALID, explicit matching rule
+→ VALID, explicit non-matching rule → INVALID/`CANDIDATE_PROMOTION`, and an effect rule that
+disagrees with the label but matches the evidence → VALID, which is what proves the authority
+actually moved rather than the migration being cosmetic.
+
+**Failures and unresolved uncertainty.** P-01 is **half done by design**: the label becomes
+purely decorative only once the corpus emits explicit effect rules, which is a corpus-side
+change. The `operation != "VERIFY_CANDIDATE"` comparison is retained and reclassified as a
+provenance/effect *agreement* check rather than deleted.
+
+**Next intended step.** Mutation census and schema audit (both with agents); then the
+semantic freeze, release manifest and annotated tag.

@@ -28,6 +28,29 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**P-01, P-02 AND P-03 ARE ADJUDICATED (D-054, D-055, D-056).** Two of the three need no
+implementation, and the measurements say why.
+
+* **P-01 — partially implemented.** Evidence-rule authority moved into the typed effect
+  channel: an effect may state `rule` explicitly and falls back to the operation label when
+  it does not, so all thirty frozen fixtures are unchanged. Two findings corrected the
+  premise: **`JOIN_BRANCHES` held no authority at all** (branch join keys on
+  `branch_effect.kind == "JOIN"`), and the single `VERIFY_CANDIDATE` comparison sits *inside*
+  the `kind == "PROMOTE"` branch, so it was never the discriminator. The real authority was
+  `operation` doubling as the evidence rule name — that is what moved.
+* **P-02 — design chosen, no code.** Derive-new + supersede is **already expressible today**:
+  the frame condition requires an existing claim to persist, and `output_id` licenses exactly
+  one addition. Lean's 8.12% in-place rewriting is tactic ergonomics, not mathematical
+  necessity.
+* **P-03 — deferred on measurement.** Across all **631** corpus transitions, `goal_effect` is
+  only `NONE` or `DISCHARGE` (**no goal-creation effect exists**) and **zero** transitions
+  have more than one goal. A `parent_goal_id` would have nothing to point at.
+
+Scope ancestry, goal ancestry and execution order remain three separate dimensions; only the
+first is implemented.
+
+---
+
 **FX2 IS FROZEN AND GREEN — 40/40 against hand-written expectations.** The second-generation
 acceptance suite lives in the corpus at `experiments/semantic_firewall_v2/` (suite version
 `semantic-firewall-fx2-1.0.0`, 40 fixtures, 9 families) and is run against production by

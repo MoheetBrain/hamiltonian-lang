@@ -270,6 +270,24 @@ def _accepted(
     return (ok, why)
 
 
+def _effect_rule(effect: dict, action: Action) -> str | None:
+    """The rule an effect's evidence must support (P-01, D-054).
+
+    Authority for evidence matching belongs in the **typed effect channel**, not in the
+    surface operation label. LeanDojo measured ``MI(tactic name ; state effect) / H(name) =
+    0.240`` over 259,580 proof steps — only 24% of the information in an operation name is
+    about what it does to the state — so a label is a poor carrier of semantics.
+
+    The migration is deliberately backward-compatible rather than a rename. An effect may
+    now state ``rule`` explicitly; when it does not, the operation label is used, which is
+    what every one of the thirty frozen fixtures relies on. That ordering matters: §8 of the
+    brief requires authority to move into typed effects *before* the string is demoted, and
+    demoting first would leave evidence matching keyed on nothing.
+    """
+    stated = effect.get("rule")
+    return stated if isinstance(stated, str) and stated else action.operation
+
+
 def _check_dependency(t: Transition) -> list[Finding]:
     out = []
     for dep in t.action.dependencies:
@@ -514,6 +532,13 @@ def _check_candidates(t: Transition) -> list[Finding]:
                 f"candidate {cid!r} cannot move {candidate.status} -> {after.status}",
             )
         ]
+    # The LAST place a raw operation string carries weight, and it is not the discriminator:
+    # ``candidate_effect.kind == "PROMOTE"`` already established that this is a promotion,
+    # several lines above. What remains is an AGREEMENT check between the provenance label
+    # and the typed effect -- a record whose label denies what its effect declares is
+    # internally inconsistent, and that is worth refusing even though the label is not the
+    # authority. Retained under P-01 rather than deleted; it becomes removable once the
+    # corpus emits an explicit effect ``rule`` and the label is purely decorative (D-054).
     if t.action.operation != "VERIFY_CANDIDATE":
         return [
             Finding(
@@ -536,11 +561,11 @@ def _check_candidates(t: Transition) -> list[Finding]:
         ]
     ok, why = _accepted(
         t, record, cited_as=effect.get("evidence_id"), claim=candidate.proposition,
-        premises=t.action.dependencies, rule=t.action.operation,
+        premises=t.action.dependencies, rule=_effect_rule(effect, t.action),
     )
     if not ok:
         return [Finding("CANDIDATES", INVARIANTS["CANDIDATES"], why)]
-    if not _supports(record, t.action.operation):
+    if not _supports(record, _effect_rule(effect, t.action)):
         return [
             Finding(
                 "CANDIDATES",
@@ -622,11 +647,11 @@ def _check_branch_join(t: Transition) -> list[Finding]:
         t, record, cited_as=effect.get("coverage_evidence_id"),
         claim=(t.state_after.claims[t.action.output_id].proposition
                if t.action.output_id in t.state_after.claims else None),
-        premises=t.action.dependencies, rule=t.action.operation,
+        premises=t.action.dependencies, rule=_effect_rule(effect, t.action),
     )
     if not ok:
         return [Finding("BRANCH_JOIN", INVARIANTS["BRANCH_JOIN"], why)]
-    if not _supports(record, t.action.operation):
+    if not _supports(record, _effect_rule(effect, t.action)):
         return [
             Finding(
                 "BRANCH_JOIN",

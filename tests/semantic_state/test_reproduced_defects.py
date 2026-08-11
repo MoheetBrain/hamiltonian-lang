@@ -322,3 +322,94 @@ def test_a_fully_concluded_agreeing_join_still_passes():
     claim = "n is even or n is odd"
     result = verify_replay(import_transition(_join({"b1": claim, "b2": claim})))
     assert str(result.verdict) == "VALID", result.to_dict()
+
+
+# ---------------------------------------------------------------------------
+# P-01 (D-054): evidence-rule authority lives in the typed effect channel
+# ---------------------------------------------------------------------------
+
+
+def _state(**over):
+    out = copy.deepcopy(_EMPTY)
+    out.update(over)
+    return out
+
+
+def _case(action=None, before=None, after=None, evidence=None):
+    return {
+        "schema_version": SCHEMA, "case_id": "P01",
+        "action": {**copy.deepcopy(_ACTION), **(action or {})},
+        "state_before": before if before is not None else copy.deepcopy(_EMPTY),
+        "state_after": after if after is not None else copy.deepcopy(_EMPTY),
+        "evidence": evidence or {}, "source": {},
+    }
+
+
+def _promotion(effect_rule=None, supports="VERIFY_CANDIDATE", operation="VERIFY_CANDIDATE"):
+    effect = {"kind": "PROMOTE", "candidate_id": "k1", "evidence_id": "e1"}
+    if effect_rule is not None:
+        effect["rule"] = effect_rule
+    cand = lambda s: {"id": "k1", "proposition": "x = 2", "status": s,  # noqa: E731
+                      "scope": "global", "constraint_ids": ["c1"]}
+    return _case(
+        action={"operation": operation, "candidate_effect": effect},
+        before=_state(candidates={"k1": cand("PROPOSED")}),
+        after=_state(candidates={"k1": cand("VERIFIED")}),
+        evidence={"e1": {"id": "e1", "kind": "CANDIDATE_CHECK", "status": "VALID",
+                         "supports_rule": supports, "trusted": False,
+                         "premise_ids": [], "checked_constraints": ["c1"]}},
+    )
+
+
+def test_an_effect_without_a_rule_falls_back_to_the_operation_label():
+    """Backward compatibility is the whole reason the migration is safe.
+
+    All thirty frozen fixtures rely on this fallback. Demoting the label before the effects
+    could carry a rule would have left evidence matching keyed on nothing.
+    """
+    assert str(verify_replay(import_transition(_promotion())).verdict) == "VALID"
+
+
+def test_an_explicit_effect_rule_is_authoritative():
+    result = verify_replay(import_transition(
+        _promotion(effect_rule="VERIFY_CANDIDATE", supports="VERIFY_CANDIDATE")))
+    assert str(result.verdict) == "VALID", result.to_dict()
+
+
+def test_an_explicit_effect_rule_that_the_evidence_does_not_support_is_refused():
+    """The authority genuinely moved: the effect's rule decides, not the label."""
+    result = verify_replay(import_transition(
+        _promotion(effect_rule="SOMETHING_ELSE", supports="VERIFY_CANDIDATE")))
+    assert str(result.verdict) == "INVALID", result.to_dict()
+    assert result.error_class == "CANDIDATE_PROMOTION"
+
+
+def test_the_effect_rule_overrides_the_label_rather_than_being_overridden_by_it():
+    """Label says one thing, effect says another, evidence supports the effect.
+
+    Under P-01 the typed channel wins. If this returned INVALID the migration would be
+    cosmetic — the label would still be deciding.
+    """
+    result = verify_replay(import_transition(
+        _promotion(effect_rule="CHECK_ROOT", supports="CHECK_ROOT")))
+    assert str(result.verdict) == "VALID", result.to_dict()
+
+
+def test_the_branch_join_label_never_had_authority():
+    """`JOIN_BRANCHES` is compared as a string nowhere; the effect kind gates the check.
+
+    Recorded as a test because the P-01 brief assumed both labels held authority, and only
+    one ever did. A future reader planning the demotion needs to know this one is already
+    done.
+    """
+    from pathlib import Path
+
+    # Resolved from the repository, not by importing the module: the package re-exports
+    # `verify` as a FUNCTION, which shadows the submodule of the same name.
+    source = (Path(__file__).resolve().parents[2]
+              / "src/hamiltonian_lang/semantic_state/verify.py").read_text()
+    assert "JOIN_BRANCHES" not in source, (
+        "a raw JOIN_BRANCHES string comparison has been reintroduced; branch join must key "
+        "on the typed effect, not on the operation label"
+    )
+    assert 'kind != "JOIN"' in source

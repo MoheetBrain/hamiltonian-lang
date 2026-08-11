@@ -2437,3 +2437,128 @@ part the redundant path cannot supply. 30/30 frozen fixtures unchanged. Full sui
 
 **Not addressed here.** An attestation still carries no *context* digest (D-052). P-01, P-02
 and P-03 remain untested and unimplemented.
+
+---
+
+## D-054 — P-01: evidence-rule authority moves into the typed effect channel
+
+**Date:** 2026-08-11 · **After:** `19473df` · **Adjudicates:** P-01
+
+**The inventory, which is smaller than expected.** Every production read of
+`Action.operation` in `semantic_state`:
+
+| use | sites | class |
+|---|---|---|
+| export / render | 2 | **provenance** — round-trip and display only |
+| `operation != "VERIFY_CANDIDATE"` | 1 | **label/effect agreement**, not a discriminator |
+| `_supports(record, operation)` and `rule=operation` | 6 | **warrant-like — the real authority** |
+
+**Two findings correct the premise.** `JOIN_BRANCHES` is compared as a string **nowhere**:
+branch join is gated entirely on `branch_effect.kind == "JOIN"`, so that label already has
+zero semantic authority. And the single `VERIFY_CANDIDATE` comparison sits *inside* the
+`kind == "PROMOTE"` branch — the typed effect has already established the promotion, so the
+string is not the discriminator either.
+
+The genuine authority is that `operation` doubles as the **rule name evidence must support**.
+That is what had to move.
+
+**Decision.** An effect may now state `rule` explicitly; absent it, the operation label is
+used. `_effect_rule(effect, action)` is the single seam. Backward-compatible by construction:
+all thirty frozen fixtures rely on the fallback and are unchanged.
+
+The ordering is the point. The brief requires authority to move into typed effects **before**
+the string is demoted, and demoting first would leave evidence matching keyed on nothing.
+This is the first half; the label becomes purely decorative only once the corpus emits
+explicit effect rules, which is a corpus-side change.
+
+**Retained deliberately.** The `operation != "VERIFY_CANDIDATE"` check stays, reclassified in
+the code as an *agreement* check: a record whose provenance label denies what its typed
+effect declares is internally inconsistent, and that is worth refusing even though the label
+is not the authority.
+
+**Supporting evidence.** LeanDojo, 259,580 proof steps:
+`MI(tactic name ; state effect) / H(name) = 0.240` — only 24% of the information in an
+operation name concerns what it does to the state. `rw` transforms the target in 50.3% of its
+48,991 uses and *closes the goal* in 34.5%.
+
+**Verification.** Fallback → VALID on `FX-CAN-LEGAL`; explicit matching rule → VALID;
+explicit non-matching rule → INVALID / `CANDIDATE_PROMOTION`. 30/30 fixtures unchanged; FX2
+40/40; full `semantic_state` suite green.
+
+---
+
+## D-055 — P-02: transformation lineage is derive-new, and needs no code
+
+**Date:** 2026-08-11 · **After:** `19473df` · **Adjudicates:** P-02 · **Status:** design
+chosen, implementation **deferred**
+
+**The question.** Lean rewrites a hypothesis in place in **8.12%** of its steps
+(`TRANSFORM_CONTEXT` 5.41% + `TRANSFORM_BOTH` 2.71% of 259,580). The frame condition (D-049)
+refuses all undeclared mutation, so those transitions currently have no legal encoding.
+
+**The three designs, scored.**
+
+| | A. derive-new + supersede | B. versioned identity `h@0 → h@1` | C. literal mutation + certificate |
+|---|---|---|---|
+| immutability | **preserved** | preserved | **lost** |
+| provenance | old claim persists verbatim | recoverable via version chain | needs a separate record to survive |
+| frame-condition safety | **no change needed** | new licensed effect | **weakens the frame** |
+| reconstruction | trivial — both claims present | walk the chain | needs the transformation log |
+| state cost | one extra claim per rewrite | one id per version | lowest |
+| verifier simplicity | **nothing to add** | id-parsing and chain rules | new effect + new invariant |
+| corpus compatibility | **already expressible** | needs schema change | needs schema change |
+
+**Decision: A, and it requires no implementation.** Under the frame condition an existing
+claim already *must* persist unchanged, and the action's `output_id` already licenses exactly
+one addition. So "rewrite `h`" is already expressible today as "derive `h'`, keep `h`". The
+capability is present; nothing was missing but the recognition of it.
+
+**Why not B or C.** Neither is justified by evidence. Lean's in-place rewriting is **tactic
+ergonomics, not mathematical necessity** — a derived new claim is always expressible, merely
+less concise. Adding a mutation channel to mimic another system's surface convenience would
+weaken the one rule that made every other rule enforceable, in exchange for concision.
+
+**The invariant that does not move.** Undeclared mutation is always INVALID.
+
+**Activation cue.** Revisit if transition reconstruction from a real formal corpus is shown
+to be *impossible* under A — not merely more verbose. Verbosity is not inadequacy.
+
+---
+
+## D-056 — P-03: goal ancestry is not implementable on the current evidence
+
+**Date:** 2026-08-11 · **After:** `19473df` · **Adjudicates:** P-03 · **Status:** **deferred,
+measured**
+
+**Measured across all 631 corpus transitions:**
+
+| observation | value |
+|---|---|
+| `goal_effect` kinds present | `NONE` 567, `DISCHARGE` 63 — **no goal-creation effect exists** |
+| `scope_effect` kinds present | `NONE` 630 |
+| goals in `state_before` | 0 in 568 cases, 1 in 63 |
+| transitions with **more than one goal** | **0** |
+
+**Decision: do not implement.** The corpus contains no subgoal decomposition of any kind. A
+`parent_goal_id` would have nothing to point at in any transition that exists, making it a
+write-once field justified by nothing — and this project's standing rule puts the burden of
+proof on the addition.
+
+**On `created_by_action`.** Not implemented, and not because it is a bad idea. An earlier
+cognition audit established that the string appears **nowhere in either repository**: it was
+a proposal in a mission brief, not a repository fact. Recorded here so it is not later
+mistaken for a design that was rejected on evidence.
+
+**What the Lean evidence does and does not say.** Lean `case` tags compose on 59.59% of steps
+and only 67.27% of consecutive traced pairs are chained, so Lean genuinely has a goal tree.
+But LeanDojo traces against the *focused* goal, so only **0.61%** of its steps ever show more
+than one goal — the tree is largely Lean's own bookkeeping, and the dataset systematically
+under-represents the multi-goal states a `parent_goal_id` would serve.
+
+**The three dimensions stay separate**, and only the first is implemented: **scope ancestry**
+(logical visibility, D-053, derived from the branch tree), **goal ancestry** (subgoal lineage,
+this record, deferred), **execution focus/order** (scheduling, not modelled at all).
+
+**Activation cue.** A corpus containing transitions that create subgoals — a `goal_effect`
+kind other than `NONE`/`DISCHARGE`, or any state with more than one goal. Until one exists,
+there is nothing to represent.
