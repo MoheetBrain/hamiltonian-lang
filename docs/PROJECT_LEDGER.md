@@ -6200,3 +6200,76 @@ to these six modules**.
 
 **Next intended step.** P-02 claim correction, the P-03 external Lean witness audit, integrate
 the corpus schema audit, then the freeze gate.
+
+---
+
+## 2026-08-11 — preserve the ephemeral research evidence; census still NOT run
+
+**Branch.** `feature/hml-reasoning-kernel-v2` @ `e920f68` · **Stage.** closeout under a low
+context budget. Bounded to preservation; no probe was started.
+
+**Objective.** End the session with durable evidence and an exact continuation point.
+
+**The finding that made this session worth spending.** Two independent bodies of research
+evidence existed **only** in one session's `/private/tmp` scratchpad
+(`887b3b44-e84e-439f-a405-475ef1e75ee6`), which will not survive:
+
+1. **The LeanDojo artifacts** — 285 MB, 8 derived files, 12 extraction scripts. P-02 and
+   P-03 both depend on them.
+2. **The entire mutation harness** — catalogue, four runners and all prior results. This was
+   *not* in the brief and was found while looking for the census. Without it the freeze
+   blocker would have been **unclosable**, not merely open: the catalogue defining what 142
+   mutations even are lived nowhere else.
+
+Both are now under `/Users/moheet/hml_research_artifacts/`, outside Git, with
+machine-readable manifests committed in `reports/artifacts/`.
+
+**LeanDojo.** All 8 files checksummed at source, copied, and re-checksummed after transfer —
+**8/8 matched**. Provenance recovered from `project_memory.yaml` X94 (corpus repo): LeanDojo
+Benchmark 4 v10, DOI 10.5281/zenodo.12740403, mathlib4 29dcec07, Lean v4.10.0-rc1, CC BY 2.0.
+It **cross-validates**: `stats.json` reports 259,580 steps over 122,517 theorems in 3,606
+files, matching the independently written provenance record exactly. The archive SHA256 is
+recorded as truncated (`19b9a319...a98a4`) because that is how it exists in the source; the
+full value is written nowhere in either repository, so Zenodo's published checksum is named
+as the authority rather than a full hash being invented. The full 271 MB `steps.jsonl` was
+kept as well as the 5,000-state sample — local disk is cheap, and neither probe should
+depend on a re-download succeeding.
+
+**Mutation harness.** Preserved, and **repaired for portability**: all four `run_census*.py`
+hardcoded the dead scratchpad path, so they would have failed on first use. ROOT now defaults
+to the script's own directory (`HML_MUT_ROOT` overrides). Verified by importing the catalogue
+from the durable location: **142 base + 3 extra2 + 9 head2_extra = 154**.
+
+**The census was NOT run.** The prior 142/101/41 (71.1%) was measured at `10c1879`/`aac4483`
+— confirmed from the harness's own `PINNED_SHA` files — and predates the 19 killing tests at
+`e920f68`. It is superseded and must not be quoted. Running it means 154 mutants each
+requiring a full `tests/semantic_state` pass, followed by severity and classification work on
+every survivor. Starting that with the context remaining would have produced a half-analysed
+census, which is worse than none: the directive's own rule is not to rush a blocker because
+context is low.
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| LeanDojo checksums, source vs destination | **8/8 identical** |
+| provenance cross-validation | steps/theorems/files match X94 exactly |
+| mutation catalogue import from durable location | **154 mutations** |
+| runner portability patch | 4 runners patched |
+| HML worktree | `e920f68`, clean, in sync |
+| corpus worktree | `9d67e54`, Codex-owned, **not modified** |
+
+**Failures and unresolved uncertainty.**
+
+- **Freeze blocker 1 (post-integration mutation census) remains OPEN and is now the first
+  task, not P-02.** The brief named P-02 first; that ordering assumed the census would be
+  finished here. It was not.
+- **P-02 NOT RUN. P-03 NOT RUN.** Neither was started; nothing about them is adjudicated.
+- The archive SHA256 remains truncated in every record I could find.
+- No mutation survivor was reproduced, classified or repaired this session.
+
+**Effect.** Two bodies of evidence that were one `/private/tmp` sweep from being lost are now
+durable and verifiable, and the census is runnable instead of unrunnable.
+
+**Next intended step.** Run the 154-mutation census against `e920f68` from the durable
+harness, then classify every survivor.

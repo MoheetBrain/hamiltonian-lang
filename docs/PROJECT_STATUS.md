@@ -28,7 +28,9 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**MUTATION CENSUS REGENERATED AT HEAD: 142 mutations, 101 killed, 41 survived (71.1%).**
+**MUTATION CENSUS AT HEAD: NOT RUN.** The 142/101/41 (71.1%) figure was measured at `10c1879`/`aac4483` and **predates the 19 killing tests integrated at `e920f68`**, so it is superseded and must not be quoted as the current score. Freeze blocker 1 of 5 remains open. The harness itself was found to exist only in an ephemeral session scratchpad; it is now preserved at `/Users/moheet/hml_research_artifacts/mutation_harness` and made portable (154 mutations verified loadable), so the census is runnable rather than unrunnable. **P-02 NOT RUN. P-03 NOT RUN.** The LeanDojo evidence both depend on is preserved at `/Users/moheet/hml_research_artifacts/leandojo` with a checksum-verified manifest.
+
+Superseded: 142 mutations, 101 killed, 41 survived (71.1%) at 10c1879/aac4483.
 Every survivor is classified — 28 `REAL_TEST_GAP`, 5 `REDUNDANT_DEFENCE`, 2
 `SEMANTICALLY_EQUIVALENT`, 6 `DEAD_OR_UNREACHABLE`, **0 `UNCERTAIN`**. 19 killing tests
 integrated (`test_mutation_gaps.py`), each verified to pass unmutated *and* fail against its
