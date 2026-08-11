@@ -1131,6 +1131,11 @@ against isolated file ownership.
 
 | file | role |
 |------|------|
+| `reports/artifacts/MUTATION_CENSUS_POST_D057.json` | the census at HEAD: 147 applicable, 137 killed, 93.2%, all 10 survivors classified |
+| `reports/artifacts/LEAN_WITNESS_ADJUDICATION.json` | the external Lean evidence behind the P-02 and P-03 decisions |
+| `reports/artifacts/MUTATION_HARNESS_MANIFEST.json` | pointer + checksums for the out-of-Git harness, **and the three harness defects that silently corrupt evidence** |
+| `reports/artifacts/LEANDOJO_ARTIFACT_MANIFEST.json` | pointer + checksums for the 285 MB LeanDojo extraction and its analysis scripts |
+| `tests/semantic_state/test_frame_goals_and_census_gaps.py` | the goal frame (D-057) and every reproduced census survivor |
 | `GOAL.md` | project thesis |
 | `docs/design/V0_DESIGN_FREEZE.md` | the frozen v0 contract |
 | `SPEC.md` | normative language reference |

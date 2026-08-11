@@ -6369,3 +6369,13 @@ That is now the stated reason the freeze waits for an independent audit.
 enumeration in `verify.py`, every declarable effect channel versus every channel
 `_licensed_change` recognises, every `SemanticState` record kind versus every kind the frame
 iterates. Then rerun the affected gates, then reconsider the freeze.
+
+### 2026-08-11 (addendum) — this session's tooling made durable
+
+The five scripts written today (`probe_battery.py`, `differential.py`,
+`run_survivors_full.py`, `select_witnesses.py`, `inplace_analysis.py`) live outside Git with
+the artifacts they operate on, and are now checksummed into the two manifests in
+`reports/artifacts/` — the same failure mode the previous session repaired, closed for this
+session's work before it could recur. The manifests also record the three harness defects
+found today, because each of them silently corrupts evidence and the next reader needs that
+warning more than the tooling.

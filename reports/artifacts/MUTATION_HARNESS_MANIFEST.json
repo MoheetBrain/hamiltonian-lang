@@ -1,124 +1,160 @@
 {
-  "artifact_id": "semantic_state_mutation_harness",
-  "status": "PRESERVED AND MADE PORTABLE \u2014 the post-integration census is NOT RUN",
-  "recorded_at_hml_sha": "e920f681c7fad3796ca00aa974e53e4ccb9bf597",
-  "why_this_exists": "The entire harness -- catalogue, runners and prior results -- lived only in an ephemeral session scratchpad (887b3b44-...), the same one holding the LeanDojo artifacts. Without this copy the census could not be re-run at all, so the freeze blocker would have been unclosable rather than merely open.",
-  "durable_location": "/Users/moheet/hml_research_artifacts/mutation_harness",
-  "catalogue": {
-    "base_mutations": 142,
-    "extra2": 3,
-    "head2_extra": 9,
-    "total": 154,
-    "modules_covered": [
-      "verify.py",
-      "trust.py",
-      "neutral.py",
-      "model.py",
-      "domains.py",
-      "view.py"
-    ],
-    "verified": "imported from the durable location at this SHA; counts above are measured"
+ "artifact_id": "semantic_state_mutation_harness",
+ "status": "PRESERVED AND MADE PORTABLE \u2014 the post-integration census is NOT RUN",
+ "recorded_at_hml_sha": "e920f681c7fad3796ca00aa974e53e4ccb9bf597",
+ "why_this_exists": "The entire harness -- catalogue, runners and prior results -- lived only in an ephemeral session scratchpad (887b3b44-...), the same one holding the LeanDojo artifacts. Without this copy the census could not be re-run at all, so the freeze blocker would have been unclosable rather than merely open.",
+ "durable_location": "/Users/moheet/hml_research_artifacts/mutation_harness",
+ "catalogue": {
+  "base_mutations": 142,
+  "extra2": 3,
+  "head2_extra": 9,
+  "total": 154,
+  "modules_covered": [
+   "verify.py",
+   "trust.py",
+   "neutral.py",
+   "model.py",
+   "domains.py",
+   "view.py"
+  ],
+  "verified": "imported from the durable location at this SHA; counts above are measured"
+ },
+ "prior_census": {
+  "result": "142 total, 101 killed, 41 survived (71.1%)",
+  "ran_against_sha": [
+   "10c1879747a42fb0a6894d6d7fcfb398b3fd499a",
+   "aac4483c37ebb17e1436ef42d734d35d6c7802e6"
+  ],
+  "STATUS": "SUPERSEDED AND NOT VALID AT HEAD. It predates the 19 killing tests integrated at e920f68. It must not be quoted as the current mutation score."
+ },
+ "portability_repair": "run_census*.py hardcoded the dead scratchpad path. ROOT now defaults to the script's own directory, overridable via HML_MUT_ROOT; the interpreter via HML_MUT_PY. Four runners patched.",
+ "how_to_run_the_census": [
+  "1. cp -r /Users/moheet/hml_v2_worktree <WORK>/pristine   (a throwaway copy; the runner mutates src/hamiltonian_lang/semantic_state in place and restores after each mutant)",
+  "2. cd /Users/moheet/hml_research_artifacts/mutation_harness",
+  "3. HML_MUT_ROOT=<WORK> .venv-python run_census.py <out.json> tests/semantic_state",
+  "4. repeat for run_census_x2.py and run_census_head2_extra equivalents to cover all 154",
+  "5. cost estimate: 154 mutants x one tests/semantic_state run each"
+ ],
+ "files": [
+  {
+   "name": "head_verify.py",
+   "bytes": 46520,
+   "sha256": "714cfeca08c88dd573c6caebbefc6652b6a6cf5fb97e76dd60f8cb7ba295ba7b"
   },
-  "prior_census": {
-    "result": "142 total, 101 killed, 41 survived (71.1%)",
-    "ran_against_sha": [
-      "10c1879747a42fb0a6894d6d7fcfb398b3fd499a",
-      "aac4483c37ebb17e1436ef42d734d35d6c7802e6"
-    ],
-    "STATUS": "SUPERSEDED AND NOT VALID AT HEAD. It predates the 19 killing tests integrated at e920f68. It must not be quoted as the current mutation score."
+  {
+   "name": "mutate_plugin.py",
+   "bytes": 2039,
+   "sha256": "f445e179f0a9d580c255e63f638e22df6f581f6ed69dc104cf90466c84a0c718"
   },
-  "portability_repair": "run_census*.py hardcoded the dead scratchpad path. ROOT now defaults to the script's own directory, overridable via HML_MUT_ROOT; the interpreter via HML_MUT_PY. Four runners patched.",
-  "how_to_run_the_census": [
-    "1. cp -r /Users/moheet/hml_v2_worktree <WORK>/pristine   (a throwaway copy; the runner mutates src/hamiltonian_lang/semantic_state in place and restores after each mutant)",
-    "2. cd /Users/moheet/hml_research_artifacts/mutation_harness",
-    "3. HML_MUT_ROOT=<WORK> .venv-python run_census.py <out.json> tests/semantic_state",
-    "4. repeat for run_census_x2.py and run_census_head2_extra equivalents to cover all 154",
-    "5. cost estimate: 154 mutants x one tests/semantic_state run each"
+  {
+   "name": "mutations.py",
+   "bytes": 37966,
+   "sha256": "6f4155fa4e620bcbe5d933da9dde5ce83d392da4295be348bfbb0195e7daa22d"
+  },
+  {
+   "name": "mutations_extra2.py",
+   "bytes": 642,
+   "sha256": "6d86e632424ce0813880112dbcd22c564300013e726f8d541d0cedaf0517d58e"
+  },
+  {
+   "name": "mutations_head2_extra.py",
+   "bytes": 2595,
+   "sha256": "2896c97854b8d1d800ff0ac56f15726310ee9f8ab93be61f18380cad9d573c37"
+  },
+  {
+   "name": "p_common.py",
+   "bytes": 2083,
+   "sha256": "03bcc513b5f79a55e7c7592997ac796881d797fada7dcce9d99d133b507030da"
+  },
+  {
+   "name": "probe.py",
+   "bytes": 1781,
+   "sha256": "40adc02d77013bcc433394a3aae28a9dd03b56816d4682d4308b2a9709388b05"
+  },
+  {
+   "name": "proposed_tests.py",
+   "bytes": 32123,
+   "sha256": "0fdb90b0801ca84a38e8a37bc26fe63f5bf1f4dd1df4eb114209c3af8ce46ab4"
+  },
+  {
+   "name": "run_census.py",
+   "bytes": 3735,
+   "sha256": "40bdb4806a9dbb5f90e6736d9d942f07a0ec66f6d831b9604d38d4c57cd65409"
+  },
+  {
+   "name": "run_census_h2x.py",
+   "bytes": 3760,
+   "sha256": "46ee8b6cf2b2463f1938e53c0fa72ab78a7487457b62b6e3c7a37c8b838dd7c4"
+  },
+  {
+   "name": "run_census_head2.py",
+   "bytes": 3744,
+   "sha256": "a3e68c2ade371846f7ee860880dad087e7068a017bddb4c8252be157be217f67"
+  },
+  {
+   "name": "run_census_x2.py",
+   "bytes": 3752,
+   "sha256": "8882400f4bbee266467f44071b566defc518d2ded90cc9662109085d72f6cd57"
+  },
+  {
+   "name": "run_full.py",
+   "bytes": 2818,
+   "sha256": "a1d5f922b503a2bb77094cdc8beafed079400ef43b5039d61dded7abbdca61d1"
+  },
+  {
+   "name": "verify_proposals.py",
+   "bytes": 4044,
+   "sha256": "4901f1620e8c01796a8756ab65f0879897d391cf305cdb3b4e3b31da612283b6"
+  },
+  {
+   "name": "verify_proposals_head2.py",
+   "bytes": 1665,
+   "sha256": "757e00b42e36d631e813fcd21d7177d78af2c1e19b7e590ffcb489bd950066ed"
+  }
+ ],
+ "prior_results_preserved": [
+  "full_results.json",
+  "proposal_verification.json",
+  "results.json",
+  "results_extra2.json",
+  "results_head2.json",
+  "results_head2_extra.json"
+ ],
+ "freeze_relevance": "Blocker 1 of 5. The census is the gate; this manifest makes it runnable, it does not close it.",
+ "census_2026_08_11": {
+  "status": "RUN. 147 applicable mutants, 137 killed, 10 survived, 93.2%.",
+  "report_in_repo": "reports/artifacts/MUTATION_CENSUS_POST_D057.json",
+  "trees": {
+   "census_post_d057": "/Users/moheet/hml_research_artifacts/census_post_d057 (pristine + head2 copies at the D-057 commit)",
+   "probe_tree": "/Users/moheet/hml_research_artifacts/mutation_harness/probe_tree (differential battery only; never shared with a census in flight)"
+  },
+  "tooling_added": [
+   {
+    "name": "probe_battery.py",
+    "bytes": 24903,
+    "sha256": "3a68cd39ac39b8fdd5a5604b487e145828a4c0e65f21de17448d5147ed47eca4"
+   },
+   {
+    "name": "differential.py",
+    "bytes": 5482,
+    "sha256": "5bfc1f5bd54f819cbe420ffcd0552afbe1931baa302a46fb286aa4ebb07f206d"
+   },
+   {
+    "name": "run_survivors_full.py",
+    "bytes": 3304,
+    "sha256": "03e5c9b35bce02d2f57127c3d868b8f95a7ef6ab3f385b58e57da0e883729f20"
+   }
   ],
-  "files": [
-    {
-      "name": "head_verify.py",
-      "bytes": 46520,
-      "sha256": "714cfeca08c88dd573c6caebbefc6652b6a6cf5fb97e76dd60f8cb7ba295ba7b"
-    },
-    {
-      "name": "mutate_plugin.py",
-      "bytes": 2039,
-      "sha256": "f445e179f0a9d580c255e63f638e22df6f581f6ed69dc104cf90466c84a0c718"
-    },
-    {
-      "name": "mutations.py",
-      "bytes": 37966,
-      "sha256": "6f4155fa4e620bcbe5d933da9dde5ce83d392da4295be348bfbb0195e7daa22d"
-    },
-    {
-      "name": "mutations_extra2.py",
-      "bytes": 642,
-      "sha256": "6d86e632424ce0813880112dbcd22c564300013e726f8d541d0cedaf0517d58e"
-    },
-    {
-      "name": "mutations_head2_extra.py",
-      "bytes": 2595,
-      "sha256": "2896c97854b8d1d800ff0ac56f15726310ee9f8ab93be61f18380cad9d573c37"
-    },
-    {
-      "name": "p_common.py",
-      "bytes": 2083,
-      "sha256": "03bcc513b5f79a55e7c7592997ac796881d797fada7dcce9d99d133b507030da"
-    },
-    {
-      "name": "probe.py",
-      "bytes": 1781,
-      "sha256": "40adc02d77013bcc433394a3aae28a9dd03b56816d4682d4308b2a9709388b05"
-    },
-    {
-      "name": "proposed_tests.py",
-      "bytes": 32123,
-      "sha256": "0fdb90b0801ca84a38e8a37bc26fe63f5bf1f4dd1df4eb114209c3af8ce46ab4"
-    },
-    {
-      "name": "run_census.py",
-      "bytes": 3735,
-      "sha256": "40bdb4806a9dbb5f90e6736d9d942f07a0ec66f6d831b9604d38d4c57cd65409"
-    },
-    {
-      "name": "run_census_h2x.py",
-      "bytes": 3760,
-      "sha256": "46ee8b6cf2b2463f1938e53c0fa72ab78a7487457b62b6e3c7a37c8b838dd7c4"
-    },
-    {
-      "name": "run_census_head2.py",
-      "bytes": 3744,
-      "sha256": "a3e68c2ade371846f7ee860880dad087e7068a017bddb4c8252be157be217f67"
-    },
-    {
-      "name": "run_census_x2.py",
-      "bytes": 3752,
-      "sha256": "8882400f4bbee266467f44071b566defc518d2ded90cc9662109085d72f6cd57"
-    },
-    {
-      "name": "run_full.py",
-      "bytes": 2818,
-      "sha256": "a1d5f922b503a2bb77094cdc8beafed079400ef43b5039d61dded7abbdca61d1"
-    },
-    {
-      "name": "verify_proposals.py",
-      "bytes": 4044,
-      "sha256": "4901f1620e8c01796a8756ab65f0879897d391cf305cdb3b4e3b31da612283b6"
-    },
-    {
-      "name": "verify_proposals_head2.py",
-      "bytes": 1665,
-      "sha256": "757e00b42e36d631e813fcd21d7177d78af2c1e19b7e590ffcb489bd950066ed"
-    }
+  "tooling_purpose": {
+   "probe_battery.py": "219 probes: 70 corpus fixtures in BOTH trust modes, adversarial payloads, renderer round trips, malformed view text, neutral key-namespace probes, direct domain-lattice manipulation.",
+   "differential.py": "Applies each survivor, runs the battery, diffs against pristine. A differing probe is a REPRODUCTION; no differing probe is evidence of non-observability, not of semantic equivalence.",
+   "run_survivors_full.py": "Re-runs survivors against the full suite. MUST be read with baseline subtraction -- see the defect note below."
+  },
+  "harness_defects_found_and_fixed": [
+   "run_census_h2x.py / run_census_head2.py use ROOT/'head2', which the previous portability repair did not create. The 9 head2_extra mutations could not run.",
+   "run_survivors_full.py had NO BASELINE CONTROL. All 26 survivors reported KILLED_BY_FULL_SUITE; all 26 produced an IDENTICAL 5-test failure set, which is the copied tree's own baseline (the copy omits .venv and five tests shell out to .venv/bin/hml). The wider suite contributes ZERO kills. Always subtract the baseline.",
+   "A driver that dies inside a mutation leaves the mutant on disk. M123 removes a termination guard, the battery never returns, the timeout killed the driver before it restored, and the NEXT run snapshotted the mutant as its pristine baseline. differential.py now verifies its originals against the git worktree before mutating (assert_pristine) and restores in a finally."
   ],
-  "prior_results_preserved": [
-    "full_results.json",
-    "proposal_verification.json",
-    "results.json",
-    "results_extra2.json",
-    "results_head2.json",
-    "results_head2_extra.json"
-  ],
-  "freeze_relevance": "Blocker 1 of 5. The census is the gate; this manifest makes it runnable, it does not close it."
+  "catalogue_arithmetic": "154 entries, 7 inapplicable at HEAD (superseded 1:1 by head2_extra re-expressions), so 147 applicable. Quoting 154 double-counts."
+ }
 }

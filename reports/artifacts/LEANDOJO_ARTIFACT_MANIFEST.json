@@ -1,146 +1,187 @@
 {
-  "artifact_id": "leandojo_benchmark_4_v10_derived_steps",
-  "purpose": {
-    "P-02": "transformation witness \u2014 does a real Lean corpus exhibit in-place transformation, or only derive-new?",
-    "P-03": "goal-ancestry witness"
+ "artifact_id": "leandojo_benchmark_4_v10_derived_steps",
+ "purpose": {
+  "P-02": "transformation witness \u2014 does a real Lean corpus exhibit in-place transformation, or only derive-new?",
+  "P-03": "goal-ancestry witness"
+ },
+ "status": "PRESERVED \u2014 P-02 CLOSED (D-058) and P-03 adjudicated against it on 2026-08-11",
+ "recorded_at_hml_sha": "e920f681c7fad3796ca00aa974e53e4ccb9bf597",
+ "canonical_source": {
+  "dataset": "LeanDojo Benchmark 4",
+  "version": "v10",
+  "doi": "10.5281/zenodo.12740403",
+  "licence": "CC BY 2.0",
+  "mathlib4_revision": "29dcec07",
+  "lean_version": "v4.10.0-rc1",
+  "archive_sha256": "19b9a319...a98a4",
+  "archive_sha256_note": "TRUNCATED in the source record (project_memory.yaml X94, corpus repo). It was verified there against Zenodo's published checksum. The full value was NOT reproduced here because it is not written in full anywhere in either repository; Zenodo's published checksum is the authority on re-download.",
+  "provenance_record": "reports/FINAL_THREE_SOURCE_HML_PROPOSAL.md (this repo)",
+  "cognition_record": "experiments/project_cognition/project_memory.yaml X94 (corpus repo, Codex-owned)"
+ },
+ "durable_location": "/Users/moheet/hml_research_artifacts/leandojo",
+ "durable_location_note": "OUTSIDE git. 271 MB of derived Lean data is not committed; this manifest is the in-repo pointer.",
+ "previous_location": "/private/tmp/claude-501/-Users-moheet-hamiltonian-lang/887b3b44-e84e-439f-a405-475ef1e75ee6/scratchpad/leandojo/out \u2014 EPHEMERAL, a different session's scratchpad; this copy exists because that path will not survive.",
+ "derived_files": [
+  {
+   "name": "analysis.json",
+   "bytes": 32931,
+   "sha256": "eda573cbbaf0dde9e6017ef492204078f5d7480d3eb1fce88f3e8d75381b07fe"
   },
-  "status": "PRESERVED \u2014 P-02 and P-03 NOT RUN against it",
-  "recorded_at_hml_sha": "e920f681c7fad3796ca00aa974e53e4ccb9bf597",
-  "canonical_source": {
-    "dataset": "LeanDojo Benchmark 4",
-    "version": "v10",
-    "doi": "10.5281/zenodo.12740403",
-    "licence": "CC BY 2.0",
-    "mathlib4_revision": "29dcec07",
-    "lean_version": "v4.10.0-rc1",
-    "archive_sha256": "19b9a319...a98a4",
-    "archive_sha256_note": "TRUNCATED in the source record (project_memory.yaml X94, corpus repo). It was verified there against Zenodo's published checksum. The full value was NOT reproduced here because it is not written in full anywhere in either repository; Zenodo's published checksum is the authority on re-download.",
-    "provenance_record": "reports/FINAL_THREE_SOURCE_HML_PROPOSAL.md (this repo)",
-    "cognition_record": "experiments/project_cognition/project_memory.yaml X94 (corpus repo, Codex-owned)"
+  {
+   "name": "analysis2.json",
+   "bytes": 7319,
+   "sha256": "f4e09795a5d4b80093736f82d0f85593f839c70acf6d172e8e27b71286983966"
   },
-  "durable_location": "/Users/moheet/hml_research_artifacts/leandojo",
-  "durable_location_note": "OUTSIDE git. 271 MB of derived Lean data is not committed; this manifest is the in-repo pointer.",
-  "previous_location": "/private/tmp/claude-501/-Users-moheet-hamiltonian-lang/887b3b44-e84e-439f-a405-475ef1e75ee6/scratchpad/leandojo/out \u2014 EPHEMERAL, a different session's scratchpad; this copy exists because that path will not survive.",
-  "derived_files": [
-    {
-      "name": "analysis.json",
-      "bytes": 32931,
-      "sha256": "eda573cbbaf0dde9e6017ef492204078f5d7480d3eb1fce88f3e8d75381b07fe"
-    },
-    {
-      "name": "analysis2.json",
-      "bytes": 7319,
-      "sha256": "f4e09795a5d4b80093736f82d0f85593f839c70acf6d172e8e27b71286983966"
-    },
-    {
-      "name": "core2.json",
-      "bytes": 259,
-      "sha256": "d69e671face2e4039127133c84973121d9b0f00249fd9680509edc9cf515c5a7"
-    },
-    {
-      "name": "head_core.json",
-      "bytes": 13934,
-      "sha256": "a242cb17937069e9d8ab6da8f7e672c7f8dba38edbe6340f2c8d4765c0218658"
-    },
-    {
-      "name": "premises_available_per_file.json",
-      "bytes": 314793,
-      "sha256": "dec1ab41ebe166d9730eb7aa18c9e5678ad061417850a0577de8967e48c7afe8"
-    },
-    {
-      "name": "sample.jsonl",
-      "bytes": 12371616,
-      "sha256": "fb4e65d76e02aa976ba4332d9554413856161b46b18fa6ea59bfe783ae1a789c"
-    },
-    {
-      "name": "stats.json",
-      "bytes": 175,
-      "sha256": "8ab7cbec634608c85f11cdace0b26d36fad30ca3e2b15b4785910c3980391ceb"
-    },
-    {
-      "name": "steps.jsonl",
-      "bytes": 271038884,
-      "sha256": "ddd90685d94ac1792b95d699a8d10e667bf30ada7d3150010402aedf7ac33120"
-    }
-  ],
-  "extraction_scripts": [
-    {
-      "name": "analyze.py",
-      "bytes": 7454,
-      "sha256": "726824921c845713b86751aba6db0460a384363e1496e039d8467c27d02d32fe"
-    },
-    {
-      "name": "analyze2.py",
-      "bytes": 8246,
-      "sha256": "4b7a18e4d41bfdd3217cab4627055a3ca385ac75f8e8919ccfe4ff9b09934034"
-    },
-    {
-      "name": "core2.py",
-      "bytes": 3349,
-      "sha256": "f487684f0c9629349b2eb8606999024136d7daaf42be60927578ac0d2b748038"
-    },
-    {
-      "name": "extra.py",
-      "bytes": 1540,
-      "sha256": "81020f32db487630d8206c5b4b59c4ad650b66480bdd043980e3df6ff53b6ca8"
-    },
-    {
-      "name": "extract.py",
-      "bytes": 11595,
-      "sha256": "b1de012fdbcd8021c975345d74c4aa28f6f87e027e7f8efb45ed30055281146c"
-    },
-    {
-      "name": "final.py",
-      "bytes": 1628,
-      "sha256": "3cba23a8948c13fef0b308e975dd6c2181e4d3c46cc91cf76f8cc6be58139dc2"
-    },
-    {
-      "name": "headcore.py",
-      "bytes": 2675,
-      "sha256": "2ef4300bba0ca6162207068a4a7fe3c5da51e06ebb389976fa782e247fa32198"
-    },
-    {
-      "name": "hunt.py",
-      "bytes": 3221,
-      "sha256": "c566c40191d5db363e9b1f598408e37db28af0f7924e596ee68d21ab6e5a3233"
-    },
-    {
-      "name": "hunt2.py",
-      "bytes": 1288,
-      "sha256": "abc50a8a833d07eb6632c92af518946a4af12b35a55390fed0c47dd63337dece"
-    },
-    {
-      "name": "premavail.py",
-      "bytes": 1611,
-      "sha256": "4b7693ae2c2573406599a178ff7ba39768b9cb29aafa3887d9e4f54e3f3f1c67"
-    },
-    {
-      "name": "probe1.py",
-      "bytes": 946,
-      "sha256": "aa80ed7c00a14d990abd70ab5afb6b6868461b40d2697f0e9b696887f0fdb1a1"
-    },
-    {
-      "name": "validate.py",
-      "bytes": 1169,
-      "sha256": "b7454df684372a94b2e53408d1f77f7774666f8ca0ed3e8842695b4e200cb323"
-    }
-  ],
-  "record_counts": {
-    "steps_jsonl_lines": 259580,
-    "sample_jsonl_lines": 5000,
-    "theorems": 122517,
-    "theorems_without_traced_tactics": 60973,
-    "files": 3606,
-    "parse_failures": 0,
-    "sample_seed": 20260810
+  {
+   "name": "core2.json",
+   "bytes": 259,
+   "sha256": "d69e671face2e4039127133c84973121d9b0f00249fd9680509edc9cf515c5a7"
   },
-  "cross_validation": "stats.json (259,580 steps / 122,517 theorems / 3,606 files) matches the independently written provenance record in project_memory.yaml X94 exactly.",
-  "sample_is_sufficient_for": "P-02 and P-03 need full before/after states; sample.jsonl carries 5,000 complete state_before/state_after records at seed 20260810. steps.jsonl is retained anyway (271 MB is cheap locally) so neither probe depends on re-download.",
-  "reacquisition": {
-    "1": "Download LeanDojo Benchmark 4 v10 from DOI 10.5281/zenodo.12740403",
-    "2": "Verify the archive against Zenodo's published SHA256",
-    "3": "Re-run the preserved extraction scripts in scripts/ (extract.py then the analysers)",
-    "4": "Confirm 259,580 steps over 122,517 theorems in 3,606 files, 0 parse failures"
+  {
+   "name": "head_core.json",
+   "bytes": 13934,
+   "sha256": "a242cb17937069e9d8ab6da8f7e672c7f8dba38edbe6340f2c8d4765c0218658"
   },
-  "verification": "All 8 derived files checksummed at source and re-checksummed after transfer; all 8 matched."
+  {
+   "name": "premises_available_per_file.json",
+   "bytes": 314793,
+   "sha256": "dec1ab41ebe166d9730eb7aa18c9e5678ad061417850a0577de8967e48c7afe8"
+  },
+  {
+   "name": "sample.jsonl",
+   "bytes": 12371616,
+   "sha256": "fb4e65d76e02aa976ba4332d9554413856161b46b18fa6ea59bfe783ae1a789c"
+  },
+  {
+   "name": "stats.json",
+   "bytes": 175,
+   "sha256": "8ab7cbec634608c85f11cdace0b26d36fad30ca3e2b15b4785910c3980391ceb"
+  },
+  {
+   "name": "steps.jsonl",
+   "bytes": 271038884,
+   "sha256": "ddd90685d94ac1792b95d699a8d10e667bf30ada7d3150010402aedf7ac33120"
+  }
+ ],
+ "extraction_scripts": [
+  {
+   "name": "analyze.py",
+   "bytes": 7454,
+   "sha256": "726824921c845713b86751aba6db0460a384363e1496e039d8467c27d02d32fe"
+  },
+  {
+   "name": "analyze2.py",
+   "bytes": 8246,
+   "sha256": "4b7a18e4d41bfdd3217cab4627055a3ca385ac75f8e8919ccfe4ff9b09934034"
+  },
+  {
+   "name": "core2.py",
+   "bytes": 3349,
+   "sha256": "f487684f0c9629349b2eb8606999024136d7daaf42be60927578ac0d2b748038"
+  },
+  {
+   "name": "extra.py",
+   "bytes": 1540,
+   "sha256": "81020f32db487630d8206c5b4b59c4ad650b66480bdd043980e3df6ff53b6ca8"
+  },
+  {
+   "name": "extract.py",
+   "bytes": 11595,
+   "sha256": "b1de012fdbcd8021c975345d74c4aa28f6f87e027e7f8efb45ed30055281146c"
+  },
+  {
+   "name": "final.py",
+   "bytes": 1628,
+   "sha256": "3cba23a8948c13fef0b308e975dd6c2181e4d3c46cc91cf76f8cc6be58139dc2"
+  },
+  {
+   "name": "headcore.py",
+   "bytes": 2675,
+   "sha256": "2ef4300bba0ca6162207068a4a7fe3c5da51e06ebb389976fa782e247fa32198"
+  },
+  {
+   "name": "hunt.py",
+   "bytes": 3221,
+   "sha256": "c566c40191d5db363e9b1f598408e37db28af0f7924e596ee68d21ab6e5a3233"
+  },
+  {
+   "name": "hunt2.py",
+   "bytes": 1288,
+   "sha256": "abc50a8a833d07eb6632c92af518946a4af12b35a55390fed0c47dd63337dece"
+  },
+  {
+   "name": "premavail.py",
+   "bytes": 1611,
+   "sha256": "4b7693ae2c2573406599a178ff7ba39768b9cb29aafa3887d9e4f54e3f3f1c67"
+  },
+  {
+   "name": "probe1.py",
+   "bytes": 946,
+   "sha256": "aa80ed7c00a14d990abd70ab5afb6b6868461b40d2697f0e9b696887f0fdb1a1"
+  },
+  {
+   "name": "validate.py",
+   "bytes": 1169,
+   "sha256": "b7454df684372a94b2e53408d1f77f7774666f8ca0ed3e8842695b4e200cb323"
+  }
+ ],
+ "record_counts": {
+  "steps_jsonl_lines": 259580,
+  "sample_jsonl_lines": 5000,
+  "theorems": 122517,
+  "theorems_without_traced_tactics": 60973,
+  "files": 3606,
+  "parse_failures": 0,
+  "sample_seed": 20260810
+ },
+ "cross_validation": "stats.json (259,580 steps / 122,517 theorems / 3,606 files) matches the independently written provenance record in project_memory.yaml X94 exactly.",
+ "sample_is_sufficient_for": "P-02 and P-03 need full before/after states; sample.jsonl carries 5,000 complete state_before/state_after records at seed 20260810. steps.jsonl is retained anyway (271 MB is cheap locally) so neither probe depends on re-download.",
+ "reacquisition": {
+  "1": "Download LeanDojo Benchmark 4 v10 from DOI 10.5281/zenodo.12740403",
+  "2": "Verify the archive against Zenodo's published SHA256",
+  "3": "Re-run the preserved extraction scripts in scripts/ (extract.py then the analysers)",
+  "4": "Confirm 259,580 steps over 122,517 theorems in 3,606 files, 0 parse failures"
+ },
+ "verification": "All 8 derived files checksummed at source and re-checksummed after transfer; all 8 matched.",
+ "analysis_scripts_added": [
+  {
+   "name": "select_witnesses.py",
+   "bytes": 6508,
+   "sha256": "ebf3a633c672d1fce06e07e811cfcff0dc2fbf0f2f6a4b7689259198bb8a14ac"
+  },
+  {
+   "name": "inplace_analysis.py",
+   "bytes": 4878,
+   "sha256": "d64eda57cb1f8a3523615e4b164caa6dc92d2e145d03da89de2a7edc2686eec7"
+  }
+ ],
+ "derived_witness_files": [
+  {
+   "name": "inplace_summary.json",
+   "bytes": 956,
+   "sha256": "6fe645cb190621362b5d70e7d6a961c035293295c00e48e35f88cb53b1577a2a"
+  },
+  {
+   "name": "inplace_witnesses.json",
+   "bytes": 1162124,
+   "sha256": "5afec8aaaee00a8016b843b55ae405402fda9f0d2809fac2bd0805928fd220d6"
+  },
+  {
+   "name": "population.json",
+   "bytes": 1228,
+   "sha256": "cb9190ae9f3122a72277f8f979e8734ca33bda080aa56a901856c1aa00e94ac8"
+  },
+  {
+   "name": "witnesses.json",
+   "bytes": 300162,
+   "sha256": "32a4aa23968dc23ec74dfd5ad1daea7282a7c87f77455c1ac6c6a93001f9e05c"
+  }
+ ],
+ "adjudication_report_in_repo": "reports/artifacts/LEAN_WITNESS_ADJUDICATION.json",
+ "headline_measurements": {
+  "P02_same_name_rebound_to_new_proposition": "462 / 5,000 sampled steps = 9.24%",
+  "P03_goal_creating_steps": "18,315 / 259,580 = 7.06%",
+  "P03_multi_goal_after": "18,901 / 259,580 = 7.28%",
+  "P03_multi_goal_before": "1,592 / 259,580 = 0.61% (reproduces D-056 exactly)"
+ }
 }
