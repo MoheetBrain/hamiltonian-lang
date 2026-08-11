@@ -39,6 +39,7 @@ from .model import (
     ClaimStatus,
     EvidenceRecord,
     Goal,
+    GoalStatus,
     Obligation,
     ObligationState,
     SemanticState,
@@ -215,7 +216,7 @@ def import_state(payload: dict) -> SemanticState:
         goals[gid] = Goal(
             id=raw.get("id", gid),
             proposition=raw.get("proposition", ""),
-            status=raw.get("status", "OPEN"),
+            status=_enum(raw.get("status", "OPEN"), GoalStatus, f"goal {gid!r} status"),
             scope=raw.get("scope", "global"),
         )
     obligations = {}

@@ -70,6 +70,7 @@ from .model import (
     ClaimStatus,
     EvidenceRecord,
     Goal,
+    GoalStatus,
     Obligation,
     ObligationState,
     SemanticState,
@@ -279,7 +280,7 @@ def _render_goal(out: list[str], depth: int, key: str, g: Goal) -> None:
     d = depth + 1
     _field(out, d, "id", _ident(g.id) if g.id != key else None)
     _field(out, d, "proposition", _text(g.proposition))
-    _field(out, d, "status", _text(g.status))
+    _field(out, d, "status", str(g.status))
     _field(out, d, "scope", _ident(g.scope) if g.scope != "global" else None)
 
 
@@ -573,7 +574,7 @@ def _parse_state_block(cursor: _Cursor, depth: int) -> SemanticState:
             goals[key] = Goal(
                 id=_opt_id(f, "id") or key,
                 proposition=_txt(f, "proposition"),
-                status=_txt(f, "status", "OPEN"),
+                status=_status(f, GoalStatus, GoalStatus.OPEN),
                 scope=_opt_id(f, "scope") or "global",
             )
         elif line.keyword == "obligation":

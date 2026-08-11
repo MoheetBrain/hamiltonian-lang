@@ -2690,3 +2690,91 @@ claim superseded; deletion is refused by the frame; and the only mechanism that 
 non-citable is scope closure, which is a statement about frames, not about one fact
 superseding another. **HML does not represent supersession.** It does not need to for P-02,
 and the word should not be used for what it does.
+
+---
+
+## D-059 — the goal record's three remaining omissions
+
+**Date:** 2026-08-11 · **After:** `136cdb9` · **Status:** **defects found and repaired** ·
+**Severity:** (a) HIGH fail-open · (b) MEDIUM fail-closed inconsistency · (c) MEDIUM
+verdict-precision
+
+D-057 brought `goals` inside the frame condition. It did not reach three further
+enumerations, all found by an omission audit that introspects the model — dataclasses, enums
+and transition tables — and then decides every cell empirically, rather than reading the
+verifier and asking what it checks.
+
+**(a) A declared discharge did not have to be performed.** The frame licenses a goal to
+change *because* `goal_effect` names it; nothing then checked that the licensed change was
+the declared one. Measured at `136cdb9`, in **both trust modes**:
+
+| declared `kind: DISCHARGE`, goal ends | verdict before | after |
+|---|---|---|
+| `DISCHARGED` | VALID | VALID |
+| `OPEN` | **VALID** | INVALID `FALSE_GOAL_DISCHARGE` |
+| `FAILED` / `ABANDONED` / `''` / `BANANA` | **VALID** | INVALID or refused at import |
+| goal deleted outright | **VALID** | INVALID |
+
+The identical shape on an obligation was already refused (`OBLIGATION_DROP`), which is what
+makes this an omission rather than a design judgement.
+
+**(b) `Goal.status` was the only record status in the model that was a bare `str`.** Claims,
+candidates, branches and obligations each validated theirs through `_enum` at the import
+boundary. Goals validated nothing, in **all three** enforcement paths — the neutral adapter
+(`neutral.py`), the renderer (which emitted it quoted, unlike every other kind) and the view
+parser (which read it back as free text). Goals accepted all 20 probed values including
+`''`, `'open'` and `'DISCHARGED '`; every other kind refused all 16 foreign ones. Repaired by
+adding `GoalStatus` — `OPEN`, `DISCHARGED`, `UNKNOWN`. The corpus uses exactly the first two
+(63 each), so no frozen data changes meaning; `UNKNOWN` is present for the reason it is on
+every other status enum.
+
+**(c) `_collect_unknowns` enumerated claims, candidates and branches — not goals or
+obligations.** An action citing one whose status could not be read was answered `INVALID`, a
+*definite* verdict on unreadable input, where the same shape elsewhere is `UNRESOLVED`. Not
+fail-open, but it converts a non-answer into a detection, and the third verdict exists
+precisely to keep those apart. Widening it required widening `_relevant` to five sets, and
+the relevance scoping is load-bearing: unscoped, one junk record turns every INVALID into
+UNRESOLVED (D-049, measured). Pinned by a test that an *unconsulted* UNKNOWN goal or
+obligation still leaves the verdict alone.
+
+**Verification.** `tests/semantic_state` 432 → 470. Nine of eleven new mutations against this
+code are killed; the two survivors are the established `REDUNDANT_DEFENCE` pattern (the frame
+already refuses a deleted goal; `_accepted(None)` already refuses a missing record).
+
+---
+
+## D-060 — obligation discharge was outside the evidence-authority seam
+
+**Date:** 2026-08-11 · **After:** `136cdb9` · **Status:** **defect found and repaired** ·
+**Severity:** HIGH, fail-open at the trust boundary
+
+`_check_obligations` opened with "discharged ones must name their evidence" and **no code
+read the evidence at all**. Found by enumerating the sites that consume evidence and checking
+each against `_accepted`, rather than by reading `_accepted` and asking what reaches it.
+
+Measured at `136cdb9`:
+
+| discharge cites | verdict before (replay / runtime) | after |
+|---|---|---|
+| nothing | VALID / VALID | VALID / VALID *(unchanged, deliberately)* |
+| evidence that **does not exist** | **VALID / VALID** | INVALID / INVALID |
+| **REFUTED** evidence | **VALID / VALID** | INVALID / INVALID |
+| evidence supporting a **different rule** | **VALID / VALID** | INVALID / INVALID |
+| self-authored `VALID`, **no attestation** | VALID / **VALID** | VALID / **INVALID** |
+
+The same citation at the promotion, join, warrant and epistemic sites was already refused.
+
+**What the repair deliberately does not do: it does not make evidence required.** 486 of the
+487 obligation discharges in the corpus name no evidence at all — bare ids in
+`data/derived/gold125_ontology_v1/` — so requiring it would redefine the semantics of a
+frozen body of data rather than close a hole. The rule implemented is narrower and provable:
+**a citation that is made must be honoured**, from either the action's entry or the
+obligation record's own `discharge_evidence_id`. Citation without checking is worse than no
+citation, because it puts something that looks like evidence into the record.
+
+**Residual gap, stated rather than hidden.** A producer can still discharge a mandatory
+obligation by omitting the field. Closing that is a corpus-owner decision — it invalidates
+486 existing transitions — not a verifier-side one. It is listed in the known limitations.
+
+**Verification.** Four of five new mutations against this code are killed; the survivor is
+the `_accepted(None)` `REDUNDANT_DEFENCE` pattern shared with M053/M062/M076.

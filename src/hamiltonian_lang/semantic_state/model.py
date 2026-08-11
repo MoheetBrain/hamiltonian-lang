@@ -130,6 +130,25 @@ class ObligationState(StrEnum):
     UNKNOWN = "UNKNOWN"
 
 
+class GoalStatus(StrEnum):
+    """What is being proved, and whether it has been (D-059).
+
+    Added because ``Goal.status`` was the **only** record status in the model that was a
+    bare ``str``: claims, candidates, branches and obligations all validated theirs against
+    an enum at the import boundary, and goals validated nothing. Measured at `136cdb9`, a
+    goal accepted all twenty probed values including ``''``, ``'open'``, ``'DISCHARGED '``
+    and ``'NOT_A_STATUS_AT_ALL'``, while every other kind refused all sixteen foreign ones.
+
+    The two members the corpus actually uses are ``OPEN`` (63) and ``DISCHARGED`` (63).
+    ``UNKNOWN`` is here for the same reason it is on every other status enum: a status that
+    cannot be read must be representable as unread rather than guessed.
+    """
+
+    OPEN = "OPEN"
+    DISCHARGED = "DISCHARGED"
+    UNKNOWN = "UNKNOWN"
+
+
 class Verdict(StrEnum):
     """The three-valued outcome of checking one transition.
 
@@ -218,7 +237,7 @@ class Branch:
 class Goal:
     id: str
     proposition: str
-    status: str = "OPEN"
+    status: GoalStatus = GoalStatus.OPEN
     scope: str = "global"
 
 

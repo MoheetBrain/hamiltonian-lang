@@ -118,8 +118,10 @@ def _supports(record: EvidenceRecord, rule: str | None) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def _relevant(action: Action) -> tuple[set[str], set[str], set[str]]:
-    """The claims, candidates and branches this action actually depends on.
+def _relevant(
+    action: Action,
+) -> tuple[set[str], set[str], set[str], set[str], set[str]]:
+    """The claims, candidates, branches, goals and obligations this action depends on.
 
     Relevance is what makes UNKNOWN a *fail-closed* rule rather than a denial of service.
     An unknown value the action never consults tells us nothing about whether the action is
@@ -135,13 +137,25 @@ def _relevant(action: Action) -> tuple[set[str], set[str], set[str]]:
     claims |= set(action.typing.get("input_domains") or {})
     candidates = {action.candidate_effect.get("candidate_id")} - {None}
     branches = set(action.branch_effect.get("branch_ids") or ())
-    return claims, {c for c in candidates if c}, branches
+    goals = {action.goal_effect.get("goal_id")} - {None}
+    obligations = {
+        e.get("id") if isinstance(e, dict) else e for e in action.obligations_discharged
+    } - {None}
+    return (
+        claims,
+        {c for c in candidates if c},
+        branches,
+        {g for g in goals if g},
+        {o for o in obligations if isinstance(o, str) and o},
+    )
 
 
 def _collect_unknowns(transition: Transition) -> list[str]:
     action, before, after = transition.action, transition.state_before, transition.state_after
     out: list[str] = []
-    want_claims, want_candidates, want_branches = _relevant(action)
+    want_claims, want_candidates, want_branches, want_goals, want_obligations = _relevant(
+        action
+    )
 
     for name, state in (("state_before", before), ("state_after", after)):
         # Keyed by the dictionary key, not ``record.id``: the neutral schema permits the
@@ -163,6 +177,17 @@ def _collect_unknowns(transition: Transition) -> list[str]:
                 out.append(f"{name}.branches.{key}.status is UNKNOWN")
             if key in want_branches and branch.conclusion == UNKNOWN:
                 out.append(f"{name}.branches.{key}.conclusion is UNKNOWN")
+        # D-059: goals and obligations were the two record kinds this enumeration omitted.
+        # An action citing one whose status cannot be read was answered INVALID -- a
+        # *definite* verdict on unreadable input -- where the same shape on a claim,
+        # candidate or branch is correctly UNRESOLVED. Not fail-open, but it converts a
+        # non-answer into a detection, which is the distinction the third verdict exists for.
+        for key, goal in state.goals.items():
+            if key in want_goals and str(goal.status) == UNKNOWN:
+                out.append(f"{name}.goals.{key}.status is UNKNOWN")
+        for key, obligation in state.obligations.items():
+            if key in want_obligations and str(obligation.status) == UNKNOWN:
+                out.append(f"{name}.obligations.{key}.status is UNKNOWN")
 
     for i, pre in enumerate(action.preconditions):
         if isinstance(pre, dict) and pre.get("status") == UNKNOWN:
@@ -512,6 +537,48 @@ def _check_obligations(t: Transition) -> list[Finding]:
                     "OBLIGATIONS",
                     INVARIANTS["OBLIGATIONS"],
                     f"obligation {oid!r} is claimed discharged but remains {settled.status}",
+                )
+            )
+            continue
+        # D-060: a cited discharge evidence id must be honoured. This function's docstring
+        # said "discharged ones must name their evidence" and no code read the evidence at
+        # all: measured at `136cdb9`, a discharge citing a NONEXISTENT record, a REFUTED
+        # one, or one supporting a different rule was VALID **at RUNTIME with no
+        # attestation**, while the same citation at the promotion, join, warrant and
+        # epistemic sites was refused. Citation without checking is worse than no citation,
+        # because it looks like evidence in the record.
+        eid = (entry.get("evidence_id") if isinstance(entry, dict) else None) or (
+            settled.discharge_evidence_id
+        )
+        if not eid:
+            # Deliberately NOT an error. 486 of 487 discharges in the corpus name no
+            # evidence at all, so requiring it would redefine the semantics of a frozen
+            # body of data rather than repair a hole. Recorded as a known limitation: a
+            # producer can still discharge by omitting the field, and closing that is a
+            # corpus-owner decision, not a verifier-side one.
+            continue
+        record = _evidence(t, eid)
+        if record is None:
+            out.append(
+                Finding(
+                    "OBLIGATIONS",
+                    INVARIANTS["OBLIGATIONS"],
+                    f"obligation {oid!r} is discharged citing evidence {eid!r}, which does "
+                    f"not exist",
+                )
+            )
+            continue
+        ok, why = _accepted(
+            t, record, cited_as=eid, claim=settled.proposition,
+            premises=t.action.dependencies,
+        )
+        if not ok:
+            out.append(
+                Finding(
+                    "OBLIGATIONS",
+                    INVARIANTS["OBLIGATIONS"],
+                    f"obligation {oid!r} is discharged on evidence that does not support "
+                    f"it: {why}",
                 )
             )
     return out
@@ -864,6 +931,32 @@ def _check_goal_discharge(t: Transition) -> list[Finding]:
                     "GOAL_DISCHARGE",
                     INVARIANTS["GOAL_DISCHARGE"],
                     f"goal {gid!r} was discharged by a claim that does not state it",
+                )
+            )
+        # D-059: the effect must MATERIALISE. Declaring a discharge is not performing one,
+        # and the frame licenses the goal to change precisely because this effect names it —
+        # so without this the licence was granted and the obligation to use it was never
+        # checked. Measured at `136cdb9`: a declared discharge left the goal OPEN, FAILED,
+        # '' or 'BANANA' and was VALID in both trust modes, while the identical shape on an
+        # obligation was already refused.
+        settled = t.state_after.goals.get(gid) if gid else None
+        if goal is not None and settled is not None:
+            if str(settled.status) != "DISCHARGED":
+                out.append(
+                    Finding(
+                        "GOAL_DISCHARGE",
+                        INVARIANTS["GOAL_DISCHARGE"],
+                        f"the action discharges goal {gid!r}, but it is {settled.status} in "
+                        f"the resulting state; a declared discharge must be performed",
+                    )
+                )
+        elif goal is not None and settled is None:
+            out.append(
+                Finding(
+                    "GOAL_DISCHARGE",
+                    INVARIANTS["GOAL_DISCHARGE"],
+                    f"the action discharges goal {gid!r}, which is absent from the resulting "
+                    f"state; a goal is discharged, not deleted",
                 )
             )
     return out

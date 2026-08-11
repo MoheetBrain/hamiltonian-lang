@@ -28,6 +28,43 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**THE OMISSION AUDIT FOUND TWO MORE HIGH-SEVERITY FAIL-OPENS. THE FREEZE IS DEFERRED AGAIN,
+AND THAT IS THE RESULT, NOT A DELAY.**
+
+An audit built by introspecting the model — dataclasses, enums, transition tables — and
+deciding every cell empirically found four defects the 93.2% census could not, for the same
+structural reason D-057 was invisible to it: **a mutation census perturbs code that exists,
+and cannot reveal a category absent from an enforcement path.**
+
+* **D-059a (HIGH, fail-open).** A declared goal discharge did not have to be performed. The
+  frame licensed the goal to change *because* `goal_effect` named it, and nothing checked
+  that the licensed change was the declared one — the goal could end `OPEN`, `FAILED` or
+  `''` and the transition was **VALID in both trust modes**. The identical shape on an
+  obligation was already refused.
+* **D-059b (MEDIUM).** `Goal.status` was the only record status in the model that was a bare
+  `str`, unvalidated in **all three** enforcement paths — adapter, renderer and view parser.
+  Goals accepted all 20 probed values including `''`, `'open'` and `'DISCHARGED '`; every
+  other kind refused all 16 foreign ones. Now `GoalStatus`.
+* **D-059c (MEDIUM).** `_collect_unknowns` enumerated claims, candidates and branches — not
+  goals or obligations — so an unreadable status the action cited was answered `INVALID`
+  rather than `UNRESOLVED`: a definite verdict on unreadable input.
+* **D-060 (HIGH, fail-open at the trust boundary).** `_check_obligations` opened with
+  "discharged ones must name their evidence" and **no code read the evidence**. A discharge
+  citing a nonexistent record, a REFUTED one, or one supporting a different rule was VALID
+  in both modes, and at RUNTIME with no attestation. Every other evidence-consuming site
+  already refused exactly that.
+
+**The audit is now clean and its matrix is machine-readable**:
+`reports/artifacts/SEMANTIC_OMISSION_AUDIT.json`. Five state kinds × seven change types,
+**zero blank cells**; every status enum validated at the boundary; every evidence-consuming
+site routed through the authority seam; P-01 re-confirmed (six operation labels → one
+runtime verdict). Cognition ledger validated with PyYAML: 148 entries, X1–X148 contiguous,
+no duplicate keys, no dangling references — **PASS**.
+
+`tests/semantic_state`: **470** (was 432). Full suite: **7,479**. ruff clean, mypy clean.
+
+---
+
 **THE CENSUS IS RUN, AND IT FOUND SOMETHING THE CENSUS COULD NOT HAVE FOUND.**
 
 **Mutation census at HEAD: 147 applicable mutants, 137 killed, 10 survived — 93.2%.**
@@ -1477,7 +1514,27 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Current Blockers
 
-- **THE SEMANTIC FREEZE IS NOT GRANTED, and the reason is this session's own result.** The
+- **THE SEMANTIC FREEZE IS NOT GRANTED — second consecutive pass, and for the same reason
+  each time: the audit keeps finding real fail-opens.** D-059a and D-060 are HIGH-severity
+  fail-opens repaired today. A production semantic change resets the independent-audit gate:
+  the object that was audited is no longer the object that would be frozen. The next pass
+  needs **one final independent audit of the repaired SHA** and nothing else new.
+- **The pattern across D-057, D-059 and D-060 is now the most important engineering fact
+  about this instrument.** All three are omissions — a record kind missing from a loop, a
+  status missing from a validator, a site missing from the trust seam — and none was
+  findable by mutation, which perturbs code that exists. Two independent audits have each
+  found HIGH defects on first application. That is evidence the method works, and also
+  evidence that **one clean audit is not yet grounds for confidence**; the freeze should
+  follow an audit that finds nothing.
+- **THE PREVIOUS BLOCKER, now closed:** the independent adversarial audit of the D-057
+  repair was run this pass. It is what found D-059 and D-060.
+- **Known residual gap (not a blocker, but must not be forgotten):** obligation discharge
+  does not *require* evidence. 486 of 487 corpus discharges name none, so requiring it would
+  invalidate frozen data; a producer can still discharge a mandatory obligation by omitting
+  the field. Closing that is a corpus-owner decision.
+- **Not run this pass:** a fresh independent audit of the *repaired* code (by construction —
+  it is the next task).
+- **Superseded blocker text follows.** The
   mutation gate is closed (93.2%, 0 unexplained HIGH survivors), P-02 is closed and P-03 is
   adjudicated — but **a HIGH-severity fail-open was found and repaired in the frame condition
   today** (D-057). Freezing a semantic instrument on the same day its frame condition changed,
@@ -1498,19 +1555,33 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Exact Next Actions
 
-**LIVE, and first: an independent adversarial audit of the D-057 repair and the frame
-condition as a whole.** The specific question it must answer is not "is the goal frame
-right" but **"which other record kind, field or channel is absent from a loop that should
-contain it"** — D-057 was a gap of omission, and omissions are the class this project's
-strongest tool (mutation) is blind to by construction. Concrete targets: every `for kind, ...`
-enumeration in `verify.py`; every effect channel an action can declare versus every channel
-`_licensed_change` recognises; every record kind in `SemanticState` versus every kind the
-frame iterates. Then rerun the census and the remaining §6 gates, and only then consider the
-freeze.
+**LIVE, and the only task: one final independent audit of the repaired SHA, then freeze.**
 
-**Then the freeze**, if and only if that audit and the outstanding gates pass:
-JSON Schema independent validation · cognition YAML real-parser validation · full
-`run-conformance` · property/metamorphic checks. The census, P-01, P-02 and P-03 are done.
+The audit that found D-057 was answered by the audit that found D-059 and D-060. That second
+audit is done and its matrix is clean, but it audited the code *before* today's repairs. The
+next pass must re-apply the same method to the repaired SHA and, ideally, find nothing.
+
+What is already done and should not be redone: the mutation census (146 applicable + 13 new,
+93.2%, all survivors `REDUNDANT_DEFENCE`), the omission matrix (5 kinds × 7 change types,
+zero blank cells), the property/metamorphic suite (10 Hypothesis properties), the trust-site
+enumeration, P-01/P-02/P-03, and cognition-ledger validation (PASS).
+
+What the final audit should target, in order:
+
+1. **The repairs themselves.** `_check_goal_discharge`'s materialisation branch, the
+   `GoalStatus` boundary in all three paths, the widened `_relevant`/`_collect_unknowns`, and
+   the `_check_obligations` evidence seam. Each is new code with mutation coverage but only
+   one author.
+2. **The same omission method, once more.** Every enumeration in `verify.py`, `neutral.py`
+   and `view.py` against the model's own inventory. Two applications have each found HIGH
+   defects; a third that finds nothing is the evidence the freeze needs.
+3. **`evaluation/` and `spec/`**, which no audit has covered — the semantic core has had
+   three passes and these have had none.
+
+**Then the freeze**, if and only if that audit finds no HIGH defect. Tag convention is
+`hml-<milestone>-<name>`; the intended identity is a **pre-Gemma semantic baseline**, not a
+v1.0, and the known-limitations list in `SEMANTIC_OMISSION_AUDIT.json` is part of the
+release.
 
 ---
 

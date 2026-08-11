@@ -6379,3 +6379,81 @@ the artifacts they operate on, and are now checksummed into the two manifests in
 session's work before it could recur. The manifests also record the three harness defects
 found today, because each of them silently corrupts evidence and the next reader needs that
 warning more than the tooling.
+
+---
+
+## 2026-08-11 (second pass) — the omission audit, and two more HIGH fail-opens
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `136cdb9` · **Stage:** pre-Gemma
+semantic freeze — independent omission audit
+
+**Objective.** Run the independent audit the previous entry demanded: find any semantic
+category absent from an enforcement path *entirely*, then freeze if nothing turned up.
+
+**What was completed.**
+
+1. **An omission audit built from the model, not the verifier.** The inventory is
+   introspected (`dataclasses.fields`, enum members, transition tables) and every cell is
+   decided empirically by running production `import` + `verify` on payloads exported
+   through the production adapter. Matrix: 5 state kinds × 7 change types, **zero blank
+   cells**. `reports/artifacts/SEMANTIC_OMISSION_AUDIT.json`.
+2. **Four defects found, two of them HIGH fail-opens.** D-059a (a declared goal discharge
+   did not have to be performed — VALID in both trust modes with the goal left `OPEN`),
+   D-059b (`Goal.status` was the only record status not validated against an enum, in all
+   three enforcement paths), D-059c (goals and obligations were absent from UNKNOWN
+   collection), D-060 (a cited obligation discharge evidence id was never checked — a
+   nonexistent, REFUTED or wrong-rule citation was VALID at RUNTIME with no attestation).
+3. **All four repaired minimally**, plus 38 new tests and 13 new mutations against the new
+   code.
+4. **Property/metamorphic suite added** — 10 Hypothesis properties over generated
+   transitions, including bijective renaming, dictionary-order invariance, round-trip
+   verdict preservation and "runtime is never more permissive than replay".
+5. **Cognition ledger validated with PyYAML** (not a regex): 148 entries, X1–X148
+   contiguous and unique, no duplicate mapping keys, no dangling or self references. PASS.
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| `pytest tests/semantic_state` | **470 passed** (was 432) |
+| `pytest tests` | **7,479 passed** |
+| `ruff check src tests` | All checks passed |
+| `mypy src` | Success, 108 source files |
+| catalogue census (146 applicable) | 136 killed, 10 survived, 93.2% |
+| new-code census (13 mutations) | 11 killed, 2 `REDUNDANT_DEFENCE` |
+| cognition ledger (PyYAML) | PASS |
+| omission matrix | 0 blank cells, 0 unexplained |
+| P-01 re-confirmed | 6 operation labels → 1 runtime verdict |
+
+**Decisions made and why.**
+
+- **D-060 does not make evidence required.** 486 of 487 corpus discharges name none, so
+  requiring it would redefine frozen data rather than close a hole. The implemented rule is
+  narrower and provable: a citation that is *made* must be honoured. The residual gap is
+  recorded as a known limitation, not hidden.
+- **`GoalStatus` admits only OPEN, DISCHARGED, UNKNOWN.** The corpus uses the first two (63
+  each); UNKNOWN is present for the reason it is on every other status enum.
+- **In-place claim status change stays unrepresentable.** An `epistemic_effect` licenses no
+  frame change; it applies to the produced claim. That is D-058 immutability, and all 30
+  corpus fixtures use that shape — verified, not assumed.
+
+**Failures and unresolved uncertainty.**
+
+- **THE FREEZE WAS NOT CUT, for the second consecutive pass.** Two HIGH fail-opens were
+  repaired today; a semantic change resets the independent-audit gate, because the object
+  that was audited is no longer the object that would be frozen.
+- **Two independent audits have each found HIGH defects on first application.** That is
+  evidence the method works *and* evidence that one clean audit is not yet grounds for
+  confidence. The freeze should follow an audit that finds nothing.
+- **Residual:** obligation discharge does not require evidence; a producer can discharge a
+  mandatory obligation by omitting the field. Closing it is a corpus-owner decision.
+- `evaluation/` and `spec/` have had no audit pass at all.
+
+**Effect on the overall project.** The verifier is materially stronger — every status enum
+validated at the boundary, every evidence-consuming site routed through the authority seam,
+every undeclared delta refused across all five record kinds. The cost is that the freeze
+moves again, and the honest reading is that this is what the gate is for.
+
+**Next intended step.** One final independent audit of the repaired SHA, targeting the four
+repairs, the same omission method applied once more, and `evaluation/`/`spec/` which no
+audit has covered. Then freeze if it finds nothing.

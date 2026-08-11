@@ -1,0 +1,443 @@
+{
+ "artifact_id": "semantic_omission_audit",
+ "generated": "2026-08-11",
+ "audited_sha": "136cdb9 (working tree, D-059 + D-060 repairs applied)",
+ "purpose": "Find semantic categories absent from an enforcement path entirely. D-057 was such a gap and no mutation of existing code could reveal it, because the record kind was not in the loop to be mutated.",
+ "method": {
+  "inventory": "Introspected from dataclasses, enums and transition tables via dataclasses.fields / enum members. Never typed by hand and compared against itself.",
+  "cells": "Decided empirically: a payload is exported through the production neutral adapter, imported, and verified in BOTH trust modes. Nothing is inferred from reading source.",
+  "independence": "The generator (model introspection) is independent of the validator (verify.py). Property tests use Hypothesis, which has no knowledge of what the verifier checks. The cognition ledger is validated by PyYAML, not by a regex."
+ },
+ "1A_state_kind_completeness": {
+  "state_collections": [
+   "claims",
+   "candidates",
+   "branches",
+   "goals",
+   "obligations",
+   "active_scopes"
+  ],
+  "status_typing_after_repair": {
+   "claims": {
+    "declared_type": "ClaimStatus",
+    "is_typed_enum": true
+   },
+   "candidates": {
+    "declared_type": "CandidateStatus",
+    "is_typed_enum": true
+   },
+   "branches": {
+    "declared_type": "BranchStatus",
+    "is_typed_enum": true
+   },
+   "goals": {
+    "declared_type": "GoalStatus",
+    "is_typed_enum": true
+   },
+   "obligations": {
+    "declared_type": "ObligationState",
+    "is_typed_enum": true
+   }
+  },
+  "unknown_relevance": {
+   "claims.bystander_uncited": "VALID",
+   "claims.cited_by_action": "UNRESOLVED",
+   "candidates.bystander_uncited": "VALID",
+   "candidates.cited_by_action": "UNRESOLVED",
+   "branches.bystander_uncited": "VALID",
+   "branches.cited_by_action": "UNRESOLVED",
+   "goals.bystander_uncited": "VALID",
+   "goals.cited_by_action": "UNRESOLVED",
+   "obligations.bystander_uncited": "VALID",
+   "obligations.cited_by_action": "UNRESOLVED"
+  }
+ },
+ "1B_effect_channel_completeness": {
+  "candidate_effect": {
+   "licenses": "candidates",
+   "dedicated_check": "_check_candidates",
+   "evidence_required": true,
+   "runtime_attestation": true
+  },
+  "branch_effect": {
+   "licenses": "branches",
+   "dedicated_check": "_check_branch_join",
+   "evidence_required": true,
+   "runtime_attestation": true
+  },
+  "goal_effect": {
+   "licenses": "goals",
+   "dedicated_check": "_check_goal_discharge",
+   "evidence_required": false,
+   "materialisation_checked": "YES since D-059a"
+  },
+  "scope_effect": {
+   "licenses": "claims",
+   "dedicated_check": "_check_scope",
+   "evidence_required": "when a discharge is declared"
+  },
+  "epistemic_effect": {
+   "licenses": "nothing",
+   "dedicated_check": "_check_epistemic",
+   "note": "An epistemic effect does NOT license mutating an existing claim: in-place status change on an existing claim is INTENTIONALLY UNREPRESENTABLE, which is the immutability discipline recorded in D-058. The channel applies to the claim the action produces. All 30 corpus fixtures use that shape (output_id set, claim_id absent), so the check is reachable and the restriction refuses nothing legitimate."
+  },
+  "obligations_discharged": {
+   "licenses": "obligations",
+   "dedicated_check": "_check_obligations",
+   "evidence_required": "when cited (D-060)",
+   "runtime_attestation": "when cited (D-060)"
+  },
+  "warrant": {
+   "licenses": "nothing",
+   "dedicated_check": "_check_warrant",
+   "evidence_required": true,
+   "runtime_attestation": true
+  },
+  "typing": {
+   "licenses": "nothing",
+   "dedicated_check": "_check_type_domain"
+  }
+ },
+ "2_cross_product": {
+  "legend": {
+   "EXPRESSIBLE_BUT_INVALID": "the delta can be written down and the verifier refuses it \u2014 the intended outcome for an undeclared, truth-relevant change",
+   "NOT_APPLICABLE": "the record kind has no such field"
+  },
+  "undeclared_delta_matrix": {
+   "claims": {
+    "ADD": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "DELETE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "MODIFY": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "STATUS_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "SCOPE_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "ID_CHANGE_payload_id": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "KEY_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    }
+   },
+   "candidates": {
+    "ADD": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "DELETE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "MODIFY": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "STATUS_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "SCOPE_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "ID_CHANGE_payload_id": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "KEY_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    }
+   },
+   "branches": {
+    "ADD": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "DELETE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "MODIFY": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "STATUS_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "SCOPE_CHANGE": {
+     "status": "NOT_APPLICABLE",
+     "why": "the record kind carries no such field"
+    },
+    "ID_CHANGE_payload_id": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "KEY_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    }
+   },
+   "goals": {
+    "ADD": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "DELETE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "MODIFY": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "STATUS_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "SCOPE_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "ID_CHANGE_payload_id": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "KEY_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    }
+   },
+   "obligations": {
+    "ADD": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "DELETE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "MODIFY": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "STATUS_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "SCOPE_CHANGE": {
+     "status": "NOT_APPLICABLE",
+     "why": "the record kind carries no such field"
+    },
+    "ID_CHANGE_payload_id": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    },
+    "KEY_CHANGE": {
+     "status": "EXPRESSIBLE_BUT_INVALID",
+     "replay": "INVALID",
+     "runtime": "INVALID",
+     "error_class": "DEPENDENCY_VIOLATION"
+    }
+   }
+  },
+  "blank_cells": 0,
+  "intentionally_unrepresentable": {
+   "goal creation": "No action can declare that it creates subgoals; a goal appearing in state_after is refused. HML does not represent goal creation (D-056). Verified: the verifier truly refuses it.",
+   "in-place claim status change": "Refused by the frame; epistemic promotion applies to the produced claim (D-058 immutability).",
+   "supersession": "Not represented. No ClaimStatus marks a claim superseded, deletion is refused, and only scope closure makes a fact non-citable."
+  }
+ },
+ "1C_lifecycle": {
+  "transition_tables_in_model": [
+   "_CANDIDATE_TRANSITIONS"
+  ],
+  "settled_to_reopened_all_refused_undeclared": true,
+  "note": "Only candidates carry an explicit transition table. For the other four kinds a backwards status move is refused by the frame instead, because it is an undeclared mutation. Verified for all 10 settled->reopened pairs.",
+  "status_admissibility": "Every record kind now refuses every value outside its enum at the import boundary (D-059b closed the goal exception)."
+ },
+ "1D_trust_sites": {
+  "sites_consuming_evidence": [
+   "warrant",
+   "epistemic_effect",
+   "candidate_effect",
+   "branch_effect",
+   "scope_effect",
+   "obligations_discharged"
+  ],
+  "all_route_through_accepted": true,
+  "d060_was_the_exception": "obligations_discharged reached no seam at all until D-060.",
+  "runtime_never_more_permissive_than_replay": "property-tested over generated inputs"
+ },
+ "1E_semantic_authority": {
+  "P-01_holds": true,
+  "evidence": "Six operation labels (DERIVE, PROMOTE, JOIN_BRANCHES, VERIFY_CANDIDATE, TOTALLY_MADE_UP, '') over an otherwise identical transition produce one runtime verdict. The label is provenance, not authority."
+ },
+ "3_property_metamorphic": {
+  "module": "tests/semantic_state/test_metamorphic_properties.py",
+  "engine": "Hypothesis 6.165.2, 60 examples per property",
+  "properties": {
+   "A neutral adapter lossless": "PASS",
+   "B HML view round trip": "PASS",
+   "C round trip preserves verdict": "PASS",
+   "D bijective id rename preserves verdict": "PASS",
+   "E dictionary order irrelevant": "PASS",
+   "G unconsulted record cannot move the verdict": "PASS",
+   "H removing a premise never improves the verdict": "PASS",
+   "J malformed input is a controlled refusal": "PASS",
+   "K self-authored evidence never reaches VALID at runtime": "PASS",
+   "L runtime never more permissive than replay": "PASS"
+  },
+  "counterexamples": null,
+  "not_tested": "F (scope/sibling ordering manufacturing ancestry) is covered by the existing scope-cycle and containment tests rather than restated here; I (effect materialisation) is covered by the D-059/D-060 modules."
+ },
+ "5_cognition_ledger": {
+  "exists": true,
+  "parses_with_real_yaml_parser": true,
+  "no_duplicate_mapping_keys": true,
+  "all_ids_well_formed": true,
+  "ids_unique": true,
+  "ids_contiguous": true,
+  "next_free_id_declared": false,
+  "no_dangling_references": true,
+  "no_self_references": true,
+  "n_entries": 148,
+  "id_range": [
+   "X1",
+   "X148"
+  ],
+  "verdict": "PASS"
+ },
+ "mutation": {
+  "catalogue_census": {
+   "applicable": 146,
+   "killed": 136,
+   "survived": 10
+  },
+  "inapplicable_note": "M049 became BAD_MUTATION because D-059 introduced a second identical line; it is re-expressed disambiguated as D049a/D049b rather than lost.",
+  "new_code_census": {
+   "total": 13,
+   "killed": 11,
+   "survived": 2,
+   "survivors": [
+    {
+     "id": "D059a3",
+     "invariant": "D-059a: a declared discharge may delete the goal instead of discharging it",
+     "classification": "REDUNDANT_DEFENCE"
+    },
+    {
+     "id": "D060a",
+     "invariant": "D-060: an obligation may be discharged citing evidence that does not exist",
+     "classification": "REDUNDANT_DEFENCE"
+    }
+   ]
+  }
+ },
+ "defects_found": [
+  {
+   "id": "D-059a",
+   "severity": "HIGH",
+   "kind": "fail-open",
+   "summary": "a declared goal discharge did not have to be performed"
+  },
+  {
+   "id": "D-059b",
+   "severity": "MEDIUM",
+   "kind": "fail-closed inconsistency",
+   "summary": "Goal.status was the only record status not validated against an enum"
+  },
+  {
+   "id": "D-059c",
+   "severity": "MEDIUM",
+   "kind": "verdict precision",
+   "summary": "goals and obligations were absent from UNKNOWN collection"
+  },
+  {
+   "id": "D-060",
+   "severity": "HIGH",
+   "kind": "fail-open at the trust boundary",
+   "summary": "a cited obligation discharge evidence id was never checked"
+  }
+ ],
+ "freeze_decision": "DO NOT FREEZE THIS PASS. Two HIGH-severity fail-open defects required production semantic changes, which resets the independent-audit gate: the object that was audited is no longer the object that would be frozen. One final independent audit of the repaired SHA is required."
+}
