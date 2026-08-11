@@ -28,6 +28,21 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**FX2 IS FROZEN AND GREEN — 40/40 against hand-written expectations.** The second-generation
+acceptance suite lives in the corpus at `experiments/semantic_firewall_v2/` (suite version
+`semantic-firewall-fx2-1.0.0`, 40 fixtures, 9 families) and is run against production by
+`tests/semantic_state/test_fx2_suite.py`.
+
+**Its evidence class is recorded everywhere it appears.** The frozen thirty are *external*
+criteria — authored corpus-side against a reference checker before this implementation
+existed. FX2 was authored by the integrator *after* the defects it covers were known, so it
+cannot show the implementation was right, only that a known defect cannot silently return.
+13 of its 40 fixtures deliberately diverge from the frozen reference (production is stricter
+on the frame condition, scope containment and trust modes), each with a recorded reason,
+because an undeclared divergence would look like agreement.
+
+---
+
 **THE FOUR REPRODUCED VERIFIER DEFECTS ARE CLOSED (D-053).** Scope is containment derived
 from the branch tree, not list position; the mapping key is identity and `record.id` is
 provenance; malformed input is refused rather than raised (**1,024 fuzz cases, 0 uncaught

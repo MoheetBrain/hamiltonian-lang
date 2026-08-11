@@ -6033,3 +6033,38 @@ a join. Its original claim is quoted verbatim in the replacement rather than del
 
 **Next intended step.** Corpus schema repair (agent running), FX2 suite, the 22 surviving
 mutations from the earlier census, then P-01/P-02/P-03.
+
+---
+
+## 2026-08-11 (second entry) — FX2 wired into the HML suite
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `b0335fa`. **Stage:** Phase I hardening.
+
+**Objective.** Run the second-generation acceptance suite against production, and pin the
+properties a parametrised sweep would miss.
+
+**What was completed.** `tests/semantic_state/test_fx2_suite.py` (47 tests). Beyond the
+per-fixture sweep it pins four things a sweep cannot: that the **trust mode is load-bearing**
+(the two TRU fixtures are byte-identical apart from the mode, so if they agreed either the
+runtime gate has stopped working or replay has stopped replaying); that the **sibling-scope
+pair agrees with itself** (the defect was an asymmetry, which one fixture cannot detect);
+that every divergence from the frozen reference is **declared** with a reason; and that the
+suite keeps saying, in the artifact itself, that it is not external evidence.
+
+**Tests and verification actually executed.** `pytest tests/semantic_state/test_fx2_suite.py`
+**47 passed**; `pytest tests/semantic_state` **379 passed**; FX2 **40/40** against
+hand-written expectations. Mutation-checked against six repairs: frame condition disabled
+(5 fixtures fail), scope containment always true (3), warrant envelope unchecked (3),
+unknown sweep unscoped (1), import type guards removed (the runner raises, so the MAL family
+detects it), null-conclusion guard removed (**0 — classified as verdict-equivalent**).
+
+**Failures and unresolved uncertainty.** FX2 is integrator-authored and weaker than the
+frozen thirty; a green run is not external validation, and the test asserts that the artifact
+keeps saying so. The corpus-side suite caught a real inconsistency in my own metadata during
+construction: after `NaN` moved to a `materialise` instruction that fixture's case became
+well-formed JSON, so its `schema_valid` flag was wrong — and a second MAL fixture turned out
+to be schema-valid *and* semantically malformed, now kept deliberately to show that passing
+the published schema is not the same as being a well-formed transition.
+
+**Next intended step.** The 22 surviving mutations from the earlier census; then
+P-01/P-02/P-03; then the semantic freeze, release manifest and tag.
