@@ -938,6 +938,22 @@ def _check_frame(t: Transition) -> list[Finding]:
     open obligation could be deleted outright. Both were accepted here and by the reference.
     Recorded as deliberate strictness rather than silently inherited: a verifier whose
     promotion rules can be skipped by declining to mention them is not checking anything.
+
+    **Goals were outside the frame entirely until D-057**, and that was the worst of the
+    four gaps rather than the least: measured at ``3fe87ac``, an ``OPEN`` goal could be
+    deleted from ``state_after`` with no discharge and no evidence, could be flipped to
+    ``DISCHARGED`` with neither, and could have its proposition rewritten — every one
+    accepted as ``VALID`` **at RUNTIME**, while the identical three shapes on an obligation
+    were correctly refused. A goal is the thing being proved; a verifier that lets it
+    vanish silently is not checking the only question that matters. Found by the P-03
+    goal-ancestry investigation, not by the mutation census, because no mutation in the
+    catalogue could target a loop the record kind was never in.
+
+    Goal *additions* are licensed by nothing, which is deliberate and is the honest state of
+    the vocabulary: no action can declare that it creates subgoals, so a goal appearing in
+    ``state_after`` is refused rather than silently accepted. HML does not represent goal
+    creation today (D-056); until it does, fail-closed is the correct reading and matches
+    what the corpus actually contains — zero goal-creating transitions in 631.
     """
     out: list[str] = []
     before, after, action = t.state_before, t.state_after, t.action
@@ -947,6 +963,7 @@ def _check_frame(t: Transition) -> list[Finding]:
         ("candidates", before.candidates, after.candidates, set()),
         ("branches", before.branches, after.branches, set()),
         ("obligations", before.obligations, after.obligations, _created_obligation_ids(action)),
+        ("goals", before.goals, after.goals, set()),
     ):
         for key, record in prior.items():
             if key not in later:
@@ -988,6 +1005,12 @@ def _licensed_change(kind: str, key: str, t: Transition) -> bool:
         return key in discharged
     if kind == "claims":
         return action.scope_effect.get("kind") not in (None, "NONE")
+    if kind == "goals":
+        # A declared goal effect naming this goal licenses the change; ``_check_goal_discharge``
+        # then decides whether the change was legitimate. A bare ``kind`` with no ``goal_id``
+        # licenses nothing: the effect must say *which* goal it acts on, or an action could
+        # move any goal it liked by mentioning the channel.
+        return bool(action.goal_effect.get("goal_id")) and action.goal_effect["goal_id"] == key
     return False
 
 

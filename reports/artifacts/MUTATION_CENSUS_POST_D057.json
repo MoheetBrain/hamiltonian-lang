@@ -1,0 +1,181 @@
+{
+ "artifact_id": "mutation_census_post_d057",
+ "generated": "2026-08-11",
+ "hml_sha_at_census": "3fe87aca566177eb377533b019748408165d6f11 (working tree, D-057 repair + new tests applied)",
+ "catalogue": {
+  "base": 142,
+  "extra2": 3,
+  "head2_extra": 9,
+  "total_entries": 154,
+  "inapplicable_at_head": [
+   "M025",
+   "M030",
+   "M031",
+   "M052",
+   "M055",
+   "M064",
+   "M069"
+  ],
+  "inapplicable_note": "These 7 target source text that changed at aac4483. They are superseded 1:1 by H025/H030/H031/H052/H055/H064/H069 in the head2_extra catalogue, which re-express them against current source. Counting both would double-count.",
+  "applicable_mutants": 147
+ },
+ "result": {
+  "applicable": 147,
+  "killed": 137,
+  "survived": 10,
+  "kill_rate_pct": 93.2
+ },
+ "prior_result_superseded": {
+  "figure": "142 total / 101 killed / 41 survived (71.1%)",
+  "measured_at": [
+   "10c1879",
+   "aac4483"
+  ],
+  "status": "SUPERSEDED \u2014 predates the 19 killing tests at e920f68 and the 27 added here."
+ },
+ "progression": [
+  {
+   "sha": "10c1879/aac4483",
+   "applicable": 142,
+   "killed": 101,
+   "kill_rate_pct": 71.1
+  },
+  {
+   "sha": "3fe87ac",
+   "applicable": 147,
+   "killed": 121,
+   "kill_rate_pct": 82.3,
+   "note": "first census run at HEAD; 26 survivors"
+  },
+  {
+   "sha": "3fe87ac + D-057 + 27 tests",
+   "applicable": 147,
+   "killed": 137,
+   "kill_rate_pct": 93.2,
+   "note": "this report"
+  }
+ ],
+ "test_scope": "tests/semantic_state (432 tests). The full 7,441-test suite was also run against all 26 survivors of the 82.3% census: every one produced an IDENTICAL 5-test failure set, which is the copy-artifact baseline (the rsync'd tree omits .venv and five tests shell out to .venv/bin/hml). The wider suite therefore contributes ZERO additional kills, and any 'KILLED_BY_FULL_SUITE' label without that baseline subtraction is an artifact.",
+ "unexplained_high_survivors": 0,
+ "classification_counts": {
+  "REDUNDANT_DEFENCE": 10,
+  "SEMANTICALLY_EQUIVALENT": 0,
+  "DEAD_OR_UNREACHABLE": 0,
+  "INTENTIONALLY_UNCHECKED": 0,
+  "REAL_TEST_GAP": 0,
+  "UNCERTAIN": 0
+ },
+ "method": "Every survivor was run through a 219-probe differential battery (70 corpus fixtures in BOTH trust modes, plus hand-built adversarial payloads, renderer round trips, malformed view text, neutral key-namespace probes and direct domain-lattice manipulation). A survivor is classified REDUNDANT_DEFENCE only where no probe distinguishes the mutated build from the pristine one AND the refusing path is identified in source. This is evidence of non-observability through the public contract, not a proof of semantic equivalence.",
+ "survivors": [
+  {
+   "id": "M053",
+   "file": "verify.py",
+   "invariant": "a promotion may cite promotion evidence that does not exist",
+   "old": "    record = _evidence(t, effect.get(\"evidence_id\"))\n    if record is None:\n        return [\n            Finding(\n                \"CANDIDATES\",\n",
+   "new": "    record = _evidence(t, effect.get(\"evidence_id\"))\n    if False:\n        return [\n            Finding(\n                \"CANDIDATES\",\n",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "MEDIUM",
+   "justification": "The early return is removed, but `_accepted(None)` returns (False, 'no such evidence record'), so the promotion is still refused with the same verdict AND the same error class (CANDIDATE_PROMOTION). Only the detail string differs.",
+   "differential_probes_distinguishing_it": 0
+  },
+  {
+   "id": "M062",
+   "file": "verify.py",
+   "invariant": "SF-R08: a join may cite coverage evidence that does not exist",
+   "old": "    record = _evidence(t, effect.get(\"coverage_evidence_id\"))\n    if record is None:\n",
+   "new": "    record = _evidence(t, effect.get(\"coverage_evidence_id\"))\n    if False:\n",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "MEDIUM",
+   "justification": "Same seam as M053 at the join site: `_accepted(None)` refuses, verdict and error class (INVALID_BRANCH_JOIN) unchanged.",
+   "differential_probes_distinguishing_it": 0
+  },
+  {
+   "id": "M076",
+   "file": "verify.py",
+   "invariant": "a status may be raised with no supporting evidence at all",
+   "old": "    record = _evidence(t, eid)\n    if record is None:\n        return [\n            Finding(\n                \"EPISTEMIC_STATUS\",\n",
+   "new": "    record = _evidence(t, eid)\n    if False:\n        return [\n            Finding(\n                \"EPISTEMIC_STATUS\",\n",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "MEDIUM",
+   "justification": "Same seam at the epistemic site: `_accepted(None)` refuses, verdict and error class (EPISTEMIC_STATUS) unchanged.",
+   "differential_probes_distinguishing_it": 0
+  },
+  {
+   "id": "M084",
+   "file": "verify.py",
+   "invariant": "D-048: the absent-input-domain guard is removed (would crash inhabits on None)",
+   "old": "        if claim.domain is None:\n",
+   "new": "        if False and claim.domain is None:\n",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "LOW",
+   "justification": "An absent input domain is collected by `_collect_unknowns` as 'domain is not declared', which short-circuits the whole transition to UNRESOLVED before `_check_type_domain` runs. The guard cannot be reached with a payload that would crash it.",
+   "differential_probes_distinguishing_it": 0
+  },
+  {
+   "id": "M085",
+   "file": "verify.py",
+   "invariant": "D-048 repair withdrawn: an absent output domain becomes '' and inhabits nothing",
+   "old": "    if produced is not None and produced.domain is not None and expected_out \\\n",
+   "new": "    if produced is not None and (produced.domain or \"\") is not None and expected_out \\\n",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "LOW",
+   "justification": "Same short-circuit as M084 on the output side: the UNKNOWN collection reports the undeclared domain and returns UNRESOLVED first.",
+   "differential_probes_distinguishing_it": 0
+  },
+  {
+   "id": "M113",
+   "file": "neutral.py",
+   "invariant": "a transition without an action is imported",
+   "old": "    if \"action\" not in payload:\n        raise NeutralImportError(\"a transition record must carry an action\")\n",
+   "new": "    if False:\n        raise NeutralImportError(\"a transition record must carry an action\")\n",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "LOW",
+   "justification": "Removing the explicit 'must carry an action' raise leaves `_mapping(payload.get('action'))`, which refuses NoneType at the same boundary with the same exception type.",
+   "differential_probes_distinguishing_it": 0
+  },
+  {
+   "id": "M114",
+   "file": "neutral.py",
+   "invariant": "a non-object where an object is required is not refused at the boundary",
+   "old": "    if not isinstance(payload, dict):\n        raise NeutralImportError(f\"{what} must be an object, got {type(payload).__name__}\")\n    return payload\n",
+   "new": "    return payload\n",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "LOW",
+   "justification": "Removing `_mapping`'s isinstance check still refuses a non-object: the caller's own structural access fails closed as a NeutralImportError.",
+   "differential_probes_distinguishing_it": 0
+  },
+  {
+   "id": "M115",
+   "file": "neutral.py",
+   "invariant": "a non-string schema_version is not refused before the membership test",
+   "old": "    if not isinstance(version, str):\n        raise NeutralImportError(\n            f\"schema_version must be a string, got {type(version).__name__}\"\n        )\n",
+   "new": "    if False:\n        raise NeutralImportError(\n            f\"schema_version must be a string, got {type(version).__name__}\"\n        )\n",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "LOW",
+   "justification": "A non-string schema_version is refused by the subsequent membership test against the known schema set.",
+   "differential_probes_distinguishing_it": 0
+  },
+  {
+   "id": "M125",
+   "file": "domains.py",
+   "invariant": "the lattice is no longer checked acyclic at import",
+   "old": "_assert_acyclic()\n",
+   "new": "",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "MEDIUM",
+   "justification": "Mutually redundant with M123's runtime guard in `inhabits()`. Removing the import-time assertion alone cannot cause non-termination because the loop guard still bounds traversal; M123 is now killed by an explicitly bounded test, so the pair cannot both be removed undetected.",
+   "differential_probes_distinguishing_it": 0
+  },
+  {
+   "id": "M137",
+   "file": "view.py",
+   "invariant": "an unterminated quoted name is accepted",
+   "old": "    if in_string:\n        raise ViewError(f\"{where}: unterminated quoted name\")\n",
+   "new": "    if False:\n        raise ViewError(f\"{where}: unterminated quoted name\")\n",
+   "classification": "REDUNDANT_DEFENCE",
+   "severity": "LOW",
+   "justification": "An unterminated quote in an identifier list is refused downstream by `_read_ident`'s bare-name check (the M140 guard), which is itself pinned by test_an_unquotable_bare_name_is_refused_on_readback.",
+   "differential_probes_distinguishing_it": 0
+  }
+ ]
+}

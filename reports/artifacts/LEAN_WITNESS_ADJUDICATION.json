@@ -1,0 +1,295 @@
+{
+ "artifact_id": "lean_witness_adjudication_p02_p03",
+ "generated": "2026-08-11",
+ "source": {
+  "dataset": "LeanDojo Benchmark 4 v10",
+  "doi": "10.5281/zenodo.12740403",
+  "mathlib4": "29dcec07",
+  "lean": "v4.10.0-rc1",
+  "licence": "CC BY 2.0",
+  "durable_location": "/Users/moheet/hml_research_artifacts/leandojo",
+  "steps_total": 259580,
+  "sample_with_full_states": 5000
+ },
+ "method": "Classification is by STATE DELTA, never by tactic name. This project measured MI(head; effect)/H(head) = 0.240 over 259,580 steps: an operation name carries only 24% of the information about what it does to the state, so selecting witnesses by tactic name would select the wrong steps.",
+ "P02": {
+  "question": "Does HML need an in-place claim-transformation primitive?",
+  "population": {
+   "P02_context_transformed_add_and_remove": 5788,
+   "P02_context_pure_removal": 3011,
+   "P02_context_pure_growth": 63243,
+   "P02_transform_with_target_change": 3846,
+   "P02_top_heads": [
+    [
+     "obtain",
+     1576
+    ],
+    [
+     "rcases",
+     1217
+    ],
+    [
+     "cases",
+     784
+    ],
+    [
+     "rintro",
+     723
+    ],
+    [
+     "induction'",
+     462
+    ],
+    [
+     "cases'",
+     385
+    ],
+    [
+     "induction",
+     247
+    ],
+    [
+     "choose",
+     167
+    ],
+    [
+     "choose!",
+     51
+    ],
+    [
+     "rename_i",
+     36
+    ],
+    [
+     "injection",
+     32
+    ],
+    [
+     "contrapose!",
+     31
+    ],
+    [
+     "split",
+     14
+    ],
+    [
+     "lift",
+     8
+    ],
+    [
+     "injections",
+     7
+    ]
+   ]
+  },
+  "sample_analysis": {
+   "n_sample": 5000,
+   "true_in_place_rebinding_same_name_new_type": 462,
+   "fraction_of_sample": 0.0924,
+   "destructuring_new_names": 69,
+   "pure_growth_derive_new": 1033,
+   "rebinding_heads": [
+    [
+     "rw",
+     135
+    ],
+    [
+     "obtain",
+     40
+    ],
+    [
+     "have",
+     34
+    ],
+    [
+     "simp",
+     29
+    ],
+    [
+     "rcases",
+     28
+    ],
+    [
+     "replace",
+     18
+    ],
+    [
+     "cases",
+     15
+    ],
+    [
+     "rintro",
+     15
+    ],
+    [
+     "intro",
+     14
+    ],
+    [
+     "cases'",
+     13
+    ],
+    [
+     "contrapose!",
+     12
+    ],
+    [
+     "refine",
+     12
+    ],
+    [
+     "subst",
+     10
+    ],
+    [
+     "simp_rw",
+     9
+    ],
+    [
+     "induction'",
+     8
+    ],
+    [
+     "dsimp",
+     5
+    ],
+    [
+     "haveI",
+     5
+    ],
+    [
+     "push_neg",
+     5
+    ],
+    [
+     "ext",
+     5
+    ],
+    [
+     "specialize",
+     5
+    ],
+    [
+     "let",
+     4
+    ],
+    [
+     "lift",
+     4
+    ],
+    [
+     "split",
+     3
+    ],
+    [
+     "letI",
+     3
+    ],
+    [
+     "change",
+     3
+    ]
+   ],
+   "rebinding_also_changed_target": 188,
+   "rebinding_of_more_than_one_name": 116
+  },
+  "headline": "462 of 5,000 sampled steps (9.24%) rebind the SAME hypothesis name to a DIFFERENT proposition. Top heads: rw 135, obtain 40, have 34, simp 29, rcases 28, replace 18. In-place transformation is real and common.",
+  "representation_test": {
+   "derive_new_old_claim_preserved": "VALID",
+   "old_claim_deleted_from_state_after": "INVALID",
+   "old_claim_proposition_mutated_in_place": "INVALID",
+   "old_claim_status_changed_to_mark_it_stale": "INVALID"
+  },
+  "information_lost": "None that is truth-relevant. Original proposition, transformed proposition, derivational relationship, dependencies, warrant, scope and historical trajectory are all retained. HML does not reproduce Lean's DISCARDING of the old hypothesis, which is tactic ergonomics.",
+  "adversarial_case": {
+   "witness": "DFinsupp.Lex.acc_single, `subst hik`",
+   "shape": "hr : forall j, r j k -> ... becomes hr : forall j, r j i -> ..., and the VARIABLE k is itself removed from the context",
+   "finding": "A genuine divergence: preserving the old claim preserves a proposition mentioning a binder the after-state no longer has.",
+   "why_it_does_not_motivate_the_addition": "HML models propositions as opaque strings with no binder structure at all. An in-place mutation primitive would not represent variable elimination either. This is a modelling boundary, not a missing channel."
+  },
+  "decision": "CLOSED. Immutable derive-new is sufficient on current evidence; destructive in-place mutation is not required and is actively refused by the frame condition. No parent_fact_id, no version id, no SUPERSEDES, no mutation channel.",
+  "correction": "D-055 said 'derive-new + supersede is already expressible today'. The second half is FALSE and is withdrawn. ClaimStatus has no value marking a claim superseded, deletion is refused by the frame, and the only mechanism making a fact non-citable is scope closure \u2014 a statement about frames, not about one fact superseding another. HML DOES NOT REPRESENT SUPERSESSION."
+ },
+ "P03": {
+  "question": "Does SemanticState lose mathematically relevant subgoal-ancestry information?",
+  "population": {
+   "P03_goal_creating_steps": 18315,
+   "P03_multi_goal_after": 18901,
+   "P03_multi_goal_before": 1592,
+   "P03_top_heads": [
+    [
+     "refine",
+     2883
+    ],
+    [
+     "by_cases",
+     2508
+    ],
+    [
+     "constructor",
+     2040
+    ],
+    [
+     "rcases",
+     1793
+    ],
+    [
+     "rw",
+     1560
+    ],
+    [
+     "apply",
+     1341
+    ],
+    [
+     "induction'",
+     1238
+    ],
+    [
+     "cases'",
+     821
+    ],
+    [
+     "obtain",
+     785
+    ],
+    [
+     "split_ifs",
+     610
+    ],
+    [
+     "cases",
+     558
+    ],
+    [
+     "convert",
+     374
+    ],
+    [
+     "rintro",
+     299
+    ],
+    [
+     "tfae_have",
+     236
+    ],
+    [
+     "split",
+     153
+    ]
+   ]
+  },
+  "headline": "Lean genuinely creates goals: 18,315 of 259,580 steps (7.06%) have delta_goals > 0, and 18,901 (7.28%) leave more than one goal. Our own corpus has ZERO goal-creating transitions in 631, so it could not have answered this.",
+  "multi_goal_before_pct": 0.61,
+  "multi_goal_before_note": "1,592 / 259,580 \u2014 reproduces D-056's independently derived 0.61% exactly. LeanDojo traces the FOCUSED goal, so the tree is far more visible in state_after (7.28%) than in state_before.",
+  "witnesses_selected": 50,
+  "current_hml_result": "Goal creation is NOT REPRESENTABLE: no action can declare that it creates subgoals, and Goal carries only id/proposition/status/scope \u2014 no parent field. Before D-057 the verifier ACCEPTED unlicensed goal creation, deletion and mutation silently; it now fails closed.",
+  "information_lost": "Ancestry is moot while goal creation itself has no vocabulary: there is no parent-child relation to lose because no transition can express one. This is a sharper finding than 'ancestry is deferred'.",
+  "decision": "DEFERRED \u2014 SOURCE_CANNOT_ADJUDICATE is NOT the reason. The external source adjudicates it clearly: Lean has the structure, HML cannot express it. A parent_goal_id remains unjustified because the field it would hang from does not exist; adding ancestry before goal creation would be a pointer with nothing to point at. No GoalTree, no planner, no scheduler.",
+  "three_dimensions_stay_separate": {
+   "scope_ancestry": "implemented (logical visibility)",
+   "goal_ancestry": "not implemented, and not expressible",
+   "execution_focus_order": "not modelled at all"
+  }
+ }
+}

@@ -28,13 +28,44 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
-**MUTATION CENSUS AT HEAD: NOT RUN.** The 142/101/41 (71.1%) figure was measured at `10c1879`/`aac4483` and **predates the 19 killing tests integrated at `e920f68`**, so it is superseded and must not be quoted as the current score. Freeze blocker 1 of 5 remains open. The harness itself was found to exist only in an ephemeral session scratchpad; it is now preserved at `/Users/moheet/hml_research_artifacts/mutation_harness` and made portable (154 mutations verified loadable), so the census is runnable rather than unrunnable. **P-02 NOT RUN. P-03 NOT RUN.** The LeanDojo evidence both depend on is preserved at `/Users/moheet/hml_research_artifacts/leandojo` with a checksum-verified manifest.
+**THE CENSUS IS RUN, AND IT FOUND SOMETHING THE CENSUS COULD NOT HAVE FOUND.**
 
-Superseded: 142 mutations, 101 killed, 41 survived (71.1%) at 10c1879/aac4483.
-Every survivor is classified — 28 `REAL_TEST_GAP`, 5 `REDUNDANT_DEFENCE`, 2
-`SEMANTICALLY_EQUIVALENT`, 6 `DEAD_OR_UNREACHABLE`, **0 `UNCERTAIN`**. 19 killing tests
-integrated (`test_mutation_gaps.py`), each verified to pass unmutated *and* fail against its
-mutant. `tests/semantic_state`: **405 passed**.
+**Mutation census at HEAD: 147 applicable mutants, 137 killed, 10 survived — 93.2%.**
+Report: `reports/artifacts/MUTATION_CENSUS_POST_D057.json`. All 10 survivors are
+`REDUNDANT_DEFENCE`, each with the refusing path identified in source and each confirmed
+non-observable across a 219-probe differential battery. **0 `REAL_TEST_GAP`, 0 `UNCERTAIN`,
+0 unexplained HIGH survivors.**
+
+| stage | applicable | killed | rate |
+|---|---|---|---|
+| `10c1879`/`aac4483` (superseded) | 142 | 101 | 71.1% |
+| `3fe87ac`, first census at HEAD | 147 | 121 | 82.3% |
+| after D-057 + 27 new tests | 147 | **137** | **93.2%** |
+
+The catalogue holds 154 entries; **7 are inapplicable at HEAD** because they target source
+text that changed at `aac4483`, and they are superseded 1:1 by the `head2_extra`
+re-expressions. 147 is the applicable count; quoting 154 double-counts.
+
+**D-057 — goals were outside the frame condition, and a mutation census structurally could
+not find it.** `_check_frame` iterated claims, candidates, branches and obligations, and
+never mentioned `goals`. Measured at `3fe87ac`, **in both trust modes**: an `OPEN` goal
+could be deleted from `state_after` with no discharge and no evidence, flipped to
+`DISCHARGED` with neither, or have its proposition rewritten — all **VALID**, while the
+identical three shapes on an obligation were correctly refused. A goal is the thing being
+proved. No edit to a loop over four record kinds can reveal the absence of the fifth, so
+this was invisible to all 147 mutants; it was found by the P-03 investigation asking what
+`SemanticState` actually enforces about goals. Repaired, and the three goal-carrying
+fixtures of the frozen thirty are unaffected.
+
+`tests/semantic_state`: **432 passed** (was 405; 27 added). Full suite: **7,441 passed**.
+`ruff` clean, `mypy` clean on 108 source files.
+
+**A measurement-integrity note that changes how a result must be read.** The 26 survivors of
+the 82.3% census were each re-run against the full 7,441-test suite, and every one reported
+"killed". It was an artifact: all 26 produced an *identical* 5-test failure set, which is the
+baseline of the copied tree (the copy omits `.venv`, and five tests shell out to
+`.venv/bin/hml`). The wider suite contributes **zero** additional kills. A survivor re-run
+without subtracting the baseline failure set produces a false kill for every mutant.
 
 **Three of my own tests were passing for the wrong reason, and are renamed to say what they
 actually check.** One passed no attestations at all, so it could not distinguish the aliasing
@@ -62,13 +93,32 @@ implementation, and the measurements say why.
   `branch_effect.kind == "JOIN"`), and the single `VERIFY_CANDIDATE` comparison sits *inside*
   the `kind == "PROMOTE"` branch, so it was never the discriminator. The real authority was
   `operation` doubling as the evidence rule name — that is what moved.
-* **P-02 — design chosen, no code.** Derive-new + supersede is **already expressible today**:
-  the frame condition requires an existing claim to persist, and `output_id` licenses exactly
-  one addition. Lean's 8.12% in-place rewriting is tactic ergonomics, not mathematical
-  necessity.
-* **P-03 — deferred on measurement.** Across all **631** corpus transitions, `goal_effect` is
-  only `NONE` or `DISCHARGE` (**no goal-creation effect exists**) and **zero** transitions
-  have more than one goal. A `parent_goal_id` would have nothing to point at.
+* **P-02 — CLOSED on external Lean evidence (D-058). No new primitive.** Measured over
+  LeanDojo: **462 of 5,000 sampled steps (9.24%) rebind the same hypothesis name to a
+  different proposition** (`rw` 135, `obtain` 40, `have` 34, `simp` 29, `replace` 18), so
+  in-place transformation is real and common. It is nonetheless fully representable as
+  derive-new: the old claim preserved, the new claim carrying dependency and warrant.
+  Measured against production — derive-new **VALID**; deleting the old claim, mutating its
+  proposition, or restatusing it to mark it stale all **INVALID**. Nothing truth-relevant is
+  lost. The one genuine divergence found by adversarial search is **variable elimination**
+  (`subst`): the old proposition mentions a binder the after-state no longer has — but HML
+  models propositions as opaque strings with no binder structure, so a mutation primitive
+  would not represent it either. A modelling boundary, not a missing channel.
+  **Correction: D-055's "derive-new + supersede is already expressible" is withdrawn.**
+  `ClaimStatus` has no superseded value, deletion is refused, and only scope closure makes a
+  fact non-citable — which is about frames, not supersession. **HML does not represent
+  supersession**, and the word should not be used for what it does.
+* **P-03 — deferred, but the reason is sharper than "no evidence".** The external source
+  adjudicates it clearly: **Lean creates goals on 18,315 of 259,580 steps (7.06%)** and
+  leaves more than one goal on 7.28%, while our own corpus has **zero** goal-creating
+  transitions in 631 — so the corpus never could have answered it. Multi-goal-*before* is
+  1,592 (0.61%), reproducing D-056's independent figure exactly; LeanDojo traces the focused
+  goal, so the tree is far more visible in `state_after`. **Current HML cannot express goal
+  creation at all**: no action declares that it creates subgoals, and `Goal` carries only
+  id/proposition/status/scope. Ancestry is therefore moot — there is no parent-child relation
+  to lose because none can be stated. A `parent_goal_id` would be a pointer with nothing to
+  point at. Since D-057 the verifier fails closed on unlicensed goal creation instead of
+  accepting it silently.
 
 Scope ancestry, goal ancestry and execution order remain three separate dimensions; only the
 first is implemented.
@@ -1422,6 +1472,20 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Current Blockers
 
+- **THE SEMANTIC FREEZE IS NOT GRANTED, and the reason is this session's own result.** The
+  mutation gate is closed (93.2%, 0 unexplained HIGH survivors), P-02 is closed and P-03 is
+  adjudicated — but **a HIGH-severity fail-open was found and repaired in the frame condition
+  today** (D-057). Freezing a semantic instrument on the same day its frame condition changed,
+  with no independent audit of the repaired code, is precisely the premature closure the
+  freeze exists to prevent. What D-057 demonstrates is not that the instrument is bad but that
+  **a 147-mutant census at 93.2% did not see a record kind missing from a loop** — so a green
+  census is not sufficient evidence of trustworthiness on its own.
+- **The independent adversarial audit has NOT been run against the repaired code.** The
+  adversarial work this session was my own, and it found the defect it was looking for. That
+  is the argument for a genuinely independent pass, not against one.
+- **Not run this session, and required by the freeze gate:** independent adversarial audit ·
+  JSON Schema independent validation · cognition YAML real-parser validation · the full
+  `run-conformance` pass · property/metamorphic checks beyond the 219-probe battery.
 - **No official human review has happened.** `INDEPENDENT_SEMANTIC_REVIEW` is two
   read-only agent reviews, and is labelled as such. It clears the developmental screen; it
   does not clear a promotion benchmark.
@@ -1429,7 +1493,23 @@ property it asserted was false, because it never produced `def` parameters.
 
 ## Exact Next Actions
 
-**LIVE: hand the Semantic Firewall closeout to Codex and stop.** Codex owns the corpus,
+**LIVE, and first: an independent adversarial audit of the D-057 repair and the frame
+condition as a whole.** The specific question it must answer is not "is the goal frame
+right" but **"which other record kind, field or channel is absent from a loop that should
+contain it"** — D-057 was a gap of omission, and omissions are the class this project's
+strongest tool (mutation) is blind to by construction. Concrete targets: every `for kind, ...`
+enumeration in `verify.py`; every effect channel an action can declare versus every channel
+`_licensed_change` recognises; every record kind in `SemanticState` versus every kind the
+frame iterates. Then rerun the census and the remaining §6 gates, and only then consider the
+freeze.
+
+**Then the freeze**, if and only if that audit and the outstanding gates pass:
+JSON Schema independent validation · cognition YAML real-parser validation · full
+`run-conformance` · property/metamorphic checks. The census, P-01, P-02 and P-03 are done.
+
+---
+
+**Previously live: hand the Semantic Firewall closeout to Codex and stop.** Codex owns the corpus,
 repins `hml_core`, and reruns the same frozen 30 acceptance fixtures against the pinned
 implementation. Do not modify the corpus repository, the fixtures, or the frozen reference
 checker from here. Handoff: `docs/agent_handoffs/CLAUDE_SEMANTIC_FIREWALL_CLOSEOUT.md`.

@@ -6273,3 +6273,99 @@ durable and verifiable, and the census is runnable instead of unrunnable.
 
 **Next intended step.** Run the 154-mutation census against `e920f68` from the durable
 harness, then classify every survivor.
+
+---
+
+## 2026-08-11 — the census closes, and finds nothing; P-03 finds the defect
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `3fe87ac` · **Stage:** pre-Gemma
+semantic freeze adjudication
+
+**Objective.** Run the post-integration mutation census (freeze blocker 1), then adjudicate
+P-02 and P-03 against the preserved LeanDojo evidence, then decide the freeze.
+
+**What was completed.**
+
+1. **The census ran.** 154 catalogue entries, of which **7 are inapplicable at HEAD** (they
+   target source text that changed at `aac4483`) and are superseded 1:1 by the `head2_extra`
+   re-expressions — so **147 applicable mutants**. First run at HEAD: **121 killed, 26
+   survived, 82.3%**, up from the superseded 71.1%. After this session's repair and tests:
+   **137 killed, 10 survived, 93.2%**.
+2. **Every survivor classified.** All 10 are `REDUNDANT_DEFENCE`, each with the refusing path
+   named in source and each confirmed non-observable across a **219-probe differential
+   battery**. **0 `REAL_TEST_GAP`, 0 `UNCERTAIN`, 0 unexplained HIGH.**
+   `reports/artifacts/MUTATION_CENSUS_POST_D057.json`.
+3. **D-057 — a HIGH-severity fail-open in the frame condition, found and repaired.** Goals
+   were outside `_check_frame` entirely. An `OPEN` goal could be deleted with no discharge and
+   no evidence, flipped to `DISCHARGED` with neither, or rewritten in place — **all VALID at
+   RUNTIME**, while the identical shapes on an obligation were refused.
+4. **P-02 CLOSED (D-058).** No new primitive.
+5. **P-03 adjudicated** with a sharper finding than "deferred for lack of evidence".
+6. **27 new tests** in `test_frame_goals_and_census_gaps.py`.
+
+**Three harness defects found and fixed, all of which corrupt evidence silently.**
+
+- `run_census_h2x.py`/`run_census_head2.py` point at a `head2/` copy the previous session's
+  portability repair did not create. The 9 `head2_extra` mutations could not run at all.
+- **The survivor full-suite re-run had no baseline control.** All 26 survivors reported
+  "KILLED_BY_FULL_SUITE"; all 26 produced an *identical* 5-test failure set, which is the
+  copied tree's own baseline (the copy omits `.venv` and five tests shell out to
+  `.venv/bin/hml`). The wider suite contributes **zero** kills. Without subtracting the
+  baseline, every mutant is a false kill.
+- **A driver that dies inside a mutation leaves the mutant on disk.** M123 removes a
+  termination guard, the battery then never returns, the timeout killed the driver before it
+  restored, and the *next* run snapshotted the mutant as its own pristine baseline. Caught
+  because a probe result changed inexplicably between two runs. The driver now verifies its
+  originals against the git worktree before mutating and restores in a `finally`.
+
+**Tests and verification actually executed.**
+
+| check | command | result |
+|---|---|---|
+| census, base catalogue | `run_census.py` | 142 entries: 113 killed, 22 survived, 7 inapplicable |
+| census, extra2 + head2_extra | `run_census_x2.py`, `run_census_h2x.py` | 3 + 9 |
+| census after repair | all three | **147 applicable, 137 killed, 93.2%** |
+| differential battery | `differential.py` | 219 probes × 26 survivors |
+| survivors vs full suite | `run_survivors_full.py` | 26 × 7,441 tests — **0 additional kills** |
+| `tests/semantic_state` | `pytest` | **432 passed** (was 405) |
+| full suite | `pytest tests` | **7,441 passed** |
+| ruff | `ruff check src tests` | **All checks passed** |
+| mypy | `mypy src` | **Success, 108 source files** |
+| P-02 population | `inplace_analysis.py` | 462/5,000 rebind a name (9.24%) |
+| P-03 population | `select_witnesses.py` | 18,315 goal-creating steps (7.06%) |
+
+**Decisions made and why.**
+
+- **Goal additions are licensed by nothing.** No action can declare that it creates subgoals,
+  so a new goal is refused rather than silently accepted. Fail-closed is the correct reading
+  of a structure the language cannot express, and it refuses nothing legitimate: the corpus
+  has zero goal-creating transitions in 631.
+- **`_licensed_change` requires the goal effect to *name* the goal.** `kind` alone would let
+  an action move any goal by mentioning the channel.
+- **D-055's "supersede" wording withdrawn.** HML has no superseded status, refuses deletion,
+  and makes facts non-citable only by scope closure. It does not represent supersession.
+
+**Failures and unresolved uncertainty.**
+
+- **THE FREEZE WAS NOT GRANTED.** A HIGH-severity fail-open was repaired today; freezing the
+  same day the frame condition changed, without an independent audit of the repaired code,
+  is the premature closure the freeze exists to prevent.
+- **Not run:** independent adversarial audit · JSON Schema independent validation · cognition
+  YAML real-parser validation · full `run-conformance` · property/metamorphic checks beyond
+  the 219-probe battery.
+- The 10 `REDUNDANT_DEFENCE` classifications are evidence of **non-observability through the
+  public contract**, not proofs of semantic equivalence. A probe outside the battery could
+  still distinguish one.
+- One `tests/semantic_state` test skips in a copied tree (`not a git working tree`); it is an
+  architecture-hygiene check no targeted mutation can trip, and it runs in the real worktree.
+
+**Effect on the overall project.** The freeze blocker is closed on its own terms and the
+instrument is measurably stronger — but the session's most important result is the
+counterexample: **a 147-mutant census at 93.2% did not see a record kind missing from a
+loop.** Mutation testing perturbs code that exists and is blind to omission by construction.
+That is now the stated reason the freeze waits for an independent audit.
+
+**Next intended step.** An independent adversarial audit targeted at *omissions* — every
+enumeration in `verify.py`, every declarable effect channel versus every channel
+`_licensed_change` recognises, every `SemanticState` record kind versus every kind the frame
+iterates. Then rerun the affected gates, then reconsider the freeze.

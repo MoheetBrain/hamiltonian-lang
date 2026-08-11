@@ -2574,3 +2574,119 @@ this record, deferred), **execution focus/order** (scheduling, not modelled at a
 **Activation cue.** A corpus containing transitions that create subgoals — a `goal_effect`
 kind other than `NONE`/`DISCHARGE`, or any state with more than one goal. Until one exists,
 there is nothing to represent.
+
+---
+
+## D-057 — goals were outside the frame condition
+
+**Date:** 2026-08-11 · **After:** `3fe87ac` · **Status:** **defect found and repaired** ·
+**Severity:** HIGH, fail-open, reproducible at RUNTIME
+
+**The defect.** `_check_frame` iterated four record kinds — `claims`, `candidates`,
+`branches`, `obligations` — and did not mention `goals`. Its own docstring recorded the
+extension from the reference's claims-only framing to the other three; goals were never
+added. So `SemanticState.goals` was unconstrained.
+
+**Measured at `3fe87ac`, all in both trust modes:**
+
+| payload | verdict before repair | the same shape on an *obligation* |
+|---|---|---|
+| an `OPEN` goal deleted from `state_after`, no discharge, no evidence | **VALID** | INVALID |
+| `OPEN -> DISCHARGED` with no `goal_effect`, no evidence, no warrant | **VALID** | INVALID |
+| a goal's `proposition` rewritten in place | **VALID** | INVALID |
+| a goal materialising in `state_after`, unlicensed | **VALID** | INVALID |
+
+The contrast is the argument: the identical three shapes were already refused on
+obligations. A goal is the thing being proved, and it was the one record kind that could
+vanish silently.
+
+**Why the mutation census could not find it.** A mutation census perturbs code that exists.
+No edit to a loop over four record kinds can reveal the fifth kind's absence from it, and
+the catalogue's framing mutations (M086–M096) are all *within* the existing loop. It was
+found instead by the P-03 goal-ancestry investigation, which asked what `SemanticState`
+represents about goals and discovered the answer was "nothing it enforces". Recorded
+because it bears on how much assurance a green census is worth: 147 mutants, 82.3% killed,
+and this was invisible to all of them.
+
+**The repair.** `("goals", before.goals, after.goals, set())` added to the frame loop, and a
+`goals` branch in `_licensed_change` requiring the declared `goal_effect` to *name* the goal
+it acts on — `kind` alone licenses nothing, or an action moves any goal it likes by
+mentioning the channel. Smallest change that closes all four shapes.
+
+**Goal additions are licensed by nothing, deliberately.** No action can declare that it
+creates subgoals, so a new goal in `state_after` is refused rather than silently accepted.
+This is the honest state of the vocabulary, not a judgement about goal creation: HML does
+not represent it (D-056). Fail-closed is the correct reading of a structure the language
+cannot express, and it refuses nothing legitimate — the corpus contains **zero**
+goal-creating transitions in 631.
+
+**Verification.** `tests/semantic_state`: 405 passed before the repair, 430 after, including
+25 new tests in `test_frame_goals_and_census_gaps.py`. The three goal-carrying fixtures of
+the frozen thirty — `FX-GOL-LEGAL`, `FX-GOL-ILLEGAL`, `FX-GOL-UNKNOWN` — all declare
+`goal_effect {goal_id: g1, kind: DISCHARGE}` and are unchanged by the repair, which is why
+the licensing rule keys on the named goal.
+
+---
+
+## D-058 — P-02: immutable derive-new is sufficient; HML does not represent supersession
+
+**Date:** 2026-08-11 · **After:** `3fe87ac` · **Adjudicates:** P-02 · **Status:** **closed on
+external evidence** · **Supersedes the wording of D-055**
+
+**External evidence.** LeanDojo Benchmark 4 v10, 259,580 steps; witnesses with complete
+before/after states drawn from the 5,000-step sample. Classification is by **state delta**,
+never by tactic name, per this project's own measurement that a tactic name carries only 24%
+of the information about what it does to the state.
+
+| observation | value |
+|---|---|
+| steps rebinding the **same hypothesis name** to a **different proposition** | **462 / 5,000 = 9.24%** |
+| of those, also changing the target | 188 |
+| of those, rebinding more than one name at once | 116 |
+| destructuring (old name gone, new names added) | 69 |
+| pure growth — ordinary derive-new | 1,033 |
+| population: steps adding *and* removing hypotheses | 5,788 / 259,580 |
+
+Top rebinding heads: `rw` 135, `obtain` 40, `have` 34, `simp` 29, `rcases` 28, `replace` 18.
+So in-place transformation is real, common, and not an artifact of one tactic.
+
+**Representation attempted.** For each witness class, using only current semantics: old
+Claim preserved · new Claim derived · `dependencies` carrying the derivational relationship ·
+warrant carrying the rule · scope unchanged. Measured against production:
+
+| payload | verdict |
+|---|---|
+| derive-new, old claim preserved (the `rw ... at h` shape) | **VALID** |
+| the old claim deleted from `state_after` | INVALID |
+| the old claim's `proposition` mutated in place | INVALID |
+| the old claim's status changed to mark it stale | INVALID |
+
+**HML refuses destructive in-place mutation, and that is the frame condition doing its job.**
+
+**Information lost: none that is truth-relevant.** Original proposition, transformed
+proposition, the exact derivational relationship, dependencies, warrant, scope and historical
+trajectory are all retained. What HML does not reproduce is Lean's *discarding* of the old
+hypothesis — "current usability" in the sense of what remains in the context pane. A
+`rw ... at h` leaves both `P[a]` and `P[b]` true; discarding `P[a]` is tactic ergonomics.
+
+**Decision: P-02 CLOSED. No new semantic primitive.** Immutable derive-new is sufficient on
+current evidence; destructive in-place mutation is not required, and is actively refused.
+No `parent_fact_id`, no version id, no `SUPERSEDES`, no mutation channel.
+
+**The adversarial case, and the correction it forces.** The one class where derive-new
+genuinely diverges is **variable elimination** — `subst`, `substs`, `clear_value`. Witness
+`DFinsupp.Lex.acc_single`, `subst hik`: `hr : ∀ j, r j k → …` becomes `hr : ∀ j, r j i → …`
+while **the variable `k` itself is removed from the context**. Preserving the old claim
+preserves a proposition mentioning a binder the after-state no longer has. This is a real
+divergence and it is recorded as one — but it does **not** motivate the addition under
+consideration, because HML models propositions as opaque strings with no binder structure at
+all. An in-place mutation primitive would not represent variable elimination either. It is a
+modelling boundary, not a missing channel.
+
+**Correction to D-055.** D-055 said "derive-new + supersede is already expressible today".
+The second half is **false and is withdrawn**. Measured: `ClaimStatus` is
+`GIVEN · ASSUMED · DERIVED · VERIFIED · REFUTED · UNRESOLVED · UNKNOWN` — no value marks a
+claim superseded; deletion is refused by the frame; and the only mechanism that makes a fact
+non-citable is scope closure, which is a statement about frames, not about one fact
+superseding another. **HML does not represent supersession.** It does not need to for P-02,
+and the word should not be used for what it does.
