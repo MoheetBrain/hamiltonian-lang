@@ -6468,3 +6468,80 @@ duplicate mapping keys rather than silently keeping the last) and `mutations_d05
 committed copies to prove they work from the repository rather than only from the directory
 they were written in. The next audit is required to re-run them, and a tool that found two
 HIGH fail-opens should not be reachable only by remembering where it was left.
+
+---
+
+## 2026-08-11 (third pass) — the audit finds nothing; the freeze is cut
+
+**Branch:** `feature/hml-reasoning-kernel-v2` · **After:** `00c50a7` · **Stage:** PRE-GEMMA
+SEMANTIC BASELINE — **FROZEN**
+
+**Objective.** Audit the repaired object one final time and, if clean, cut the freeze.
+
+**What was completed.**
+
+1. **Third independent omission audit — no semantic defect found.** The four D-059/D-060
+   repairs were re-attacked directly; the structural sweep was repeated across every
+   `SemanticState` collection, effect channel, evidence site, status-bearing object, frame
+   kind and import/export/render/read path; and two areas that had never been audited were
+   added — `spec/` and `evaluation/`, plus the corpus-owned case schemas.
+2. **A new, finer audit level: per-field path completeness.** Every field of every record
+   given a distinctive value and pushed through both lossless paths. **32 fields, 5 record
+   types, zero omissions** — nothing dropped by the renderer, nothing missing from the
+   export.
+3. **Cross-artifact enumeration check, never run before.** The corpus-owned case schemas
+   were compared against the production model. They enumerate `split`, `semantic_focus` and
+   `origin` only — no record statuses — so no status enumeration can drift between corpus
+   and production. The fixtures' ten `expected_error_class` values were found to equal
+   production's ten `INVARIANTS` values **exactly**.
+4. **One non-semantic finding: `model.ErrorClass` is dead and its docstring is false.** It
+   claims to match the fixtures' `expected_error_class`; 7 of its 10 members are never
+   emitted and 7 of the 10 emitted classes are absent from it. Nothing in production or
+   tests reads it — the `ErrorClass` used in tests belongs to `context_broker`, a different
+   layer with twelve unrelated members. **Deliberately not repaired in this pass**, so the
+   tagged `src/` is byte-identical to the audited `src/`. Recorded as a known limitation.
+5. **THE FREEZE IS CUT:** annotated tag `hml-semantic-pre-gemma-v1`, with a machine-readable
+   release manifest at `reports/artifacts/RELEASE_MANIFEST_pre_gemma_v1.json`.
+
+**Tests and verification actually executed.**
+
+| check | result |
+|---|---|
+| `pytest tests` | **7,479 passed** |
+| `pytest tests/semantic_state` | **470 passed** |
+| `ruff check src tests scripts` | All checks passed |
+| `mypy src` | Success, 108 source files |
+| mutation gate (159 applicable) | **147 killed, 12 survived, 92.5%**, 0 unexplained HIGH |
+| omission matrix | 5 kinds × 7 change types, **0 blank cells** |
+| per-field completeness | **0 omissions** across 32 fields |
+| property/metamorphic | 10 Hypothesis properties, all pass, no counterexamples |
+| cognition ledger (PyYAML) | PASS, 148 entries, X1–X148 |
+| corpus schema vs production enums | no drift possible; fixture error classes match exactly |
+
+**Decisions made and why.**
+
+- **`ErrorClass` was not repaired before the freeze.** Fixing it would have made the tagged
+  object differ from the audited object, and the entire value of the gate is that those are
+  the same thing. It affects no verdict, so leaving it costs nothing but a manifest line.
+- **The tag points at a documentation-only commit.** `src/` is byte-identical to the audited
+  SHA `00c50a7`; the delta is the release manifest and these records. Verified with
+  `git diff --stat` restricted to `src/`.
+
+**Failures and unresolved uncertainty.**
+
+- The freeze establishes **engineering trust in the instrument, not any model benefit**.
+  Static HML superiority remains unproven and unmeasured.
+- Twelve mutation survivors remain, all `REDUNDANT_DEFENCE`. That is evidence of
+  non-observability through the public contract, not proof of semantic equivalence.
+- Obligation discharge still does not *require* evidence; a producer can discharge a
+  mandatory obligation by omitting the field. Corpus-owner decision.
+- Three audit passes found HIGH defects, HIGH defects, and none. One clean pass is the
+  stopping rule agreed in advance, not proof that none remain.
+
+**Effect on the overall project.** Semantic engineering STOPS here. The instrument the
+Gemma experiment will consume is now a fixed, hashed, reproducible object.
+
+**Next intended step.** The local MLX experiment environment and the DOMINO policy kill
+test. No change to frozen semantics in response to any model result.
+
+**Manifest self-reference.** `hml_sha_tagged` is null by construction: a commit cannot carry its own hash. The tag is the authority, and `src/` is byte-identical between the audited SHA and the tagged commit.

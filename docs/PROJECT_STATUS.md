@@ -1722,3 +1722,39 @@ PYTHONPATH=src .venv/bin/python scripts/audit/omission_audit.py
 ```
 
 The first writes `reports/artifacts/OMISSION_AUDIT_RAW.json` — the empirical matrix, five state kinds by seven change types, decided by running production `import` + `verify` rather than by reading source. The second validates the corpus cognition ledger with PyYAML under a loader that refuses duplicate mapping keys, because a regex scan cannot tell a duplicate key from a nested one.
+
+---
+
+# 🔒 PRE-GEMMA SEMANTIC FREEZE — CUT 2026-08-11
+
+Tag: **`hml-semantic-pre-gemma-v1`** · Manifest:
+`reports/artifacts/RELEASE_MANIFEST_pre_gemma_v1.json`
+
+The third independent omission audit found **no semantic defect**. Semantic engineering on
+this object STOPS. Any unavoidable future semantic change requires a NEW release, a NEW
+experiment version, and preservation of the old result.
+
+**Audit history — the reason to believe this one:** pass 1 found D-057 (HIGH). Pass 2 found
+D-059a, D-059c, D-059b and D-060 (two HIGH). Pass 3 found nothing semantic. The stopping
+rule was agreed before pass 3 ran, and one clean pass is that rule — not proof that no
+defect remains.
+
+| gate | result |
+|---|---|
+| pytest | 7,479 passed |
+| mutation | 159 applicable, 147 killed, **92.5%**, 0 unexplained HIGH |
+| omission matrix | 5 kinds × 7 change types, 0 blank cells |
+| per-field completeness | 0 omissions, 32 fields |
+| property/metamorphic | 10 Hypothesis properties, all pass |
+| cognition ledger | PASS, 148 entries |
+| ruff / mypy | clean / clean |
+
+**What this release does NOT claim.** It is not HML v1.0 and not a complete formal
+mathematics system. It freezes the exact instrument the matched Gemma experiment will
+consume. **Static HML superiority remains unproven.** Goal creation fails closed and is not
+representable; goal ancestry and execution scheduling are not modelled; supersession is not
+represented; propositions remain opaque strings with no binder structure. The full list is
+in the manifest under `known_limitations`, and it is part of the release rather than a
+footnote to it.
+
+The manifest's `hml_sha_tagged` is deliberately null — a commit cannot contain its own hash. Resolve the tag with `git rev-parse hml-semantic-pre-gemma-v1^{}`; what matters semantically is `hml_sha_audited`, and `src/` is byte-identical between the two.

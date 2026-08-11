@@ -1,0 +1,201 @@
+{
+ "release": {
+  "name": "hml-semantic-pre-gemma-v1",
+  "kind": "PRE-GEMMA SEMANTIC BASELINE",
+  "not_a_claim_of": "This is NOT HML v1.0 and NOT a complete formal mathematics system. It freezes the exact semantic instrument the matched Gemma experiment will consume, so that experiment results are attributable to a fixed object.",
+  "date": "2026-08-11",
+  "branch": "feature/hml-reasoning-kernel-v2"
+ },
+ "provenance": {
+  "hml_sha_audited": "00c50a7c6e50ccd1cb3f3f2e75c9ca6257e10052",
+  "hml_sha_tagged": "8ae7813bbd25af67b5e9233011e6ddef9ec91085",
+  "corpus_sha": "9d67e54450b9db897ee2ed20ec2e4cbbc16a3780",
+  "corpus_branch": "codex/minilang-artifact-audit",
+  "corpus_ownership": "Codex-owned. Not modified by any commit in this release.",
+  "src_identical_to_audited_sha": true
+ },
+ "schemas_and_versions": {
+  "neutral_case_schema_version": "semantic-firewall-case-0.1.0",
+  "supported_schema_versions": [
+   "semantic-firewall-case-0.1.0"
+  ],
+  "fx2_suite_version": "semantic-firewall-fx2-1.0.0",
+  "sf_acceptance_fixtures_sha256": "618b88beb9b0018903827c8b7d8ba8976c2c04bb87e2759047b7feceabd9b5b9",
+  "fx2_fixtures_sha256": "8568408ce29fd31cc60251d8a62a2e7d12049d47fdf238ed7227a1d6118b6c09",
+  "sf_case_schema_sha256": "09ca22f9a6c32d1589bcc5e5a96e775f4e123c54132323b5a19909946d3c881a",
+  "fx2_case_schema_sha256": "bdf4108ca12c3b553608541ee5d1bf96d284b81a4ba38270e6dd3c291eb6c2ee",
+  "ir_schema_sha256": "9cdd02052d71838d81903af1107c591ff41e30ed3d3fdd6c144ad995801a713f"
+ },
+ "frozen_semantic_surface": {
+  "model": {
+   "file": "src/hamiltonian_lang/semantic_state/model.py",
+   "sha256": "bbe350938c89b671c8e4b9e52331554c7c7becd8a30032eabeccf4abc42c5566"
+  },
+  "verify": {
+   "file": "src/hamiltonian_lang/semantic_state/verify.py",
+   "sha256": "8c28ae8497c438e85bc35495038180c61c248d7245de8e1f1e295c1d21d953bd"
+  },
+  "neutral": {
+   "file": "src/hamiltonian_lang/semantic_state/neutral.py",
+   "sha256": "b2dad7d62023051d67f1fe250df27e95304e927fb6e86a180c755c8e361cb546"
+  },
+  "view_renderer": {
+   "file": "src/hamiltonian_lang/semantic_state/view.py",
+   "sha256": "151278fbc4813406036402607819728275cba49bb0f69ddfd7972ddef204da99"
+  },
+  "trust": {
+   "file": "src/hamiltonian_lang/semantic_state/trust.py",
+   "sha256": "281f64d50d422b74a0801b3346782f7607fbf4d04adfcb8b2d98dc965663232e"
+  },
+  "domains": {
+   "file": "src/hamiltonian_lang/semantic_state/domains.py",
+   "sha256": "a956690540a636fe1b63fa7f59c41e2625e96878897757ca8d071e4e9bddc4e3"
+  }
+ },
+ "verifier_and_trust_policy": {
+  "verdicts": [
+   "VALID",
+   "INVALID",
+   "UNRESOLVED"
+  ],
+  "three_valued": "UNRESOLVED is neither accepted nor detected. Unknowns are collected first and short-circuit.",
+  "trust_modes": [
+   "OFFLINE_REPLAY",
+   "RUNTIME"
+  ],
+  "no_default_mode": "A trust mode must be chosen explicitly (D-050).",
+  "runtime_rule": "The recorded evidence status is ignored entirely. Acceptance requires an Attestation carrying CheckedEvidence minted by reasoning.certificates.check.",
+  "attestation_binding": [
+   "cited evidence id (never record.id -- D-052)",
+   "claim",
+   "premises",
+   "rule"
+  ],
+  "invariant_families": 11,
+  "error_classes_emitted": [
+   "CANDIDATE_PROMOTION",
+   "DEPENDENCY_VIOLATION",
+   "EPISTEMIC_PROMOTION",
+   "FALSE_GOAL_DISCHARGE",
+   "INVALID_BRANCH_JOIN",
+   "OBLIGATION_DROP",
+   "PRECONDITION_VIOLATION",
+   "SCOPE_LEAK",
+   "TYPE_OR_DOMAIN_MISMATCH",
+   "WARRANT_MISMATCH"
+  ],
+  "frame_condition_covers": [
+   "claims",
+   "candidates",
+   "branches",
+   "obligations",
+   "goals"
+  ]
+ },
+ "results": {
+  "pytest_total": 7479,
+  "pytest_semantic_state": 470,
+  "ruff": "clean",
+  "mypy": "clean (108 source files)",
+  "mutation_gate": {
+   "applicable": 159,
+   "killed": 147,
+   "survived": 12,
+   "kill_rate_pct": 92.5,
+   "unexplained_high_survivors": 0,
+   "survivor_classification": {
+    "REDUNDANT_DEFENCE": 12,
+    "REAL_TEST_GAP": 0,
+    "UNCERTAIN": 0
+   },
+   "inapplicable_at_this_sha": [
+    "M025",
+    "M030",
+    "M031",
+    "M049",
+    "M052",
+    "M055",
+    "M064",
+    "M069"
+   ],
+   "inapplicable_note": "Seven are superseded 1:1 by head2_extra re-expressions; M049 is superseded by the disambiguated D049a/D049b."
+  },
+  "omission_audit": {
+   "state_kinds": 5,
+   "change_types": 7,
+   "blank_cells": 0,
+   "field_level_omissions": 0,
+   "fields_checked": 32,
+   "note": "Every field of every record survives the neutral round trip and the HML view round trip, and appears in the export."
+  },
+  "property_metamorphic": {
+   "engine": "Hypothesis 6.165.2",
+   "properties": 10,
+   "result": "all pass",
+   "counterexamples": null
+  },
+  "cognition_ledger": {
+   "parser": "PyYAML with duplicate-key-refusing loader",
+   "entries": 148,
+   "id_range": "X1-X148",
+   "verdict": "PASS"
+  }
+ },
+ "adjudications": {
+  "P-01": "COMPLETE. At RUNTIME the typed effect is the sole authority; the operation label is provenance. Six labels over an identical transition give one verdict.",
+  "P-02": "CLOSED (D-058). Immutable derive-new is sufficient; destructive in-place mutation is refused. Measured: 462/5,000 LeanDojo steps (9.24%) rebind a hypothesis name, all representable as derive-new. No new primitive.",
+  "P-03": "DEFERRED, with the reason sharpened. Lean creates goals on 7.06% of steps; our corpus on 0 of 631. HML cannot express goal creation at all, so ancestry is moot -- there is no parent-child relation to lose. Fails closed since D-057.",
+  "D-050": "Trust modes explicit; no default. IN FORCE.",
+  "D-052": "Attestations keyed by the cited id, never the payload-controlled record.id. IN FORCE.",
+  "D-053": "Neutral export preserves the dictionary key, not record.id. IN FORCE.",
+  "D-054": "Evidence-rule authority in the typed effect channel. IN FORCE.",
+  "D-057": "Goals brought inside the frame condition. IN FORCE.",
+  "D-058": "P-02 closed; D-055's 'supersede is expressible' withdrawn. IN FORCE.",
+  "D-059": "Goal effect materialisation, GoalStatus typing, UNKNOWN relevance for goals and obligations. IN FORCE.",
+  "D-060": "A cited obligation discharge evidence id must be honoured. IN FORCE."
+ },
+ "known_limitations": [
+  "Goal creation currently FAILS CLOSED and is not representable: no action can declare that it creates subgoals, so a goal appearing in state_after is refused.",
+  "Goal ancestry is therefore not modelled. There is no parent_goal_id and no goal tree.",
+  "Execution focus / scheduling is not modelled at all.",
+  "Supersession is not represented. No ClaimStatus marks a claim superseded, deletion is refused, and only scope closure makes a fact non-citable.",
+  "Propositions remain OPAQUE STRINGS at this semantic-state layer. There is no binder structure, so variable elimination (Lean `subst`) is not representable -- and would not be representable by a mutation primitive either.",
+  "Obligation discharge does not REQUIRE evidence. 486 of 487 corpus discharges name none. A cited id is honoured (D-060), but a producer can still discharge a mandatory obligation by omitting the field. Closing this is a corpus-owner decision.",
+  "Mutation score is 92.5%, not 100%. All 12 survivors are classified REDUNDANT_DEFENCE with the refusing path named in source; that is evidence of non-observability through the public contract, NOT a proof of semantic equivalence.",
+  "model.ErrorClass is a DEAD public export whose docstring is false: it claims to match the fixtures' expected_error_class, but 7 of its 10 members are never emitted and 7 of the 10 emitted classes are absent from it. Nothing in production or tests reads it, so no verdict is affected. Found by this audit and deliberately NOT repaired in the freeze pass, so that the tagged src/ is byte-identical to the audited src/.",
+  "Static HML superiority remains UNPROVEN. No comparative measurement has been run.",
+  "This release establishes ENGINEERING TRUST in the instrument, not any model reasoning benefit."
+ ],
+ "explicitly_unsupported": [
+  "goal creation / subgoal decomposition",
+  "goal ancestry",
+  "execution scheduling",
+  "supersession of a fact",
+  "binder structure / variable elimination",
+  "proof search, planning, policy critique",
+  "any claim of benchmark superiority"
+ ],
+ "audit_history": [
+  {
+   "pass": 1,
+   "found": "D-057 (HIGH): goals outside the frame condition"
+  },
+  {
+   "pass": 2,
+   "found": "D-059a (HIGH), D-059b, D-059c, D-060 (HIGH)"
+  },
+  {
+   "pass": 3,
+   "found": "no semantic defect; one dead public enum (non-semantic)"
+  }
+ ],
+ "reports": {
+  "COGNITION_LEDGER_VALIDATION.json": "9b28e2baa0303be505b5570e0749a21f1c6ff4e4cba6e499989a399f55909c06",
+  "LEANDOJO_ARTIFACT_MANIFEST.json": "bfe6844888e09d8d4555c7d78f1884cebb6128415871b9cb2c8ca46d21a1c9fb",
+  "LEAN_WITNESS_ADJUDICATION.json": "7bfe36c424613f73d3c0f6441fa28a66ebba6e8c23dd09b5d190b2364c53f3a8",
+  "MUTATION_CENSUS_POST_D057.json": "2fb577e8b0db9fd49f24079ed45a6b759a02059c64eb3c9c43d8a8f625b4ecd4",
+  "MUTATION_HARNESS_MANIFEST.json": "36a058b767279d160b8e6dc9de3c95e325f7e1e44d296825ba4a51ce1de4350e",
+  "OMISSION_AUDIT_RAW.json": "dbafa2d5ea1d05547775cc1e160f299b1f29811ab7877cf25c54c29f49f05935",
+  "SEMANTIC_OMISSION_AUDIT.json": "13d4ce36b816a5dfd0cce3b41e1ea177ceedb91bf12f7a564c9056414cd089e5"
+ }
+}
