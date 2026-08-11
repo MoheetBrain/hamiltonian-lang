@@ -362,8 +362,18 @@ def test_explicitly_rejected_warrant_evidence_is_refused():
     assert result.error_class == "WARRANT_MISMATCH"
 
 
-def test_an_attestation_cannot_be_routed_by_a_payload_controlled_id():
-    """Attestations are keyed by the id the ACTION cites, never by `record.id`.
+def test_a_record_citing_evidence_with_no_attestation_is_refused():
+    """**Renamed 2026-08-11.** This was called
+    `test_an_attestation_cannot_be_routed_by_a_payload_controlled_id` and a mutation census
+    showed it could not detect that hole: it passes **no attestations at all**, so
+    `attestations[cited_as]` and `attestations[record.id]` both miss an empty mapping and it
+    passes unchanged with D-052's repair reverted. It was named for a property it does not
+    test.
+
+    What it actually pins — a runtime record citing evidence for which no attestation exists
+    is refused — is worth keeping. The aliasing property it claimed is pinned by
+    `test_mutation_gaps.py::test_a_genuine_attestation_does_not_transfer_through_a_payload_controlled_record_id`,
+    which supplies a genuine attestation and is verified to fail against the mutant.
 
     The neutral schema lets a record's own `id` differ from its key, and `record.id` is
     payload-controlled — so filing by it let a producer route a genuine certificate for
@@ -385,8 +395,15 @@ def test_an_attestation_cannot_be_routed_by_a_payload_controlled_id():
     assert str(result.verdict) == "INVALID", result.to_dict()
 
 
-def test_the_scope_discharge_site_binds_its_claim(monkeypatch):
-    """The most severe site had the emptiest binding.
+def test_the_scope_discharge_site_rejects_an_unrelated_attestation(monkeypatch):
+    """**Renamed 2026-08-11.** Previously `test_the_scope_discharge_site_binds_its_claim`.
+
+    A mutation census showed it cannot fail on either binding alone: its attestation
+    mismatches on the claim *and* the premises, so removing either check individually is
+    invisible to it. The two bindings are pinned separately in `test_mutation_gaps.py`.
+
+    What it does pin — that a wholly unrelated attestation does not license a scope escape —
+    is still worth having.
 
     `_discharge_licenses_escape` passed `claim=None, premises=(), rule=None`, so `binds()`
     was vacuously satisfied by any zero-premise attestation — the exact shape a

@@ -121,8 +121,18 @@ def test_a_duplicated_active_scope_fails_closed():
     assert "repeats" in result.findings[0].detail
 
 
-def test_a_cyclic_scope_tree_does_not_hang_the_verifier():
-    """`parents` is derived from producer-supplied data, so it may be malformed."""
+def test_a_cyclic_scope_tree_is_handled_when_the_answer_is_on_the_first_hop():
+    """**Renamed 2026-08-11.** Previously `test_a_cyclic_scope_tree_does_not_hang_the_verifier`.
+
+    A mutation census showed it never enters the loop it was named for: it asks whether
+    `branch:a` contains `branch:b` where `parents["branch:b"] == "branch:a"`, which is
+    answered on the **first** hop. Remove the `seen` guard and this still passes while a
+    global-premise case hangs forever — a denial of service from a payload containing no
+    evidence at all.
+
+    The termination property is pinned by
+    `test_mutation_gaps.py::test_a_cyclic_scope_tree_terminates_when_the_answer_is_not_on_the_first_hop`.
+    """
     cyclic = _branches(a="branch:b", b="branch:a")
     result = verify_replay(import_transition(
         _scoped(["global", "branch:a", "branch:b"], "branch:a", "branch:b", cyclic)))

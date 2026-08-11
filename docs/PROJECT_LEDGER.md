@@ -6149,3 +6149,54 @@ complete both times.
 
 **Next intended step.** Correct the P-02 claim, run the P-03 external Lean witness audit,
 integrate the schema audit and the mutation census, then the freeze gate.
+
+---
+
+## 2026-08-11 (fifth entry) — mutation census regenerated; 19 gaps closed; three of my tests were theatre
+
+**Branch:** `feature/hml-reasoning-kernel-v2`, on `aac4483`. **Stage:** Phase I/II closure.
+
+**Objective.** Regenerate the mutation census at current HEAD and close the high-severity
+gaps before the freeze gate.
+
+**What was completed.** 142 mutations across all six `semantic_state` modules; 101 killed, 41
+survived, every survivor classified with a measured probe and **zero `UNCERTAIN`**. 19 killing
+tests integrated as `tests/semantic_state/test_mutation_gaps.py`.
+
+**The high-severity holes, all fail-open.** Attestation aliasing (D-052's hole reopened by a
+one-character edit); both `BRANCH_JOIN` evidence rules; a warrant citing evidence that does
+not exist; conclusions written into frames never opened; both scope-discharge bindings;
+`UNSATISFIED` preconditions; ancestry weakened to a subset test (laundered provenance); an
+obligation walking `OPEN → DISCHARGED` with nothing declared; and the **entire
+`GOAL_DISCHARGE` family**, one of whose mutants raises an unhandled `AttributeError` out of
+`verify()`. One mutation removes a cycle guard and **hangs the verifier indefinitely** on a
+payload containing no evidence at all.
+
+**Three of my own tests passed for the wrong reason.** Recorded plainly because the pattern is
+the project's recurring one. `test_an_attestation_cannot_be_routed_by_a_payload_controlled_id`
+passed **no attestations at all**, so both lookups missed an empty mapping — it would have
+passed with D-052's repair reverted, and it was named for a hole it could not detect.
+`test_the_scope_discharge_site_binds_its_claim` mismatched on the claim *and* the premises, so
+removing either binding alone was invisible. `test_a_cyclic_scope_tree_does_not_hang_the_verifier`
+picked a pair answered on the first hop and never entered the loop. All three are renamed to
+state what they do check; the real properties are pinned separately and mutation-verified.
+
+**Why `GOAL_DISCHARGE` looked covered.** `FX-GOL-ILLEGAL` violates rule 1 and rule 3 at once,
+so each rule covers for the other: removing rule 1 alone still reports `FALSE_GOAL_DISCHARGE`
+and the fixture still passes. Three individual survivors sat behind one apparent kill.
+
+**Tests and verification actually executed.** `pytest tests/semantic_state` **405 passed**
+(was 386); `bash scripts/conformance.sh` **PASS**; ruff and mypy clean. Spot-verified four of
+the highest-severity killing tests myself by re-applying their mutants: each killed exactly
+its named test and nothing else.
+
+**Failures and unresolved uncertainty.** The census also found: `_check_preconditions`'
+docstring named `"UNSATISFIED"`, a literal appearing in no fixture (`FX-PRE-ILLEGAL` records
+`"FAILED"`) — corrected, behaviour unchanged. D-053's key/id repair is tested for **1 of 5**
+record kinds; goals, candidates, obligations and branches export-keying remain unpinned.
+`SemanticState.visible()` is dead public API carrying a safety claim in its docstring. A
+blast-radius check confirmed **no test outside `tests/semantic_state/` can observe any change
+to these six modules**.
+
+**Next intended step.** P-02 claim correction, the P-03 external Lean witness audit, integrate
+the corpus schema audit, then the freeze gate.

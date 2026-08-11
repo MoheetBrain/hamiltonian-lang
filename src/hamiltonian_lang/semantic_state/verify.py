@@ -457,7 +457,12 @@ def _discharge_licenses_escape(t: Transition) -> bool:
 
 
 def _check_preconditions(t: Transition) -> list[Finding]:
-    """SF-R04. SATISFIED executes; DEFERRED becomes explicit debt; UNSATISFIED refuses.
+    """SF-R04. SATISFIED executes; DEFERRED becomes explicit debt; anything else refuses.
+
+    Note on vocabulary: this rule refuses **any** status outside the accepted set, which is
+    what fail-closed means here. An earlier version of this docstring said "UNSATISFIED
+    refuses" and named a literal that appears in no fixture and no test -- `FX-PRE-ILLEGAL`
+    records `"FAILED"`. The behaviour was right; the documentation named the wrong token.
 
     UNKNOWN never reaches here — it was collected earlier and made the whole transition
     UNRESOLVED, which is the fail-closed requirement: an unknown precondition must not

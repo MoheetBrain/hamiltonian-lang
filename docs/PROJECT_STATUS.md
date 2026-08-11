@@ -28,6 +28,25 @@ no power, so it is not evidence that no advantage exists.
 
 ## Current Stage
 
+**MUTATION CENSUS REGENERATED AT HEAD: 142 mutations, 101 killed, 41 survived (71.1%).**
+Every survivor is classified — 28 `REAL_TEST_GAP`, 5 `REDUNDANT_DEFENCE`, 2
+`SEMANTICALLY_EQUIVALENT`, 6 `DEAD_OR_UNREACHABLE`, **0 `UNCERTAIN`**. 19 killing tests
+integrated (`test_mutation_gaps.py`), each verified to pass unmutated *and* fail against its
+mutant. `tests/semantic_state`: **405 passed**.
+
+**Three of my own tests were passing for the wrong reason, and are renamed to say what they
+actually check.** One passed no attestations at all, so it could not distinguish the aliasing
+hole it was named for and would have passed with D-052's repair reverted. One mismatched on
+two bindings at once, so neither could be removed detectably. One never entered the loop it
+was named for — removing the cycle guard leaves it green while a different payload **hangs
+the verifier forever**. The real properties are now pinned separately and mutation-verified.
+
+**The `GOAL_DISCHARGE` family had zero coverage, and the census found why:** its only fixture
+violates rule 1 *and* rule 3 simultaneously, so each rule covered for the other and three
+survivors hid behind one apparent kill.
+
+---
+
 **P-01, P-02 AND P-03 ARE ADJUDICATED (D-054, D-055, D-056).** Two of the three need no
 implementation, and the measurements say why.
 
