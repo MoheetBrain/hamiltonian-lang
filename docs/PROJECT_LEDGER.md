@@ -6545,3 +6545,15 @@ Gemma experiment will consume is now a fixed, hashed, reproducible object.
 test. No change to frozen semantics in response to any model result.
 
 **Manifest self-reference.** `hml_sha_tagged` is null by construction: a commit cannot carry its own hash. The tag is the authority, and `src/` is byte-identical between the audited SHA and the tagged commit.
+
+---
+
+## 2026-08-12 — translator contract for the frozen release
+
+Added `HML_TRANSLATOR_CONTRACT_CURRENT.md` at the repository root: a single authoritative specification for converting worked mathematical solutions into the canonical trajectory, current HML, and a matched AST. Written so a separate model can translate without reading HML source.
+
+**No source file is touched.** This is documentation of the frozen release, not a change to it. The tag `hml-semantic-pre-gemma-v1` continues to resolve to `84bf989`, and `src/` is unchanged.
+
+Every schema, enum, field name and grammar fragment was extracted mechanically from the frozen source rather than recalled; the reference rendering is verbatim `render_transition` output. Eight behavioural claims were then executed against the live verifier and all matched: ordinary transformation VALID; goal creation, candidate addition and branch addition each INVALID; an unmaterialised obligation INVALID/OBLIGATION_DROP; a materialised one VALID; a lowercase status and a NaN payload each refused at import.
+
+Two pre-existing defects are **documented rather than fixed**, because the release is frozen and neither affects a verdict: `model.ErrorClass` is a dead export whose docstring is false (7 of its 10 members are never emitted), and `GoalStatus` is missing from the package `__all__` so it must be imported from `.model` directly. Both were found while writing the contract.

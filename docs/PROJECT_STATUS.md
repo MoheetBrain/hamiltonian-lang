@@ -1758,3 +1758,7 @@ in the manifest under `known_limitations`, and it is part of the release rather 
 footnote to it.
 
 The manifest's `hml_sha_tagged` is deliberately null — a commit cannot contain its own hash. Resolve the tag with `git rev-parse hml-semantic-pre-gemma-v1^{}`; what matters semantically is `hml_sha_audited`, and `src/` is byte-identical between the two.
+
+## Translator contract (2026-08-12)
+
+`HML_TRANSLATOR_CONTRACT_CURRENT.md` (repo root) is the single source of truth for translating worked mathematics into the frozen release. Documentation only — `src/` untouched, tag still resolves to `84bf989`. Records two documented-not-fixed defects: the dead `model.ErrorClass` export and the missing `GoalStatus` export.
