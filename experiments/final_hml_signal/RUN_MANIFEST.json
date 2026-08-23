@@ -1,0 +1,80 @@
+{
+  "experiment": "FINAL_HML_SIGNAL",
+  "protocol_status": "FROZEN_BEFORE_RESULTS",
+  "protocol_git_sha": "e33f3a0af2f93234f5654e2cdae4d6baf4eb3c2a",
+  "protocol_sha256": "163872e1d26311a099f9167e01f20a49f6d91b1360c9e5321d6cf88fab3dfa5e",
+  "hml_repository_base": "3b7fe893609c2ce39c8088c1cb0c3fe2e45d6af4",
+  "hml_branch": "codex/final-hml-signal",
+  "corpus_repository": "/Users/moheet/Documents/ChatGPT/hmlt-reasoning-corpus",
+  "corpus_reporting_commit": "627194144abd9396dadbebf0b7834e76b937d908",
+  "corpus_payload_commit": "fb6e28edec0f77753d97486cbae759a59f1d1f38",
+  "corpus_manifest_sha256": "e9e5e6fd340efe793f4a7f53f40a0442da55b36371723cd61c20e6a8f07aa930",
+  "rung_hashes": {
+    "10k": "1eeb0b2f79d3472b96f72b6b9ee47b12ee9c20b17a9de6e647877169b198bbff",
+    "30k": "255832921459b25dfe29fb86b20e38ab62e3e2e04d2067e359b8c8423cf137b4",
+    "50k": "4777d6e6a2751888473a6eec894da750c2394c1349c8e3be5582862b355f5391"
+  },
+  "preflight": {
+    "result": "PASS",
+    "paired_rungs": true,
+    "nested_rungs": true,
+    "final_rows": 3000,
+    "final_parents": 888,
+    "train_final_record_overlap": 0,
+    "train_final_parent_overlap": 0,
+    "unicode_escape_count": 0,
+    "corpus_tests": "107 passed"
+  },
+  "model": {
+    "id": "Qwen/Qwen3-8B",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "tensor_count": 399,
+    "parameter_count": 8190735360,
+    "tensor_dtypes": {"BF16": 399},
+    "quantization_config": null,
+    "tokenizer_sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4"
+  },
+  "recipe": {
+    "sha256": "b393d81f0af1c66d52b669436e6c47733fcca54d7364288ad26168e575e0c836",
+    "previous_artifact_sha256_match": true,
+    "native_bf16": true,
+    "quantized": false,
+    "fine_tune_type": "lora",
+    "num_layers": 8,
+    "lora_targets": ["self_attn.q_proj", "self_attn.o_proj"],
+    "rank": 4,
+    "scale": 2.0,
+    "dropout": 0.0,
+    "optimizer": "adam",
+    "learning_rate": 0.0001,
+    "batch_size": 2,
+    "epochs": 1.0,
+    "mask_prompt": true,
+    "gradient_checkpointing": true,
+    "max_sequence_length": 6144,
+    "primary_seed": 1
+  },
+  "evaluation": {
+    "split": "FINAL",
+    "rows": 3000,
+    "candidates": 6,
+    "thinking_enabled": false,
+    "primary_score": "mean candidate-token log probability",
+    "primary_metric": "Top-1",
+    "bootstrap_unit": "parent theorem",
+    "bootstrap_replicates": 4000,
+    "bootstrap_seed": 20260823
+  },
+  "hardware": {
+    "machine": "MacBook Pro Mac17,6",
+    "chip": "Apple M5 Max",
+    "cpu_cores": 18,
+    "unified_memory_bytes": 51539607552,
+    "backend": "MLX Metal",
+    "mlx": "0.32.0",
+    "mlx_lm": "0.31.3",
+    "transformers": "5.15.0",
+    "one_metal_process_at_a_time": true
+  },
+  "artifact_root": "/Users/moheet/hml_research_artifacts/final_hml_signal"
+}
