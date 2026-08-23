@@ -1,0 +1,30 @@
+{
+  "arms": {
+    "hml": {
+      "decision_tree_depth6": {
+        "accuracy": 0.33866666666666667,
+        "n": 3000
+      },
+      "logistic_regression": {
+        "accuracy": 0.37833333333333335,
+        "n": 3000
+      },
+      "reported_accuracy": 0.37833333333333335,
+      "reported_model": "logistic_regression"
+    },
+    "neutral": {
+      "decision_tree_depth6": {
+        "accuracy": 0.355,
+        "n": 3000
+      },
+      "logistic_regression": {
+        "accuracy": 0.39366666666666666,
+        "n": 3000
+      },
+      "reported_accuracy": 0.39366666666666666,
+      "reported_model": "logistic_regression"
+    }
+  },
+  "can_explain_hml_8575": false,
+  "random_baseline": 0.16666666666666666
+}

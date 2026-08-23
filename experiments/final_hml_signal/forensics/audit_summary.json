@@ -1,0 +1,39 @@
+{
+  "adapter_pass": true,
+  "base_model": "SKIPPED_TOKEN_CONSERVATION",
+  "cross_view": "SKIPPED_TOKEN_CONSERVATION",
+  "delta_excluding_095": 0.3554999999999999,
+  "delta_excluding_098": 0.3554999999999999,
+  "exact_decision_duplicates": 0,
+  "family_domination": false,
+  "fatal": false,
+  "gold_position_artifact": false,
+  "independent_delta": 0.3554999999999999,
+  "leakage_pass": true,
+  "lexical_wrong": {
+    "delta": 0.36430062630480164,
+    "hml": 0.778705636743215,
+    "n": 1437,
+    "neutral": 0.4144050104384134
+  },
+  "manual_tags": {
+    "FUTURE_OR_GOLD_LEAK": 0,
+    "GENUINE_ORGANIZATION_ADVANTAGE": 19,
+    "HML_SURFACE_CUE": 1,
+    "LEXICAL_CUE": 41,
+    "TARGET_SERIALIZATION": 0,
+    "TEMPLATE_SHORTCUT": 14,
+    "TRAIN_NEAR_DUPLICATE": 0,
+    "UNCLEAR": 25
+  },
+  "mean_delta": 0.3554999999999999,
+  "near_095": 0,
+  "near_098": 0,
+  "neutral_malfunction": false,
+  "pairing_pass": true,
+  "scorer_pass": true,
+  "sum_delta": 0.3554999999999999,
+  "surface_hml": 0.37833333333333335,
+  "surface_neutral": 0.39366666666666666,
+  "target_confound": false
+}

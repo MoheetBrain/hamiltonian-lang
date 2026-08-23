@@ -1,0 +1,67 @@
+{
+  "candidate_indexing": "C0..C5 -> indices 0..5",
+  "cells": {
+    "hml_s1": {
+      "candidate_order_mismatches": 0,
+      "exact_top_ties": 32,
+      "fractional_tie_top1": 0.8558333333333333,
+      "n": 3000,
+      "nontie_n": 2968,
+      "nontie_top1": 0.8611859838274932,
+      "normalization_mismatches": 0,
+      "pass": true,
+      "prediction_mismatches": 0,
+      "recomputed_mean_top1": 0.8543333333333333,
+      "recomputed_sum_top1": 0.8543333333333333,
+      "saved_top1": 0.8543333333333333
+    },
+    "hml_s2": {
+      "candidate_order_mismatches": 0,
+      "exact_top_ties": 33,
+      "fractional_tie_top1": 0.8600555555555557,
+      "n": 3000,
+      "nontie_n": 2967,
+      "nontie_top1": 0.8658577687900236,
+      "normalization_mismatches": 0,
+      "pass": true,
+      "prediction_mismatches": 0,
+      "recomputed_mean_top1": 0.8606666666666667,
+      "recomputed_sum_top1": 0.8606666666666667,
+      "saved_top1": 0.8606666666666667
+    },
+    "neutral_s1": {
+      "candidate_order_mismatches": 0,
+      "exact_top_ties": 215,
+      "fractional_tie_top1": 0.5031388888888888,
+      "n": 3000,
+      "nontie_n": 2785,
+      "nontie_top1": 0.5235188509874327,
+      "normalization_mismatches": 0,
+      "pass": true,
+      "prediction_mismatches": 0,
+      "recomputed_mean_top1": 0.5023333333333333,
+      "recomputed_sum_top1": 0.5023333333333333,
+      "saved_top1": 0.5023333333333333
+    },
+    "neutral_s2": {
+      "candidate_order_mismatches": 0,
+      "exact_top_ties": 165,
+      "fractional_tie_top1": 0.5046666666666667,
+      "n": 3000,
+      "nontie_n": 2835,
+      "nontie_top1": 0.5185185185185185,
+      "normalization_mismatches": 0,
+      "pass": true,
+      "prediction_mismatches": 0,
+      "recomputed_mean_top1": 0.5016666666666667,
+      "recomputed_sum_top1": 0.5016666666666667,
+      "saved_top1": 0.5016666666666667
+    }
+  },
+  "normalization": "mean=sum/2 for every label",
+  "pass": true,
+  "tie_handling": "first maximal index",
+  "two_seed_delta": 0.3554999999999999,
+  "two_seed_fractional_tie_delta": 0.3540416666666667,
+  "two_seed_nontie_delta": 0.3425031915557828
+}

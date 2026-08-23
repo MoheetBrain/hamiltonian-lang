@@ -1,0 +1,39 @@
+{
+  "methods": {
+    "content_only": {
+      "cells": {
+        "hml_s1": 0.8543333333333333,
+        "hml_s2": 0.8606666666666667,
+        "neutral_s1": 0.5023333333333333,
+        "neutral_s2": 0.5016666666666667
+      },
+      "delta": 0.3554999999999999,
+      "derivation": "all labels have equal two-token length and one shared first token; removing the shared term cannot change argmax",
+      "hml": 0.8574999999999999,
+      "neutral": 0.502
+    },
+    "mean_logprob": {
+      "cells": {
+        "hml_s1": 0.8543333333333333,
+        "hml_s2": 0.8606666666666667,
+        "neutral_s1": 0.5023333333333333,
+        "neutral_s2": 0.5016666666666667
+      },
+      "delta": 0.3554999999999999,
+      "hml": 0.8574999999999999,
+      "neutral": 0.502
+    },
+    "sum_logprob": {
+      "cells": {
+        "hml_s1": 0.8543333333333333,
+        "hml_s2": 0.8606666666666667,
+        "neutral_s1": 0.5023333333333333,
+        "neutral_s2": 0.5016666666666667
+      },
+      "delta": 0.3554999999999999,
+      "hml": 0.8574999999999999,
+      "neutral": 0.502
+    }
+  },
+  "normalization_artifact": false
+}

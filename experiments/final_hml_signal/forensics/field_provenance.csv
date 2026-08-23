@@ -1,0 +1,13 @@
+view,model_visible_field,source,provenance_class,cross_view_parity,verdict
+HML_WORKED_UTF8,static header/instruction,task renderer constants,PRE_ACTION_STATE_ONLY,MATCHED_SEMANTICS,SAFE
+HML_WORKED_UTF8,state.scopes,canonical state_before.active_scopes,PRE_ACTION_STATE_ONLY,MATCHED,SAFE
+HML_WORKED_UTF8,claim.proposition,raw Lean state_before,PRE_ACTION_STATE_ONLY,MATCHED,SAFE
+HML_WORKED_UTF8,claim.status/domain/scope,fixed state_before wrapper,PRE_ACTION_STATE_ONLY,MATCHED,SAFE
+HML_WORKED_UTF8,candidate tactic texts,matched six-option candidate set; one option is recorded action,GOLD_ACTION_DERIVED,MATCHED_TO_NEUTRAL,SAFE_AS_MATCHED_DECISION_OPTION
+HML_WORKED_UTF8,candidate IDs/order,deterministic matched candidate projection,TARGET_DERIVED,MATCHED_TO_NEUTRAL,SAFE_ALL_IDS_VISIBLE_NO_GOLD_MARKER
+STRUCTURED_NEUTRAL_WORKED,instruction,task renderer constant,PRE_ACTION_STATE_ONLY,MATCHED_SEMANTICS,SAFE
+STRUCTURED_NEUTRAL_WORKED,state_before,canonical state_before export,PRE_ACTION_STATE_ONLY,MATCHED,SAFE
+STRUCTURED_NEUTRAL_WORKED,candidate tactic texts,matched six-option candidate set; one option is recorded action,GOLD_ACTION_DERIVED,MATCHED_TO_HML,SAFE_AS_MATCHED_DECISION_OPTION
+STRUCTURED_NEUTRAL_WORKED,candidate IDs/order,deterministic matched candidate projection,TARGET_DERIVED,MATCHED_TO_HML,SAFE_ALL_IDS_VISIBLE_NO_GOLD_MARKER
+BOTH,state_after/delta/effect/warrant/verification/future state,not model-visible,STATE_AFTER_DERIVED,ABSENT_BOTH,SAFE
+BOTH,selected/gold marker,not model-visible; target exists only as supervised completion,TARGET_DERIVED,ABSENT_BOTH,SAFE

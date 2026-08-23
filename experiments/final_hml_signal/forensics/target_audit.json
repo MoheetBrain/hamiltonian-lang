@@ -1,0 +1,207 @@
+{
+  "arms": {
+    "hml": {
+      "mean_supervised_suffix_tokens": 8.0,
+      "mean_target_tokens": 2.0,
+      "median_target_tokens": 2.0,
+      "p95_target_tokens": 2.0,
+      "prepared_manifest_supervised_tokens": 80000,
+      "reported_trained_tokens_each_seed": [
+        90000,
+        90000
+      ],
+      "total_raw_target_tokens": 20000,
+      "total_supervised_suffix_tokens": 80000
+    },
+    "neutral": {
+      "mean_supervised_suffix_tokens": 8.0,
+      "mean_target_tokens": 2.0,
+      "median_target_tokens": 2.0,
+      "p95_target_tokens": 2.0,
+      "prepared_manifest_supervised_tokens": 80000,
+      "reported_trained_tokens_each_seed": [
+        90000,
+        90000
+      ],
+      "total_raw_target_tokens": 20000,
+      "total_supervised_suffix_tokens": 80000
+    }
+  },
+  "common_raw_prefix_tokens": 1,
+  "output_target_confound": false,
+  "paired_sample_20": [
+    {
+      "hml_target": "C4",
+      "index": 114,
+      "neutral_target": "C4",
+      "record_id": "H50K-LEAN-28db1d4839addb01"
+    },
+    {
+      "hml_target": "C1",
+      "index": 270,
+      "neutral_target": "C1",
+      "record_id": "H50K-LEAN-30f1b07cc8c2675d"
+    },
+    {
+      "hml_target": "C5",
+      "index": 954,
+      "neutral_target": "C5",
+      "record_id": "H50K-LEAN-9d57a4c7785b5ead"
+    },
+    {
+      "hml_target": "C4",
+      "index": 2259,
+      "neutral_target": "C4",
+      "record_id": "H50K-LEAN-df6898b4cb0c989d"
+    },
+    {
+      "hml_target": "C0",
+      "index": 2301,
+      "neutral_target": "C0",
+      "record_id": "H50K-LEAN-f302ebf59ce8e613"
+    },
+    {
+      "hml_target": "C3",
+      "index": 2499,
+      "neutral_target": "C3",
+      "record_id": "H50K-LEAN-9e8dfd650700468d"
+    },
+    {
+      "hml_target": "C3",
+      "index": 3050,
+      "neutral_target": "C3",
+      "record_id": "H50K-LEAN-1743d29565d8c881"
+    },
+    {
+      "hml_target": "C5",
+      "index": 4454,
+      "neutral_target": "C5",
+      "record_id": "H50K-LEAN-6bb1910419bdd166"
+    },
+    {
+      "hml_target": "C5",
+      "index": 4801,
+      "neutral_target": "C5",
+      "record_id": "H50K-LEAN-382775f33f72fa0b"
+    },
+    {
+      "hml_target": "C4",
+      "index": 4970,
+      "neutral_target": "C4",
+      "record_id": "H50K-LEAN-c024fc2eb1887b52"
+    },
+    {
+      "hml_target": "C4",
+      "index": 4975,
+      "neutral_target": "C4",
+      "record_id": "H50K-LEAN-3c828458e498c684"
+    },
+    {
+      "hml_target": "C4",
+      "index": 5150,
+      "neutral_target": "C4",
+      "record_id": "H50K-LEAN-57f12ef06eaf400d"
+    },
+    {
+      "hml_target": "C4",
+      "index": 6343,
+      "neutral_target": "C4",
+      "record_id": "H50K-LEAN-891aa114e9882641"
+    },
+    {
+      "hml_target": "C2",
+      "index": 6421,
+      "neutral_target": "C2",
+      "record_id": "H50K-LEAN-c13ea73348c240e2"
+    },
+    {
+      "hml_target": "C1",
+      "index": 7276,
+      "neutral_target": "C1",
+      "record_id": "H50K-LEAN-c3f82ccb7c8a1496"
+    },
+    {
+      "hml_target": "C5",
+      "index": 8167,
+      "neutral_target": "C5",
+      "record_id": "H50K-LEAN-82a881acb6da6180"
+    },
+    {
+      "hml_target": "C1",
+      "index": 8178,
+      "neutral_target": "C1",
+      "record_id": "H50K-LEAN-be9204b3317311a5"
+    },
+    {
+      "hml_target": "C2",
+      "index": 8585,
+      "neutral_target": "C2",
+      "record_id": "H50K-LEAN-2bbccb1540498e79"
+    },
+    {
+      "hml_target": "C5",
+      "index": 9310,
+      "neutral_target": "C5",
+      "record_id": "H50K-LEAN-1c47bea0bc107eb9"
+    },
+    {
+      "hml_target": "C0",
+      "index": 9762,
+      "neutral_target": "C0",
+      "record_id": "H50K-LEAN-47038c341e6ed46f"
+    }
+  ],
+  "per_label": {
+    "C0": {
+      "raw_tokens": 2,
+      "supervised_suffix_tokens": 8,
+      "token_ids": [
+        34,
+        15
+      ]
+    },
+    "C1": {
+      "raw_tokens": 2,
+      "supervised_suffix_tokens": 8,
+      "token_ids": [
+        34,
+        16
+      ]
+    },
+    "C2": {
+      "raw_tokens": 2,
+      "supervised_suffix_tokens": 8,
+      "token_ids": [
+        34,
+        17
+      ]
+    },
+    "C3": {
+      "raw_tokens": 2,
+      "supervised_suffix_tokens": 8,
+      "token_ids": [
+        34,
+        18
+      ]
+    },
+    "C4": {
+      "raw_tokens": 2,
+      "supervised_suffix_tokens": 8,
+      "token_ids": [
+        34,
+        19
+      ]
+    },
+    "C5": {
+      "raw_tokens": 2,
+      "supervised_suffix_tokens": 8,
+      "token_ids": [
+        34,
+        20
+      ]
+    }
+  },
+  "same_output_representation": true,
+  "same_target_semantics": true,
+  "variable_label_tokens": 1
+}
