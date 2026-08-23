@@ -1,0 +1,11 @@
+{
+  "protocol_commit": "ce5614947da1bf184d2e04c0107211cdddf4ee20",
+  "scope": "diagnostics only; no change to frozen common-envelope training protocol",
+  "amendment_code_sha256": "6e61a6e8c8ef19483f1afa07b62202292409dd230bdf9fe6ab318f3ecaf13554",
+  "strict_semantic_parity_sha256": "6957b44256ccc2eb5589f5dff6ab662d23f1439f58eb024a5368a2802b65d515",
+  "zero_shot_analysis_sha256": "66f90a6cf3ae01128e93b2eab88ee96750b269051223114c6595ebe92a9bf013",
+  "zero_shot_summary_sha256": "9e2233f0a91245f38cd65a8e36b34ea660e7feab9d9463b41a2768f3ef682e72",
+  "neutral_training_sanity_sha256": "4d2b3dced272315e9b16b76debfb0dfd12c30f0d4ccdd6f278fde63f6a539484",
+  "zero_shot_hml_raw_sha256": "de7c154c54e9300c4df8328afb4f2c2ed45027a61d24584759aec2f1a45fa4a0",
+  "zero_shot_neutral_raw_sha256": "1c35ec53b84a21a4ac997f583697947c8bbe4363808e26afccdb3e228a02de34"
+}

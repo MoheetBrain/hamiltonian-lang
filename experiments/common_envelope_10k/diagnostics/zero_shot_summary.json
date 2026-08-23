@@ -1,0 +1,33 @@
+{
+  "adapter": null,
+  "arms": {
+    "hml": {
+      "entropy": 0.18783023567099158,
+      "gold_margin": 5.49975,
+      "mean_prompt_tokens": 496.3586666666667,
+      "mrr": 0.8993388888888882,
+      "n": 3000,
+      "nll": 0.6232275771377913,
+      "peak_mlx_gib": 16.712278556078672,
+      "raw_sha256": "de7c154c54e9300c4df8328afb4f2c2ed45027a61d24584759aec2f1a45fa4a0",
+      "top1": 0.84,
+      "wall_seconds": 791.7989981174469
+    },
+    "neutral": {
+      "entropy": 0.10636654032715694,
+      "gold_margin": 7.068666666666667,
+      "mean_prompt_tokens": 407.5013333333333,
+      "mrr": 0.924216666666667,
+      "n": 3000,
+      "nll": 0.6036686480151615,
+      "peak_mlx_gib": 16.712278556078672,
+      "raw_sha256": "1c35ec53b84a21a4ac997f583697947c8bbe4363808e26afccdb3e228a02de34",
+      "top1": 0.8796666666666667,
+      "wall_seconds": 690.43825507164
+    }
+  },
+  "base_model": "Qwen/Qwen3-8B",
+  "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+  "scorer": "identical shared-prefix C0-C5 scorer",
+  "thinking_enabled": false
+}

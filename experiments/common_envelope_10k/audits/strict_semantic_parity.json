@@ -1,0 +1,63 @@
+{
+  "candidate_context": "byte-identical outside <STATE> and excluded from semantic parser",
+  "claims_facts_hypotheses": "full typed claim objects compared exactly",
+  "extra_hml_information": "forbidden; parsed HML must equal canonical Neutral state",
+  "goals": "typed goals and embedded Lean goal markers compared exactly",
+  "result": "PASS",
+  "scope_local_context": "active scopes plus full propositions compared exactly",
+  "splits": {
+    "dev": {
+      "branches_mismatches": 0,
+      "candidate_context_outside_state_mismatches": 0,
+      "candidates_mismatches": 0,
+      "claims_or_facts_mismatches": 0,
+      "embedded_goal_marker_mismatches": 0,
+      "full_state_mismatches": 0,
+      "goals_mismatches": 0,
+      "hml_extra_semantic_information": 0,
+      "obligations_mismatches": 0,
+      "pairs": 3000,
+      "scope_or_local_context_mismatches": 0
+    },
+    "final": {
+      "branches_mismatches": 0,
+      "candidate_context_outside_state_mismatches": 0,
+      "candidates_mismatches": 0,
+      "claims_or_facts_mismatches": 0,
+      "embedded_goal_marker_mismatches": 0,
+      "full_state_mismatches": 0,
+      "goals_mismatches": 0,
+      "hml_extra_semantic_information": 0,
+      "obligations_mismatches": 0,
+      "pairs": 3000,
+      "scope_or_local_context_mismatches": 0
+    },
+    "train": {
+      "branches_mismatches": 0,
+      "candidate_context_outside_state_mismatches": 0,
+      "candidates_mismatches": 0,
+      "claims_or_facts_mismatches": 0,
+      "embedded_goal_marker_mismatches": 0,
+      "full_state_mismatches": 0,
+      "goals_mismatches": 0,
+      "hml_extra_semantic_information": 0,
+      "obligations_mismatches": 0,
+      "pairs": 10000,
+      "scope_or_local_context_mismatches": 0
+    }
+  },
+  "total_pairs": 16000,
+  "totals": {
+    "branches_mismatches": 0,
+    "candidate_context_outside_state_mismatches": 0,
+    "candidates_mismatches": 0,
+    "claims_or_facts_mismatches": 0,
+    "embedded_goal_marker_mismatches": 0,
+    "full_state_mismatches": 0,
+    "goals_mismatches": 0,
+    "hml_extra_semantic_information": 0,
+    "obligations_mismatches": 0,
+    "pairs": 16000,
+    "scope_or_local_context_mismatches": 0
+  }
+}

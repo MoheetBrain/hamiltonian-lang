@@ -1,0 +1,37 @@
+{
+  "checks": {
+    "examples_seen_identical": true,
+    "neutral_loss_falls": true,
+    "no_neutral_tokenization_issue": true,
+    "no_neutral_truncation": true,
+    "optimizer_steps_identical": true,
+    "prompt_masking_identical": true,
+    "single_shared_recipe": true,
+    "target_masking_identical": true,
+    "target_tokens_supervised_identically": true
+  },
+  "result": "PASS",
+  "seeds": [
+    1
+  ],
+  "supervised_target_tokens": {
+    "hml": 80000,
+    "neutral": 80000
+  },
+  "training": {
+    "hml_seed1": {
+      "examples_seen": 10000,
+      "final_loss": 0.04,
+      "first_loss": 0.613,
+      "optimizer_steps": 5000,
+      "reported_tokens_seen": 90000
+    },
+    "neutral_seed1": {
+      "examples_seen": 10000,
+      "final_loss": 0.031,
+      "first_loss": 0.493,
+      "optimizer_steps": 5000,
+      "reported_tokens_seen": 90000
+    }
+  }
+}

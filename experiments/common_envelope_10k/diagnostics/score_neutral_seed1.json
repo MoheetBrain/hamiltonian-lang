@@ -1,0 +1,18 @@
+{
+  "adapter_path": "/Users/moheet/hml_research_artifacts/common_envelope_10k/train/neutral/seed_1/adapter",
+  "adapter_sha256": "2c72c200fd6738d0d91f3b0297ad1d78497c5eeb639e871b64852344eb39cb50",
+  "arm": "neutral",
+  "base_revision": "b968826d9c46dd6066d109eabc6255188de91218",
+  "entropy": 0.6468482693911657,
+  "gold_margin": 2.8854999995227746,
+  "mean_prompt_tokens": 407.5013333333333,
+  "mrr": 0.9282944444444449,
+  "n": 3000,
+  "nll": 0.3970912586507381,
+  "peak_mlx_gib": 16.5744458027184,
+  "raw_sha256": "dc72ac56f6aa0d587b9ac9614232fb8570275a9392bce06460a7b99b158d02fe",
+  "seed": 1,
+  "thinking_enabled": false,
+  "top1": 0.881,
+  "wall_seconds": 654.5622742176056
+}
