@@ -1,0 +1,131 @@
+{
+  "arms": {
+    "hml": {
+      "chat_prompt_tokens": {
+        "max": 3504,
+        "mean": 494.6191875,
+        "median": 424.0,
+        "p95": 997.0,
+        "total": 7913907
+      },
+      "full_train_tokens": {
+        "max": 3508,
+        "mean": 498.6191875,
+        "median": 428.0,
+        "p95": 1001.0,
+        "total": 7977907
+      },
+      "prompt_bytes": {
+        "max": 8731,
+        "mean": 1112.196375,
+        "median": 979.0,
+        "p95": 2118.0499999999993,
+        "total": 17795142
+      },
+      "prompt_chars": {
+        "max": 8297,
+        "mean": 1100.607625,
+        "median": 969.0,
+        "p95": 2090.0,
+        "total": 17609722
+      },
+      "prompt_tokens": {
+        "max": 3492,
+        "mean": 482.6191875,
+        "median": 412.0,
+        "p95": 985.0,
+        "total": 7721907
+      },
+      "state_bytes": {
+        "max": 7739,
+        "mean": 591.677625,
+        "median": 480.0,
+        "p95": 1363.0499999999993,
+        "total": 9466842
+      },
+      "state_chars": {
+        "max": 7739,
+        "mean": 591.677625,
+        "median": 480.0,
+        "p95": 1363.0499999999993,
+        "total": 9466842
+      },
+      "state_tokens": {
+        "max": 2705,
+        "mean": 305.7249375,
+        "median": 240.0,
+        "p95": 746.0,
+        "total": 4891599
+      }
+    },
+    "neutral": {
+      "chat_prompt_tokens": {
+        "max": 3281,
+        "mean": 408.1639375,
+        "median": 362.0,
+        "p95": 743.0,
+        "total": 6530623
+      },
+      "full_train_tokens": {
+        "max": 3285,
+        "mean": 412.1639375,
+        "median": 366.0,
+        "p95": 747.0,
+        "total": 6594623
+      },
+      "prompt_bytes": {
+        "max": 8678,
+        "mean": 1128.6140625,
+        "median": 1014.0,
+        "p95": 2004.0,
+        "total": 18057825
+      },
+      "prompt_chars": {
+        "max": 8159,
+        "mean": 1068.503,
+        "median": 965.0,
+        "p95": 1864.0,
+        "total": 17096048
+      },
+      "prompt_tokens": {
+        "max": 3269,
+        "mean": 396.1639375,
+        "median": 350.0,
+        "p95": 731.0,
+        "total": 6338623
+      },
+      "state_bytes": {
+        "max": 7523,
+        "mean": 608.0953125,
+        "median": 519.0,
+        "p95": 1219.0499999999993,
+        "total": 9729525
+      },
+      "state_chars": {
+        "max": 7336,
+        "mean": 559.573,
+        "median": 482.0,
+        "p95": 1099.0,
+        "total": 8953168
+      },
+      "state_tokens": {
+        "max": 2217,
+        "mean": 219.2696875,
+        "median": 183.0,
+        "p95": 469.0,
+        "total": 3508315
+      }
+    }
+  },
+  "maxseq": 6144,
+  "mean_chat_prompt_token_ratio_hml_over_neutral": 1.2118150136671495,
+  "mean_state_token_ratio_hml_over_neutral": 1.3942872860618274,
+  "overflow_counts": {
+    "hml": 0,
+    "neutral": 0
+  },
+  "pairs": 16000,
+  "result": "PASS",
+  "train_final_parent_overlap": 0,
+  "train_final_record_overlap": 0
+}

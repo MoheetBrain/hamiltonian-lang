@@ -1,0 +1,55 @@
+{
+  "only_permitted_difference": "bytes inside <STATE>...</STATE>",
+  "result": "PASS",
+  "splits": {
+    "dev": {
+      "candidate_mismatches": 0,
+      "pairs": 3000,
+      "parent_id_mismatches": 0,
+      "prefix_mismatches": 0,
+      "record_id_mismatches": 0,
+      "semantic_source_mismatches": 0,
+      "state_payload_differences": 3000,
+      "suffix_mismatches": 0,
+      "target_mismatches": 0,
+      "unexpected_differences": 0
+    },
+    "final": {
+      "candidate_mismatches": 0,
+      "pairs": 3000,
+      "parent_id_mismatches": 0,
+      "prefix_mismatches": 0,
+      "record_id_mismatches": 0,
+      "semantic_source_mismatches": 0,
+      "state_payload_differences": 3000,
+      "suffix_mismatches": 0,
+      "target_mismatches": 0,
+      "unexpected_differences": 0
+    },
+    "train": {
+      "candidate_mismatches": 0,
+      "pairs": 10000,
+      "parent_id_mismatches": 0,
+      "prefix_mismatches": 0,
+      "record_id_mismatches": 0,
+      "semantic_source_mismatches": 0,
+      "state_payload_differences": 10000,
+      "suffix_mismatches": 0,
+      "target_mismatches": 0,
+      "unexpected_differences": 0
+    }
+  },
+  "total_pairs": 16000,
+  "totals": {
+    "candidate_mismatches": 0,
+    "pairs": 16000,
+    "parent_id_mismatches": 0,
+    "prefix_mismatches": 0,
+    "record_id_mismatches": 0,
+    "semantic_source_mismatches": 0,
+    "state_payload_differences": 16000,
+    "suffix_mismatches": 0,
+    "target_mismatches": 0,
+    "unexpected_differences": 0
+  }
+}
