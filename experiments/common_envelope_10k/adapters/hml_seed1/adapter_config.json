@@ -1,0 +1,45 @@
+{
+    "adapter_path": "/Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter",
+    "batch_size": 2,
+    "clear_cache_threshold": 0,
+    "config": "/Users/moheet/Documents/ChatGPT/hamiltonian-lang-final-signal/experiments/final_hml_signal/lora_config.yaml",
+    "data": "/Users/moheet/hml_research_artifacts/common_envelope_10k/prepared/hml",
+    "fine_tune_type": "lora",
+    "grad_accumulation_steps": 1,
+    "grad_checkpoint": true,
+    "iters": 5000,
+    "learning_rate": 0.0001,
+    "lora_parameters": {
+        "rank": 4,
+        "scale": 2.0,
+        "dropout": 0.0,
+        "keys": [
+            "self_attn.q_proj",
+            "self_attn.o_proj"
+        ]
+    },
+    "lr_schedule": null,
+    "mask_prompt": true,
+    "max_seq_length": 6144,
+    "model": "/Users/moheet/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218",
+    "num_layers": 8,
+    "optimizer": "adam",
+    "optimizer_config": {
+        "adam": {},
+        "adamw": {},
+        "muon": {},
+        "sgd": {},
+        "adafactor": {}
+    },
+    "project_name": null,
+    "report_to": null,
+    "resume_adapter_file": null,
+    "save_every": 100,
+    "seed": 1,
+    "steps_per_eval": 100000,
+    "steps_per_report": 100,
+    "test": false,
+    "test_batches": 500,
+    "train": true,
+    "val_batches": 1
+}

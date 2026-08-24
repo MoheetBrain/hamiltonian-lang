@@ -1,0 +1,111 @@
+Loading configuration file /Users/moheet/Documents/ChatGPT/hamiltonian-lang-final-signal/experiments/final_hml_signal/lora_config.yaml
+Loading pretrained model
+Loading datasets
+Training
+Trainable parameters: 0.006% (0.524M/8190.735M)
+Starting training..., iters: 5000
+Calculating loss...:   0%|          | 0/1 [00:00<?, ?it/s]Calculating loss...: 100%|██████████| 1/1 [00:00<00:00,  1.13it/s]Calculating loss...: 100%|██████████| 1/1 [00:00<00:00,  1.13it/s]
+Iter 1: Val loss 8.479, Val took 0.898s
+Iter 100: Train loss 0.613, Learning Rate 1.000e-04, It/sec 1.428, Tokens/sec 25.708, Trained Tokens 1800, Peak mem 23.314 GB
+Iter 100: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0000100_adapters.safetensors.
+Iter 200: Train loss 0.053, Learning Rate 1.000e-04, It/sec 1.227, Tokens/sec 22.081, Trained Tokens 3600, Peak mem 23.574 GB
+Iter 200: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0000200_adapters.safetensors.
+Iter 300: Train loss 0.056, Learning Rate 1.000e-04, It/sec 1.076, Tokens/sec 19.370, Trained Tokens 5400, Peak mem 24.245 GB
+Iter 300: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0000300_adapters.safetensors.
+Iter 400: Train loss 0.059, Learning Rate 1.000e-04, It/sec 1.104, Tokens/sec 19.880, Trained Tokens 7200, Peak mem 24.245 GB
+Iter 400: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0000400_adapters.safetensors.
+Iter 500: Train loss 0.056, Learning Rate 1.000e-04, It/sec 0.971, Tokens/sec 17.483, Trained Tokens 9000, Peak mem 27.323 GB
+Iter 500: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0000500_adapters.safetensors.
+Iter 600: Train loss 0.057, Learning Rate 1.000e-04, It/sec 1.128, Tokens/sec 20.296, Trained Tokens 10800, Peak mem 27.323 GB
+Iter 600: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0000600_adapters.safetensors.
+Iter 700: Train loss 0.043, Learning Rate 1.000e-04, It/sec 0.978, Tokens/sec 17.606, Trained Tokens 12600, Peak mem 27.323 GB
+Iter 700: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0000700_adapters.safetensors.
+Iter 800: Train loss 0.036, Learning Rate 1.000e-04, It/sec 1.040, Tokens/sec 18.724, Trained Tokens 14400, Peak mem 27.323 GB
+Iter 800: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0000800_adapters.safetensors.
+Iter 900: Train loss 0.043, Learning Rate 1.000e-04, It/sec 1.028, Tokens/sec 18.499, Trained Tokens 16200, Peak mem 27.323 GB
+Iter 900: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0000900_adapters.safetensors.
+Iter 1000: Train loss 0.039, Learning Rate 1.000e-04, It/sec 1.135, Tokens/sec 20.438, Trained Tokens 18000, Peak mem 27.323 GB
+Iter 1000: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001000_adapters.safetensors.
+Iter 1100: Train loss 0.061, Learning Rate 1.000e-04, It/sec 1.133, Tokens/sec 20.388, Trained Tokens 19800, Peak mem 27.323 GB
+Iter 1100: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001100_adapters.safetensors.
+Iter 1200: Train loss 0.044, Learning Rate 1.000e-04, It/sec 1.080, Tokens/sec 19.434, Trained Tokens 21600, Peak mem 27.323 GB
+Iter 1200: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001200_adapters.safetensors.
+Iter 1300: Train loss 0.050, Learning Rate 1.000e-04, It/sec 1.127, Tokens/sec 20.282, Trained Tokens 23400, Peak mem 27.559 GB
+Iter 1300: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001300_adapters.safetensors.
+Iter 1400: Train loss 0.045, Learning Rate 1.000e-04, It/sec 1.022, Tokens/sec 18.396, Trained Tokens 25200, Peak mem 27.559 GB
+Iter 1400: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001400_adapters.safetensors.
+Iter 1500: Train loss 0.064, Learning Rate 1.000e-04, It/sec 1.189, Tokens/sec 21.402, Trained Tokens 27000, Peak mem 27.559 GB
+Iter 1500: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001500_adapters.safetensors.
+Iter 1600: Train loss 0.049, Learning Rate 1.000e-04, It/sec 1.119, Tokens/sec 20.148, Trained Tokens 28800, Peak mem 27.559 GB
+Iter 1600: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001600_adapters.safetensors.
+Iter 1700: Train loss 0.035, Learning Rate 1.000e-04, It/sec 1.053, Tokens/sec 18.950, Trained Tokens 30600, Peak mem 27.559 GB
+Iter 1700: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001700_adapters.safetensors.
+Iter 1800: Train loss 0.061, Learning Rate 1.000e-04, It/sec 1.268, Tokens/sec 22.817, Trained Tokens 32400, Peak mem 27.559 GB
+Iter 1800: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001800_adapters.safetensors.
+Iter 1900: Train loss 0.040, Learning Rate 1.000e-04, It/sec 1.267, Tokens/sec 22.813, Trained Tokens 34200, Peak mem 27.559 GB
+Iter 1900: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0001900_adapters.safetensors.
+Iter 2000: Train loss 0.050, Learning Rate 1.000e-04, It/sec 1.233, Tokens/sec 22.199, Trained Tokens 36000, Peak mem 27.559 GB
+Iter 2000: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002000_adapters.safetensors.
+Iter 2100: Train loss 0.033, Learning Rate 1.000e-04, It/sec 1.254, Tokens/sec 22.574, Trained Tokens 37800, Peak mem 27.559 GB
+Iter 2100: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002100_adapters.safetensors.
+Iter 2200: Train loss 0.042, Learning Rate 1.000e-04, It/sec 1.235, Tokens/sec 22.225, Trained Tokens 39600, Peak mem 27.559 GB
+Iter 2200: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002200_adapters.safetensors.
+Iter 2300: Train loss 0.041, Learning Rate 1.000e-04, It/sec 1.097, Tokens/sec 19.744, Trained Tokens 41400, Peak mem 27.559 GB
+Iter 2300: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002300_adapters.safetensors.
+Iter 2400: Train loss 0.037, Learning Rate 1.000e-04, It/sec 1.157, Tokens/sec 20.834, Trained Tokens 43200, Peak mem 27.559 GB
+Iter 2400: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002400_adapters.safetensors.
+Iter 2500: Train loss 0.047, Learning Rate 1.000e-04, It/sec 1.122, Tokens/sec 20.201, Trained Tokens 45000, Peak mem 28.984 GB
+Iter 2500: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002500_adapters.safetensors.
+Iter 2600: Train loss 0.034, Learning Rate 1.000e-04, It/sec 1.165, Tokens/sec 20.962, Trained Tokens 46800, Peak mem 28.984 GB
+Iter 2600: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002600_adapters.safetensors.
+Iter 2700: Train loss 0.043, Learning Rate 1.000e-04, It/sec 1.040, Tokens/sec 18.717, Trained Tokens 48600, Peak mem 28.984 GB
+Iter 2700: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002700_adapters.safetensors.
+Iter 2800: Train loss 0.046, Learning Rate 1.000e-04, It/sec 1.154, Tokens/sec 20.766, Trained Tokens 50400, Peak mem 28.984 GB
+Iter 2800: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002800_adapters.safetensors.
+Iter 2900: Train loss 0.033, Learning Rate 1.000e-04, It/sec 1.006, Tokens/sec 18.109, Trained Tokens 52200, Peak mem 28.984 GB
+Iter 2900: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0002900_adapters.safetensors.
+Iter 3000: Train loss 0.041, Learning Rate 1.000e-04, It/sec 1.120, Tokens/sec 20.157, Trained Tokens 54000, Peak mem 28.984 GB
+Iter 3000: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003000_adapters.safetensors.
+Iter 3100: Train loss 0.048, Learning Rate 1.000e-04, It/sec 1.152, Tokens/sec 20.742, Trained Tokens 55800, Peak mem 28.984 GB
+Iter 3100: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003100_adapters.safetensors.
+Iter 3200: Train loss 0.045, Learning Rate 1.000e-04, It/sec 1.242, Tokens/sec 22.349, Trained Tokens 57600, Peak mem 28.984 GB
+Iter 3200: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003200_adapters.safetensors.
+Iter 3300: Train loss 0.051, Learning Rate 1.000e-04, It/sec 1.217, Tokens/sec 21.906, Trained Tokens 59400, Peak mem 28.984 GB
+Iter 3300: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003300_adapters.safetensors.
+Iter 3400: Train loss 0.045, Learning Rate 1.000e-04, It/sec 1.088, Tokens/sec 19.591, Trained Tokens 61200, Peak mem 28.984 GB
+Iter 3400: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003400_adapters.safetensors.
+Iter 3500: Train loss 0.038, Learning Rate 1.000e-04, It/sec 1.103, Tokens/sec 19.847, Trained Tokens 63000, Peak mem 30.044 GB
+Iter 3500: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003500_adapters.safetensors.
+Iter 3600: Train loss 0.045, Learning Rate 1.000e-04, It/sec 1.157, Tokens/sec 20.831, Trained Tokens 64800, Peak mem 30.044 GB
+Iter 3600: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003600_adapters.safetensors.
+Iter 3700: Train loss 0.050, Learning Rate 1.000e-04, It/sec 1.300, Tokens/sec 23.409, Trained Tokens 66600, Peak mem 30.044 GB
+Iter 3700: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003700_adapters.safetensors.
+Iter 3800: Train loss 0.043, Learning Rate 1.000e-04, It/sec 1.120, Tokens/sec 20.166, Trained Tokens 68400, Peak mem 30.044 GB
+Iter 3800: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003800_adapters.safetensors.
+Iter 3900: Train loss 0.050, Learning Rate 1.000e-04, It/sec 1.262, Tokens/sec 22.717, Trained Tokens 70200, Peak mem 30.044 GB
+Iter 3900: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0003900_adapters.safetensors.
+Iter 4000: Train loss 0.040, Learning Rate 1.000e-04, It/sec 1.156, Tokens/sec 20.815, Trained Tokens 72000, Peak mem 30.044 GB
+Iter 4000: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004000_adapters.safetensors.
+Iter 4100: Train loss 0.048, Learning Rate 1.000e-04, It/sec 1.254, Tokens/sec 22.572, Trained Tokens 73800, Peak mem 30.044 GB
+Iter 4100: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004100_adapters.safetensors.
+Iter 4200: Train loss 0.047, Learning Rate 1.000e-04, It/sec 1.236, Tokens/sec 22.243, Trained Tokens 75600, Peak mem 30.044 GB
+Iter 4200: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004200_adapters.safetensors.
+Iter 4300: Train loss 0.047, Learning Rate 1.000e-04, It/sec 1.175, Tokens/sec 21.147, Trained Tokens 77400, Peak mem 30.044 GB
+Iter 4300: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004300_adapters.safetensors.
+Iter 4400: Train loss 0.036, Learning Rate 1.000e-04, It/sec 1.303, Tokens/sec 23.449, Trained Tokens 79200, Peak mem 30.044 GB
+Iter 4400: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004400_adapters.safetensors.
+Iter 4500: Train loss 0.052, Learning Rate 1.000e-04, It/sec 1.168, Tokens/sec 21.025, Trained Tokens 81000, Peak mem 30.044 GB
+Iter 4500: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004500_adapters.safetensors.
+Iter 4600: Train loss 0.040, Learning Rate 1.000e-04, It/sec 1.237, Tokens/sec 22.265, Trained Tokens 82800, Peak mem 30.044 GB
+Iter 4600: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004600_adapters.safetensors.
+Iter 4700: Train loss 0.046, Learning Rate 1.000e-04, It/sec 1.076, Tokens/sec 19.372, Trained Tokens 84600, Peak mem 30.706 GB
+Iter 4700: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004700_adapters.safetensors.
+Iter 4800: Train loss 0.038, Learning Rate 1.000e-04, It/sec 1.282, Tokens/sec 23.075, Trained Tokens 86400, Peak mem 30.706 GB
+Iter 4800: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004800_adapters.safetensors.
+Iter 4900: Train loss 0.041, Learning Rate 1.000e-04, It/sec 1.212, Tokens/sec 21.810, Trained Tokens 88200, Peak mem 30.706 GB
+Iter 4900: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0004900_adapters.safetensors.
+Calculating loss...:   0%|          | 0/1 [00:00<?, ?it/s]Calculating loss...: 100%|██████████| 1/1 [00:00<00:00,  1.85it/s]Calculating loss...: 100%|██████████| 1/1 [00:00<00:00,  1.85it/s]
+Iter 5000: Val loss 0.063, Val took 0.557s
+Iter 5000: Train loss 0.040, Learning Rate 1.000e-04, It/sec 1.006, Tokens/sec 18.101, Trained Tokens 90000, Peak mem 30.706 GB
+Iter 5000: Saved adapter weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors and /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/0005000_adapters.safetensors.
+Saved final weights to /Users/moheet/hml_research_artifacts/common_envelope_10k/train/hml/seed_1/adapter/adapters.safetensors.
